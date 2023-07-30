@@ -13,7 +13,16 @@ class AddToMyDayComponent: UIView {
     let mainButton = UIButton()
     let crossButton = UIButton()
     
-    var isOn: State
+    var isOn: State {
+        didSet {
+            guard isOn != oldValue else {
+                return
+            }
+            
+            setMainButtonAppearanceForState(isOn)
+            setCrossButtonAppearanceForState(isOn)
+        }
+    }
     
     init(defaultValue: State = false) {
         isOn = defaultValue

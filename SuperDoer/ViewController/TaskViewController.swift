@@ -2,6 +2,7 @@
 import UIKit
 
 /// Контроллер задачи
+// MARK: MAIN
 class TaskViewController: UIViewController {
     
     // MARK: controls
@@ -34,18 +35,21 @@ class TaskViewController: UIViewController {
     
     lazy var taskDeleteButton = UIButton()
     
-    // TODO: временный код
+    
+    // TODO: temp controls
     var isViewScreen = true
     lazy var screenIsVisibleSwitch = UISwitch()
     lazy var screenOpacitySlider = UISlider()
     let screenImageView = UIImageView(image: UIImage(named: "screen"))
     
+    
     // MARK: model
     var task: Task
     
-    // MARD: init
-    init() {
-        task = Task()
+    
+    // MARK: init
+    init(task: Task) {
+        self.task = task
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -53,6 +57,7 @@ class TaskViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
     
     // MARK: life cycle methods
     override func viewDidLoad() {
@@ -112,6 +117,31 @@ class TaskViewController: UIViewController {
         slider.setValue(Float(roundedValue), animated: false)
     }
     
+    @objc func buttonMenuAction1(_: Int) {
+        print("Пункт меню 1")
+    }
+    
+    @objc func someTextFieldEvent(sender: UITextField, event: UIEvent) {
+        print("aa")
+//        print(event.subtype)
+//        print(event.type, event.subtype)
+    }
+    
+    @objc func showTaskTitleNavigationItemReady() {
+        let rightBarButonItem = UIBarButtonItem(
+            title: "Готово",
+            style: .done,
+            target: self,
+            action: #selector(pressedTaskTitleNavigationItemReady)
+        )
+        
+        navigationController?.navigationBar.topItem?.setRightBarButton(rightBarButonItem, animated: true)
+    }
+    
+    @objc func pressedTaskTitleNavigationItemReady() {
+        navigationController?.navigationBar.topItem?.setRightBarButton(nil, animated: true)
+        taskTitleTextView.resignFirstResponder()
+    }
     
     // MARK: notifications handler
     
@@ -131,6 +161,7 @@ class TaskViewController: UIViewController {
 }
 
 /// Расширение для инкапсуляции настройки контролов и макета
+// MARK: SETUP LAYOUT
 extension TaskViewController {
     
     // MARK: add subviews & constraints
@@ -245,6 +276,8 @@ extension TaskViewController {
         setupTaskTitleTextView()
         setupIsPriorityButton()
         
+        setupAddToMyDayButton()
+        
         setupTaskTitleTextField()
         setupPrioritySlider()
         setupSegmentedControl()
@@ -264,7 +297,7 @@ extension TaskViewController {
     
     
     private func setupTaskDoneButton() {
-        // TODO: удалить или наполнить
+        taskDoneButton.isOn = task.isCompleted
     }
     
     private func setupTaskTitleTextView() {
@@ -280,16 +313,15 @@ extension TaskViewController {
         taskTitleTextViewDelegate = TaskTitleTextViewDelegate(textView: taskTitleTextView, viewController: self)
         taskTitleTextView.delegate = taskTitleTextViewDelegate
         
-        taskTitleTextView.text = "🏡 Заказать полочку и повесить"
+        taskTitleTextView.text = task.title
     }
     
     private func setupIsPriorityButton() {
-        // TODO: удалить или наполнить
+        isPriorityButton.isOn = task.isPriority
     }
     
-    
     private func setupAddToMyDayButton() {
-        addToMyDayButtonView.translatesAutoresizingMaskIntoConstraints = false
+        addToMyDayButtonView.isOn = task.isMyDay
     }
     
     
@@ -474,40 +506,11 @@ extension TaskViewController {
         taskDeleteButton.toolTip = "Подсказка" // на iOS не работает, мб только для voice over
         taskDeleteButton.tintColor = .red // get + set (применяется к заголовку и изображению)
     }
-    
-    
-    @objc func buttonMenuAction1(_: Int) {
-        print("Пункт меню 1")
-    }
-    
-    
-    // MARK: handlers
-    @objc func someTextFieldEvent(sender: UITextField, event: UIEvent) {
-        print("aa")
-//        print(event.subtype)
-//        print(event.type, event.subtype)
-    }
-    
-    @objc func showTaskTitleNavigationItemReady() {
-        let rightBarButonItem = UIBarButtonItem(
-            title: "Готово",
-            style: .done,
-            target: self,
-            action: #selector(pressedTaskTitleNavigationItemReady)
-        )
-        
-        navigationController?.navigationBar.topItem?.setRightBarButton(rightBarButonItem, animated: true)
-    }
-    
-    @objc func pressedTaskTitleNavigationItemReady() {
-        navigationController?.navigationBar.topItem?.setRightBarButton(nil, animated: true)
-        taskTitleTextView.resignFirstResponder()
-    }
 }
 
 
 
-// MARK: делегаты
+// MARK: DELEGATES and etc.
 /// Делегат TextField
 class OtherFieldDelegate: NSObject, UITextFieldDelegate {
     var textField: UITextField
@@ -551,14 +554,6 @@ class TaskTitleTextViewDelegate: NSObject, UITextViewDelegate {
     }
     
     // TODO: заменять перевод строки на пробел
-}
-
-// MARK: model
-struct Task {
-    var title: String?
-    var isDone: Bool = false
-    
-    var isPriority: Bool = false
 }
 
 

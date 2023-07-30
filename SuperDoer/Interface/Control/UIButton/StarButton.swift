@@ -10,7 +10,7 @@ class StarButton: UIButton {
     
     var isOn: Bool = false {
         didSet {
-            guard oldValue == isOn else {
+            guard oldValue != isOn else {
                 return
             }
             

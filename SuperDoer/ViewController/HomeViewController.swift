@@ -5,7 +5,8 @@ import UIKit
 class HomeViewController: UIViewController, UIScrollViewDelegate {
 
     lazy var tasksListVC = TasksListViewController()
-    var scrollView: UIScrollView?
+    var scrollView = UIScrollView()
+    
     let containerView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -22,10 +23,8 @@ class HomeViewController: UIViewController, UIScrollViewDelegate {
         
         self.title = "Списки"
 
-        scrollView = buildScrollView()
+        setupScrollView()
         buildButton()
-        
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -39,18 +38,12 @@ class HomeViewController: UIViewController, UIScrollViewDelegate {
         super.viewDidAppear(animated)
 
         navigationController?.pushViewController(
-            TaskViewController(),
+            tasksListVC,
             animated: false
         )
     }
     
-    
-    
-    
     private func buildButton() {
-        guard let scrollView = self.scrollView else {
-            return
-        }
         
         let btnOpenTasksList = UIButton(type: .system)
         btnOpenTasksList.setTitle("Список задач", for: .normal)
@@ -73,8 +66,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate {
         navigationController?.pushViewController(tasksListVC, animated: true)
     }
 
-    private func buildScrollView() -> UIScrollView {
-        let scrollView = UIScrollView()
+    private func setupScrollView() -> UIScrollView {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
 //        scrollView.backgroundColor = .systemTeal
         scrollView.delegate = self

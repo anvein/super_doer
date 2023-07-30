@@ -9,7 +9,7 @@ class CheckboxButton: UIButton {
     
     var isOn: Bool = false {
         didSet {
-            guard oldValue == isOn else {
+            guard oldValue != isOn else {
                 return
             }
             
@@ -61,8 +61,6 @@ class CheckboxButton: UIButton {
         layer.backgroundColor = InterfaceColors.completedCheckboxBg.cgColor
         
         setImage(createCheckmarkImage(), for: .normal)
-        
-//        imageView?.frame.size = CGSize(width: 18, height: 18) не влияет на результат
     }
     
     private func setStateOff() {
