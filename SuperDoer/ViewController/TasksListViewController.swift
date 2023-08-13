@@ -6,8 +6,11 @@ import UIKit
 class TasksListViewController: UIViewController {
     
     // MARK: controls
-    // создание таблицы
-    lazy var tasksTable = UITableView(frame: .zero, style: .insetGrouped)
+    lazy var tasksTable = TaskListTableView(frame: .zero, style: .insetGrouped)
+    
+    lazy var backgroundImageView = UIImageView(image: UIImage(named: "bgList"))
+    
+    var largeTitleTextField = UITextField()
     
     var tasksTableDataSource: TasksTableDataSource?
     var tasksTableDelegate: TasksTableDelegate?
@@ -16,13 +19,17 @@ class TasksListViewController: UIViewController {
     // MARK: data (tasks)
     var tasksArray: Array<Task> = [
         Task(id: 1, title: "🤩 КВИЗ (18:00)", isCompleted: true),
-        Task(id: 2, title: "🏡 Заказать полочки и повесить", isPriority: true),
+        Task(id: 2, title: "🏡 Заказать полочку и повесить", isPriority: true),
         Task(id: 3, title: "🏡 Помыть окна"),
         Task(id: 4, title: "🕵️‍♂️ МАФИЯ (19:00)", isCompleted: true),
         Task(id: 5, title: "🏄‍♂️ САП (19 — 21)***"),
         Task(id: 6, title: "⚡️ ПСИХОТЕРАПЕВТ КПТ 29 (16:30, 14 авг)"),
-        Task(id: 7, title: "📸 Найти локации для фотосессии (написать список)", isPriority: true),
+        Task(id: 7, title: "📸 Найти локации для фотосессии", isPriority: true),
         Task(id: 8, title: "🔸 Укол (3к, адв.тмн)", isMyDay: true),
+        Task(id: 9, title: "🔹 Задача", isMyDay: false),
+        Task(id: 10, title: "🔹 Задача", isMyDay: false),
+        Task(id: 11, title: "🔹 Задача", isMyDay: false),
+        Task(id: 12, title: "🔹 Задача", isMyDay: false),
     ]
     
     
@@ -31,48 +38,54 @@ class TasksListViewController: UIViewController {
         super.viewDidLoad()
         
         self.title = "Задачи на неделю" // TODO: брать из названия конкретного списка
-        view.backgroundColor = .white
         
-        setupLayout()
+//        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .always
+//        navigationController?.navigationBar.scrollEdgeAppearance = .
+        
+//        navigationController?.navigationBar.topItem?.rightBarButtonItem
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(editTable))
+        
+        
+        setupControls()
         addSubviews()
         setupConstraints()
     }
     
+    @objc func editTable() {
+        tasksTable.isEditing = !tasksTable.isEditing
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        navigationController?.isNavigationBarHidden = true
-        navigationController?.navigationBar.prefersLargeTitles = true
-        // как отображать title (always = всегда большой, never = всегда маленький)
-        // работает, если prefersLargeTitles =  true
-//        navigationController?.navigationBar.topItem?.largeTitleDisplayMode = .never
-    
         
-        
-        
+        navigationController?.navigationBar.tintColor = InterfaceColors.white
+        navigationController?.navigationBar.largeTitleTextAttributes = [
+            .foregroundColor: InterfaceColors.white
+        ]
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
+        let selectedTask = tasksArray[1]
+        let taskController = TaskViewController(task: selectedTask)
+        navigationController?.pushViewController(taskController, animated: true)
     }
     
     // MARK: action-handlers
-    @objc func openTaskView() {
-        self.navigationController?.pushViewController(
-            TaskViewController(task: tasksArray[0]),
-            animated: true
-        )
-    }
+    
 
 }
 
 
-// MARK: LAYOUT SETUP
+// MARK: CONTROLS AND LAYOUT SETUP
 /// Расширение для инкапсуляции построения макета
 extension TasksListViewController {
     // MARK: add subviews and constraints
     private func addSubviews() {
         view.addSubview(tasksTable)
+        view.addSubview(backgroundImageView)
     }
     
     private func setupConstraints() {
@@ -83,67 +96,38 @@ extension TasksListViewController {
             tasksTable.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor),
             tasksTable.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor),
         ])
+        
+//        tasksTable.translatesAutoresizingMaskIntoConstraints = false
+//        tasksTable.frame = view.bounds
+        
     }
     
     // MARK: setup controls
-    private func setupLayout() {
+    private func setupControls() {
         setupLayoutController()
         setupTasksTable()
-        
-        setupTempButtonOpenTaskDetail()
     }
     
     private func setupLayoutController() {
-        view.backgroundColor = .white
+        backgroundImageView.contentMode = .center
+        
+        backgroundImageView.frame = view.frame
+        backgroundImageView.layer.zPosition = 0
         
     }
     
     private func setupTasksTable() {
-        tasksTable.translatesAutoresizingMaskIntoConstraints = false
-        
+        tasksTable.layer.zPosition = 10
         tasksTableDataSource = TasksTableDataSource(viewController: self)
         tasksTable.dataSource = tasksTableDataSource
         
         tasksTableDelegate = TasksTableDelegate(viewController: self)
         tasksTable.delegate = tasksTableDelegate
         
-        // включено ли редактирование (кнопки минусов в таблице)
-        // tasksTable.isEditing = true
         
         
-        
-        
-        
-        
-        let headerLabel = UILabel()
-        headerLabel.text = "Заголовок"
-        
-        
-        tasksTable.tableHeaderView = headerLabel
-    
-        
+//        tasksTable.setHeaderLabel(self.title)
     }
-
-    private func setupTempButtonOpenTaskDetail() {
-        let btnOpenTasksView = UIButton(type: .system)
-        btnOpenTasksView.setTitle("Детальная задачи", for: .normal)
-        btnOpenTasksView.translatesAutoresizingMaskIntoConstraints = false
-        
-        self.view.addSubview(btnOpenTasksView)
-        
-        NSLayoutConstraint.activate([
-            btnOpenTasksView.widthAnchor.constraint(equalToConstant: 220),
-            btnOpenTasksView.heightAnchor.constraint(equalToConstant: 45),
-            btnOpenTasksView.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 300),
-            btnOpenTasksView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor)
-        ])
-        
-        btnOpenTasksView.addTarget(nil, action: #selector(openTaskView), for: .touchUpInside)
-    }
-    
-    
-    
-    
 }
 
 
@@ -155,6 +139,8 @@ class TasksTableDataSource: NSObject, UITableViewDataSource {
         self.viewController = viewController
     }
     
+    
+    
     // количество строк в разделе
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewController.tasksArray.count
@@ -164,34 +150,70 @@ class TasksTableDataSource: NSObject, UITableViewDataSource {
     // для разных строк можно сделать свой внешний вид
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        // создание ячейки со стилем
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "MyCellIdentifier")
-        
-        
-        
+        let cell2 = TaskListStandartTaskCell(style: .default, reuseIdentifier: "MyCustomCell")
         let task = viewController.tasksArray[indexPath.row]
+        cell2.textLabel?.text = task.title
         
-        // TODO: переделать на contentConfiguration
-        cell.textLabel?.text = task.title
+        return cell2
         
-        cell.detailTextLabel?.text = "Описание"
         
-        cell.backgroundColor = (indexPath.row % 2 == 0)
-        ? .white
-        : .systemGray5
-        
-        cell.backgroundView?.layer.cornerRadius = 15
-        cell.backgroundView?.layer.masksToBounds = true
-        
-        print(cell.backgroundColor)
-        
-//        cell.
-        
-//        cell.accessoryType = task.isCompleted ? .checkmark : .none
-        
-        return cell
+//        // создание ячейки со стилем
+//        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "MyCellIdentifier")
+//
+//        let task = viewController.tasksArray[indexPath.row]
+//
+//        // TODO: переделать на contentConfiguration
+//        cell.textLabel?.text = task.title
+//        cell.textLabel?.textColor = InterfaceColors.blackText
+//
+//        cell.detailTextLabel?.text = "Описание"
+//        cell.detailTextLabel?.textColor = InterfaceColors.textGray
+//
+//        if (indexPath.row % 2 == 0) {
+//            cell.backgroundColor  = UIColor(white: 0.96, alpha: 1)
+//        } else {
+//            cell.backgroundColor  = InterfaceColors.lightGray
+//        }
+//
+//        cell.layer.cornerRadius = 15
+//        cell.layer.masksToBounds = true
+//
+//        cell.contentView.layer.cornerRadius = 15
+//        cell.contentView.layer.masksToBounds = true
+//
+//        cell.layer.backgroundColor = InterfaceColors.lightGray.cgColor
+//
+//        cell.selectedBackgroundView?.backgroundColor = .cyan
+//
+//
+//
+//        cell.layer.borderWidth = 1
+//        cell.layer.borderColor = UIColor.systemBlue.cgColor
+//
+//        // nil
+//        cell.backgroundView?.layer.cornerRadius = 15
+//        cell.backgroundView?.layer.masksToBounds = true
+//
+////        cell.selectedBackgroundView?.backgroundColor = InterfaceColors.controlsLightBlueBg
+//
+////        cell.
+//
+////        cell.accessoryType = task.isCompleted ? .checkmark : .none
+//
+//        return cell
     }
     
+    
+    // действие при добавлении или удалении строки
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            // удаление строки из таблицы
+            
+            viewController.tasksArray.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
+        }
+    }
+
     
     
 }
@@ -204,16 +226,50 @@ class TasksTableDelegate: NSObject, UITableViewDelegate {
         self.viewController = viewController
     }
     
+    // кликнута строка
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedTask = viewController.tasksArray[indexPath.row]
         
-        let taskController = TaskViewController(
-            task: selectedTask
-        )
-        
+        let taskController = TaskViewController(task: selectedTask)
         viewController.navigationController?.pushViewController(taskController, animated: true)
+        
+//        tableView.deselectRow(at: indexPath, animated: true)
+    }
+        
+    // возвращает высоту для строк
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60
     }
 
+    // сделать, чтобы при включении редактирования таблицы (tableView.isEditing) показывался символ редактирования слева (+ / -)
+    // но только символ, без функционала
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .delete // or .insert
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+//        cell.backgroundColor = .systemPink
+//        cell.backgroundView?.backgroundColor = .systemGreen
+    }
+    
+    
+    // для реализации кастомного скрытия largeTitle при прокрутке
+//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+////        if viewController.tasksTable.contentOffset.y <= 0 {
+////            viewController.navigationItem.largeTitleDisplayMode = .always
+////        } else {
+////            viewController.navigationItem.largeTitleDisplayMode = .never
+////        }
+////
+////        viewController.navigationController?.navigationBar.setNeedsLayout()
+////        viewController.view.setNeedsLayout()
+////
+////        UIView.animate(withDuration: 0.25, animations: {
+////            self.viewController.navigationController?.navigationBar.layoutIfNeeded()
+////            self.viewController.view.layoutIfNeeded()
+////        })
+//    }
+    
 }
 
 

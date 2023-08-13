@@ -21,6 +21,8 @@ class HomeViewController: UIViewController, UIScrollViewDelegate {
         
         view.backgroundColor = UIColor(red: 213 / 255, green: 247 / 255, blue: 232 / 255, alpha: 1)
         
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .never
         self.title = "Списки"
 
         setupScrollView()
@@ -29,8 +31,6 @@ class HomeViewController: UIViewController, UIScrollViewDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        navigationController?.navigationBar.prefersLargeTitles = true
         
     }
     
@@ -66,7 +66,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate {
         navigationController?.pushViewController(tasksListVC, animated: true)
     }
 
-    private func setupScrollView() -> UIScrollView {
+    private func setupScrollView() {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
 //        scrollView.backgroundColor = .systemTeal
         scrollView.delegate = self
@@ -92,8 +92,6 @@ class HomeViewController: UIViewController, UIScrollViewDelegate {
             containerView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             containerView.heightAnchor.constraint(equalToConstant: 1500),
         ])
-        
-        return scrollView
     }
 
 }

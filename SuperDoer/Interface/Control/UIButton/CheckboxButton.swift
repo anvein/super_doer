@@ -22,7 +22,7 @@ class CheckboxButton: UIButton {
     init(width: Float = CheckboxButton.imageSize, height: Float = CheckboxButton.imageSize, isOnDefault: Bool = false) {
         super.init(frame: .zero)
         
-        setupButton(isOnDefault: isOnDefault)
+        setupButton(width: width, height: height, isOnDefault: isOnDefault)
         addWidthAndHeightConstraints(width: width, height: height)
     }
     
@@ -32,13 +32,13 @@ class CheckboxButton: UIButton {
     
     
     // MARK: setup
-    private func setupButton(isOnDefault: Bool = false) {
+    private func setupButton(width: Float, height: Float, isOnDefault: Bool = false) {
         translatesAutoresizingMaskIntoConstraints = false
 
         // TODO - переделать на конфигурацию
         imageEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
         
-        layer.cornerRadius = CGFloat(CheckboxButton.imageSize / 2)
+        layer.cornerRadius = CGFloat(width / 2)
         layer.borderWidth = 2
         setAppearanceForState(isOnDefault)
         

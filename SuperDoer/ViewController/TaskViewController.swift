@@ -12,29 +12,20 @@ class TaskViewController: UIViewController {
     var taskTitleTextViewDelegate: TaskTitleTextViewDelegate?
     
     lazy var isPriorityButton = StarButton()
+
+
+    
+    lazy var buttonsTableView = TaskViewButtonsTableView(frame: .zero, style: .plain)
     
     
-    lazy var stubButtonView = {
-        let btn = AddToMyDayComponent()
-        
-        return btn
-    }()
-    
-    
-    lazy var addToMyDayButtonView = AddToMyDayComponent()
-    
-    
-    lazy var prioritySlider = UISlider()
-    
-    lazy var segmentedControl = UISegmentedControl()
-    lazy var priorityLabel = UILabel()
-    
-    var taskTitleTextFieldDelegate: OtherFieldDelegate?
+//    var taskTitleTextFieldDelegate: OtherFieldDelegate?
     
     lazy var subtaskCreateTextField = UITextField()
     
     lazy var taskDeleteButton = UIButton()
     
+    /// Редактируемое в данный момент поле TextField
+    var textFieldEditing: UITextField?
     
     // TODO: temp controls
     var isViewScreen = true
@@ -45,6 +36,15 @@ class TaskViewController: UIViewController {
     
     // MARK: model
     var task: Task
+    
+    var buttonsArray: [ButtonCellValueProtocol] = [
+        AddSubTaskCellValue(),
+        AddToMyDayCellValue(),
+        RemindCellValue(),
+        DeadlineCellValue(),
+        RepeatCellValue(),
+        AddFileCellValue(),
+    ]
     
     
     // MARK: init
@@ -63,7 +63,9 @@ class TaskViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setupLayout()
+        navigationItem.largeTitleDisplayMode = .never
+        
+        setupControls()
         addSubviews()
         addConstraints()
     }
@@ -71,7 +73,7 @@ class TaskViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        navigationController?.navigationBar.prefersLargeTitles = false // во viewWillAppear
+        navigationController?.navigationBar.tintColor = .systemBlue
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -80,43 +82,14 @@ class TaskViewController: UIViewController {
         setBackButtonTitle()
     }
     
-    
-    // MARK: target-action handlers
-    @objc func segmentedControlValueChanged(sender: UISegmentedControl, event: UIEvent) {
-        if let segmentTitle = segmentedControl.titleForSegment(at: sender.selectedSegmentIndex) {
-            
-            if segmentTitle == "Список" {
-                subtaskCreateTextField.becomeFirstResponder()
-            } else if segmentTitle == "title" {
-                subtaskCreateTextField.resignFirstResponder()
-            }
-            print(segmentTitle)
-        }
-
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        
     }
     
-    @objc func prioritySliderValueChanged(slider: UISlider, event: UIEvent) {
-        let roundedValue = Int(round(slider.value))
-        // устанавливает текст без форматирования
-        priorityLabel.text = formatStringOfPriority(Float(roundedValue))
-        
-        
-        priorityLabel.sizeToFit()
-        
-//        // видимо можно так сделать текст с форматированием
-//        let attributedText = NSAttributedString()
-//        attributedText.string // получить текст
-//        attributedText.length // длина текста
-//
-//
-//
-//
-//        // установить стилизованный текст
-//        priorityLabel.attributedText = attributedText
-        
-        slider.setValue(Float(roundedValue), animated: false)
-    }
     
+    // MARK: controller handlers
     @objc func buttonMenuAction1(_: Int) {
         print("Пункт меню 1")
     }
@@ -139,16 +112,30 @@ class TaskViewController: UIViewController {
     }
     
     @objc func pressedTaskTitleNavigationItemReady() {
-        navigationController?.navigationBar.topItem?.setRightBarButton(nil, animated: true)
+        navigationItem.setRightBarButton(nil, animated: true)
         taskTitleTextView.resignFirstResponder()
+    }
+    
+    
+    @objc func showSubtaskAddNavigationItemReady() {
+        let rightBarButonItem = UIBarButtonItem(
+            title: "Готово",
+            style: .done,
+            target: self,
+            action: #selector(pressedSubtaskAddNavigationItemReady)
+        )
+        
+        navigationItem.setRightBarButton(rightBarButonItem, animated: true)
+    }
+    
+    @objc func pressedSubtaskAddNavigationItemReady() {
+        textFieldEditing?.resignFirstResponder()
+        navigationItem.setRightBarButton(nil, animated: true)
     }
     
     // MARK: notifications handler
     
     // MARK: other methods
-    private func formatStringOfPriority(_ value: Float) -> String {
-        return "Приоритет: \(Int(value.round(digits: 0) ?? 1))"
-    }
     
     private func setBackButtonTitle() {
         navigationController?.navigationBar.backItem?.backBarButtonItem = UIBarButtonItem(
@@ -169,19 +156,9 @@ extension TaskViewController {
         view.addSubview(taskDoneButton)
         view.addSubview(taskTitleTextView)
         view.addSubview(isPriorityButton)
+
         
-        view.addSubview(stubButtonView)
-        
-        view.addSubview(addToMyDayButtonView)
-        
-        
-//        view.addSubview(prioritySlider)
-//        
-//        view.addSubview(segmentedControl)
-//        view.addSubview(priorityLabel)
-//        
-//        view.addSubview(subtaskCreateTextField)
-//        view.addSubview(taskDeleteButton)
+        view.addSubview(buttonsTableView)
 //        
         view.addSubview(screenIsVisibleSwitch)
         view.addSubview(screenOpacitySlider)
@@ -198,91 +175,40 @@ extension TaskViewController {
         NSLayoutConstraint.activate([
             taskTitleTextView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 18),
             taskTitleTextView.leftAnchor.constraint(equalTo: taskDoneButton.rightAnchor, constant: 14),
-            taskTitleTextView.rightAnchor.constraint(equalTo: isPriorityButton.leftAnchor, constant: -10),
+            taskTitleTextView.rightAnchor.constraint(equalTo: isPriorityButton.leftAnchor, constant: -5),
             taskTitleTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 45)
         ])
         
         // isPriorityButton
         NSLayoutConstraint.activate([
-            isPriorityButton.topAnchor.constraint(equalTo: taskTitleTextView.topAnchor, constant: 6),
-            isPriorityButton.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -12),
+            isPriorityButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -27),
+            isPriorityButton.centerYAnchor.constraint(equalTo: taskTitleTextView.topAnchor, constant: 21),
         ])
         
-        
-        // stubButtonView
+        // buttonsTableView
         NSLayoutConstraint.activate([
-            stubButtonView.topAnchor.constraint(equalTo: taskTitleTextView.bottomAnchor),
-            stubButtonView.heightAnchor.constraint(equalToConstant: 68),
-            stubButtonView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor),
-            stubButtonView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor),
-        ])
-        
-        // addToMyDayButtonView
-        NSLayoutConstraint.activate([
-            addToMyDayButtonView.topAnchor.constraint(equalTo: stubButtonView.bottomAnchor),
-            addToMyDayButtonView.heightAnchor.constraint(equalToConstant: 58),
-            addToMyDayButtonView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor),
-            addToMyDayButtonView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor),
+            buttonsTableView.topAnchor.constraint(equalTo: taskTitleTextView.bottomAnchor),
+            buttonsTableView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            buttonsTableView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            buttonsTableView.bottomAnchor.constraint(equalTo: screenIsVisibleSwitch.topAnchor),
         ])
 
-        
-    
-        
-//        // prioritySlider
-//        NSLayoutConstraint.activate([
-//            prioritySlider.topAnchor.constraint(equalTo: taskTitleTextView.bottomAnchor, constant: 30),
-//            prioritySlider.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.85),
-//            prioritySlider.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//        ])
-//
-//        // priorityLabel
-//        NSLayoutConstraint.activate([
-//            priorityLabel.topAnchor.constraint(equalTo: prioritySlider.bottomAnchor, constant: 25),
-//            priorityLabel.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20),
-//            priorityLabel.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20)
-//        ])
-//
-//        // segmentedControl
-//        NSLayoutConstraint.activate([
-//            segmentedControl.topAnchor.constraint(equalTo: priorityLabel.bottomAnchor, constant: 30),
-//            segmentedControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//        ])
-//
-//        // subtaskCreateTextField
-//        NSLayoutConstraint.activate([
-//            subtaskCreateTextField.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 25),
-//            subtaskCreateTextField.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20),
-//            subtaskCreateTextField.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20),
-//            subtaskCreateTextField.heightAnchor.constraint(greaterThanOrEqualToConstant: 45)
-//        ])
-//
-//        // taskDeleteButton
-//        NSLayoutConstraint.activate([
-//            taskDeleteButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-//            taskDeleteButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//            taskDeleteButton.heightAnchor.constraint(equalToConstant: 45),
-//            taskDeleteButton.widthAnchor.constraint(equalToConstant: 200)
-//        ])
         
         addConstraintScreenControls()
     }
     
     
     // MARK: setup controls methods (of instance)
-    private func setupLayout() {
+    private func setupControls() {
         setupViewOfController()
         
         setupTaskDoneButton()
         setupTaskTitleTextView()
         setupIsPriorityButton()
         
-        setupAddToMyDayButton()
+        setupButtonsTableView()
         
-        setupTaskTitleTextField()
-        setupPrioritySlider()
-        setupSegmentedControl()
-        setupPriorityLabel()
-        
+//        setupTaskTitleTextField()
         setupTaskDeleteButton()
         
         setupScreenVisibleControls()
@@ -309,7 +235,6 @@ extension TaskViewController {
         taskTitleTextView.backgroundColor = InterfaceColors.white
         taskTitleTextView.textColor = InterfaceColors.blackText
         taskTitleTextView.font = UIFont.systemFont(ofSize: 22, weight: .medium)
-        
         taskTitleTextViewDelegate = TaskTitleTextViewDelegate(textView: taskTitleTextView, viewController: self)
         taskTitleTextView.delegate = taskTitleTextViewDelegate
         
@@ -320,167 +245,46 @@ extension TaskViewController {
         isPriorityButton.isOn = task.isPriority
     }
     
-    private func setupAddToMyDayButton() {
-        addToMyDayButtonView.isOn = task.isMyDay
+    
+    private func setupButtonsTableView() {
+        buttonsTableView.dataSource = self
+        buttonsTableView.delegate = self
     }
     
     
-    private func setupPrioritySlider() {
-        prioritySlider.translatesAutoresizingMaskIntoConstraints = false
-        
-        prioritySlider.addTarget(self, action: #selector(prioritySliderValueChanged(slider: event:)), for: .valueChanged)
-        
-        // сделать, чтобы слайдер отправлял события только когда пользователь отпускает
-        // default = true (отправляет непрерывно)
-        // Сделать прилипание к шагам
-        prioritySlider.isContinuous = true
-        
-        
-        prioritySlider.minimumValue = 1
-        prioritySlider.maximumValue = 3
-        
-        
-        // цвет ползунка
-        prioritySlider.thumbTintColor = .systemGreen
-        
-        // цвет полоски слева от ползунка
-        prioritySlider.minimumTrackTintColor = .systemBlue
-        
-        // цвет полоски справа от ползунка
-        prioritySlider.maximumTrackTintColor = .lightGray
-        
-        // цвет, который влияет на цвет картинок (min, max) и мб что-то еще
-        prioritySlider.tintColor = .systemRed
-        
-        
-        
-        prioritySlider.minimumValueImage = UIImage(systemName: "star")?.withTintColor(.systemTeal).withRenderingMode(.alwaysOriginal)
-        prioritySlider.maximumValueImage = UIImage(systemName: "star.circle")?.withTintColor(.systemRed, renderingMode: .alwaysOriginal)
-        
-        // картинка ползунка
-        prioritySlider.setThumbImage(UIImage(systemName: "star.fill"), for: .normal) // во время, когда слайдер не трогают
-        prioritySlider.setThumbImage(UIImage(systemName: "star.fill"), for: .highlighted) // во время перемещения сладйдера
-        
-        // устанавливает новое текущее значение
-        prioritySlider.setValue(1, animated: true)
-    }
-    
-    private func setupSegmentedControl() {
-        segmentedControl.translatesAutoresizingMaskIntoConstraints = false
-        
-        // добавление таба с заголовком
-        segmentedControl.insertSegment(withTitle: "Список", at: 0, animated: false)
-        
-        // Добавление сегмента с картинкой
-        segmentedControl.insertSegment(with: UIImage(systemName: "face.smiling"), at: 1, animated: false)
-        segmentedControl.setTitle("title", forSegmentAt: 1)
-        
-        // Добавление сегмента с обработчиком
-        segmentedControl.insertSegment(
-            action: UIAction(
-                title: "Календарь",
-                subtitle: "📆",
-                handler: { _ -> () in print("Выбран сегмент \"Календарь\"") }
-            ),
-            at: 2,
-            animated: false
-        )
-        
-        // выбрать сегмент с индексом
-        segmentedControl.selectedSegmentIndex = 2
-        
-        
-        segmentedControl.addTarget(self, action: #selector(segmentedControlValueChanged(sender: event:)), for: .valueChanged)
-        
-//        // чет ни на что не влияет
-//        segmentedControl.tintColor = .systemOrange
+//    private func setupTaskTitleTextField() {
+//        subtaskCreateTextField.translatesAutoresizingMaskIntoConstraints = false
 //
-//        // цвет заливки курсора у выделенного элемента
-//        segmentedControl.selectedSegmentTintColor = .systemOrange
+//        subtaskCreateTextField.textColor = .systemBlue
+//        subtaskCreateTextField.font = UIFont(name: "Arial", size: 26)
+//                
+//                
+//        subtaskCreateTextField.placeholder = "Что нужно сделать?"
 //
-//        // цвет фона (подложки)
-//        segmentedControl.backgroundColor = .systemRed
-    
-        
-    }
-    
-    private func setupPriorityLabel() {
-        priorityLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        // цвет текста
-        priorityLabel.textColor = .systemOrange
-        
-        // шрифт и размер (❓  какие шрифты можно использовать в приложении)
-        priorityLabel.font = UIFont(name: "Futura", size: 30)
-        
-        // выравнивание текста
-        priorityLabel.textAlignment = .center
-        
-        // кол-во строк (default = 1)
-        // если установить 0, то будет бесконечно
-        // если установить меньше строк, чем есть текста, то текст обрежется (зависит от lineBreakMode)
-        // sizeToFit() опирается на это поле
-//        priorityLabel.numberOfLines = 2
-        
-        // способ обрезки ("сокращения") текста (default = .byTruncatingTail)
-        // чето указанный способ не сработал ❓
-//        priorityLabel.lineBreakMode = .byTruncatingMiddle
-        
-//        priorityLabel.isUserInteractionEnabled = true
-        
-        // подгоняет размер шрифта под допустимую ширину
-        // чтобы влазил весь контент
-//        priorityLabel.adjustsFontSizeToFitWidth = true
-        
-        // минимальная % на который будет изменен текст при adjustsFontSizeToFitWidth
-        // (если 1, то изменения размера не будет)
-//        priorityLabel.minimumScaleFactor = 1
-        
-//        priorityLabel.isEnabled = true
-        
-        // тень, которая повторяет текст без размытия
-        priorityLabel.shadowColor = .cyan
-        priorityLabel.shadowOffset = CGSize(width: 10, height: 5)
-        
-        
-        
-        
-        priorityLabel.text = formatStringOfPriority(prioritySlider.value)
-    }
-    
-    private func setupTaskTitleTextField() {
-        subtaskCreateTextField.translatesAutoresizingMaskIntoConstraints = false
-
-        subtaskCreateTextField.textColor = .systemBlue
-        subtaskCreateTextField.font = UIFont(name: "Arial", size: 26)
-                
-                
-        subtaskCreateTextField.placeholder = "Что нужно сделать?"
-
-        subtaskCreateTextField.text = "Сделать "
-
-        // стиль рамки
-        subtaskCreateTextField.borderStyle = .none
-        
-        subtaskCreateTextField.layer.borderWidth = 1
-        subtaskCreateTextField.layer.borderColor = CGColor(red: 191/255, green: 88/255, blue: 84/255, alpha: 1)
-                
-        // адаптировать размер шрифта, чтобы весь текст влазил
-        subtaskCreateTextField.adjustsFontSizeToFitWidth = true
-        subtaskCreateTextField.minimumFontSize = 1
-
-        subtaskCreateTextField.clearButtonMode = .always
-        
-        self.taskTitleTextFieldDelegate = OtherFieldDelegate(textField: subtaskCreateTextField)
-        subtaskCreateTextField.delegate = self.taskTitleTextFieldDelegate
-
-        
-        // разрешить форматирование текста
-        subtaskCreateTextField.allowsEditingTextAttributes = true
-        
-        subtaskCreateTextField.addTarget(self, action: #selector(someTextFieldEvent(sender:event:)), for: .valueChanged)
-    }
-    
+//        subtaskCreateTextField.text = "Сделать "
+//
+//        // стиль рамки
+//        subtaskCreateTextField.borderStyle = .none
+//        
+//        subtaskCreateTextField.layer.borderWidth = 1
+//        subtaskCreateTextField.layer.borderColor = CGColor(red: 191/255, green: 88/255, blue: 84/255, alpha: 1)
+//                
+//        // адаптировать размер шрифта, чтобы весь текст влазил
+//        subtaskCreateTextField.adjustsFontSizeToFitWidth = true
+//        subtaskCreateTextField.minimumFontSize = 1
+//
+//        subtaskCreateTextField.clearButtonMode = .always
+//        
+////        self.taskTitleTextFieldDelegate = OtherFieldDelegate(textField: subtaskCreateTextField)
+////        subtaskCreateTextField.delegate = self.taskTitleTextFieldDelegate
+//
+//        
+//        // разрешить форматирование текста
+//        subtaskCreateTextField.allowsEditingTextAttributes = true
+//        
+//        subtaskCreateTextField.addTarget(self, action: #selector(someTextFieldEvent(sender:event:)), for: .valueChanged)
+//    }
+//    
     private func setupTaskDeleteButton() {
         
         taskDeleteButton.translatesAutoresizingMaskIntoConstraints = false
@@ -508,27 +312,106 @@ extension TaskViewController {
     }
 }
 
-
-
-// MARK: DELEGATES and etc.
-/// Делегат TextField
-class OtherFieldDelegate: NSObject, UITextFieldDelegate {
-    var textField: UITextField
+// MARK: table delegate and dataSource
+extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return buttonsArray.count
+    }
     
-    init(textField: UITextField) {
-        self.textField = textField
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let buttonValue = buttonsArray[indexPath.row]
+        let cell: UITableViewCell
+        
+        switch buttonValue {
+        case _ as AddSubTaskCellValue:
+            cell = buttonsTableView.dequeueReusableCell(withIdentifier: AddSubtaskButtonCell.identifier)!
+            if let addSubtaskButtonCell = cell as? AddSubtaskButtonCell {
+                addSubtaskButtonCell.subtaskTextField.delegate = self
+            }
+            
+        case _ as AddToMyDayCellValue:
+            cell = buttonsTableView.dequeueReusableCell(withIdentifier: AddToMyDayButtonCell.identifier)!
+        
+        case _ as RemindCellValue:
+            cell = buttonsTableView.dequeueReusableCell(withIdentifier: RemindButtonCell.identifier)!
+            
+        case _ as DeadlineCellValue:
+            cell = buttonsTableView.dequeueReusableCell(withIdentifier: DeadlineButtonCell.identifier)!
+            
+        case _ as RepeatCellValue:
+            cell = buttonsTableView.dequeueReusableCell(withIdentifier: RepeatButtonCell.identifier)!
+            
+        case _ as AddFileCellValue:
+            cell = buttonsTableView.dequeueReusableCell(withIdentifier: AddFileButtonCell.identifier)!
+            
+            
+        default :
+            cell = buttonsTableView.dequeueReusableCell(withIdentifier: TaskViewLabelsButtonCell.identifier)!
+            if let buttonWithLabel = cell as? TaskViewLabelsButtonCell {
+                buttonWithLabel.mainTextLabel.text = "Нереализованный тип кнопки"
+            }
+        }
+        
+        return cell
     }
-
-    // вызывается при нажатии "return"
-    // чет true / false ни на что не влияют (или на отправку нотификации?)
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        print("textFieldShouldReturn")
-        textField.resignFirstResponder()
-
-        return true
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+//        let cell = tableView.cellForRow(at: indexPath)
+        
+        // TODO: возвращает nil
+//        if let taskViewButtonCell = cell as? TaskViewButtonCellProtocol {
+//            return taskViewButtonCell.standartHeight.cgFloat
+//        }
+        if indexPath.row == 0 {
+            return 68
+        }
+        
+        return 58
     }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath)
+        
+        switch cell {
+        case let addSubtaskButton as AddSubtaskButtonCell :
+            addSubtaskButton.subtaskTextField.becomeFirstResponder()
+        
+        case let addToMyDayButton as AddToMyDayButtonCell :
+            addToMyDayButton.isOn = !addToMyDayButton.isOn
+        
+        case let remindButton as RemindButtonCell :
+            // TODO: открывать контроллер с выбором даты
+            remindButton.state = .defined
+            
+        case let deadlineButton as DeadlineButtonCell :
+            // TODO: открывать контроллер с выбором даты
+            deadlineButton.state = .defined
+            
+        case let repeatButton as RepeatButtonCell :
+            // TODO: открывать контроллер с настройками повтора
+            repeatButton.state = .defined
+            
+        case let addFileButton as AddFileButtonCell :
+            // TODO: открыть AlertController для выбора места откуда загружать файл
+            break
+            
+        default :
+            break
+        }
+        
+        tableView.deselectRow(at: indexPath, animated: false)
+    }
+    
+    
+    
 }
 
+
+// MARK: task title TextView delegate
 class TaskTitleTextViewDelegate: NSObject, UITextViewDelegate {
     private var textView: UITextView
     private var viewController: TaskViewController
@@ -552,8 +435,27 @@ class TaskTitleTextViewDelegate: NSObject, UITextViewDelegate {
         
         return true
     }
+
     
     // TODO: заменять перевод строки на пробел
+}
+
+// MARK: subtask TextField delegate
+extension TaskViewController: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        showSubtaskAddNavigationItemReady()
+        textFieldEditing = textField
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textFieldEditing === textField {
+            textField.resignFirstResponder()
+            navigationItem.setRightBarButton(nil, animated: true)
+            textFieldEditing = nil
+        }
+        
+        return false
+    }
 }
 
 

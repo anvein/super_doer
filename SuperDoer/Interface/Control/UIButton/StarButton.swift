@@ -5,7 +5,7 @@ import UIKit
 /// Кнопка "Звездочка" (Добавление задачи в избранное)
 class StarButton: UIButton {
     // MARK: properties
-    static let outerSize: Float = 36
+    static let outerSize: Float = 42
     static let imageSize: Float = 30
     
     var isOn: Bool = false {
@@ -19,7 +19,7 @@ class StarButton: UIButton {
     }
     
     // MARK: init
-    init(width: Float = StarButton.imageSize, height: Float = StarButton.imageSize, isOnDefault: Bool = false) {
+    init(width: Float = StarButton.outerSize, height: Float = StarButton.outerSize, isOnDefault: Bool = false) {
         super.init(frame: .zero)
         
         setupButton(isOnDefault: isOnDefault)
@@ -52,6 +52,7 @@ class StarButton: UIButton {
         }
     }
     
+    // TODO: переделать на использование tintColor
     private func setStateOn() {
         let color = UIColor(red: 102 / 255, green: 122 / 255, blue: 202 / 255, alpha: 1)
         let starOnImage = UIImage(systemName: "star.fill")?.withTintColor(color, renderingMode: .alwaysOriginal)
