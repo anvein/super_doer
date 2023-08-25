@@ -1,15 +1,23 @@
 
 import UIKit
 
-class AddSubtaskButtonCell: UITableViewCell, TaskViewButtonCellProtocol {
+class AddSubtaskButtonCell: TaskViewBaseButtonCell {
     
     typealias State = Bool
     
-    static let identifier = "AddSubtaskButtonCell"
+    override class var identifier: String {
+        return "AddSubtaskButtonCell"
+    }
     
+    override var showBottomSeparator: Bool {
+        return true
+    }
     
     // MARK: properties for cell button
-    let standartHeight = 68
+    override var rowHeight: Int {
+        return 68
+    }
+    
     var isEdit: State = false {
         didSet {
             guard isEdit != oldValue else {
@@ -41,8 +49,10 @@ class AddSubtaskButtonCell: UITableViewCell, TaskViewButtonCellProtocol {
     }
     
     // MARK: setup methods
-    private func setupViews()
+    override func setupViews()
     {
+        super.setupViews()
+        
         backgroundColor = nil
         backgroundView = UIView()
         selectedBackgroundView = UIView()
@@ -54,18 +64,24 @@ class AddSubtaskButtonCell: UITableViewCell, TaskViewButtonCellProtocol {
         subtaskTextField.textColor = InterfaceColors.blackText
         subtaskTextField.returnKeyType = .done
         
+        actionButton.isHidden = true
+        
         subtaskTextField.addTarget(self, action: #selector(subtaskTextFieldEditingDidBegin(textField:)), for: .editingDidBegin)
         subtaskTextField.addTarget(self, action: #selector(subtaskTextFieldEditingDidEnd(textField:)), for: .editingDidEnd)
         
         configureCellForState(isEdit)
     }
 
-    private func addSubviews() {
+    override func addSubviews() {
+        super.addSubviews()
+        
         contentView.addSubview(leftImageView)
         contentView.addSubview(subtaskTextField)
     }
     
-    private func setupConstraints() {
+    override func setupConstraints() {
+        super.setupConstraints()
+        
         // leftImageView
         NSLayoutConstraint.activate([
             leftImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),

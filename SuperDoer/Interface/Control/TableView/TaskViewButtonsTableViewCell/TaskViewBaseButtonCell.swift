@@ -4,30 +4,27 @@ import UIKit
 /// Базовый класс для "кнопки-ячейки" в таблице на странице "редактирования задачи"
 class TaskViewBaseButtonCell: UITableViewCell {
     class var identifier: String {
-        get {
-            return "TaskViewBaseButtonCell"
-        }
+        return "TaskViewBaseButtonCell"
     }
     
+    var rowHeight: Int {
+        return 58
+    }
+
     // MARK: base views
-    let leftImageView = UIImageView()
     let actionButton = UIButton()
     
     /// Показывать ли верхний разделитель (переопределять для конфигурирования)
     // TODO: переделать на конфирурируемое свойство
     var showTopSeparator: Bool {
-        get {
-            return false
-        }
+        return false
     }
     lazy var topSeparator = UIView()
     
     /// Показывать ли нижний разделитель (переопределять для конфигурирования)
     // TODO: переделать на конфирурируемое свойство в init
     var showBottomSeparator: Bool {
-        get {
-            return false
-        }
+        return false
     }
     lazy var bottomSeparator = UIView()
 
@@ -50,7 +47,6 @@ class TaskViewBaseButtonCell: UITableViewCell {
     
     // MARK: setup methods
     func addSubviews() {
-        contentView.addSubview(leftImageView)
         contentView.addSubview(actionButton)
         
         if showTopSeparator {
@@ -70,9 +66,6 @@ class TaskViewBaseButtonCell: UITableViewCell {
         setupSelectedBackground()
         
         // setup content subviews
-        leftImageView.translatesAutoresizingMaskIntoConstraints = false
-        leftImageView.image = createLeftButtonImage()
-        
         actionButton.translatesAutoresizingMaskIntoConstraints = false
         actionButton.setImage(createActionButtonImage(), for: .normal)
         actionButton.tintColor = InterfaceColors.textGray
@@ -89,17 +82,17 @@ class TaskViewBaseButtonCell: UITableViewCell {
     }
     
     func setupConstraints() {
-        // leftImageView
+        // contentView
         NSLayoutConstraint.activate([
-            leftImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            leftImageView.centerXAnchor.constraint(equalTo: contentView.leftAnchor, constant: 32)
+            contentView.heightAnchor.constraint(equalToConstant: rowHeight.cgFloat),
         ])
         
         // actionButton
         NSLayoutConstraint.activate([
             actionButton.rightAnchor.constraint(equalTo: contentView.rightAnchor),
-            actionButton.heightAnchor.constraint(equalTo: contentView.heightAnchor),
-            actionButton.widthAnchor.constraint(equalToConstant: 58)
+            actionButton.topAnchor.constraint(equalTo: contentView.topAnchor),
+            actionButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            actionButton.widthAnchor.constraint(equalToConstant: 58),
         ])
         
         // topSeparator
@@ -108,7 +101,7 @@ class TaskViewBaseButtonCell: UITableViewCell {
                 topSeparator.topAnchor.constraint(equalTo: topAnchor),
                 topSeparator.leftAnchor.constraint(equalTo: leftAnchor, constant: 16),
                 topSeparator.rightAnchor.constraint(equalTo: rightAnchor, constant: -16),
-                topSeparator.heightAnchor.constraint(equalToConstant: 1),
+                topSeparator.heightAnchor.constraint(equalToConstant: 0.5),
             ])
         }
         
@@ -118,7 +111,7 @@ class TaskViewBaseButtonCell: UITableViewCell {
                 bottomSeparator.bottomAnchor.constraint(equalTo: bottomAnchor),
                 bottomSeparator.leftAnchor.constraint(equalTo: leftAnchor, constant: 16),
                 bottomSeparator.rightAnchor.constraint(equalTo: rightAnchor, constant: -16),
-                bottomSeparator.heightAnchor.constraint(equalToConstant: 1),
+                bottomSeparator.heightAnchor.constraint(equalToConstant: 0.5),
             ])
         }
     }
@@ -135,10 +128,6 @@ class TaskViewBaseButtonCell: UITableViewCell {
     }
     
     // MARK: methods helpers
-    func createLeftButtonImage() -> UIImage? {
-        return nil
-    }
-    
     func createActionButtonImage() -> UIImage? {
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 12, weight: .regular)
         

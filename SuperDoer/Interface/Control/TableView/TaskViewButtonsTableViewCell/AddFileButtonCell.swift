@@ -6,9 +6,7 @@ import UIKit
 class AddFileButtonCell: TaskViewLabelsButtonCell {
     
     class override var identifier: String {
-        get {
-            return "AddFileButtonCell"
-        }
+        return "AddFileButtonCell"
     }
     
     override var showBottomSeparator: Bool {
@@ -22,6 +20,8 @@ class AddFileButtonCell: TaskViewLabelsButtonCell {
         
         actionButton.isHidden = true
         mainTextLabel.text = "Добавить файл"
+        
+        labelsStackView.spacing = 0
         
         mainTextLabel.textColor = InterfaceColors.textGray
         leftImageView.tintColor = InterfaceColors.textGray

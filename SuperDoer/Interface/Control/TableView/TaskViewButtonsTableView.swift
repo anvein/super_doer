@@ -17,15 +17,10 @@ class TaskViewButtonsTableView: UITableView {
     
     private func setup() {
         translatesAutoresizingMaskIntoConstraints = false
-
-        estimatedSectionHeaderHeight = 1
-        sectionHeaderHeight = 1
-        sectionIndexBackgroundColor = .blue
-        
-        estimatedSectionFooterHeight = 0
-        sectionFooterHeight = 0
-        fillerRowHeight = 0
-        
+    
+        estimatedSectionFooterHeight = 30
+        sectionFooterHeight = 30
+         
         sectionHeaderTopPadding = 0
         
         separatorStyle = .none
@@ -39,6 +34,8 @@ class TaskViewButtonsTableView: UITableView {
         register(DeadlineButtonCell.self, forCellReuseIdentifier: DeadlineButtonCell.identifier)
         register(RepeatButtonCell.self, forCellReuseIdentifier: RepeatButtonCell.identifier)
         register(AddFileButtonCell.self, forCellReuseIdentifier: AddFileButtonCell.identifier)
+        register(FileButtonCell.self, forCellReuseIdentifier: FileButtonCell.identifier)
+        register(DescriptionButtonCell.self, forCellReuseIdentifier: DescriptionButtonCell.identifier)
         
         register(TaskViewLabelsButtonCell.self, forCellReuseIdentifier: TaskViewLabelsButtonCell.identifier)
     }
@@ -79,6 +76,14 @@ struct AddFileCellValue: ButtonCellValueProtocol {
     
 }
 
-// ячейка файла
+struct FileCellValue: ButtonCellValueProtocol {
+    var fileExtension: String?
+    var fileName: String?
+    var fileSize: String?
+}
 
-// описание задачи
+
+struct DescriptionCellValue: ButtonCellValueProtocol {
+    var text: String?
+    var dateUpdated: String?
+}

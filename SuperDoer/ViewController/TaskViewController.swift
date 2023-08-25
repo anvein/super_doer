@@ -4,7 +4,7 @@ import UIKit
 /// Контроллер задачи
 // MARK: MAIN
 class TaskViewController: UIViewController {
-    
+
     // MARK: controls
     lazy var taskDoneButton = CheckboxButton()
     
@@ -12,8 +12,6 @@ class TaskViewController: UIViewController {
     var taskTitleTextViewDelegate: TaskTitleTextViewDelegate?
     
     lazy var isPriorityButton = StarButton()
-
-
     
     lazy var buttonsTableView = TaskViewButtonsTableView(frame: .zero, style: .plain)
     
@@ -31,7 +29,7 @@ class TaskViewController: UIViewController {
     var isViewScreen = true
     lazy var screenIsVisibleSwitch = UISwitch()
     lazy var screenOpacitySlider = UISlider()
-    let screenImageView = UIImageView(image: UIImage(named: "screen"))
+    let screenImageView = UIImageView(image: UIImage(named: "screen3"))
     
     
     // MARK: model
@@ -43,9 +41,11 @@ class TaskViewController: UIViewController {
         RemindCellValue(),
         DeadlineCellValue(),
         RepeatCellValue(),
+        FileCellValue(fileExtension: "fga", fileName: "marcedes cla.fga", fileSize: "2,5 МБ"),
+        FileCellValue(fileExtension: "mov", fileName: "Видео из файла 13.08.2023, 22.38 в 12342314", fileSize: "1.7 МБ"),
         AddFileCellValue(),
+        DescriptionCellValue(text: "Текст описания задачи\nВторая строка описания\nТретья", dateUpdated: "Обновлено: несколько минут назад")
     ]
-    
     
     // MARK: init
     init(task: Task) {
@@ -68,7 +68,15 @@ class TaskViewController: UIViewController {
         setupControls()
         addSubviews()
         addConstraints()
+        
+//        self.navigationItem.rightBarButtonItem = self.editButtonItem
+//        self.navigationItem.rightBarButtonItem?.action = #selector(editTableEnable)
     }
+    
+//    @objc func editTableEnable() {
+//        buttonsTableView.isEditing = !buttonsTableView.isEditing
+//        print("isEditing = \(buttonsTableView.isEditing)")
+//    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -89,7 +97,7 @@ class TaskViewController: UIViewController {
     }
     
     
-    // MARK: controller handlers
+    // MARK: controller action-handlers
     @objc func buttonMenuAction1(_: Int) {
         print("Пункт меню 1")
     }
@@ -133,6 +141,57 @@ class TaskViewController: UIViewController {
         navigationItem.setRightBarButton(nil, animated: true)
     }
     
+    @objc func pressedFileDeleteTouchUpInside(sender: UIButton) {
+        let cell = sender.superview?.superview
+        guard let fileButtonCell = cell as? FileButtonCell else {
+            return
+        }
+        
+        guard let indexPath = buttonsTableView.indexPath(for: fileButtonCell) else {
+            return
+        }
+        
+        showDeleteFileAlertController(fileIndexPath: indexPath)
+    }
+    
+    // MARK: method handlers
+    
+    private func setReminder(_ remindButton: RemindButtonCell) {
+        // TODO: сделать проверку включены ли уведомления для приложения
+        let isEnableNotifications = false
+        if !isEnableNotifications {
+            let notificationDisableAlert = NotificationDisabledAlertController()
+            
+            present(notificationDisableAlert, animated: true)
+        }
+        
+        // TODO: открывать контроллер с выбором даты + подгрузить данные из модели
+        // если пользователь не установил ничего, то закрыть контроллер установки даты и оставить поле пустым
+        // если установил дату, то закрыть контроллер установки даты, записать в модель, изменить стейт кнопки
+        
+         remindButton.state = .defined
+    }
+    
+    private func showDeleteFileAlertController(fileIndexPath indexPath: IndexPath) {
+        let fileDeleteAlert = FileDeleteAlertController(fileIndexPath: indexPath) { indexPath in
+            self.deleteFile(fileCellIndexPath: indexPath)
+        }
+        
+        self.present(fileDeleteAlert, animated: true)
+    }
+    
+    private func deleteFile(fileCellIndexPath indexPath: IndexPath) {
+        buttonsArray.remove(at: indexPath.row)
+        buttonsTableView.deleteRows(at: [indexPath], with: .fade)
+    }
+    
+    private func showAddFileAlertController() {
+        let addFileAlertController = AddFileAlertController(taskViewController: self)
+        
+        present(addFileAlertController, animated: true)
+    }
+    
+    
     // MARK: notifications handler
     
     // MARK: other methods
@@ -144,6 +203,8 @@ class TaskViewController: UIViewController {
             target: nil,
             action: nil
         )
+        
+        navigationController?.navigationBar.backItem?.backBarButtonItem?.tintColor = InterfaceColors.textBlue
     }
 }
 
@@ -157,11 +218,9 @@ extension TaskViewController {
         view.addSubview(taskTitleTextView)
         view.addSubview(isPriorityButton)
 
-        
         view.addSubview(buttonsTableView)
-//        
-        view.addSubview(screenIsVisibleSwitch)
-        view.addSubview(screenOpacitySlider)
+
+        addScreenControls()
     }
     
     private func addConstraints() {
@@ -212,10 +271,16 @@ extension TaskViewController {
         setupTaskDeleteButton()
         
         setupScreenVisibleControls()
+        
+//        setToolbarItems([
+//            UIBarButtonItem(title: "Заголовок")
+//        ], animated: true)
     }
     
     private func setupViewOfController() {
         view.backgroundColor = .white
+        
+        navigationController?.navigationBar.tintColor = InterfaceColors.textBlue
         
         // TODO: удалить
         switchScreenIsVisible(false)
@@ -251,40 +316,6 @@ extension TaskViewController {
         buttonsTableView.delegate = self
     }
     
-    
-//    private func setupTaskTitleTextField() {
-//        subtaskCreateTextField.translatesAutoresizingMaskIntoConstraints = false
-//
-//        subtaskCreateTextField.textColor = .systemBlue
-//        subtaskCreateTextField.font = UIFont(name: "Arial", size: 26)
-//                
-//                
-//        subtaskCreateTextField.placeholder = "Что нужно сделать?"
-//
-//        subtaskCreateTextField.text = "Сделать "
-//
-//        // стиль рамки
-//        subtaskCreateTextField.borderStyle = .none
-//        
-//        subtaskCreateTextField.layer.borderWidth = 1
-//        subtaskCreateTextField.layer.borderColor = CGColor(red: 191/255, green: 88/255, blue: 84/255, alpha: 1)
-//                
-//        // адаптировать размер шрифта, чтобы весь текст влазил
-//        subtaskCreateTextField.adjustsFontSizeToFitWidth = true
-//        subtaskCreateTextField.minimumFontSize = 1
-//
-//        subtaskCreateTextField.clearButtonMode = .always
-//        
-////        self.taskTitleTextFieldDelegate = OtherFieldDelegate(textField: subtaskCreateTextField)
-////        subtaskCreateTextField.delegate = self.taskTitleTextFieldDelegate
-//
-//        
-//        // разрешить форматирование текста
-//        subtaskCreateTextField.allowsEditingTextAttributes = true
-//        
-//        subtaskCreateTextField.addTarget(self, action: #selector(someTextFieldEvent(sender:event:)), for: .valueChanged)
-//    }
-//    
     private func setupTaskDeleteButton() {
         
         taskDeleteButton.translatesAutoresizingMaskIntoConstraints = false
@@ -318,6 +349,8 @@ extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
         return buttonsArray.count
     }
     
+    
+    // MARK: cell appearance
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let buttonValue = buttonsArray[indexPath.row]
         let cell: UITableViewCell
@@ -343,36 +376,34 @@ extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
             
         case _ as AddFileCellValue:
             cell = buttonsTableView.dequeueReusableCell(withIdentifier: AddFileButtonCell.identifier)!
+        
+        case let fileCellValue as FileCellValue:
+            cell = buttonsTableView.dequeueReusableCell(withIdentifier: FileButtonCell.identifier)!
+            if let fileButtonCell = cell as? FileButtonCell {
+                fileButtonCell.fillFromCellValue(cellValue: fileCellValue)
+                fileButtonCell.actionButton.addTarget(self, action: #selector(pressedFileDeleteTouchUpInside(sender:)), for: .touchUpInside)
+            }
+            
+        case _ as DescriptionCellValue:
+            cell = buttonsTableView.dequeueReusableCell(withIdentifier: DescriptionButtonCell.identifier)!
             
             
         default :
             cell = buttonsTableView.dequeueReusableCell(withIdentifier: TaskViewLabelsButtonCell.identifier)!
-            if let buttonWithLabel = cell as? TaskViewLabelsButtonCell {
-                buttonWithLabel.mainTextLabel.text = "Нереализованный тип кнопки"
+            if cell is TaskViewLabelsButtonCell {
+//                buttonWithLabel.mainTextLabel.text = buttonValue.maintext
             }
         }
         
         return cell
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-//        let cell = tableView.cellForRow(at: indexPath)
-        
-        // TODO: возвращает nil
-//        if let taskViewButtonCell = cell as? TaskViewButtonCellProtocol {
-//            return taskViewButtonCell.standartHeight.cgFloat
-//        }
-        if indexPath.row == 0 {
-            return 68
-        }
-        
-        return 58
-    }
-    
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
 
     }
     
+    
+    // MARK: select row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath)
         
@@ -384,8 +415,7 @@ extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
             addToMyDayButton.isOn = !addToMyDayButton.isOn
         
         case let remindButton as RemindButtonCell :
-            // TODO: открывать контроллер с выбором даты
-            remindButton.state = .defined
+            setReminder(remindButton)
             
         case let deadlineButton as DeadlineButtonCell :
             // TODO: открывать контроллер с выбором даты
@@ -395,19 +425,95 @@ extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
             // TODO: открывать контроллер с настройками повтора
             repeatButton.state = .defined
             
-        case let addFileButton as AddFileButtonCell :
-            // TODO: открыть AlertController для выбора места откуда загружать файл
+        case _ as AddFileButtonCell :
+            showAddFileAlertController()
+            
+        case _ as FileButtonCell :
+            // TODO: открыть контроллер и показать содержимое файла
             break
+            
+        case let descriptionButton as DescriptionButtonCell:
+            if descriptionButton.state == .empty {
+                descriptionButton.fillMainText(attributedText: NSAttributedString(string: "Первая строка текста\nВторая строка\nТретья строка текста\nЧетвертая строка текста\nПятая строка текста\nШестая строка текста\nСедьмая строка"))
+            } else if descriptionButton.state == .textFilled {
+                descriptionButton.fillMainText(attributedText: nil)
+            }
             
         default :
             break
         }
         
+        
+//        switch cellState {
+//        case 0 :
+//            cell?.textLabel?.text = nil
+//            cell?.detailTextLabel?.text = nil
+//        case 1:
+//            cell?.textLabel?.text = "textLabel"
+//            cell?.detailTextLabel?.text = nil
+//        case 2:
+//            cell?.textLabel?.text = "textLabel"
+//            cell?.detailTextLabel?.text = "detailTextLabel"
+//        case 3:
+//            cell?.textLabel?.text = nil
+//            cell?.detailTextLabel?.text = "detailTextLabel"
+//        case 4:
+//            cell?.textLabel?.text = "textLabel"
+//            cell?.detailTextLabel?.text = "detailTextLabel"
+//        default:
+//            break
+//        }
+//
+//
+//        cellState = cellState == 4 ? 0 : cellState + 1
+//
+        
         tableView.deselectRow(at: indexPath, animated: false)
     }
     
     
+    // MARK: swipes for row
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: nil) { deleteAction, view, completionHandler in
+            self.showDeleteFileAlertController(fileIndexPath: indexPath)
+            
+            completionHandler(true)
+        }
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 14, weight: .bold)
+        deleteAction.image = UIImage(systemName: "trash", withConfiguration: symbolConfig)
+        
+        // TODO: сделать чтобы действие подкрашивалось серым до определенной степени свайпа, а потом становилось красным
+        // TODO: + чтобы если свайпнуто больше основной части, то чтобы сразу запускалось действие
+        
+        return UISwipeActionsConfiguration(actions: [deleteAction])
+    }
+
     
+    // MARK: "edit" / delete row
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        if buttonsArray[indexPath.row] is FileCellValue {
+            return true
+        }
+        
+        return false
+    }
+
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .none
+    }
+    
+    func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
+        return false
+    }
+    
+
+//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+//        if editingStyle == .delete {
+//            buttonsArray.remove(at: indexPath.row)
+//            buttonsTableView.deleteRows(at: [indexPath], with: .fade)
+//        }
+//    }
+
 }
 
 
@@ -439,6 +545,7 @@ class TaskTitleTextViewDelegate: NSObject, UITextViewDelegate {
     
     // TODO: заменять перевод строки на пробел
 }
+
 
 // MARK: subtask TextField delegate
 extension TaskViewController: UITextFieldDelegate {
@@ -488,6 +595,7 @@ extension TaskViewController {
         screenIsVisibleSwitch.onTintColor = .systemOrange
         screenIsVisibleSwitch.thumbTintColor = .systemBlue
         screenIsVisibleSwitch.layer.zPosition = 11
+        screenIsVisibleSwitch.isHidden = true // hidden
         
         screenIsVisibleSwitch.addTarget(self, action: #selector(taskDoneSwitchValueChange(tdSwitch: event:)), for: .valueChanged)
         
@@ -497,6 +605,7 @@ extension TaskViewController {
         screenOpacitySlider.layer.zPosition = 11
         screenOpacitySlider.minimumValue = 0
         screenOpacitySlider.maximumValue = 100
+        screenOpacitySlider.isHidden = true // hidden
         
         screenOpacitySlider.addTarget(self, action: #selector(screenOpacitySliderValueChange(slider:)), for: .valueChanged)
     }
@@ -507,7 +616,7 @@ extension TaskViewController {
             screenIsVisibleSwitch.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20),
             screenIsVisibleSwitch.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -30),
         ])
-        
+
         // screenOpacitySlider
         NSLayoutConstraint.activate([
             screenOpacitySlider.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -30),
@@ -515,7 +624,11 @@ extension TaskViewController {
             screenOpacitySlider.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -20),
         ])
     }
-    
+
+    private func addScreenControls() {
+        view.addSubview(screenIsVisibleSwitch)
+        view.addSubview(screenOpacitySlider)
+    }
     
     @objc func taskDoneSwitchValueChange(tdSwitch: UISwitch, event: UIEvent) {
         switchScreenIsVisible(tdSwitch.isOn)

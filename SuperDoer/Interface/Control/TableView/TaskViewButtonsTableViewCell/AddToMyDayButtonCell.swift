@@ -6,9 +6,7 @@ class AddToMyDayButtonCell: TaskViewLabelsButtonCell {
     typealias State = Bool
     
     class override var identifier: String {
-        get {
-            return "AddToMyDayButtonCell"
-        }
+        return "AddToMyDayButtonCell"
     }
     
     /// true - active / on, false - inactive / off
@@ -22,10 +20,6 @@ class AddToMyDayButtonCell: TaskViewLabelsButtonCell {
         }
     }
     
-    override var showTopSeparator: Bool {
-        return true
-    }
-    
     override var showBottomSeparator: Bool {
         return true
     }
@@ -36,6 +30,7 @@ class AddToMyDayButtonCell: TaskViewLabelsButtonCell {
     {
         super.setupViews()
         
+        labelsStackView.spacing = 0
         configureForState(isOn)
     }
     

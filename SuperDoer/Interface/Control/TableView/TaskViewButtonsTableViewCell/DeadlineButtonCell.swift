@@ -13,9 +13,7 @@ class DeadlineButtonCell: TaskViewLabelsButtonCell {
     }
     
     class override var identifier: String {
-        get {
-            return "DeadlineButtonCell"
-        }
+        return "DeadlineButtonCell"
     }
     
     var state: State = .undefined {
@@ -33,6 +31,7 @@ class DeadlineButtonCell: TaskViewLabelsButtonCell {
     {
         super.setupViews()
         
+        labelsStackView.spacing = 0
         configureForState(state)
     }
     

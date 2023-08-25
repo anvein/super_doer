@@ -6,14 +6,11 @@ import UIKit
 class TasksListViewController: UIViewController {
     
     // MARK: controls
-    lazy var tasksTable = TaskListTableView(frame: .zero, style: .insetGrouped)
+    lazy var tasksTable = TasksListTableView(frame: .zero, style: .insetGrouped)
     
     lazy var backgroundImageView = UIImageView(image: UIImage(named: "bgList"))
     
     var largeTitleTextField = UITextField()
-    
-    var tasksTableDataSource: TasksTableDataSource?
-    var tasksTableDelegate: TasksTableDelegate?
     
     
     // MARK: data (tasks)
@@ -55,7 +52,7 @@ class TasksListViewController: UIViewController {
     @objc func editTable() {
         tasksTable.isEditing = !tasksTable.isEditing
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -75,7 +72,27 @@ class TasksListViewController: UIViewController {
     
     // MARK: action-handlers
     
-
+    // MARK: handlers
+    private func deleteTasks(tasksIndexPath: [IndexPath]) {
+        for taskIndexPath in tasksIndexPath {
+            tasksArray.remove(at: taskIndexPath.row)
+        }
+        
+        tasksTable.deleteRows(at: tasksIndexPath, with: .fade)
+    }
+    
+    private func presentDeleteTaskAlertController(tasksIndexPath: [IndexPath]) {
+        var deleteTask: Task? = nil
+        if tasksIndexPath.count == 1 {
+            deleteTask = tasksArray[tasksIndexPath[0].row]
+        }
+        
+        
+        let deleteAlertController = TasksDeleteAlertController(tasksIndexPath: tasksIndexPath, singleTask: deleteTask) { _ in
+            self.deleteTasks(tasksIndexPath: tasksIndexPath)
+        }
+        self.present(deleteAlertController, animated: true)
+    }
 }
 
 
@@ -97,6 +114,14 @@ extension TasksListViewController {
             tasksTable.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor),
         ])
         
+        // backgroundImageView
+        NSLayoutConstraint.activate([
+            backgroundImageView.topAnchor.constraint(equalTo: view.topAnchor),
+            backgroundImageView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            backgroundImageView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            backgroundImageView.leftAnchor.constraint(equalTo: view.leftAnchor),
+        ])
+        
 //        tasksTable.translatesAutoresizingMaskIntoConstraints = false
 //        tasksTable.frame = view.bounds
         
@@ -109,150 +134,133 @@ extension TasksListViewController {
     }
     
     private func setupLayoutController() {
-        backgroundImageView.contentMode = .center
+        backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
+        backgroundImageView.contentMode = .scaleAspectFill
         
-        backgroundImageView.frame = view.frame
         backgroundImageView.layer.zPosition = 0
-        
     }
     
     private func setupTasksTable() {
         tasksTable.layer.zPosition = 10
-        tasksTableDataSource = TasksTableDataSource(viewController: self)
-        tasksTable.dataSource = tasksTableDataSource
-        
-        tasksTableDelegate = TasksTableDelegate(viewController: self)
-        tasksTable.delegate = tasksTableDelegate
-        
-        
+        tasksTable.delegate = self
+        tasksTable.dataSource = self
         
 //        tasksTable.setHeaderLabel(self.title)
     }
 }
 
 
-// MARK: table data source
-class TasksTableDataSource: NSObject, UITableViewDataSource {
-    let viewController: TasksListViewController
+// MARK: table delegate + data source
+extension TasksListViewController: UITableViewDelegate, UITableViewDataSource {
     
-    init(viewController: TasksListViewController) {
-        self.viewController = viewController
-    }
-    
-    
-    
-    // количество строк в разделе
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewController.tasksArray.count
+        return tasksArray.count
     }
     
-    // отвечает за внешний вид строки
-    // для разных строк можно сделать свой внешний вид
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell2 = TaskListStandartTaskCell(style: .default, reuseIdentifier: "MyCustomCell")
-        let task = viewController.tasksArray[indexPath.row]
+        let task = tasksArray[indexPath.row]
         cell2.textLabel?.text = task.title
         
         return cell2
-        
-        
-//        // создание ячейки со стилем
-//        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "MyCellIdentifier")
-//
-//        let task = viewController.tasksArray[indexPath.row]
-//
-//        // TODO: переделать на contentConfiguration
-//        cell.textLabel?.text = task.title
-//        cell.textLabel?.textColor = InterfaceColors.blackText
-//
-//        cell.detailTextLabel?.text = "Описание"
-//        cell.detailTextLabel?.textColor = InterfaceColors.textGray
-//
-//        if (indexPath.row % 2 == 0) {
-//            cell.backgroundColor  = UIColor(white: 0.96, alpha: 1)
-//        } else {
-//            cell.backgroundColor  = InterfaceColors.lightGray
-//        }
-//
-//        cell.layer.cornerRadius = 15
-//        cell.layer.masksToBounds = true
-//
-//        cell.contentView.layer.cornerRadius = 15
-//        cell.contentView.layer.masksToBounds = true
-//
-//        cell.layer.backgroundColor = InterfaceColors.lightGray.cgColor
-//
-//        cell.selectedBackgroundView?.backgroundColor = .cyan
-//
-//
-//
-//        cell.layer.borderWidth = 1
-//        cell.layer.borderColor = UIColor.systemBlue.cgColor
-//
-//        // nil
-//        cell.backgroundView?.layer.cornerRadius = 15
-//        cell.backgroundView?.layer.masksToBounds = true
-//
-////        cell.selectedBackgroundView?.backgroundColor = InterfaceColors.controlsLightBlueBg
-//
-////        cell.
-//
-////        cell.accessoryType = task.isCompleted ? .checkmark : .none
-//
-//        return cell
     }
     
     
-    // действие при добавлении или удалении строки
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // удаление строки из таблицы
-            
-            viewController.tasksArray.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        }
-    }
-
-    
-    
-}
-
-// MARK: table delegate
-class TasksTableDelegate: NSObject, UITableViewDelegate {
-    let viewController: TasksListViewController
-    
-    init(viewController: TasksListViewController) {
-        self.viewController = viewController
-    }
-    
-    // кликнута строка
+    // MARK: select row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedTask = viewController.tasksArray[indexPath.row]
+        let selectedTask = tasksArray[indexPath.row]
         
         let taskController = TaskViewController(task: selectedTask)
-        viewController.navigationController?.pushViewController(taskController, animated: true)
+        navigationController?.pushViewController(taskController, animated: true)
         
 //        tableView.deselectRow(at: indexPath, animated: true)
     }
         
-    // возвращает высоту для строк
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 60
-    }
-
-    // сделать, чтобы при включении редактирования таблицы (tableView.isEditing) показывался символ редактирования слева (+ / -)
-    // но только символ, без функционала
-    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-        return .delete // or .insert
-    }
     
+    // MARK: rows appearance
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
 //        cell.backgroundColor = .systemPink
 //        cell.backgroundView?.backgroundColor = .systemGreen
     }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60
+    }
+
     
+    // MARK: swipes actions
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        // TODO: доработать, чтобы SwipeAction отображались внутри ячейки (или были со скругленными краями)
+        let cell = tableView.cellForRow(at: indexPath)
+        guard let cellContentView = cell?.contentView else {
+            return nil
+        }
+        
+        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") { deleteAction, view, completionHandler in
+            self.presentDeleteTaskAlertController(tasksIndexPath: [indexPath])
+            
+            cellContentView.addSubview(view)
+            completionHandler(true)
+        }
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .bold)
+        deleteAction.image = UIImage(systemName: "trash", withConfiguration: symbolConfig)
+        
+        return UISwipeActionsConfiguration(actions: [deleteAction])
+    }
+    
+    // добавление действий при свайпах
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let action = UIContextualAction(
+            style: .normal,
+            title: "☀️") { action, view, completionHandler in
+//                self.presentDeleteTaskAlertController(tasksIndexPath: [indexPath])
+                print("action")
+                
+                completionHandler(true)
+            }
+        action.backgroundColor = .systemOrange
+        
+        return UISwipeActionsConfiguration(actions: [action])
+    }
+    
+    
+    
+    // MARK: delete row
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        if !tableView.isEditing {
+            return .delete
+        }
+        
+        return .none
+    }
+    
+//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+//        if editingStyle == .delete {
+//            tasksArray.remove(at: indexPath.row)
+//            tableView.deleteRows(at: [indexPath], with: .fade)
+//        }
+//    }
+    
+    func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
+        return false
+    }
+    
+    
+    // MARK: move row
+    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        let moveElement = tasksArray[sourceIndexPath.row]
+        tasksArray[sourceIndexPath.row] = tasksArray[destinationIndexPath.row]
+        tasksArray[destinationIndexPath.row] = moveElement
+        
+        tasksTable.moveRow(at: sourceIndexPath, to: destinationIndexPath)
+    }
+    
+    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+        
     // для реализации кастомного скрытия largeTitle при прокрутке
 //    func scrollViewDidScroll(_ scrollView: UIScrollView) {
 ////        if viewController.tasksTable.contentOffset.y <= 0 {

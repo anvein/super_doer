@@ -1,7 +1,7 @@
 
 import UIKit
 
-class TaskListTableView: UITableView {
+class TasksListTableView: UITableView {
     
     override init(frame: CGRect, style: UITableView.Style) {
         super.init(frame: frame, style: style)
@@ -15,6 +15,7 @@ class TaskListTableView: UITableView {
         scrollsToTop = true
         separatorStyle = .none
         layer.zPosition = 10
+        
         
 //        let tableTitleLabel = UILabel(frame: CGRect(x: 5, y: 5, width: 150, height: 50))
 //        tableHeaderView = tableTitleLabel

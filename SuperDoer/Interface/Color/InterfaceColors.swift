@@ -10,7 +10,8 @@ struct InterfaceColors {
     static let controlsGray = UIColor(red: 109 / 255, green: 109 / 255, blue: 111 / 255, alpha: 1)
     static let textGray = UIColor(red: 118 / 255, green: 118 / 255, blue: 120 / 255, alpha: 1)
     
-    static let textBlue = UIColor(red: 67 / 255, green: 106 / 255, blue: 242 / 255, alpha: 1)
+    static let textBlue = UIColor(red: 51 / 255, green: 111 / 255, blue: 238 / 255, alpha: 1)
+//    static let textBlue = UIColor(red: 67 / 255, green: 106 / 255, blue: 242 / 255, alpha: 1)
     
     static let controlsLightBlueBg = UIColor(red: 245 / 255, green: 245 / 255, blue: 1, alpha: 1)
     
@@ -20,7 +21,7 @@ struct InterfaceColors {
     static let blackText = UIColor(red: 53 / 255, green: 55 / 255, blue: 51 / 255, alpha: 1)
     
     struct TaskViewButtonCell {
-        static let separator = UIColor(red: 249 / 255, green: 247 / 255, blue: 250 / 255, alpha: 1)
+        static let separator = UIColor(white: 237 / 255, alpha: 1)
         
         static let bg = UIColor(white: 1, alpha: 1)
         static let selectedBg = UIColor(red: 245 / 255, green: 245 / 255, blue: 1, alpha: 1)

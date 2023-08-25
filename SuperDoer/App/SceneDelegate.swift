@@ -11,8 +11,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let window = UIWindow(windowScene: windowScene)
         
-        window.rootViewController =  UINavigationController(rootViewController: homeViewController)
-
+        let navigationController = UINavigationController(rootViewController: homeViewController)
+//        navigationController.toolbar.backgroundColor = .red
+        
+        window.rootViewController = navigationController
+    
         self.window = window
         window.makeKeyAndVisible()
     }

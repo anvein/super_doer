@@ -10,9 +10,7 @@ class RepeatButtonCell: TaskViewLabelsButtonCell {
     }
     
     class override var identifier: String {
-        get {
-            return "RepeatButtonCell"
-        }
+        return "RepeatButtonCell"
     }
     
     var state: State = .empty {
@@ -47,6 +45,9 @@ class RepeatButtonCell: TaskViewLabelsButtonCell {
         switch state {
         case .empty :
             mainTextLabel.text = "Повтор"
+            miniTextLabel.text = nil
+            
+            labelsStackView.spacing = 0
             
             mainTextLabel.textColor = InterfaceColors.textGray
             leftImageView.tintColor = InterfaceColors.textGray
@@ -55,8 +56,12 @@ class RepeatButtonCell: TaskViewLabelsButtonCell {
         case .defined :
             // TODO: получить из модели задачи настройки + сформировать строку
             mainTextLabel.text = "Каждый месяц"
+            miniTextLabel.text = "пятница"
+            
+            labelsStackView.spacing = 2
             
             mainTextLabel.textColor = InterfaceColors.textBlue
+            miniTextLabel.textColor = InterfaceColors.textBlue
             leftImageView.tintColor = InterfaceColors.textBlue
             actionButton.isHidden = false
         }
@@ -74,6 +79,7 @@ class RepeatButtonCell: TaskViewLabelsButtonCell {
  
     // MARK: handlers
     @objc func handleTapActionButton(actionButton: UIButton) {
+        
         if state == .defined {
             state = .empty
         }

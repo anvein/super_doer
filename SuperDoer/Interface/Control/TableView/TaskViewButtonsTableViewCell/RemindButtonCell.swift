@@ -14,9 +14,7 @@ class RemindButtonCell: TaskViewLabelsButtonCell {
     }
     
     class override var identifier: String {
-        get {
-            return "RemindButtonCell"
-        }
+        return "RemindButtonCell"
     }
     
     var state: State = .undefined {
@@ -33,7 +31,7 @@ class RemindButtonCell: TaskViewLabelsButtonCell {
     override func setupViews()
     {
         super.setupViews()
-        
+    
         configureForState(state)
     }
     
@@ -47,6 +45,9 @@ class RemindButtonCell: TaskViewLabelsButtonCell {
         switch state {
         case .undefined :
             mainTextLabel.text = "Напомнить"
+            miniTextLabel.text = nil
+            
+            labelsStackView.spacing = 0
             
             mainTextLabel.textColor = InterfaceColors.textGray
             leftImageView.tintColor = InterfaceColors.textGray
@@ -54,9 +55,13 @@ class RemindButtonCell: TaskViewLabelsButtonCell {
             
         case .defined :
             // TODO: получить из модели задачи дату + сформировать строку с датой + заполнить 2ю строку
-            mainTextLabel.text = "Напомнить мне в 21:00"
+            mainTextLabel.text = "Напомнить мне в 09:00"
+            miniTextLabel.text = "Завтра"
+            
+            labelsStackView.spacing = 2
             
             mainTextLabel.textColor = InterfaceColors.textBlue
+            miniTextLabel.textColor = InterfaceColors.textBlue
             leftImageView.tintColor = InterfaceColors.textBlue
             actionButton.isHidden = false
         }
