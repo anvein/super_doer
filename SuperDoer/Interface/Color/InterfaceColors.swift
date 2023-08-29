@@ -27,4 +27,8 @@ struct InterfaceColors {
         static let selectedBg = UIColor(red: 245 / 255, green: 245 / 255, blue: 1, alpha: 1)
         
     }
+    
+    struct TaskDescriptionController {
+        static let navBarSeparator = UIColor(white: 0.7, alpha: 1)
+    }
 }

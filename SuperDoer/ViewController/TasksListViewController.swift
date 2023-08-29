@@ -16,7 +16,7 @@ class TasksListViewController: UIViewController {
     // MARK: data (tasks)
     var tasksArray: Array<Task> = [
         Task(id: 1, title: "🤩 КВИЗ (18:00)", isCompleted: true),
-        Task(id: 2, title: "🏡 Заказать полочку и повесить", isPriority: true),
+        Task(id: 2, title: "🏡 Заказать полочку и повесить", isCompleted: true, isMyDay: true, isPriority: true,  description: NSAttributedString(string: "Съездить в леруа\nОтпилить полочки")),
         Task(id: 3, title: "🏡 Помыть окна"),
         Task(id: 4, title: "🕵️‍♂️ МАФИЯ (19:00)", isCompleted: true),
         Task(id: 5, title: "🏄‍♂️ САП (19 — 21)***"),
@@ -65,9 +65,9 @@ class TasksListViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        let selectedTask = tasksArray[1]
-        let taskController = TaskViewController(task: selectedTask)
-        navigationController?.pushViewController(taskController, animated: true)
+//        let selectedTask = tasksArray[1]
+//        let taskController = TaskViewController(task: selectedTask)
+//        navigationController?.pushViewController(taskController, animated: true)
     }
     
     // MARK: action-handlers
@@ -158,12 +158,11 @@ extension TasksListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        let cell2 = TaskListStandartTaskCell(style: .default, reuseIdentifier: "MyCustomCell")
+        let cell = TaskListStandartTaskCell(style: .default, reuseIdentifier: "MyCustomCell")
         let task = tasksArray[indexPath.row]
-        cell2.textLabel?.text = task.title
+        cell.textLabel?.text = task.title
         
-        return cell2
+        return cell
     }
     
     
@@ -282,7 +281,7 @@ extension TasksListViewController: UITableViewDelegate, UITableViewDataSource {
 
 
 // MARK: model
-struct Task {
+class Task {
     var id: Int
     
     var title: String?
@@ -291,4 +290,18 @@ struct Task {
     var isMyDay: Bool = false
     
     var isPriority: Bool = false
+    
+    var description: NSAttributedString?
+    var descriptionUpdated: Date?
+
+    init(id: Int, title: String? = nil, isCompleted: Bool = false, isMyDay: Bool = false, isPriority: Bool = false, description: NSAttributedString? = nil, descriptionUpdated: Date? = nil) {
+        self.id = id
+        self.title = title
+        self.isCompleted = isCompleted
+        self.isMyDay = isMyDay
+        self.isPriority = isPriority
+        self.description = description
+        self.descriptionUpdated = descriptionUpdated
+    }
+    
 }

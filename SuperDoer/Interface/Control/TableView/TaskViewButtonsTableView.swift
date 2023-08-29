@@ -84,6 +84,6 @@ struct FileCellValue: ButtonCellValueProtocol {
 
 
 struct DescriptionCellValue: ButtonCellValueProtocol {
-    var text: String?
+    var text: NSAttributedString?
     var dateUpdated: String?
 }

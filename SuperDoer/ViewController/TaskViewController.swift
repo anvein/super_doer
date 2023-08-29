@@ -16,35 +16,36 @@ class TaskViewController: UIViewController {
     lazy var buttonsTableView = TaskViewButtonsTableView(frame: .zero, style: .plain)
     
     
-//    var taskTitleTextFieldDelegate: OtherFieldDelegate?
     
-    lazy var subtaskCreateTextField = UITextField()
     
-    lazy var taskDeleteButton = UIButton()
+    
     
     /// Редактируемое в данный момент поле TextField
     var textFieldEditing: UITextField?
     
+    
+    
+    
     // TODO: temp controls
-    var isViewScreen = true
+    var isViewScreen = false
     lazy var screenIsVisibleSwitch = UISwitch()
     lazy var screenOpacitySlider = UISlider()
-    let screenImageView = UIImageView(image: UIImage(named: "screen3"))
+    let screenImageView = UIImageView(image: UIImage(named: "screen"))
     
     
     // MARK: model
     var task: Task
     
     var buttonsArray: [ButtonCellValueProtocol] = [
-        AddSubTaskCellValue(),
-        AddToMyDayCellValue(),
-        RemindCellValue(),
-        DeadlineCellValue(),
-        RepeatCellValue(),
-        FileCellValue(fileExtension: "fga", fileName: "marcedes cla.fga", fileSize: "2,5 МБ"),
-        FileCellValue(fileExtension: "mov", fileName: "Видео из файла 13.08.2023, 22.38 в 12342314", fileSize: "1.7 МБ"),
-        AddFileCellValue(),
-        DescriptionCellValue(text: "Текст описания задачи\nВторая строка описания\nТретья", dateUpdated: "Обновлено: несколько минут назад")
+//        AddSubTaskCellValue(),
+//        AddToMyDayCellValue(),
+//        RemindCellValue(),
+//        DeadlineCellValue(),
+//        RepeatCellValue(),
+//        FileCellValue(fileExtension: "fga", fileName: "marcedes cla.fga", fileSize: "2,5 МБ"),
+//        FileCellValue(fileExtension: "mov", fileName: "Видео из файла 13.08.2023, 22.38 в 12342314", fileSize: "1.7 МБ"),
+//        AddFileCellValue(),
+//        DescriptionCellValue(text: NSAttributedString(string: "Текст описания задачи\nВторая строка описания\nТретья"), dateUpdated: "Обновлено")
     ]
     
     // MARK: init
@@ -67,7 +68,7 @@ class TaskViewController: UIViewController {
         
         setupControls()
         addSubviews()
-        addConstraints()
+        setupConstraints()
         
 //        self.navigationItem.rightBarButtonItem = self.editButtonItem
 //        self.navigationItem.rightBarButtonItem?.action = #selector(editTableEnable)
@@ -82,6 +83,8 @@ class TaskViewController: UIViewController {
         super.viewWillAppear(animated)
         
         navigationController?.navigationBar.tintColor = .systemBlue
+        
+        fillButtonsArray(from: task)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -92,8 +95,6 @@ class TaskViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
-        
     }
     
     
@@ -151,12 +152,13 @@ class TaskViewController: UIViewController {
             return
         }
         
-        showDeleteFileAlertController(fileIndexPath: indexPath)
+        presentDeleteFileAlertController(fileIndexPath: indexPath)
     }
+    
     
     // MARK: method handlers
     
-    private func setReminder(_ remindButton: RemindButtonCell) {
+    private func setTaskReminder(_ remindButton: RemindButtonCell) {
         // TODO: сделать проверку включены ли уведомления для приложения
         let isEnableNotifications = false
         if !isEnableNotifications {
@@ -170,14 +172,40 @@ class TaskViewController: UIViewController {
         // если установил дату, то закрыть контроллер установки даты, записать в модель, изменить стейт кнопки
         
          remindButton.state = .defined
+        
+    }
+
+    private func presentTaskDeadlineViewController() {
+        let deadlineController = PageSheetDealineViewController()
+        
+
+        
+        
+        present(deadlineController, animated: true)
+//        show(deadlineController, sender: nil)
+
+
+        
+        
+//        deadlineCalendarController.preferredContentSize = CGSize(width: 300, height: 400)
+        
+//        deadlineCalendarController.view.frame =
+        
+        // при present
+//            .popover
+//            .formSheet // ???
+//            .pageSheet // откроется поверх родительского с оттеснением родительского дальше (родительский будет видно)
+        
+//            .currentContext // откроется на весь экран (родительский контроллер не будет видно) (вьюхи родительского контроллера тоже удаляются)
+//            .fullScreen // на весь экран (вьюхи родительского vc удаляются, когда открывается такой vc)
     }
     
-    private func showDeleteFileAlertController(fileIndexPath indexPath: IndexPath) {
+    private func presentDeleteFileAlertController(fileIndexPath indexPath: IndexPath) {
         let fileDeleteAlert = FileDeleteAlertController(fileIndexPath: indexPath) { indexPath in
             self.deleteFile(fileCellIndexPath: indexPath)
         }
         
-        self.present(fileDeleteAlert, animated: true)
+        present(fileDeleteAlert, animated: true)
     }
     
     private func deleteFile(fileCellIndexPath indexPath: IndexPath) {
@@ -191,6 +219,53 @@ class TaskViewController: UIViewController {
         present(addFileAlertController, animated: true)
     }
     
+    private func fillButtonsArray(from task: Task) {
+        buttonsArray.removeAll()
+        
+        buttonsArray.append(AddSubTaskCellValue())
+        // TODO: подзадачи
+        
+        buttonsArray.append(AddToMyDayCellValue(inMyDay: task.isMyDay))
+        buttonsArray.append(RemindCellValue())
+        buttonsArray.append(DeadlineCellValue())
+        buttonsArray.append(RepeatCellValue())
+        buttonsArray.append(AddFileCellValue())
+        
+        // TODO: файлы
+        
+        buttonsArray.append(DescriptionCellValue(text: task.description))
+    }
+    
+    private func fillControls(from task: Task) {
+        
+        if taskTitleTextView.text != task.title {
+            taskTitleTextView.text = task.title
+        }
+        
+        taskDoneButton.isOn = task.isCompleted
+        isPriorityButton.isOn = task.isPriority
+        
+        
+        for (index, cellValue) in buttonsArray.enumerated() {
+            switch cellValue {
+            case var isMyDayCellValue as AddToMyDayCellValue :
+                isMyDayCellValue.inMyDay = task.isMyDay
+                
+                buttonsArray[index] = isMyDayCellValue
+                
+            case var descriptionCellValue as DescriptionCellValue :
+                if descriptionCellValue.text != task.description {
+                    descriptionCellValue.text = task.description
+                }
+                
+                buttonsArray[index] = descriptionCellValue
+            default:
+                break
+            }
+        }
+        
+        buttonsTableView.reloadData()
+    }
     
     // MARK: notifications handler
     
@@ -223,7 +298,7 @@ extension TaskViewController {
         addScreenControls()
     }
     
-    private func addConstraints() {
+    private func setupConstraints() {
         // taskDoneButton
         NSLayoutConstraint.activate([
             taskDoneButton.topAnchor.constraint(equalTo: taskTitleTextView.topAnchor, constant: 9),
@@ -266,12 +341,8 @@ extension TaskViewController {
         setupIsPriorityButton()
         
         setupButtonsTableView()
-        
-//        setupTaskTitleTextField()
-        setupTaskDeleteButton()
-        
+    
         setupScreenVisibleControls()
-        
 //        setToolbarItems([
 //            UIBarButtonItem(title: "Заголовок")
 //        ], animated: true)
@@ -310,37 +381,11 @@ extension TaskViewController {
         isPriorityButton.isOn = task.isPriority
     }
     
-    
     private func setupButtonsTableView() {
         buttonsTableView.dataSource = self
         buttonsTableView.delegate = self
     }
     
-    private func setupTaskDeleteButton() {
-        
-        taskDeleteButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        taskDeleteButton.layer.backgroundColor = CGColor.init(red: 0.7, green: 0.7, blue: 0.4, alpha: 1) // можно через layer задать bg
-        
-        
-        
-        
-        
-        taskDeleteButton.setTitle("default", for: .normal)
-//        btn.setTitleColor(.yellow, for: .normal)
-        
-        taskDeleteButton.setImage(UIImage.init(systemName: "circle"), for: .normal)
-        taskDeleteButton.setBackgroundImage(UIImage.init(named: "bg"), for: .normal)
-        
-        
-//        UIButton
-
-        
-        
-        
-        taskDeleteButton.toolTip = "Подсказка" // на iOS не работает, мб только для voice over
-        taskDeleteButton.tintColor = .red // get + set (применяется к заголовку и изображению)
-    }
 }
 
 // MARK: table delegate and dataSource
@@ -362,8 +407,12 @@ extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
                 addSubtaskButtonCell.subtaskTextField.delegate = self
             }
             
-        case _ as AddToMyDayCellValue:
+        case let addToMyDayCellValue as AddToMyDayCellValue:
+            
             cell = buttonsTableView.dequeueReusableCell(withIdentifier: AddToMyDayButtonCell.identifier)!
+            if let addToMyDayButtonCell = cell as? AddToMyDayButtonCell {
+                addToMyDayButtonCell.isOn = addToMyDayCellValue.inMyDay
+            }
         
         case _ as RemindCellValue:
             cell = buttonsTableView.dequeueReusableCell(withIdentifier: RemindButtonCell.identifier)!
@@ -384,9 +433,11 @@ extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
                 fileButtonCell.actionButton.addTarget(self, action: #selector(pressedFileDeleteTouchUpInside(sender:)), for: .touchUpInside)
             }
             
-        case _ as DescriptionCellValue:
+        case let descriprinCellValue as DescriptionCellValue:
             cell = buttonsTableView.dequeueReusableCell(withIdentifier: DescriptionButtonCell.identifier)!
-            
+            if let descriptionButtonCell = cell as? DescriptionButtonCell {
+                descriptionButtonCell.mainTextLabel.attributedText = descriprinCellValue.text
+            }
             
         default :
             cell = buttonsTableView.dequeueReusableCell(withIdentifier: TaskViewLabelsButtonCell.identifier)!
@@ -406,20 +457,21 @@ extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
     // MARK: select row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath)
+        let cellValue = buttonsArray[indexPath.row]
+        
         
         switch cell {
         case let addSubtaskButton as AddSubtaskButtonCell :
             addSubtaskButton.subtaskTextField.becomeFirstResponder()
         
         case let addToMyDayButton as AddToMyDayButtonCell :
-            addToMyDayButton.isOn = !addToMyDayButton.isOn
+            task.isMyDay = !task.isMyDay
         
         case let remindButton as RemindButtonCell :
-            setReminder(remindButton)
+            setTaskReminder(remindButton)
             
-        case let deadlineButton as DeadlineButtonCell :
-            // TODO: открывать контроллер с выбором даты
-            deadlineButton.state = .defined
+        case _ as DeadlineButtonCell :
+            presentTaskDeadlineViewController()
             
         case let repeatButton as RepeatButtonCell :
             // TODO: открывать контроллер с настройками повтора
@@ -433,49 +485,33 @@ extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
             break
             
         case let descriptionButton as DescriptionButtonCell:
-            if descriptionButton.state == .empty {
-                descriptionButton.fillMainText(attributedText: NSAttributedString(string: "Первая строка текста\nВторая строка\nТретья строка текста\nЧетвертая строка текста\nПятая строка текста\nШестая строка текста\nСедьмая строка"))
-            } else if descriptionButton.state == .textFilled {
-                descriptionButton.fillMainText(attributedText: nil)
-            }
+            let taskDescriptionController = TaskDescriptionViewController(task: task)
+            taskDescriptionController.dismissDelegate = self
+            
+            present(taskDescriptionController, animated: true)
+            
+//            if descriptionButton.state == .empty {
+//                descriptionButton.fillMainText(attributedText: NSAttributedString(string: "Первая строка текста\nВторая строка\nТретья строка текста\nЧетвертая строка текста\nПятая строка текста\nШестая строка текста\nСедьмая строка"))
+//            } else if descriptionButton.state == .textFilled {
+//                descriptionButton.fillMainText(attributedText: nil)
+//            }
             
         default :
             break
         }
         
-        
-//        switch cellState {
-//        case 0 :
-//            cell?.textLabel?.text = nil
-//            cell?.detailTextLabel?.text = nil
-//        case 1:
-//            cell?.textLabel?.text = "textLabel"
-//            cell?.detailTextLabel?.text = nil
-//        case 2:
-//            cell?.textLabel?.text = "textLabel"
-//            cell?.detailTextLabel?.text = "detailTextLabel"
-//        case 3:
-//            cell?.textLabel?.text = nil
-//            cell?.detailTextLabel?.text = "detailTextLabel"
-//        case 4:
-//            cell?.textLabel?.text = "textLabel"
-//            cell?.detailTextLabel?.text = "detailTextLabel"
-//        default:
-//            break
-//        }
-//
-//
-//        cellState = cellState == 4 ? 0 : cellState + 1
-//
-        
         tableView.deselectRow(at: indexPath, animated: false)
+        
+        // TODO: переделать обновление данных на более экономичный вариант
+        fillButtonsArray(from: task)
+        tableView.reloadData()
     }
     
     
     // MARK: swipes for row
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: nil) { deleteAction, view, completionHandler in
-            self.showDeleteFileAlertController(fileIndexPath: indexPath)
+            self.presentDeleteFileAlertController(fileIndexPath: indexPath)
             
             completionHandler(true)
         }
@@ -566,12 +602,18 @@ extension TaskViewController: UITextFieldDelegate {
 }
 
 
+// MARK: description controller dismiss delegate
+extension TaskViewController: TaskDescriptionViewControllerDelegate {
+    func didDismissTaskDescriptionViewController(isSuccess: Bool) {
+        fillControls(from: task)
+    }
+}
+
 // MARK: temporary code
 // TODO: удалить
 extension TaskViewController {
     
     private func switchScreenIsVisible(_ isViewScreen: Bool) {
-        
         let imageView = view.viewWithTag(777)
         if imageView == nil {
             screenImageView.frame = view.frame
@@ -582,6 +624,7 @@ extension TaskViewController {
         }
         
         screenImageView.isHidden = !isViewScreen
+        screenOpacitySlider.isHidden = !isViewScreen
     }
     
     private func setupScreenVisibleControls() {
@@ -595,7 +638,7 @@ extension TaskViewController {
         screenIsVisibleSwitch.onTintColor = .systemOrange
         screenIsVisibleSwitch.thumbTintColor = .systemBlue
         screenIsVisibleSwitch.layer.zPosition = 11
-        screenIsVisibleSwitch.isHidden = true // hidden
+        screenIsVisibleSwitch.isHidden = false // hidden
         
         screenIsVisibleSwitch.addTarget(self, action: #selector(taskDoneSwitchValueChange(tdSwitch: event:)), for: .valueChanged)
         
@@ -614,13 +657,13 @@ extension TaskViewController {
         // screenIsVisibleSwitch
         NSLayoutConstraint.activate([
             screenIsVisibleSwitch.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20),
-            screenIsVisibleSwitch.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -30),
+            screenIsVisibleSwitch.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
 
         // screenOpacitySlider
         NSLayoutConstraint.activate([
-            screenOpacitySlider.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -30),
-            screenOpacitySlider.leftAnchor.constraint(equalTo: screenIsVisibleSwitch.rightAnchor, constant: 10),
+            screenOpacitySlider.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            screenOpacitySlider.leftAnchor.constraint(equalTo: screenIsVisibleSwitch.rightAnchor, constant: 20),
             screenOpacitySlider.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -20),
         ])
     }
