@@ -65,9 +65,9 @@ class TasksListViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-//        let selectedTask = tasksArray[1]
-//        let taskController = TaskViewController(task: selectedTask)
-//        navigationController?.pushViewController(taskController, animated: true)
+        let selectedTask = tasksArray[1]
+        let taskController = TaskViewController(task: selectedTask)
+        navigationController?.pushViewController(taskController, animated: true)
     }
     
     // MARK: action-handlers
@@ -287,7 +287,7 @@ class Task {
     var title: String?
     var isCompleted: Bool = false
     
-    var isMyDay: Bool = false
+    var inMyDay: Bool = false
     
     var isPriority: Bool = false
     
@@ -298,7 +298,7 @@ class Task {
         self.id = id
         self.title = title
         self.isCompleted = isCompleted
-        self.isMyDay = isMyDay
+        self.inMyDay = isMyDay
         self.isPriority = isPriority
         self.description = description
         self.descriptionUpdated = descriptionUpdated

@@ -9,7 +9,8 @@ class AddToMyDayButtonCell: TaskViewLabelsButtonCell {
         return "AddToMyDayButtonCell"
     }
     
-    /// true - active / on, false - inactive / off
+    /// true - active (on)
+    /// false - inactive (off)
     var isOn: State = false {
         didSet {
             guard isOn != oldValue else {
@@ -19,10 +20,12 @@ class AddToMyDayButtonCell: TaskViewLabelsButtonCell {
             configureForState(isOn)
         }
     }
-    
+
     override var showBottomSeparator: Bool {
         return true
     }
+    
+    weak var delegate: AddToMyDayButtonCellDelegate?
     
     
     // MARK: setup methods
@@ -69,7 +72,11 @@ class AddToMyDayButtonCell: TaskViewLabelsButtonCell {
     
     // MARK: handlers
     @objc func handleTapActionButton(actionButton: UIButton) {
-        isOn = !isOn
+        delegate?.tapAddToMyDayActionButton()
     }
-    
+}
+
+// MARK: delegate protocol
+protocol AddToMyDayButtonCellDelegate: AnyObject {
+    func tapAddToMyDayActionButton()
 }

@@ -18,6 +18,8 @@ class DescriptionButtonCell: UITableViewCell {
     
     var mainTextHeightConstraint: NSLayoutConstraint?
     
+    weak var delegate: DescriptionButtonCellDelegateProtocol?
+    
     
     // MARK: content view controls
     let mainTextLabel = UILabel()
@@ -79,7 +81,7 @@ class DescriptionButtonCell: UITableViewCell {
         openButton.setTitleColor(InterfaceColors.textBlue, for: .normal)
         openButton.setTitleColor(InterfaceColors.blackText, for: .selected)
         openButton.setTitle("Открыть", for: .normal)
-        openButton.addTarget(self, action: #selector(hhh), for: .touchUpInside)
+        openButton.addTarget(self, action: #selector(pressOpenButton), for: .touchUpInside)
         
         bottomSeparator.translatesAutoresizingMaskIntoConstraints = false
         bottomSeparator.backgroundColor = InterfaceColors.TaskViewButtonCell.separator
@@ -87,15 +89,12 @@ class DescriptionButtonCell: UITableViewCell {
         configureCellForState(state)
     }
     
-    @objc func hhh() {
-        print("dsl,fmds")
-    }
-    
     private func configureCellForState(_ state: State) {
         switch state {
         case .empty:
             mainTextLabel.text = "Добавить заметку"
             mainTextLabel.textColor = InterfaceColors.textGray
+            mainTextLabel.font = UIFont.systemFont(ofSize: 16)
             
             infoLabel.text = nil
             infoLabel.isHidden = true
@@ -104,12 +103,13 @@ class DescriptionButtonCell: UITableViewCell {
 //            contentViewHeightConstraint?.isActive = true
             
         case .textFilled:
-            infoLabel.text = "Обновлено: несколько секунд назад"
-            mainTextLabel.textColor = InterfaceColors.blackText
-            
             infoLabel.isHidden = false
-            openButton.isHidden = false
+            infoLabel.text = "Обновлено: несколько секунд назад"
             
+            mainTextLabel.textColor = InterfaceColors.blackText
+            mainTextLabel.font = UIFont.systemFont(ofSize: 16)
+            
+            openButton.isHidden = false
         }
     }
     
@@ -152,6 +152,12 @@ class DescriptionButtonCell: UITableViewCell {
     }
     
     
+    // MARK: action-handlers
+    @objc func pressOpenButton() {
+        delegate?.pressOpenButton()
+    }
+    
+    
     // MARK: methods helpers
     // TODO: пока костыль + текст надо изменять только при помощи этого метода
     // TODO: надо придумать, как отслеживать изменение mainTextLabel.text и изменять state при изменении mainTextLabel.text
@@ -171,3 +177,7 @@ class DescriptionButtonCell: UITableViewCell {
     
 }
 
+// MARK: delegate protocol
+protocol DescriptionButtonCellDelegateProtocol: AnyObject {
+    func pressOpenButton()
+}

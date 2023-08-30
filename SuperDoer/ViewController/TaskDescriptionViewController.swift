@@ -7,11 +7,15 @@ class TaskDescriptionViewController: UIViewController {
     lazy var navigationBar = UINavigationBar()
     lazy var descriptionTextView = UITextView()
     
+    // MARK: toolbar controls
     lazy var toolbar = UIToolbar()
+    lazy var boldBarButtonItem = UIBarButtonItem(title: "bold", style: .plain, target: nil, action: nil)
+    
     
     var task: Task
     
     var dismissDelegate: TaskDescriptionViewControllerDelegate?
+    
     
     
     // MARK: init
@@ -90,11 +94,17 @@ class TaskDescriptionViewController: UIViewController {
     }
     
     private func setupToolbar() {
-        let buttonItem = UIBarButtonItem(title: "Полужирным", style: .plain, target: nil, action: nil)
-        toolbar.setItems([buttonItem], animated: false)
 
         toolbar.sizeToFit()
         toolbar.backgroundColor = nil
+        toolbar.isOpaque = true
+        toolbar.isTranslucent = true
+        
+        
+        boldBarButtonItem.image = UIImage(systemName: "bold")
+        boldBarButtonItem.tintColor = InterfaceColors.textGray
+        
+        toolbar.setItems([boldBarButtonItem], animated: false)
         
         descriptionTextView.inputAccessoryView = toolbar
     }
@@ -132,30 +142,23 @@ class TaskDescriptionViewController: UIViewController {
         dismiss(animated: true)
     }
     
+    @objc private func switchBoldText() {
+        
+    }
     
     // MARK: work with model (task)
     private func updateTask() {
         let mutableTaskDescription = NSMutableAttributedString(attributedString: descriptionTextView.attributedText)
-        mutableTaskDescription.addAttribute(
-            .font,
-            value: UIFont.systemFont(ofSize: 16),
-            range: NSRange(location: 0, length: mutableTaskDescription.length)
-        )
         
         task.description = mutableTaskDescription
     }
     
     private func fillControlsFromTask() {
         if let filledTaskDescription = task.description {
-            let mutableTaskDescription = NSMutableAttributedString(attributedString: filledTaskDescription)
-            mutableTaskDescription.addAttribute(
-                .font,
-                value: UIFont.systemFont(ofSize: 18),
-                range: NSRange(location: 0, length: mutableTaskDescription.length)
-            )
-        
-            descriptionTextView.attributedText = mutableTaskDescription
+            descriptionTextView.attributedText = filledTaskDescription
         }
+            
+        descriptionTextView.font = UIFont.systemFont(ofSize: 18)
     }
     
 }
