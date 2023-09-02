@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3600ACCC2AA0C3D70022506A /* UITaskTitleTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3600ACCB2AA0C3D70022506A /* UITaskTitleTextView.swift */; };
+		3600ACCE2AA0E3DC0022506A /* PerfectPixelScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3600ACCD2AA0E3DC0022506A /* PerfectPixelScreen.swift */; };
+		3600ACD32AA0F4C80022506A /* ReminderSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3600ACD22AA0F4C80022506A /* ReminderSettingsViewController.swift */; };
 		360D6C5C2A8BC3350092EA5C /* FileButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D6C5B2A8BC3350092EA5C /* FileButtonCell.swift */; };
 		362D15012A86249000ADE1A8 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 362D15002A86249000ADE1A8 /* .gitignore */; };
 		362D15032A862C2700ADE1A8 /* TaskViewButtonsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362D15022A862C2700ADE1A8 /* TaskViewButtonsTableView.swift */; };
@@ -44,6 +47,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3600ACCB2AA0C3D70022506A /* UITaskTitleTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITaskTitleTextView.swift; sourceTree = "<group>"; };
+		3600ACCD2AA0E3DC0022506A /* PerfectPixelScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerfectPixelScreen.swift; sourceTree = "<group>"; };
+		3600ACD22AA0F4C80022506A /* ReminderSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderSettingsViewController.swift; sourceTree = "<group>"; };
 		360D6C5B2A8BC3350092EA5C /* FileButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileButtonCell.swift; sourceTree = "<group>"; };
 		362D15002A86249000ADE1A8 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		362D15022A862C2700ADE1A8 /* TaskViewButtonsTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewButtonsTableView.swift; sourceTree = "<group>"; };
@@ -94,6 +100,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3600ACCA2AA0C3A80022506A /* UITextView */ = {
+			isa = PBXGroup;
+			children = (
+				3600ACCB2AA0C3D70022506A /* UITaskTitleTextView.swift */,
+			);
+			path = UITextView;
+			sourceTree = "<group>";
+		};
+		3600ACD12AA0F4960022506A /* ModalController */ = {
+			isa = PBXGroup;
+			children = (
+				367E36DC2A98D02F003E7C1D /* PageSheetDealineViewController.swift */,
+			);
+			path = ModalController;
+			sourceTree = "<group>";
+		};
+		3610D1542AA363550008C19D /* TaskView */ = {
+			isa = PBXGroup;
+			children = (
+				3600ACD22AA0F4C80022506A /* ReminderSettingsViewController.swift */,
+				36A0503A2A504E4B006F61D4 /* TaskViewController.swift */,
+				36EF4D392A9E185900343393 /* TaskDescriptionViewController.swift */,
+			);
+			path = TaskView;
+			sourceTree = "<group>";
+		};
 		362D15042A86326E00ADE1A8 /* TaskViewButtonsTableViewCell */ = {
 			isa = PBXGroup;
 			children = (
@@ -145,14 +177,6 @@
 			path = Builder;
 			sourceTree = "<group>";
 		};
-		367E36DB2A98C4E6003E7C1D /* PopoverController */ = {
-			isa = PBXGroup;
-			children = (
-				367E36DC2A98D02F003E7C1D /* PageSheetDealineViewController.swift */,
-			);
-			path = PopoverController;
-			sourceTree = "<group>";
-		};
 		368FEC682A86B2790001A5D3 /* TaskListTableViewCell */ = {
 			isa = PBXGroup;
 			children = (
@@ -186,6 +210,7 @@
 				36B80B402A6BA46900E33F29 /* Interface */,
 				36A050362A504289006F61D4 /* ViewController */,
 				36B80B492A6BABED00E33F29 /* Extensions.swift */,
+				3600ACCD2AA0E3DC0022506A /* PerfectPixelScreen.swift */,
 				36A050372A5042DB006F61D4 /* Assets */,
 				36A0502C2A500A89006F61D4 /* LaunchScreen.storyboard */,
 				36A050272A500A87006F61D4 /* SuperDoer.xcdatamodeld */,
@@ -205,12 +230,11 @@
 		36A050362A504289006F61D4 /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
-				367E36DB2A98C4E6003E7C1D /* PopoverController */,
+				3600ACD12AA0F4960022506A /* ModalController */,
 				36CBA1012A920291000C78FB /* AlertController */,
+				3610D1542AA363550008C19D /* TaskView */,
 				36A050222A500A87006F61D4 /* HomeViewController.swift */,
 				36A050382A504E21006F61D4 /* TasksListViewController.swift */,
-				36A0503A2A504E4B006F61D4 /* TaskViewController.swift */,
-				36EF4D392A9E185900343393 /* TaskDescriptionViewController.swift */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -258,6 +282,7 @@
 				36714F782A8FA723001043C3 /* UILabel */,
 				36B80B412A6BA48600E33F29 /* UIButton */,
 				364E312F2A7BC6B8004544D5 /* TextField */,
+				3600ACCA2AA0C3A80022506A /* UITextView */,
 			);
 			path = Control;
 			sourceTree = "<group>";
@@ -360,6 +385,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3600ACCE2AA0E3DC0022506A /* PerfectPixelScreen.swift in Sources */,
 				366BC5CF2A89264200D67230 /* RemindButtonCell.swift in Sources */,
 				36A050392A504E21006F61D4 /* TasksListViewController.swift in Sources */,
 				367E36D52A96463E003E7C1D /* TasksDeleteAlertController.swift in Sources */,
@@ -367,10 +393,12 @@
 				36CBA1032A9202BC000C78FB /* NotificationDisabledAlertController.swift in Sources */,
 				36EF4D3A2A9E185900343393 /* TaskDescriptionViewController.swift in Sources */,
 				367E36D72A973991003E7C1D /* FileDeleteAlertController.swift in Sources */,
+				3600ACCC2AA0C3D70022506A /* UITaskTitleTextView.swift in Sources */,
 				368FEC6A2A86B2E90001A5D3 /* TaskListStandartTaskCell.swift in Sources */,
 				36B80B4A2A6BABED00E33F29 /* Extensions.swift in Sources */,
 				36B80B432A6BA4B600E33F29 /* CheckboxButton.swift in Sources */,
 				36A050232A500A87006F61D4 /* HomeViewController.swift in Sources */,
+				3600ACD32AA0F4C80022506A /* ReminderSettingsViewController.swift in Sources */,
 				366BC5D52A8944A000D67230 /* AddFileButtonCell.swift in Sources */,
 				360D6C5C2A8BC3350092EA5C /* FileButtonCell.swift in Sources */,
 				366BC5D32A89425100D67230 /* RepeatButtonCell.swift in Sources */,

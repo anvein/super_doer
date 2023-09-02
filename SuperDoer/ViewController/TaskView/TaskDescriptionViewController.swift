@@ -11,11 +11,9 @@ class TaskDescriptionViewController: UIViewController {
     lazy var toolbar = UIToolbar()
     lazy var boldBarButtonItem = UIBarButtonItem(title: "bold", style: .plain, target: nil, action: nil)
     
-    
     var task: Task
     
     var dismissDelegate: TaskDescriptionViewControllerDelegate?
-    
     
     
     // MARK: init
@@ -101,10 +99,10 @@ class TaskDescriptionViewController: UIViewController {
         toolbar.isTranslucent = true
         
         
-        boldBarButtonItem.image = UIImage(systemName: "bold")
-        boldBarButtonItem.tintColor = InterfaceColors.textGray
-        
-        toolbar.setItems([boldBarButtonItem], animated: false)
+//        boldBarButtonItem.image = UIImage(systemName: "bold")
+//        boldBarButtonItem.tintColor = InterfaceColors.textGray
+//
+//        toolbar.setItems([boldBarButtonItem], animated: false)
         
         descriptionTextView.inputAccessoryView = toolbar
     }
@@ -149,8 +147,9 @@ class TaskDescriptionViewController: UIViewController {
     // MARK: work with model (task)
     private func updateTask() {
         let mutableTaskDescription = NSMutableAttributedString(attributedString: descriptionTextView.attributedText)
-        
         task.description = mutableTaskDescription
+        
+        task.descriptionUpdated = Date()
     }
     
     private func fillControlsFromTask() {

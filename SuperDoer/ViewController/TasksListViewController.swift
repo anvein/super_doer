@@ -16,7 +16,18 @@ class TasksListViewController: UIViewController {
     // MARK: data (tasks)
     var tasksArray: Array<Task> = [
         Task(id: 1, title: "🤩 КВИЗ (18:00)", isCompleted: true),
-        Task(id: 2, title: "🏡 Заказать полочку и повесить", isCompleted: true, isMyDay: true, isPriority: true,  description: NSAttributedString(string: "Съездить в леруа\nОтпилить полочки")),
+        Task(
+            id: 2,
+            title: "🏡 Заказать полочку и повесить",
+            isCompleted: true,
+            isMyDay: true,
+            isPriority: true,
+            files: [
+                TaskFile(id: 1, name: "marcedes cla.fga", fileExtension: "fga", size: 800),
+                TaskFile(id: 2, name: "Видео из файла 13.08.2023, 22:38:33", fileExtension: "mov", size: 1700),
+            ],
+            description: NSAttributedString(string: "Съездить в леруа\nОтпилить полочки")
+        ),
         Task(id: 3, title: "🏡 Помыть окна"),
         Task(id: 4, title: "🕵️‍♂️ МАФИЯ (19:00)", isCompleted: true),
         Task(id: 5, title: "🏄‍♂️ САП (19 — 21)***"),
@@ -291,17 +302,56 @@ class Task {
     
     var isPriority: Bool = false
     
+    var reminderDateTime: Date?
+    
     var description: NSAttributedString?
     var descriptionUpdated: Date?
+    
+    var files: [TaskFile] = []
 
-    init(id: Int, title: String? = nil, isCompleted: Bool = false, isMyDay: Bool = false, isPriority: Bool = false, description: NSAttributedString? = nil, descriptionUpdated: Date? = nil) {
+    init(
+        id: Int,
+        title: String? = nil,
+        isCompleted: Bool = false,
+        isMyDay: Bool = false,
+        isPriority: Bool = false,
+        reminderDateTime: Date? = nil,
+        files: [TaskFile] = [],
+        description: NSAttributedString? = nil,
+        descriptionUpdated: Date? = nil
+    ) {
         self.id = id
         self.title = title
         self.isCompleted = isCompleted
         self.inMyDay = isMyDay
         self.isPriority = isPriority
+        self.reminderDateTime = reminderDateTime
+        self.files = files
         self.description = description
         self.descriptionUpdated = descriptionUpdated
     }
     
+    func deleteFile(by id: Int) {
+        for (index, file) in files.enumerated() {
+            if file.id == id {
+                files.remove(at: index)
+            }
+        }
+    }
+}
+
+typealias FileSize = Int
+class TaskFile {
+    var id: Int
+    var name: String
+    /// kb
+    var size: FileSize
+    var fileExtension: String
+    
+    init(id: Int, name: String, fileExtension: String, size: FileSize) {
+        self.id = id
+        self.name = name
+        self.fileExtension = fileExtension
+        self.size = size
+    }
 }

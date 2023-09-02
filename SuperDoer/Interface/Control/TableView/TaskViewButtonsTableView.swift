@@ -77,13 +77,14 @@ struct AddFileCellValue: ButtonCellValueProtocol {
 }
 
 struct FileCellValue: ButtonCellValueProtocol {
-    var fileExtension: String?
-    var fileName: String?
-    var fileSize: String?
+    var id: Int
+    var name: String
+    var fileExtension: String
+    var size: FileSize
 }
 
 
 struct DescriptionCellValue: ButtonCellValueProtocol {
     var text: NSAttributedString?
-    var dateUpdated: String?
+    var dateUpdated: Date?
 }

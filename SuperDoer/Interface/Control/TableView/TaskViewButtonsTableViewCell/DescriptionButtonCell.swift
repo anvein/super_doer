@@ -22,12 +22,12 @@ class DescriptionButtonCell: UITableViewCell {
     
     
     // MARK: content view controls
-    let mainTextLabel = UILabel()
-    let infoLabel = UILabel()
+    private let mainTextLabel = UILabel()
+    private let infoLabel = UILabel()
     
-    let openButton = UIButton()
+    private let openButton = UIButton()
     
-    lazy var bottomSeparator = UIView()
+    private lazy var bottomSeparator = UIView()
     
     
     // MARK: init
@@ -154,13 +154,18 @@ class DescriptionButtonCell: UITableViewCell {
     
     // MARK: action-handlers
     @objc func pressOpenButton() {
-        delegate?.pressOpenButton()
+        delegate?.pressTaskDescriptionOpenButton()
     }
     
     
     // MARK: methods helpers
     // TODO: пока костыль + текст надо изменять только при помощи этого метода
     // TODO: надо придумать, как отслеживать изменение mainTextLabel.text и изменять state при изменении mainTextLabel.text
+    func fillCellData(mainText: NSAttributedString?, dateUpdated: Date?) {
+        fillMainText(attributedText: mainText)
+        fillInfoLabel(dateUpdated: dateUpdated)
+    }
+    
     func fillMainText(attributedText: NSAttributedString?) {
         if attributedText == nil || attributedText?.length == 0 {
             mainTextLabel.attributedText = nil
@@ -175,9 +180,20 @@ class DescriptionButtonCell: UITableViewCell {
         configureCellForState(state)
     }
     
+    func fillInfoLabel(dateUpdated: Date?) {
+        if let fillDateUpdated = dateUpdated {
+            let calendar = Calendar.current
+            let dateComponents = calendar.dateComponents([.day, .month, .year, .hour, .minute, .second], from: fillDateUpdated)
+            
+            infoLabel.text = "Обновлено \(dateComponents.day ?? 0).\(dateComponents.month ?? 0).\(dateComponents.year ?? 0) \(dateComponents.hour ?? 0):\(dateComponents.minute ?? 0):\(dateComponents.second ?? 0)"
+        } else {
+            infoLabel.text = nil
+        }
+    }
+    
 }
 
 // MARK: delegate protocol
 protocol DescriptionButtonCellDelegateProtocol: AnyObject {
-    func pressOpenButton()
+    func pressTaskDescriptionOpenButton()
 }

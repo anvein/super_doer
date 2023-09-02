@@ -10,6 +10,7 @@ struct InterfaceColors {
     static let controlsGray = UIColor(red: 109 / 255, green: 109 / 255, blue: 111 / 255, alpha: 1)
     static let textGray = UIColor(red: 118 / 255, green: 118 / 255, blue: 120 / 255, alpha: 1)
     
+    static let textRed = UIColor(red: 227 / 255, green: 44 / 255, blue: 43 / 255, alpha: 1)
     static let textBlue = UIColor(red: 51 / 255, green: 111 / 255, blue: 238 / 255, alpha: 1)
 //    static let textBlue = UIColor(red: 67 / 255, green: 106 / 255, blue: 242 / 255, alpha: 1)
     

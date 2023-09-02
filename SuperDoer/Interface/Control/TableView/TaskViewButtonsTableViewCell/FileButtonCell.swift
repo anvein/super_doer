@@ -71,9 +71,9 @@ class FileButtonCell: TaskViewLabelsButtonCell {
     }
     
     func fillFromCellValue(cellValue: FileCellValue) {
-        mainTextLabel.text = cellValue.fileName
-        miniTextLabel.text = cellValue.fileSize?.uppercased()
-        extensionLabel.text = cellValue.fileExtension?.uppercased()
+        mainTextLabel.text = cellValue.name
+        extensionLabel.text = cellValue.fileExtension.uppercased()
+        miniTextLabel.text = "\(cellValue.size) КБ"
     }
     
 //    // MARK: target-action handlers
