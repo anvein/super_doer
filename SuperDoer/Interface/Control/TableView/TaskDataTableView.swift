@@ -3,7 +3,7 @@
 import UIKit
 
 /// Таблица с кнопками для страницы просмотра / редактирования задачи
-class TaskViewButtonsTableView: UITableView {
+class TaskDataTableView: UITableView {
     
     override init(frame: CGRect, style: UITableView.Style) {
         super.init(frame: frame, style: style)
@@ -31,7 +31,7 @@ class TaskViewButtonsTableView: UITableView {
         
         register(AddToMyDayButtonCell.self, forCellReuseIdentifier: AddToMyDayButtonCell.identifier)
         register(RemindButtonCell.self, forCellReuseIdentifier: RemindButtonCell.identifier)
-        register(DeadlineButtonCell.self, forCellReuseIdentifier: DeadlineButtonCell.identifier)
+        register(TaskDataDeadlineCell.self, forCellReuseIdentifier: TaskDataDeadlineCell.identifier)
         register(RepeatButtonCell.self, forCellReuseIdentifier: RepeatButtonCell.identifier)
         register(AddFileButtonCell.self, forCellReuseIdentifier: AddFileButtonCell.identifier)
         register(FileButtonCell.self, forCellReuseIdentifier: FileButtonCell.identifier)
@@ -43,40 +43,40 @@ class TaskViewButtonsTableView: UITableView {
     
 }
 
-protocol ButtonCellValueProtocol {
+protocol TaskDataCellValueProtocol {
     
 }
 
-struct AddToMyDayCellValue: ButtonCellValueProtocol {
+struct AddToMyDayCellValue: TaskDataCellValueProtocol {
     var inMyDay: Bool = false
 }
 
-struct SubTaskCellValue: ButtonCellValueProtocol {
+struct SubTaskCellValue: TaskDataCellValueProtocol {
     var isCompleted: Bool = false
     var title: String
 }
 
-struct AddSubTaskCellValue: ButtonCellValueProtocol {
+struct AddSubTaskCellValue: TaskDataCellValueProtocol {
     
 }
 
-struct RemindCellValue: ButtonCellValueProtocol {
+struct RemindCellValue: TaskDataCellValueProtocol {
     var dateTime: Date?
 }
 
-struct DeadlineCellValue: ButtonCellValueProtocol {
+struct DeadlineCellValue: TaskDataCellValueProtocol {
     var date: Date?
 }
 
-struct RepeatCellValue: ButtonCellValueProtocol {
+struct RepeatCellValue: TaskDataCellValueProtocol {
     // TODO: определить параметры
 }
 
-struct AddFileCellValue: ButtonCellValueProtocol {
+struct AddFileCellValue: TaskDataCellValueProtocol {
     
 }
 
-struct FileCellValue: ButtonCellValueProtocol {
+struct FileCellValue: TaskDataCellValueProtocol {
     var id: Int
     var name: String
     var fileExtension: String
@@ -84,7 +84,7 @@ struct FileCellValue: ButtonCellValueProtocol {
 }
 
 
-struct DescriptionCellValue: ButtonCellValueProtocol {
+struct DescriptionCellValue: TaskDataCellValueProtocol {
     var text: NSAttributedString?
     var dateUpdated: Date?
 }

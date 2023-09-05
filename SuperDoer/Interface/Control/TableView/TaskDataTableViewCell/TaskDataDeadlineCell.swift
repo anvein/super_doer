@@ -3,7 +3,7 @@ import UIKit
 
 
 /// Кнопка-ячейка "Срок выполнения задачи"
-class DeadlineButtonCell: TaskViewLabelsButtonCell {
+class TaskDataDeadlineCell: TaskViewLabelsButtonCell {
     enum State: String {
         /// Дата срока выполнения НЕ определена
         case undefined
@@ -13,7 +13,7 @@ class DeadlineButtonCell: TaskViewLabelsButtonCell {
     }
     
     class override var identifier: String {
-        return "DeadlineButtonCell"
+        return "TaskDataDeadlineCell"
     }
     
     var state: State = .undefined {
@@ -25,6 +25,9 @@ class DeadlineButtonCell: TaskViewLabelsButtonCell {
             configureForState(state)
         }
     }
+    
+    weak var delegate: TaskDataDeadlineCellDelegate?
+    
     
     // MARK: setup methods
     override func setupViews()
@@ -41,19 +44,16 @@ class DeadlineButtonCell: TaskViewLabelsButtonCell {
         actionButton.addTarget(self, action: #selector(handleTapActionButton(actionButton:)), for: .touchUpInside)
     }
     
-    func configureForState(_ state: State) {
+    /// Этот метод не нужно вызывать самостоятельно
+    /// Нужно менять свойство state
+    private func configureForState(_ state: State) {
         switch state {
         case .undefined :
-            mainTextLabel.text = "Добавить дату выполнения"
-            
             mainTextLabel.textColor = InterfaceColors.textGray
             leftImageView.tintColor = InterfaceColors.textGray
             actionButton.isHidden = true
             
         case .defined :
-            // TODO: получить из модели задачи дату + сформировать строку с датой
-            mainTextLabel.text = "Срок: Пт, 25 августа"
-            
             mainTextLabel.textColor = InterfaceColors.textBlue
             leftImageView.tintColor = InterfaceColors.textBlue
             actionButton.isHidden = false
@@ -61,6 +61,23 @@ class DeadlineButtonCell: TaskViewLabelsButtonCell {
     }
     
     // MARK: methods helpers
+    /// Управлять контентом и состоянием кнопки надо через этот метод
+    func fillFrom(_ cellValue: DeadlineCellValue) {
+        if let filledDate = cellValue.date {
+            let dateFormatter = DateFormatter()
+            dateFormatter.locale = Locale(identifier: "ru_RU")
+            dateFormatter.dateFormat = "dd MM yyyy"
+            
+            let stringDate = dateFormatter.string(from: filledDate)
+            
+            mainTextLabel.text = "Срок: \(stringDate)"
+            state = .defined
+        } else {
+            mainTextLabel.text = "Добавить дату выполнения"
+            state = .undefined
+        }
+    }
+    
     override func createLeftButtonImage() -> UIImage? {
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 19, weight: .semibold)
         
@@ -72,8 +89,12 @@ class DeadlineButtonCell: TaskViewLabelsButtonCell {
  
     // MARK: handlers
     @objc func handleTapActionButton(actionButton: UIButton) {
-        if state == .defined {
-            state = .undefined
-        }
+        delegate?.tapTaskDeadlineCrossButton()
     }
+}
+
+
+// MARK: delegate protocol
+protocol TaskDataDeadlineCellDelegate: AnyObject {
+    func tapTaskDeadlineCrossButton()
 }

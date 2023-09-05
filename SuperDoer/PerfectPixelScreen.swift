@@ -22,10 +22,10 @@ class PixelPerfectScreen {
     // MARK: methods
     static func getInstanceAndSetup(baseView: UIView, imageName: String? = nil) {
         PixelPerfectScreen.instance = PixelPerfectScreen(baseView: baseView)
-        PixelPerfectScreen.instance?.setupPerfectPixelScreen(imageName: imageName)
+        PixelPerfectScreen.instance?.setup(imageName: imageName)
     }
     
-    private func setupPerfectPixelScreen(imageName: String? = nil) {
+    private func setup(imageName: String? = nil) {
         if let safeImageName = imageName {
             screenImageView.image = UIImage(named: safeImageName)
         }

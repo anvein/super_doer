@@ -10,13 +10,13 @@ class TaskViewController: UIViewController {
     lazy var taskTitleTextView = UITaskTitleTextView()
     lazy var isPriorityButton = StarButton()
     
-    lazy var buttonsTableView = TaskViewButtonsTableView(frame: .zero, style: .plain)
+    lazy var taskDataTableView = TaskDataTableView(frame: .zero, style: .plain)
 
     /// Редактируемое в данный момент поле TextField
     var textFieldEditing: UITextField?
     
     /// Массив на основании которого формируется таблица с "кнопками" и данными задачи
-    var taskCellsValues = TaskViewCellValues()
+    var taskDataCellsValues = TaskDataCellValues()
     
     
     // MARK: model
@@ -102,7 +102,7 @@ class TaskViewController: UIViewController {
             return
         }
         
-        guard let indexPath = buttonsTableView.indexPath(for: fileButtonCell) else {
+        guard let indexPath = taskDataTableView.indexPath(for: fileButtonCell) else {
             return
         }
         
@@ -121,46 +121,39 @@ class TaskViewController: UIViewController {
             
             present(notificationDisableAlert, animated: true)
         } else {
-            showReminderSettingsController(task)
+            
         }
     }
     
-    private func showReminderSettingsController(_ task: Task) {
-        
-        let reminderController = ReminderSettingsViewController(task: task)
-        let navigationController = UINavigationController(rootViewController: reminderController)
+    private func showDeadlineSettingsController(_ task: Task) {
+        let deadlineVariantsController = DeadlineVariantsViewController(task: task)
+        deadlineVariantsController.delegate = self
+        let navigationController = UINavigationController(rootViewController: deadlineVariantsController)
         
         present(navigationController, animated: true)
-        
-        
-        
-        // TODO: открывать контроллер с выбором даты + подгрузить данные из модели
-        // если пользователь не установил ничего, то закрыть контроллер установки даты и оставить поле пустым
-        // если установил дату, то закрыть контроллер установки даты, записать в модель, изменить стейт кнопки
-        
     }
     
     
-    private func presentTaskDeadlineViewController() {
-        let deadlineController = PageSheetDealineViewController()
-
-        present(deadlineController, animated: true)
-//        show(deadlineController, sender: nil)
-
-
-
-//        deadlineCalendarController.preferredContentSize = CGSize(width: 300, height: 400)
-        
-//        deadlineCalendarController.view.frame =
-        
-        // при present
-//            .popover
-//            .formSheet // ???
-//            .pageSheet // откроется поверх родительского с оттеснением родительского дальше (родительский будет видно)
-        
-//            .currentContext // откроется на весь экран (родительский контроллер не будет видно) (вьюхи родительского контроллера тоже удаляются)
-//            .fullScreen // на весь экран (вьюхи родительского vc удаляются, когда открывается такой vc)
-    }
+//    private func presentDeadlineViewController() {
+//        let deadlineVariantsController = DeadlineVariantsViewController()
+//
+//        present(deadlineVariantsController, animated: true)
+////        show(deadlineController, sender: nil)
+//
+//
+//
+////        deadlineCalendarController.preferredContentSize = CGSize(width: 300, height: 400)
+//
+////        deadlineCalendarController.view.frame =
+//
+//        // при present
+////            .popover
+////            .formSheet // ???
+////            .pageSheet // откроется поверх родительского с оттеснением родительского дальше (родительский будет видно)
+//
+////            .currentContext // откроется на весь экран (родительский контроллер не будет видно) (вьюхи родительского контроллера тоже удаляются)
+////            .fullScreen // на весь экран (вьюхи родительского vc удаляются, когда открывается такой vc)
+//    }
     
     
     private func presentDeleteFileAlertController(fileIndexPath indexPath: IndexPath) {
@@ -172,12 +165,12 @@ class TaskViewController: UIViewController {
     }
     
     private func deleteFile(fileCellIndexPath indexPath: IndexPath) {
-        let cellValue = taskCellsValues.cellsValuesArray[indexPath.row]
+        let cellValue = taskDataCellsValues.cellsValuesArray[indexPath.row]
         if let fileCellValue = cellValue as? FileCellValue {
             task.deleteFile(by: fileCellValue.id)
             
-            taskCellsValues.cellsValuesArray.remove(at: indexPath.row)
-            buttonsTableView.reloadData()
+            taskDataCellsValues.cellsValuesArray.remove(at: indexPath.row)
+            taskDataTableView.reloadData()
         }
     }
     
@@ -201,9 +194,9 @@ class TaskViewController: UIViewController {
         taskDoneButton.isOn = task.isCompleted
         isPriorityButton.isOn = task.isPriority
         
-        taskCellsValues.fill(from: task)
-        if !buttonsTableView.visibleCells.isEmpty {
-            buttonsTableView.reloadData()
+        taskDataCellsValues.fill(from: task)
+        if !taskDataTableView.visibleCells.isEmpty {
+            taskDataTableView.reloadData()
         }
     }
     
@@ -222,7 +215,7 @@ extension TaskViewController {
         view.addSubview(taskTitleTextView)
         view.addSubview(isPriorityButton)
 
-        view.addSubview(buttonsTableView)
+        view.addSubview(taskDataTableView)
     }
     
     private func setupConstraints() {
@@ -248,11 +241,11 @@ extension TaskViewController {
         
         // buttonsTableView
         NSLayoutConstraint.activate([
-            buttonsTableView.topAnchor.constraint(equalTo: taskTitleTextView.bottomAnchor),
-            buttonsTableView.leftAnchor.constraint(equalTo: view.leftAnchor),
-            buttonsTableView.rightAnchor.constraint(equalTo: view.rightAnchor),
-            buttonsTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            buttonsTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            taskDataTableView.topAnchor.constraint(equalTo: taskTitleTextView.bottomAnchor),
+            taskDataTableView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            taskDataTableView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            taskDataTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            taskDataTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
     
@@ -269,8 +262,8 @@ extension TaskViewController {
         taskTitleTextView.delegate = self
         
         // buttonsTableView
-        buttonsTableView.dataSource = self
-        buttonsTableView.delegate = self
+        taskDataTableView.dataSource = self
+        taskDataTableView.delegate = self
     }
 }
 
@@ -278,43 +271,47 @@ extension TaskViewController {
 // MARK: table delegate and dataSource
 extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return taskCellsValues.cellsValuesArray.count
+        return taskDataCellsValues.cellsValuesArray.count
     }
     
     
     // MARK: cell appearance
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let buttonValue = taskCellsValues.cellsValuesArray[indexPath.row]
+        let buttonValue = taskDataCellsValues.cellsValuesArray[indexPath.row]
         let cell: UITableViewCell
         
         switch buttonValue {
         case _ as AddSubTaskCellValue:
-            cell = buttonsTableView.dequeueReusableCell(withIdentifier: AddSubtaskButtonCell.identifier)!
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: AddSubtaskButtonCell.identifier)!
             if let addSubtaskButtonCell = cell as? AddSubtaskButtonCell {
                 addSubtaskButtonCell.subtaskTextField.delegate = self
             }
             
         case let addToMyDayCellValue as AddToMyDayCellValue:
-            cell = buttonsTableView.dequeueReusableCell(withIdentifier: AddToMyDayButtonCell.identifier)!
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: AddToMyDayButtonCell.identifier)!
             if let addToMyDayButtonCell = cell as? AddToMyDayButtonCell {
                 addToMyDayButtonCell.isOn = addToMyDayCellValue.inMyDay
                 addToMyDayButtonCell.delegate = self
             }
         
         case _ as RemindCellValue:
-            cell = buttonsTableView.dequeueReusableCell(withIdentifier: RemindButtonCell.identifier)!
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: RemindButtonCell.identifier)!
             
-        case _ as DeadlineCellValue:
-            cell = buttonsTableView.dequeueReusableCell(withIdentifier: DeadlineButtonCell.identifier)!
+        case let deadlineCellValue as DeadlineCellValue:
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDataDeadlineCell.identifier)!
+            if let deadlineCell = cell as? TaskDataDeadlineCell {
+                deadlineCell.fillFrom(deadlineCellValue)
+                deadlineCell.delegate = self
+            }
             
         case _ as RepeatCellValue:
-            cell = buttonsTableView.dequeueReusableCell(withIdentifier: RepeatButtonCell.identifier)!
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: RepeatButtonCell.identifier)!
             
         case _ as AddFileCellValue:
-            cell = buttonsTableView.dequeueReusableCell(withIdentifier: AddFileButtonCell.identifier)!
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: AddFileButtonCell.identifier)!
         
         case let fileCellValue as FileCellValue:
-            cell = buttonsTableView.dequeueReusableCell(withIdentifier: FileButtonCell.identifier)!
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: FileButtonCell.identifier)!
             if let fileButtonCell = cell as? FileButtonCell {
                 fileButtonCell.fillFromCellValue(cellValue: fileCellValue)
                 fileButtonCell.actionButton.addTarget(
@@ -325,14 +322,14 @@ extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
             }
             
         case let descriprionCellValue as DescriptionCellValue:
-            cell = buttonsTableView.dequeueReusableCell(withIdentifier: DescriptionButtonCell.identifier)!
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: DescriptionButtonCell.identifier)!
             if let descriptionButtonCell = cell as? DescriptionButtonCell {
                 descriptionButtonCell.delegate = self
                 descriptionButtonCell.fillCellData(mainText: descriprionCellValue.text, dateUpdated: descriprionCellValue.dateUpdated)
             }
             
         default :
-            cell = buttonsTableView.dequeueReusableCell(withIdentifier: TaskViewLabelsButtonCell.identifier)!
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskViewLabelsButtonCell.identifier)!
             if cell is TaskViewLabelsButtonCell {
 //                buttonWithLabel.mainTextLabel.text = buttonValue.maintext
             }
@@ -345,7 +342,7 @@ extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
     // MARK: select row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath)
-        let cellValue = taskCellsValues.cellsValuesArray[indexPath.row]
+        let cellValue = taskDataCellsValues.cellsValuesArray[indexPath.row]
         
         switch cell {
         case let addSubtaskButton as AddSubtaskButtonCell :
@@ -353,14 +350,14 @@ extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
         
         case _ as AddToMyDayButtonCell :
             task.inMyDay = !task.inMyDay
-            taskCellsValues.fillAddToMyDay(from: task)
-            buttonsTableView.reloadData()
+            taskDataCellsValues.fillAddToMyDay(from: task)
+            taskDataTableView.reloadData()
         
         case let remindButton as RemindButtonCell :
             setTaskReminder(remindButton)
             
-        case _ as DeadlineButtonCell :
-            presentTaskDeadlineViewController()
+        case _ as TaskDataDeadlineCell :
+            showDeadlineSettingsController(task)
             
         case _ as RepeatButtonCell :
             print("🔁 Открылись настройки повтора задачи")
@@ -403,7 +400,7 @@ extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: "edit" / delete row
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        if taskCellsValues.cellsValuesArray[indexPath.row] is FileCellValue {
+        if taskDataCellsValues.cellsValuesArray[indexPath.row] is FileCellValue {
             return true
         }
         
@@ -470,41 +467,58 @@ extension TaskViewController: UITextFieldDelegate {
 
 
 // MARK: cell delegates, child controllers delegates
-extension TaskViewController: TaskDescriptionViewControllerDelegate {
-    func didDismissTaskDescriptionViewController(isSuccess: Bool) {
-        taskCellsValues.fillDescription(from: task)
-        buttonsTableView.reloadData()
+/// Делегаты связанные с полем "Описание"
+extension TaskViewController: TaskDescriptionViewControllerDelegate, DescriptionButtonCellDelegateProtocol {
+    func didDisappearTaskDescriptionViewController(isSuccess: Bool) {
+        taskDataCellsValues.fillDescription(from: task)
+        taskDataTableView.reloadData()
     }
-}
-
-extension TaskViewController: DescriptionButtonCellDelegateProtocol {
+    
     func pressTaskDescriptionOpenButton() {
         presentDescriptionController()
     }
 }
 
+/// Делегат связанный с полем "Добавить в мой день"
 extension TaskViewController: AddToMyDayButtonCellDelegate {
     func tapAddToMyDayCrossButton() {
         task.inMyDay = false
-        taskCellsValues.fillAddToMyDay(from: task)
         
-        buttonsTableView.reloadData()
+        taskDataCellsValues.fillAddToMyDay(from: task)
+        taskDataTableView.reloadData()
     }
 }
 
+/// Делегат связанный с полем "Напомнить"
 extension TaskViewController: NotificationsDisabledAlertControllerDelegate {
     func didChoosenEnableNotifications() {
-        showReminderSettingsController(task)
+        // TODO: открыть контроллер установки напоминаний
     }
     
     func didChoosenNotNowEnableNotification() {
-        showReminderSettingsController(task)
+        // TODO: открыть контроллер установки напоминаний
     }
 }
 
+/// Методы делегата связанные с полем "Дата выполнения"
+extension TaskViewController: TaskDataDeadlineCellDelegate, DeadlineSettingsViewControllerDelegate {
+    func tapTaskDeadlineCrossButton() {
+        task.deadlineDate = nil
+        
+        taskDataCellsValues.fill(from: task)
+        taskDataTableView.reloadData()
+    }
+    
+    func didDisappearDeadlineSettingsViewController(isSuccess: Bool) {
+        fillControls(from: task)
+        taskDataTableView.reloadData()
+    }
+}
+
+
 // MARK: task cell values
-class TaskViewCellValues {
-    var cellsValuesArray = [ButtonCellValueProtocol]()
+class TaskDataCellValues {
+    var cellsValuesArray = [TaskDataCellValueProtocol]()
     
     /// Полностью обновляет все данные для таблицы на основании task
     func fill(from task: Task) {
@@ -515,7 +529,8 @@ class TaskViewCellValues {
         
         cellsValuesArray.append(AddToMyDayCellValue(inMyDay: task.inMyDay))
         cellsValuesArray.append(RemindCellValue())
-        cellsValuesArray.append(DeadlineCellValue())
+        
+        cellsValuesArray.append(DeadlineCellValue(date: task.deadlineDate))
         cellsValuesArray.append(RepeatCellValue())
         cellsValuesArray.append(AddFileCellValue())
         

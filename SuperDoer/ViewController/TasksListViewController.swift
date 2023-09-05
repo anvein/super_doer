@@ -303,6 +303,7 @@ class Task {
     var isPriority: Bool = false
     
     var reminderDateTime: Date?
+    var deadlineDate: Date?
     
     var description: NSAttributedString?
     var descriptionUpdated: Date?
@@ -316,6 +317,7 @@ class Task {
         isMyDay: Bool = false,
         isPriority: Bool = false,
         reminderDateTime: Date? = nil,
+        deadlineDate: Date? = nil,
         files: [TaskFile] = [],
         description: NSAttributedString? = nil,
         descriptionUpdated: Date? = nil
@@ -326,6 +328,7 @@ class Task {
         self.inMyDay = isMyDay
         self.isPriority = isPriority
         self.reminderDateTime = reminderDateTime
+        self.deadlineDate = deadlineDate
         self.files = files
         self.description = description
         self.descriptionUpdated = descriptionUpdated

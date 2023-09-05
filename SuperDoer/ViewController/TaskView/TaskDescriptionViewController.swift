@@ -52,7 +52,7 @@ class TaskDescriptionViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
-        dismissDelegate?.didDismissTaskDescriptionViewController(isSuccess: true)
+        dismissDelegate?.didDisappearTaskDescriptionViewController(isSuccess: true)
     }
     
     
@@ -188,5 +188,5 @@ extension TaskDescriptionViewController: UINavigationBarDelegate {
 
 // MARK: dismiss protocol
 protocol TaskDescriptionViewControllerDelegate {
-    func didDismissTaskDescriptionViewController(isSuccess: Bool)
+    func didDisappearTaskDescriptionViewController(isSuccess: Bool)
 }
