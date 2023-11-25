@@ -39,10 +39,11 @@ class TaskDataTableView: UITableView {
         
         register(TaskViewLabelsButtonCell.self, forCellReuseIdentifier: TaskViewLabelsButtonCell.identifier)
     }
-
     
 }
 
+
+// MARK: TaskData classes
 protocol TaskDataCellValueProtocol {
     
 }
@@ -77,14 +78,32 @@ struct AddFileCellValue: TaskDataCellValueProtocol {
 }
 
 struct FileCellValue: TaskDataCellValueProtocol {
-    var id: Int
+    var id: UUID
     var name: String
     var fileExtension: String
-    var size: FileSize
+    var size: Int
 }
 
 
 struct DescriptionCellValue: TaskDataCellValueProtocol {
-    var text: NSAttributedString?
-    var dateUpdated: Date?
+    var content: NSAttributedString?
+    var updatedAt: Date?
+    
+    init(contentAsHtml: String? = nil, dateUpdatedAt: Date? = nil) {
+        self.content = convertToNsAttributedStringFrom(contentAsHtml: contentAsHtml)
+        self.updatedAt = dateUpdatedAt
+    }
+    
+    private func convertToNsAttributedStringFrom(contentAsHtml: String?) -> NSAttributedString? {
+//        self.content = NSAttributedString(string: "", attributes: []).data(from: 0..<contentAsHtml.len, documentAttributes: <#T##[NSAttributedString.DocumentAttributeKey : Any]#>)
+//        NSAttributedString().data(from: 0.., documentAttributes: <#T##[NSAttributedString.DocumentAttributeKey : Any]#>)
+//        
+//        NSAttributedString(data: Data(), documentAttributes: <#T##AutoreleasingUnsafeMutablePointer<NSDictionary?>?#>)
+        
+        if let filledContentAsHtml = contentAsHtml {
+            return NSAttributedString(string: filledContentAsHtml)
+        } else {
+            return nil
+        }
+    }
 }

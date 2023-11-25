@@ -51,3 +51,52 @@ class HomeViewController: UIViewController, UIScrollViewDelegate {
 
 }
 
+
+
+
+
+//import UIKit
+//
+///// Экран списков
+//class HomeViewController: UIViewController, UIScrollViewDelegate {
+//
+//    lazy var tasksListVC = TasksListViewController()
+//    
+//    var taskSectionsTableView = UITableView(frame: .zero, style: .grouped)
+//    
+//    override func viewDidLoad() {
+//        super.viewDidLoad()
+//        
+//        navigationController?.navigationBar.prefersLargeTitles = true
+//        navigationItem.largeTitleDisplayMode = .never
+//        title = "Списки"
+//        
+//        setupControls()
+//        addSubviewsToMainView()
+//        setupConstraints()
+//    }
+//    
+//    
+//
+//
+//}
+//
+//
+//// MARK: LAYOUT
+//extension HomeViewController {
+//    private func addSubviewsToMainView() {
+//        
+//    }
+//    
+//    private func setupControls() {
+//        setupViewOfViewController()
+//    }
+//    
+//    private func setupConstraints() {
+//        
+//    }
+//    
+//    private func setupViewOfViewController() {
+//        view.backgroundColor = InterfaceColors.white
+//    }
+//}

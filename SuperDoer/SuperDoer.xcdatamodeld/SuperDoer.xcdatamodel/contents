@@ -1,4 +1,43 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1" systemVersion="11A491" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="false" userDefinedModelVersionIdentifier="">
-    <elements/>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22225" systemVersion="22G313" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Task" representedClassName=".Task" syncable="YES" codeGenerationType="category">
+        <attribute name="deadlineDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="descriptionUpdatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="inMyDay" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isCompleted" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isPriority" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="reminderDateTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="taskDescription" optional="YES" attributeType="String"/>
+        <attribute name="title" attributeType="String" maxValueString="100" spotlightIndexingEnabled="YES"/>
+        <relationship name="customSection" maxCount="1" deletionRule="Deny" destinationEntity="TaskSectionCustom" inverseName="relationship" inverseEntity="TaskSectionCustom"/>
+        <relationship name="files" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="TaskFile" inverseName="task" inverseEntity="TaskFile"/>
+    </entity>
+    <entity name="TaskFile" representedClassName=".TaskFile" syncable="YES" codeGenerationType="category">
+        <attribute name="fileExtension" attributeType="String" maxValueString="10"/>
+        <attribute name="fileName" attributeType="String" maxValueString="100"/>
+        <attribute name="fileSize" attributeType="Integer 32" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="task" maxCount="1" deletionRule="Nullify" destinationEntity="Task" inverseName="files" inverseEntity="Task"/>
+    </entity>
+    <entity name="TaskSectionBase" representedClassName=".TaskSectionBase" isAbstract="YES" syncable="YES" codeGenerationType="category">
+        <attribute name="countTasks" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="order" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="title" attributeType="String"/>
+    </entity>
+    <entity name="TaskSectionCustom" representedClassName=".TaskSectionCustom" parentEntity="TaskSectionBase" syncable="YES" codeGenerationType="category">
+        <attribute name="deletedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="isCycledList" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES">
+            <userInfo>
+                <entry key="Описание" value="Является ли список с цикличными задачами (у таких списков другая логика подсчета кол-ва задач в списке)"/>
+            </userInfo>
+        </attribute>
+        <attribute name="titleEmoji" optional="YES" attributeType="String"/>
+        <relationship name="relationship" maxCount="1" deletionRule="Nullify" destinationEntity="Task" inverseName="customSection" inverseEntity="Task"/>
+    </entity>
+    <entity name="TaskSectionSystem" representedClassName=".TaskSectionSystem" parentEntity="TaskSectionBase" syncable="YES" codeGenerationType="category">
+        <attribute name="isHide" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="systemCode" attributeType="String" maxValueString="50"/>
+    </entity>
 </model>

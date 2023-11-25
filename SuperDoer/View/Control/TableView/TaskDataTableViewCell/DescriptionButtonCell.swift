@@ -161,12 +161,12 @@ class DescriptionButtonCell: UITableViewCell {
     // MARK: methods helpers
     // TODO: пока костыль + текст надо изменять только при помощи этого метода
     // TODO: надо придумать, как отслеживать изменение mainTextLabel.text и изменять state при изменении mainTextLabel.text
-    func fillCellData(mainText: NSAttributedString?, dateUpdated: Date?) {
-        fillMainText(attributedText: mainText)
-        fillInfoLabel(dateUpdated: dateUpdated)
+    func fillCellData(content: NSAttributedString?, updatedAt: Date?) {
+        fillContent(attributedText: content)
+        fillInfoLabel(dateUpdated: updatedAt)
     }
     
-    func fillMainText(attributedText: NSAttributedString?) {
+    func fillContent(attributedText: NSAttributedString?) {
         if attributedText == nil || attributedText?.length == 0 {
             mainTextLabel.attributedText = nil
             

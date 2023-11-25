@@ -18,6 +18,9 @@ class StarButton: UIButton {
         }
     }
     
+    var delegate: StarButtonDelegate?
+    
+    
     // MARK: init
     init(width: Float = StarButton.outerSize, height: Float = StarButton.outerSize, isOnDefault: Bool = false) {
         super.init(frame: .zero)
@@ -89,6 +92,7 @@ class StarButton: UIButton {
     
     @objc private func btnTouchUpInside(sender: StarButton) {
         isOn = !isOn
+        delegate?.starButtonValueDidChange(starButton: self)
         
         // TODO: анимировать (желательно универсально)
         setAppearanceForState(isOn)
@@ -96,3 +100,6 @@ class StarButton: UIButton {
     
 }
 
+protocol StarButtonDelegate {
+    func starButtonValueDidChange(starButton: StarButton)
+}

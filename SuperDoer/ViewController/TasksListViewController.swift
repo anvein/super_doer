@@ -1,44 +1,23 @@
 
 import UIKit
+import CoreData
 
 // MARK: MAIN
 /// Контроллер списка задач
 class TasksListViewController: UIViewController {
+
+    // TODO: переделать на DI-контейнер
+    lazy var taskEm = TaskEntityManager()
+    
     
     // MARK: controls
     lazy var tasksTable = TasksListTableView(frame: .zero, style: .insetGrouped)
     
     lazy var backgroundImageView = UIImageView(image: UIImage(named: "bgList"))
     
-    var largeTitleTextField = UITextField()
-    
     
     // MARK: data (tasks)
-    var tasksArray: Array<Task> = [
-        Task(id: 1, title: "🤩 КВИЗ (18:00)", isCompleted: true),
-        Task(
-            id: 2,
-            title: "🏡 Заказать полочку и повесить",
-            isCompleted: true,
-            isMyDay: true,
-            isPriority: true,
-            files: [
-                TaskFile(id: 1, name: "marcedes cla.fga", fileExtension: "fga", size: 800),
-                TaskFile(id: 2, name: "Видео из файла 13.08.2023, 22:38:33", fileExtension: "mov", size: 1700),
-            ],
-            description: NSAttributedString(string: "Съездить в леруа\nОтпилить полочки")
-        ),
-        Task(id: 3, title: "🏡 Помыть окна"),
-        Task(id: 4, title: "🕵️‍♂️ МАФИЯ (19:00)", isCompleted: true),
-        Task(id: 5, title: "🏄‍♂️ САП (19 — 21)***"),
-        Task(id: 6, title: "⚡️ ПСИХОТЕРАПЕВТ КПТ 29 (16:30, 14 авг)"),
-        Task(id: 7, title: "📸 Найти локации для фотосессии", isPriority: true),
-        Task(id: 8, title: "🔸 Укол (3к, адв.тмн)", isMyDay: true),
-        Task(id: 9, title: "🔹 Задача", isMyDay: false),
-        Task(id: 10, title: "🔹 Задача", isMyDay: false),
-        Task(id: 11, title: "🔹 Задача", isMyDay: false),
-        Task(id: 12, title: "🔹 Задача", isMyDay: false),
-    ]
+    var tasks = [Task]()
     
     
     // MARK: lyfecycle
@@ -52,8 +31,13 @@ class TasksListViewController: UIViewController {
 //        navigationController?.navigationBar.scrollEdgeAppearance = .
         
 //        navigationController?.navigationBar.topItem?.rightBarButtonItem
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(editTable))
+        let editItem = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(editTable))
+        let addItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(showAddTaskAlertController))
         
+        navigationItem.rightBarButtonItems = [addItem, editItem]
+        
+//        navigationController?.navigationBar.setBackgroundImage(UIImage(named: "bgList"), for: UIBarMetrics.compact)
+//        navigationController?.navigationBar.isOpaque = true
         
         setupControls()
         addSubviews()
@@ -71,39 +55,74 @@ class TasksListViewController: UIViewController {
         navigationController?.navigationBar.largeTitleTextAttributes = [
             .foregroundColor: InterfaceColors.white
         ]
+        
+        tasks = taskEm.getAllTasks()
+        if tasksTable.numberOfRows(inSection: 0) > 0 {
+            tasksTable.reloadData()
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        let selectedTask = tasksArray[1]
-        let taskController = TaskViewController(task: selectedTask)
-        navigationController?.pushViewController(taskController, animated: true)
+//        navigationController?.pushViewController(taskController, animated: true)
     }
     
-    // MARK: action-handlers
     
     // MARK: handlers
-    private func deleteTasks(tasksIndexPath: [IndexPath]) {
-        for taskIndexPath in tasksIndexPath {
-            tasksArray.remove(at: taskIndexPath.row)
+    @objc private func showAddTaskAlertController() {
+        let alertController = UIAlertController(title: "Add task", message: "Enter task title", preferredStyle: .alert)
+
+        alertController.addTextField() { taskTitleTf in
+            taskTitleTf.placeholder = "Title"
         }
         
-        tasksTable.deleteRows(at: tasksIndexPath, with: .fade)
+        let saveAction = UIAlertAction(title: "Save", style: .default) { action in
+            guard let taskTitle = alertController.textFields?.first?.text else {
+               return
+            }
+
+            self.saveNewTask(taskTitle: taskTitle)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
+        
+        alertController.addAction(cancelAction)
+        alertController.addAction(saveAction)
+        
+        present(alertController, animated: true)
+    }
+    
+    @objc private func saveNewTask(taskTitle: String) {
+        let task = taskEm.createWith(title: taskTitle)
+        
+        tasks.insert(task, at: 0)
+        tasksTable.reloadData()
     }
     
     private func presentDeleteTaskAlertController(tasksIndexPath: [IndexPath]) {
         var deleteTask: Task? = nil
         if tasksIndexPath.count == 1 {
-            deleteTask = tasksArray[tasksIndexPath[0].row]
+            deleteTask = tasks[tasksIndexPath[0].row]
         }
         
-        
         let deleteAlertController = TasksDeleteAlertController(tasksIndexPath: tasksIndexPath, singleTask: deleteTask) { _ in
-            self.deleteTasks(tasksIndexPath: tasksIndexPath)
+            self.deleteTasks(tasksIndexPaths: tasksIndexPath)
         }
         self.present(deleteAlertController, animated: true)
     }
+    
+    private func deleteTasks(tasksIndexPaths: [IndexPath]) {
+        var deleteTasksArray = [Task]()
+        
+        for taskIndexPath in tasksIndexPaths {
+            deleteTasksArray.append(tasks[taskIndexPath.row])
+            tasks.remove(at: taskIndexPath.row)
+        }
+        
+        tasksTable.deleteRows(at: tasksIndexPaths, with: .fade)
+    }
+    
 }
 
 
@@ -156,6 +175,8 @@ extension TasksListViewController {
         tasksTable.delegate = self
         tasksTable.dataSource = self
         
+//        tasksTable.insertSubview(refreshControl, at: 0)
+        
 //        tasksTable.setHeaderLabel(self.title)
     }
 }
@@ -165,13 +186,14 @@ extension TasksListViewController {
 extension TasksListViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tasksArray.count
+        return tasks.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = TaskListStandartTaskCell(style: .default, reuseIdentifier: "MyCustomCell")
-        let task = tasksArray[indexPath.row]
-        cell.textLabel?.text = task.title
+    
+        let taskMO = tasks[indexPath.row]
+        cell.textLabel?.text = taskMO.title
         
         return cell
     }
@@ -179,12 +201,12 @@ extension TasksListViewController: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: select row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedTask = tasksArray[indexPath.row]
+        let selectedTask = tasks[indexPath.row]
         
         let taskController = TaskViewController(task: selectedTask)
         navigationController?.pushViewController(taskController, animated: true)
         
-//        tableView.deselectRow(at: indexPath, animated: true)
+        tableView.deselectRow(at: indexPath, animated: true)
     }
         
     
@@ -210,11 +232,12 @@ extension TasksListViewController: UITableViewDelegate, UITableViewDataSource {
         let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") { deleteAction, view, completionHandler in
             self.presentDeleteTaskAlertController(tasksIndexPath: [indexPath])
             
-            cellContentView.addSubview(view)
-            completionHandler(true)
+//            cellContentView.addSubview(view)
+            completionHandler(false)
         }
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .bold)
         deleteAction.image = UIImage(systemName: "trash", withConfiguration: symbolConfig)
+        
         
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
@@ -224,8 +247,7 @@ extension TasksListViewController: UITableViewDelegate, UITableViewDataSource {
         let action = UIContextualAction(
             style: .normal,
             title: "☀️") { action, view, completionHandler in
-//                self.presentDeleteTaskAlertController(tasksIndexPath: [indexPath])
-                print("action")
+                print("☀️ add to my day")
                 
                 completionHandler(true)
             }
@@ -259,9 +281,9 @@ extension TasksListViewController: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: move row
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        let moveElement = tasksArray[sourceIndexPath.row]
-        tasksArray[sourceIndexPath.row] = tasksArray[destinationIndexPath.row]
-        tasksArray[destinationIndexPath.row] = moveElement
+        let moveElement = tasks[sourceIndexPath.row]
+        tasks[sourceIndexPath.row] = tasks[destinationIndexPath.row]
+        tasks[destinationIndexPath.row] = moveElement
         
         tasksTable.moveRow(at: sourceIndexPath, to: destinationIndexPath)
     }
@@ -288,73 +310,4 @@ extension TasksListViewController: UITableViewDelegate, UITableViewDataSource {
 ////        })
 //    }
     
-}
-
-
-// MARK: model
-class Task {
-    var id: Int
-    
-    var title: String?
-    var isCompleted: Bool = false
-    
-    var inMyDay: Bool = false
-    
-    var isPriority: Bool = false
-    
-    var reminderDateTime: Date?
-    var deadlineDate: Date?
-    
-    var description: NSAttributedString?
-    var descriptionUpdated: Date?
-    
-    var files: [TaskFile] = []
-
-    init(
-        id: Int,
-        title: String? = nil,
-        isCompleted: Bool = false,
-        isMyDay: Bool = false,
-        isPriority: Bool = false,
-        reminderDateTime: Date? = nil,
-        deadlineDate: Date? = nil,
-        files: [TaskFile] = [],
-        description: NSAttributedString? = nil,
-        descriptionUpdated: Date? = nil
-    ) {
-        self.id = id
-        self.title = title
-        self.isCompleted = isCompleted
-        self.inMyDay = isMyDay
-        self.isPriority = isPriority
-        self.reminderDateTime = reminderDateTime
-        self.deadlineDate = deadlineDate
-        self.files = files
-        self.description = description
-        self.descriptionUpdated = descriptionUpdated
-    }
-    
-    func deleteFile(by id: Int) {
-        for (index, file) in files.enumerated() {
-            if file.id == id {
-                files.remove(at: index)
-            }
-        }
-    }
-}
-
-typealias FileSize = Int
-class TaskFile {
-    var id: Int
-    var name: String
-    /// kb
-    var size: FileSize
-    var fileExtension: String
-    
-    init(id: Int, name: String, fileExtension: String, size: FileSize) {
-        self.id = id
-        self.name = name
-        self.fileExtension = fileExtension
-        self.size = size
-    }
 }

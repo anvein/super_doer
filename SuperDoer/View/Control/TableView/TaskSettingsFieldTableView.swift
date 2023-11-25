@@ -1,7 +1,7 @@
 
 import UIKit
 
-class TaskFieldSettingsTableView: UITableView {
+class TaskSettingsFieldTableView: UITableView {
     
     // MARK: init
     override init(frame: CGRect, style: UITableView.Style) {
@@ -22,6 +22,6 @@ class TaskFieldSettingsTableView: UITableView {
         backgroundColor = nil
         rowHeight = 50
         
-        register(TaskFieldSettingsTableViewCell.self, forCellReuseIdentifier: TaskFieldSettingsTableViewCell.identifier)
+        register(TaskSettingsFieldTableViewCell.self, forCellReuseIdentifier: TaskSettingsFieldTableViewCell.identifier)
     }
 }

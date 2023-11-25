@@ -41,6 +41,5 @@ class FileDeleteAlertController: UIAlertController {
     private func impactOcurred() {
         let impactHeavy = UIImpactFeedbackGenerator(style: .heavy)
         impactHeavy.impactOccurred()
-        // TODO: доработать отклик
     }
 }

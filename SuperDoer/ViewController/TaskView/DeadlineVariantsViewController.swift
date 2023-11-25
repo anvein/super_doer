@@ -1,13 +1,16 @@
 
 import UIKit
+import Foundation
 
 /// Контролер установки Срока по задаче (выбор вариантов из списка)
 class DeadlineVariantsViewController: UIViewController {
    
+    var taskEm = TaskEntityManager()
+    
     var task: Task
     
     var variantsCellValuesArray: [BaseDealineVariantCellValue] = DeadlineVariantsViewController.fillCellsValues()
-    var variantsTableView = TaskFieldSettingsTableView()
+    var variantsTableView = TaskSettingsFieldTableView()
     
     weak var delegate: DeadlineSettingsViewControllerDelegate?
     
@@ -114,41 +117,62 @@ class DeadlineVariantsViewController: UIViewController {
         let rightBarButton = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(tapButtonReady))
         rightBarButton.tintColor = InterfaceColors.textBlue
         navigationItem.rightBarButtonItem = rightBarButton
+        
+        if let taskDeadlineDate = task.deadlineDate {
+            for variantCellValue in variantsCellValuesArray {
+                guard let deadlineVariantCellValue = variantCellValue as? DeadlineVariantCellValue else {
+                    break
+                }
+                
+                if deadlineVariantCellValue.date.isEqualDate(date2: taskDeadlineDate) {
+                    variantCellValue.isSelected = true
+                    
+                    break
+                }
+            }
+        }
     }
     
     private static func fillCellsValues() -> [BaseDealineVariantCellValue] {
         var cellValuesArray = [BaseDealineVariantCellValue]()
         
+        var today = Date()
+        today = today.setComponents(hours: 12, minutes: 0, seconds: 0)
+        
         cellValuesArray.append(
-            DealineVariantCellValue(
-                imageSettings: DealineVariantCellValue.ImageSettings(name: "calendar.badge.clock"),
+            DeadlineVariantCellValue(
+                imageSettings: DeadlineVariantCellValue.ImageSettings(name: "calendar.badge.clock"),
                 title: "Сегодня",
-                date: Date(),
-                additionalText: "Вт"
+                date: today,
+                additionalText: today.formatWith(dateFormat: "EE")
             )
         )
         
+        var tomorrow = Date()
+        tomorrow = tomorrow.setComponents(hours: 12, minutes: 0, seconds: 0)
+        tomorrow = tomorrow.add(days: 1)
+        
         cellValuesArray.append(
-            DealineVariantCellValue(
-                imageSettings: DealineVariantCellValue.ImageSettings(name: "arrow.right.square", size: 20),
+            DeadlineVariantCellValue(
+                imageSettings: DeadlineVariantCellValue.ImageSettings(name: "arrow.right.square", size: 20),
                 title: "Завтра",
-                date: Date(),
-                additionalText: "Ср"
+                date: tomorrow,
+                additionalText: tomorrow.formatWith(dateFormat: "EE")
             )
         )
         
         cellValuesArray.append(
-            DealineVariantCellValue(
-                imageSettings: DealineVariantCellValue.ImageSettings(name: "calendar.day.timeline.right"),
-                title: "Следующая неделя",
-                date: Date(),
-                additionalText: "Пн"
+            DeadlineVariantCellValue(
+                imageSettings: DeadlineVariantCellValue.ImageSettings(name: "calendar.day.timeline.right"),
+                title: "Следующая неделя (завтра)",
+                date: tomorrow,
+                additionalText: today.formatWith(dateFormat: "EE")
             )
         )
         
         cellValuesArray.append(
             DealineCustomCellValue(
-                imageSettings: DealineVariantCellValue.ImageSettings(name: "calendar"),
+                imageSettings: DeadlineVariantCellValue.ImageSettings(name: "calendar"),
                 title: "Выбрать дату"
             )
         )
@@ -164,6 +188,8 @@ class DeadlineVariantsViewController: UIViewController {
     
     @objc private func tapButtonDelete() {
         task.deadlineDate = nil
+        taskEm.saveContext()
+        
         dismiss(animated: true)
     }
 }
@@ -177,9 +203,9 @@ extension DeadlineVariantsViewController: UITableViewDelegate, UITableViewDataSo
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cellValue = variantsCellValuesArray[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: TaskFieldSettingsTableViewCell.identifier)!
+        let cell = tableView.dequeueReusableCell(withIdentifier: TaskSettingsFieldTableViewCell.identifier)!
         
-        if let taskFieldSettingsCell = cell as? TaskFieldSettingsTableViewCell {
+        if let taskFieldSettingsCell = cell as? TaskSettingsFieldTableViewCell {
             taskFieldSettingsCell.textLabel?.text = cellValue.title
             taskFieldSettingsCell.createAndSetImage(
                 with: cellValue.imageSettings.name,
@@ -187,10 +213,10 @@ extension DeadlineVariantsViewController: UITableViewDelegate, UITableViewDataSo
                 weight: cellValue.imageSettings.weight
             )
             
-            
             switch cellValue {
-            case let variantCellValue as DealineVariantCellValue:
+            case let variantCellValue as DeadlineVariantCellValue:
                 taskFieldSettingsCell.detailTextLabel?.text = variantCellValue.additionalText
+                taskFieldSettingsCell.state = variantCellValue.isSelected ? .defined : .undefined
                 
             case _ as DealineCustomCellValue:
                 taskFieldSettingsCell.accessoryType = .disclosureIndicator
@@ -207,8 +233,8 @@ extension DeadlineVariantsViewController: UITableViewDelegate, UITableViewDataSo
         let cellValue = variantsCellValuesArray[indexPath.row]
         
         switch cellValue {
-        case let deadlineVariantCellValue as DealineVariantCellValue:
-            task.deadlineDate = deadlineVariantCellValue.date
+        case let deadlineVariantCellValue as DeadlineVariantCellValue:
+            taskEm.updateField(deadlineDate: deadlineVariantCellValue.date, task: task)
             
             dismiss(animated: true)
             
@@ -245,11 +271,11 @@ class BaseDealineVariantCellValue {
         var name: String
         var size: Int = 18
         var weight: UIImage.SymbolWeight = .medium
-        var isSelected: Bool = false
     }
     
     var imageSettings: ImageSettings
     var title: String
+    var isSelected: Bool = false
     
     init(imageSettings: ImageSettings, title: String) {
         self.imageSettings = imageSettings
@@ -257,7 +283,7 @@ class BaseDealineVariantCellValue {
     }
 }
 
-class DealineVariantCellValue: BaseDealineVariantCellValue {
+class DeadlineVariantCellValue: BaseDealineVariantCellValue {
     var date: Date
     var additionalText: String?
     
@@ -272,6 +298,3 @@ class DealineVariantCellValue: BaseDealineVariantCellValue {
 
 class DealineCustomCellValue: BaseDealineVariantCellValue  {
 }
-
-
-

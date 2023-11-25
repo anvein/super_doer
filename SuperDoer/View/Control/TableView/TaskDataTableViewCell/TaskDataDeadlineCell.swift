@@ -4,6 +4,10 @@ import UIKit
 
 /// Кнопка-ячейка "Срок выполнения задачи"
 class TaskDataDeadlineCell: TaskViewLabelsButtonCell {
+    
+    /// UUID файла, который отображается в этой ячейке
+    var fileId: UUID?
+    
     enum State: String {
         /// Дата срока выполнения НЕ определена
         case undefined

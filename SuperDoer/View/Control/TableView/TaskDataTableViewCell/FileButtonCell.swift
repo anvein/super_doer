@@ -12,6 +12,9 @@ class FileButtonCell: TaskViewLabelsButtonCell {
         return 70
     }
     
+    /// id файла, который размещен в этой ячейке
+    var fileId: UUID?
+    
     
     // MARK: views
     let extensionLabel = UILabel()
@@ -71,6 +74,8 @@ class FileButtonCell: TaskViewLabelsButtonCell {
     }
     
     func fillFromCellValue(cellValue: FileCellValue) {
+        fileId = cellValue.id
+        
         mainTextLabel.text = cellValue.name
         extensionLabel.text = cellValue.fileExtension.uppercased()
         miniTextLabel.text = "\(cellValue.size) КБ"

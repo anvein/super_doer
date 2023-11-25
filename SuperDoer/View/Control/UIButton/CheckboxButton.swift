@@ -17,6 +17,8 @@ class CheckboxButton: UIButton {
         }
     }
     
+    var delegate: CheckboxButtonDelegate?
+    
     
     // MARK: init
     init(width: Float = CheckboxButton.imageSize, height: Float = CheckboxButton.imageSize, isOnDefault: Bool = false) {
@@ -92,6 +94,7 @@ class CheckboxButton: UIButton {
     
     @objc private func btnTouchUpInside(sender: CheckboxButton) {
         isOn = !isOn
+        delegate?.checkboxDidChangeValue(checkbox: self)
         
         // TODO: анимировать (желательно универсально)
         setAppearanceForState(isOn)
@@ -113,4 +116,8 @@ class CheckboxButton: UIButton {
         return safeImage
     }
     
+}
+
+protocol CheckboxButtonDelegate {
+    func checkboxDidChangeValue(checkbox: CheckboxButton)
 }

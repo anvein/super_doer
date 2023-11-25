@@ -4,6 +4,8 @@ import UIKit
 /// Контроллер редактирования описания задачи
 class TaskDescriptionViewController: UIViewController {
 
+    let taskEm = TaskEntityManager()
+    
     lazy var navigationBar = UINavigationBar()
     lazy var descriptionTextView = UITextView()
     
@@ -81,7 +83,7 @@ class TaskDescriptionViewController: UIViewController {
     
         title = "Заметка"
         navigationBar.topItem?.prompt = task.title
-        navigationBar.topItem?.rightBarButtonItem = UIBarButtonItem(title: "Готово", style: .plain, target: self, action: #selector(readyEditTaskDescription))
+        navigationBar.topItem?.rightBarButtonItem = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(readyEditTaskDescription))
     }
     
     private func setupTaskDescriptionTextView() {
@@ -136,7 +138,6 @@ class TaskDescriptionViewController: UIViewController {
             descriptionTextView.resignFirstResponder()
         }
         
-        updateTask()
         dismiss(animated: true)
     }
     
@@ -146,15 +147,18 @@ class TaskDescriptionViewController: UIViewController {
     
     // MARK: work with model (task)
     private func updateTask() {
-        let mutableTaskDescription = NSMutableAttributedString(attributedString: descriptionTextView.attributedText)
-        task.description = mutableTaskDescription
-        
-        task.descriptionUpdated = Date()
+        // TODO: конвертировать из NSAttributedString в хранимый string
+        taskEm.updateFields(
+            taskDescription: descriptionTextView.attributedText.string,
+            descriptionUpdatedAt: Date(),
+            task: task
+        )
     }
     
     private func fillControlsFromTask() {
-        if let filledTaskDescription = task.description {
-            descriptionTextView.attributedText = filledTaskDescription
+        if let filledTaskDescription = task.taskDescription {
+            // TODO: конвертировать нормально в NSAttributedString
+            descriptionTextView.attributedText = NSAttributedString(string: filledTaskDescription)
         }
             
         descriptionTextView.font = UIFont.systemFont(ofSize: 18)
