@@ -32,4 +32,14 @@ struct InterfaceColors {
     struct TaskDescriptionController {
         static let navBarSeparator = UIColor(white: 0.7, alpha: 1)
     }
+    
+    struct SystemSectionImage {
+        static let myDay = UIColor(red: 185 / 255, green: 75 / 255, blue: 33 / 255, alpha: 1)
+        static let important = UIColor(red: 172 / 255, green: 56 / 255, blue: 93 / 255, alpha: 1)
+        static let planned = UIColor(red: 172 / 255, green: 56 / 255, blue: 159 / 255, alpha: 1)
+        static let all = UIColor(red: 52 / 255, green: 54 / 255, blue: 61 / 255, alpha: 1)
+        static let completed = UIColor(red: 22 / 255, green: 111 / 255, blue: 107 / 255, alpha: 1)
+        static let withoutSection = UIColor(red: 92 / 255, green: 112 / 255, blue: 189 / 255, alpha: 1)
+        static let defaultColor = UIColor(red: 51 / 255, green: 111 / 255, blue: 238 / 255, alpha: 1)
+    }
 }

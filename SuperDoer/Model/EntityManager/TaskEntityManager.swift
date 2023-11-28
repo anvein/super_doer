@@ -15,6 +15,23 @@ class TaskEntityManager: EntityManager {
         }
     }
     
+    func getTasks(for section: TaskSection?) -> [Task] {
+        let fetchRequest = Task.fetchRequest()
+        
+        if let safeSection = section {
+            // TODO: избавиться от force unwrapping
+            let sectionPredicate = NSPredicate(format: "section == %@", safeSection)
+            fetchRequest.predicate = sectionPredicate
+        }
+    
+        do {
+            let tasks = try getContext().fetch(fetchRequest)
+            return tasks
+        } catch let error as NSError {
+            fatalError("getTasks for custom section error - \(error)")
+        }
+    }
+    
     
     // MARK: update
     func updateField(title: String, task: Task) {
@@ -51,10 +68,11 @@ class TaskEntityManager: EntityManager {
     
     
     // MARK: insert
-    func createWith(title: String) -> Task {
+    func createWith(title: String, section: TaskSection?) -> Task {
         let task = Task(context: getContext())
-        task.title = title
         task.id = UUID()
+        task.title = title
+        task.section = section
         
         saveContext()
         

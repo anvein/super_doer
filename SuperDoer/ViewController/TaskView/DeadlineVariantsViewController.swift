@@ -10,6 +10,7 @@ class DeadlineVariantsViewController: UIViewController {
     var task: Task
     
     var variantsCellValuesArray: [BaseDealineVariantCellValue] = DeadlineVariantsViewController.fillCellsValues()
+    
     var variantsTableView = TaskSettingsFieldTableView()
     
     weak var delegate: DeadlineSettingsViewControllerDelegate?
@@ -40,16 +41,36 @@ class DeadlineVariantsViewController: UIViewController {
         super.viewWillAppear(animated)
         
         fillFrom(task: task)
+
+        configureSheetPresentationController()
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
+    // MARK: actions
+    private func showDeadlineCustomDateViewController() {
+        let deadlineCustomVc = DeadlineCustomDateViewController(task: task)
+        deadlineCustomVc.delegate = self.delegate
         
-        delegate?.didDisappearDeadlineSettingsViewController(isSuccess: true)
+        navigationController?.pushViewController(deadlineCustomVc, animated: true)
     }
     
     
-    // MARK: setup methods
+    // MARK: action-handlers
+    @objc private func tapButtonReady() {
+        dismiss(animated: true)
+    }
+    
+    @objc private func tapButtonDelete() {
+        delegate?.didChooseDeadlineDate(newDate: nil)
+        
+        dismiss(animated: true)
+    }
+    
+}
+
+
+// MARK: setup methods
+extension DeadlineVariantsViewController {
+    
     private func setupControls() {
         setupController()
         setupNavigationBar()
@@ -58,23 +79,17 @@ class DeadlineVariantsViewController: UIViewController {
     
     private func setupController() {
         view.backgroundColor = InterfaceColors.white
-        modalPresentationStyle = .pageSheet
-        
+        // TODO: заголовок (title) в ночном режиме не виден (он белый)
+
         title = "Срок"
         
+        modalPresentationStyle = .pageSheet
+        
         if let sheet = sheetPresentationController {
-            sheet.preferredCornerRadius = 15
-            sheet.selectedDetentIdentifier = .taskDeadlineSettings
+            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
             sheet.prefersGrabberVisible = true
             sheet.prefersEdgeAttachedInCompactHeight = true
-            sheet.presentedViewController.additionalSafeAreaInsets.top = 14
-            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
-        
-            sheet.detents = [
-                .custom(identifier: .taskDeadlineSettings, resolver: { context in
-                    return 280
-                }),
-            ]
+            sheet.preferredCornerRadius = 15
         }
     }
     
@@ -119,17 +134,35 @@ class DeadlineVariantsViewController: UIViewController {
         navigationItem.rightBarButtonItem = rightBarButton
         
         if let taskDeadlineDate = task.deadlineDate {
+            var variantIsSelected = false
             for variantCellValue in variantsCellValuesArray {
                 guard let deadlineVariantCellValue = variantCellValue as? DeadlineVariantCellValue else {
-                    break
+                    continue
                 }
                 
                 if deadlineVariantCellValue.date.isEqualDate(date2: taskDeadlineDate) {
                     variantCellValue.isSelected = true
+                    variantIsSelected = true
                     
                     break
                 }
             }
+            
+            if variantIsSelected == false {
+                setIsSelectedCustomVariantCellValue()
+            }
+        }
+    }
+    
+    // TODO: костыль, сделать нормально как-нить
+    private func setIsSelectedCustomVariantCellValue() {
+        for variantCellValue in variantsCellValuesArray {
+            guard let deadlineCustomCellValue = variantCellValue as? DealineCustomCellValue else {
+                continue
+            }
+            
+            deadlineCustomCellValue.isSelected = true
+            break
         }
     }
     
@@ -179,18 +212,17 @@ class DeadlineVariantsViewController: UIViewController {
         
         return cellValuesArray
     }
-    
-    
-    // MARK: action-handlers
-    @objc private func tapButtonReady() {
-        dismiss(animated: true)
-    }
-    
-    @objc private func tapButtonDelete() {
-        task.deadlineDate = nil
-        taskEm.saveContext()
-        
-        dismiss(animated: true)
+ 
+    private func configureSheetPresentationController() {
+        if let sheet = sheetPresentationController {
+            sheet.presentedViewController.additionalSafeAreaInsets.top = 14
+            sheet.detents = [
+                .custom(identifier: .taskDeadlineVariants, resolver: { context in
+                    return 280
+                }),
+            ]
+            sheet.selectedDetentIdentifier = .taskDeadlineVariants
+        }
     }
 }
 
@@ -212,11 +244,11 @@ extension DeadlineVariantsViewController: UITableViewDelegate, UITableViewDataSo
                 pointSize: Float(cellValue.imageSettings.size),
                 weight: cellValue.imageSettings.weight
             )
+            taskFieldSettingsCell.state = cellValue.isSelected ? .defined : .undefined
             
             switch cellValue {
             case let variantCellValue as DeadlineVariantCellValue:
                 taskFieldSettingsCell.detailTextLabel?.text = variantCellValue.additionalText
-                taskFieldSettingsCell.state = variantCellValue.isSelected ? .defined : .undefined
                 
             case _ as DealineCustomCellValue:
                 taskFieldSettingsCell.accessoryType = .disclosureIndicator
@@ -234,18 +266,16 @@ extension DeadlineVariantsViewController: UITableViewDelegate, UITableViewDataSo
         
         switch cellValue {
         case let deadlineVariantCellValue as DeadlineVariantCellValue:
-            taskEm.updateField(deadlineDate: deadlineVariantCellValue.date, task: task)
-            
+            delegate?.didChooseDeadlineDate(newDate: deadlineVariantCellValue.date)
             dismiss(animated: true)
             
-            break
+        case _ as DealineCustomCellValue:
+            showDeadlineCustomDateViewController()
         default:
             break
-            
         }
         
         tableView.deselectRow(at: indexPath, animated: true)
-        
     }
 }
 
@@ -253,7 +283,7 @@ extension DeadlineVariantsViewController: UITableViewDelegate, UITableViewDataSo
 // MARK: controller delegate protocol
 /// Протокол относится к DeadlineVariantsViewController и DeadlineCustomDateViewController
 protocol DeadlineSettingsViewControllerDelegate: AnyObject {
-    func didDisappearDeadlineSettingsViewController(isSuccess: Bool)
+    func didChooseDeadlineDate(newDate: Date?)
 }
 
 
@@ -261,7 +291,11 @@ protocol DeadlineSettingsViewControllerDelegate: AnyObject {
 typealias SheetDetentIdentifier = UISheetPresentationController.Detent.Identifier
 
 extension UISheetPresentationController.Detent.Identifier {
-    static let taskDeadlineSettings: SheetDetentIdentifier = SheetDetentIdentifier("taskDeadlineSettings")
+    /// Для DeadlineVariantsViewController
+    static let taskDeadlineVariants: SheetDetentIdentifier = SheetDetentIdentifier("taskDeadlineVariants")
+    
+    /// Для DeadlineCustomDateViewController
+    static let taskDeadlineCustomDate: SheetDetentIdentifier = SheetDetentIdentifier("taskDeadlineCustomDate")
 }
 
 

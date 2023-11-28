@@ -19,6 +19,17 @@ class TasksListViewController: UIViewController {
     // MARK: data (tasks)
     var tasks = [Task]()
     
+    var section: TaskSection
+    
+    init(section: TaskSection) {
+        self.section = section
+        
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: lyfecycle
     override func viewDidLoad() {
@@ -44,9 +55,6 @@ class TasksListViewController: UIViewController {
         setupConstraints()
     }
     
-    @objc func editTable() {
-        tasksTable.isEditing = !tasksTable.isEditing
-    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -56,20 +64,27 @@ class TasksListViewController: UIViewController {
             .foregroundColor: InterfaceColors.white
         ]
         
-        tasks = taskEm.getAllTasks()
+        let customSection = section as? TaskSection
+        tasks = taskEm.getTasks(for: customSection)
         if tasksTable.numberOfRows(inSection: 0) > 0 {
             tasksTable.reloadData()
         }
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-//        navigationController?.pushViewController(taskController, animated: true)
+        super.viewDidAppear(true)
+        
+        let task = tasks[0] as! Task
+        let vc = TaskViewController(task: task)
+        navigationController?.pushViewController(vc, animated: false)
     }
     
     
     // MARK: handlers
+    @objc func editTable() {
+        tasksTable.isEditing = !tasksTable.isEditing
+    }
+    
     @objc private func showAddTaskAlertController() {
         let alertController = UIAlertController(title: "Add task", message: "Enter task title", preferredStyle: .alert)
 
@@ -94,7 +109,7 @@ class TasksListViewController: UIViewController {
     }
     
     @objc private func saveNewTask(taskTitle: String) {
-        let task = taskEm.createWith(title: taskTitle)
+        let task = taskEm.createWith(title: taskTitle, section: section)
         
         tasks.insert(task, at: 0)
         tasksTable.reloadData()
@@ -151,10 +166,6 @@ extension TasksListViewController {
             backgroundImageView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             backgroundImageView.leftAnchor.constraint(equalTo: view.leftAnchor),
         ])
-        
-//        tasksTable.translatesAutoresizingMaskIntoConstraints = false
-//        tasksTable.frame = view.bounds
-        
     }
     
     // MARK: setup controls
@@ -166,6 +177,7 @@ extension TasksListViewController {
     private func setupLayoutController() {
         backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
         backgroundImageView.contentMode = .scaleAspectFill
+        backgroundImageView.clipsToBounds = true
         
         backgroundImageView.layer.zPosition = 0
     }
@@ -225,7 +237,7 @@ extension TasksListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         // TODO: доработать, чтобы SwipeAction отображались внутри ячейки (или были со скругленными краями)
         let cell = tableView.cellForRow(at: indexPath)
-        guard let cellContentView = cell?.contentView else {
+        guard let _ = cell?.contentView else {
             return nil
         }
         

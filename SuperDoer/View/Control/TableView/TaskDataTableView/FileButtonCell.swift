@@ -73,7 +73,7 @@ class FileButtonCell: TaskViewLabelsButtonCell {
         return nil
     }
     
-    func fillFromCellValue(cellValue: FileCellValue) {
+    func fillFrom(cellValue: FileCellValue) {
         fileId = cellValue.id
         
         mainTextLabel.text = cellValue.name

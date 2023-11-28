@@ -4,7 +4,7 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-    lazy var homeViewController = HomeViewController()
+    lazy var homeViewController = TaskSectionsViewController()
     
     lazy var em = EntityManager()
     

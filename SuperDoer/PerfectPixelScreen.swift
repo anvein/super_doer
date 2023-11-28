@@ -3,6 +3,8 @@ import UIKit
 
 /// Класс для реализации наложения "скрина на экран"
 class PixelPerfectScreen {
+    var topAnchorConstant: Float = 0
+    
     // MARK: controls
     private var isViewScreen = false
     private lazy var screenIsVisibleSwitch = UISwitch()
@@ -20,12 +22,14 @@ class PixelPerfectScreen {
     
     
     // MARK: methods
-    static func getInstanceAndSetup(baseView: UIView, imageName: String? = nil) {
+    static func getInstanceAndSetup(baseView: UIView, imageName: String? = nil, topAnchorConstant: Float = 0) {
         PixelPerfectScreen.instance = PixelPerfectScreen(baseView: baseView)
-        PixelPerfectScreen.instance?.setup(imageName: imageName)
+        PixelPerfectScreen.instance?.setup(imageName: imageName, topAnchorConstant: topAnchorConstant)
     }
     
-    private func setup(imageName: String? = nil) {
+    private func setup(imageName: String? = nil, topAnchorConstant: Float) {
+        self.topAnchorConstant = topAnchorConstant
+        
         if let safeImageName = imageName {
             screenImageView.image = UIImage(named: safeImageName)
         }
@@ -47,7 +51,7 @@ class PixelPerfectScreen {
             baseView.addSubview(screenImageView)
             
             NSLayoutConstraint.activate([
-                screenImageView.topAnchor.constraint(equalTo: baseView.topAnchor),
+                screenImageView.topAnchor.constraint(equalTo: baseView.topAnchor, constant: topAnchorConstant.cgFloat),
                 screenImageView.leftAnchor.constraint(equalTo: baseView.leftAnchor),
                 screenImageView.rightAnchor.constraint(equalTo: baseView.rightAnchor),
                 screenImageView.heightAnchor.constraint(equalToConstant: screenImageView.image!.size.height / 3), // hardcode

@@ -15,7 +15,8 @@ class TaskViewController: UIViewController {
     lazy var isPriorityButton = StarButton()
     
     lazy var taskDataTableView = TaskDataTableView(frame: .zero, style: .plain)
-
+    
+    
     /// Редактируемое в данный момент поле TextField
     var textFieldEditing: UITextField?
     
@@ -47,7 +48,7 @@ class TaskViewController: UIViewController {
         addSubviews()
         setupConstraints()
     
-        PixelPerfectScreen.getInstanceAndSetup(baseView: view)  // TODO: удалить временный код (perfect pixel screen)
+//        PixelPerfectScreen.getInstanceAndSetup(baseView: view)  // TODO: удалить временный код (perfect pixel screen)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -313,7 +314,7 @@ extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
         case let fileCellValue as FileCellValue:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: FileButtonCell.identifier)!
             if let fileButtonCell = cell as? FileButtonCell {
-                fileButtonCell.fillFromCellValue(cellValue: fileCellValue)
+                fileButtonCell.fillFrom(cellValue: fileCellValue)
                 // TODO: переделать на делегата
                 fileButtonCell.actionButton.addTarget(
                     self,
@@ -343,7 +344,7 @@ extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
     // MARK: select row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath)
-        let cellValue = taskDataCellsValues.cellsValuesArray[indexPath.row]
+        let _ = taskDataCellsValues.cellsValuesArray[indexPath.row]
         
         switch cell {
         case let addSubtaskButton as AddSubtaskButtonCell :
@@ -530,7 +531,9 @@ extension TaskViewController: TaskDataDeadlineCellDelegate, DeadlineSettingsView
         taskDataTableView.reloadData()
     }
     
-    func didDisappearDeadlineSettingsViewController(isSuccess: Bool) {
+    func didChooseDeadlineDate(newDate: Date?) {
+        taskEm.updateField(deadlineDate: newDate, task: task)
+        
         taskDataCellsValues.fillDeadlineAt(from: task)
         taskDataTableView.reloadData()
     }

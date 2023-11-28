@@ -2,11 +2,21 @@
 import UIKit
 import CoreData
 
+/// Entity manager for Core Data entities (кто-то называет его CoreData Manager)
 class EntityManager {
+    private var managedObjectContext: NSManagedObjectContext? = nil
+    
     func getContext() -> NSManagedObjectContext {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        
-        return appDelegate.persistentContainer.viewContext
+        if let safeManagedObjectContext = managedObjectContext as? NSManagedObjectContext {
+            return safeManagedObjectContext
+        } else {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let safeManagedObjectContext = appDelegate.persistentContainer.viewContext
+
+            managedObjectContext = safeManagedObjectContext
+
+            return safeManagedObjectContext
+        }
     }
     
     func saveContext () {
