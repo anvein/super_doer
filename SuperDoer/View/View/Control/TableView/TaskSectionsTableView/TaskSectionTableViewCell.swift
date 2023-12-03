@@ -5,29 +5,29 @@ class TaskSectionTableViewCell: UITableViewCell {
 
     static let identifier: String = "TaskSectionTableViewCell"
     
-    private let systemSectionsConfig: [SystemSection.SectionType: SystemSectionViewSetting] = [
-        SystemSection.SectionType.myDay: SystemSectionViewSetting(
+    private let systemSectionsConfig: [TaskListSystem.ListType: SystemSectionViewSetting] = [
+        TaskListSystem.ListType.myDay: SystemSectionViewSetting(
             imageName: "sun.max",
             imageColor: InterfaceColors.SystemSectionImage.myDay
         ),
-        SystemSection.SectionType.important: SystemSectionViewSetting(
+        TaskListSystem.ListType.important: SystemSectionViewSetting(
             imageName: "star",
             imageColor: InterfaceColors.SystemSectionImage.important
         ),
-        SystemSection.SectionType.planned: SystemSectionViewSetting(
+        TaskListSystem.ListType.planned: SystemSectionViewSetting(
             imageName: "calendar",
             imageColor: InterfaceColors.SystemSectionImage.planned
         ),
-        SystemSection.SectionType.all: SystemSectionViewSetting(
+        TaskListSystem.ListType.all: SystemSectionViewSetting(
             imageName: "infinity",
             imageColor: InterfaceColors.SystemSectionImage.all,
             imageSize: 17
         ),
-        SystemSection.SectionType.completed: SystemSectionViewSetting(
+        TaskListSystem.ListType.completed: SystemSectionViewSetting(
             imageName: "checkmark.circle",
             imageColor: InterfaceColors.SystemSectionImage.completed
         ),
-        SystemSection.SectionType.withoutSection: SystemSectionViewSetting(
+        TaskListSystem.ListType.withoutSection: SystemSectionViewSetting(
             imageName: "tray",
             imageColor: InterfaceColors.SystemSectionImage.withoutSection
         ),
@@ -37,6 +37,20 @@ class TaskSectionTableViewCell: UITableViewCell {
         imageName: "list.bullet",
         imageColor: InterfaceColors.SystemSectionImage.defaultColor
     )
+    
+    weak var viewModel: TaskListTableViewCellViewModelType? {
+        willSet (newViewModel) {
+            self.textLabel?.text = newViewModel?.title
+            
+            if let safeNewViewModel = newViewModel {
+                self.detailTextLabel?.text = String(safeNewViewModel.tasksCount)
+                
+                configureCellImage(safeNewViewModel)
+            } else {
+                self.detailTextLabel?.text = nil
+            }
+        }
+    }
     
     override init(style: UITableViewCell.CellStyle = .value1, reuseIdentifier: String?) {
         super.init(style: .value1, reuseIdentifier: reuseIdentifier)
@@ -74,20 +88,24 @@ class TaskSectionTableViewCell: UITableViewCell {
         textLabel?.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
     }
 
-    func fillFrom(taskSection: TaskSection) {
-        textLabel?.text = taskSection.title
-        detailTextLabel?.text = Int.random(in: 0...2) != 0 ? String(Int.random(in: 0...11)) : nil
+    private func configureCellImage(_ cellViewModel: TaskListTableViewCellViewModelType) {
+        if let listCustomCellViewModel = cellViewModel as? TaskListCustomTableViewCellViewModel {
+            configureCellImageFor(listCustomCellViewModel: listCustomCellViewModel)
+            
+        } else if let listSystemCellViewModel = cellViewModel as? TaskListSystemTableViewCellViewModel {
+            configureCellImageFor(listSystemCellViewModel: listSystemCellViewModel)
+        }
         
+    }
+    
+    private func configureCellImageFor(listCustomCellViewModel: TaskListCustomTableViewCellViewModel) {
         let symbolConfig = UIImage.SymbolConfiguration(weight: .bold)
         imageView?.image = UIImage(systemName: defaultViewConfig.imageName, withConfiguration: symbolConfig)
         imageView?.tintColor = defaultViewConfig.imageColor
     }
     
-    func fillFrom(systemSection: SystemSection) {
-        textLabel?.text = systemSection.title
-        detailTextLabel?.text = Int.random(in: 0...2) != 0 ? String(Int.random(in: 0...11)) : nil
-        
-        let viewConfig = systemSectionsConfig[systemSection.type] ?? defaultViewConfig
+    private func configureCellImageFor(listSystemCellViewModel: TaskListSystemTableViewCellViewModel) {
+        let viewConfig = systemSectionsConfig[listSystemCellViewModel.type] ?? defaultViewConfig
         
         let symbolConfig = UIImage.SymbolConfiguration(
             pointSize: viewConfig.imageSize.cgFloat,
@@ -96,6 +114,7 @@ class TaskSectionTableViewCell: UITableViewCell {
         imageView?.image = UIImage(systemName: viewConfig.imageName, withConfiguration: symbolConfig)
         imageView?.tintColor = viewConfig.imageColor
     }
+    
 }
 
 struct SystemSectionViewSetting {

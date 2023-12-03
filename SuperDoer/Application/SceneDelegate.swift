@@ -4,7 +4,7 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-    lazy var homeViewController = TaskSectionsViewController()
+//    lazy var homeViewController = TaskListViewController()
     
     lazy var em = EntityManager()
     
@@ -14,9 +14,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let window = UIWindow(windowScene: windowScene)
         
-        let navigationController = UINavigationController(rootViewController: homeViewController)
-//        navigationController.toolbar.backgroundColor = .red
+        var lists: [[TaskListProtocol]] = [[],[]]
+        lists[0] = SystemListBuilder().buildLists()
+        lists[1] = TaskListEntityManager().getCustomListsWithOrder()
         
+        
+        
+        let taskListsViewModel = TaskListViewModel(lists: lists)
+        let taskListsViewController = TaskListsViewController()
+        taskListsViewController.viewModel = taskListsViewModel
+    
+        
+        
+        let navigationController = UINavigationController(rootViewController: taskListsViewController)
         window.rootViewController = navigationController
     
         self.window = window

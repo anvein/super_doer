@@ -37,6 +37,7 @@ class DeadlineCustomDateViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        // TODO: анимировать изменение высоты контроллера
         configureSheetPresentationController()
         fillFrom(task: task)
     }
@@ -44,8 +45,6 @@ class DeadlineCustomDateViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
 //        navigationController?.navigationBar.topItem?.backBarButtonItem = UIBarButtonItem(title: "<<", style: .plain, target: nil, action: nil)
-        
-        
     }
     
     // MARK: setup
@@ -85,13 +84,13 @@ class DeadlineCustomDateViewController: UIViewController {
     
     private func configureSheetPresentationController() {
         if let sheet = sheetPresentationController {
-            sheet.presentedViewController.additionalSafeAreaInsets.top = 0
             sheet.detents = [
                 .custom(identifier: .taskDeadlineCustomDate, resolver: { context in
                     return 410
                 })
             ]
             
+            sheet.presentedViewController.additionalSafeAreaInsets.top = 0
             sheet.selectedDetentIdentifier = .taskDeadlineCustomDate
         }
     }
@@ -108,6 +107,3 @@ class DeadlineCustomDateViewController: UIViewController {
         dismiss(animated: true)
     }
 }
-
-
-

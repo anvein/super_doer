@@ -275,7 +275,7 @@ extension DeadlineVariantsViewController: UITableViewDelegate, UITableViewDataSo
             break
         }
         
-        tableView.deselectRow(at: indexPath, animated: true)
+        tableView.deselectRow(at: indexPath, animated: false)
     }
 }
 

@@ -3,19 +3,11 @@ import UIKit
 import CoreData
 
 /// Экран списков
-class TaskSectionsViewController: UIViewController, UIScrollViewDelegate {
+class TaskListsViewController: UIViewController, UIScrollViewDelegate {
 
-    lazy var sectionEm = TaskSectionEntityManager()
-    
-    lazy var systemSectionBuilder = SystemSectionBuilder()
-    
-    var sectionsTableView = TaskSectionsTableView(frame: .zero, style: .grouped)
+    var listsTableView = TaskSectionsTableView(frame: .zero, style: .grouped)
         
-        
-    var sections: [[Any]] = [
-        [],
-        [],
-    ]
+    var viewModel: TaskListsViewModelType?
 
     
     // MARK: life cycle
@@ -27,7 +19,7 @@ class TaskSectionsViewController: UIViewController, UIScrollViewDelegate {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .never
         navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(showAddSectionAlertController))
+            UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(showAddListAlertController))
         ]
         
         setupControls()
@@ -37,24 +29,18 @@ class TaskSectionsViewController: UIViewController, UIScrollViewDelegate {
         PixelPerfectScreen.getInstanceAndSetup(baseView: view, imageName: "screen_home", topAnchorConstant: -11)  // TODO: удалить временный код (perfect pixel screen)
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        sections[0] = systemSectionBuilder.buildSections()
-        sections[1] = sectionEm.getCustomSectionsWithOrder()
-    }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
-        let vc = TasksListViewController(section: sections[1].first as! TaskSection)
-        navigationController?.pushViewController(vc, animated: false)
+//        let vc = TasksListViewController(section: sections[1].first as! TaskSection)
+//        navigationController?.pushViewController(vc, animated: false)
     }
     
     
     
     // MARK: action-handlers
-    @objc private func showAddSectionAlertController() {
+    @objc private func showAddListAlertController() {
         let alert = UIAlertController(title: "Новый список", message: nil, preferredStyle: .alert)
         
         alert.addTextField { textField in
@@ -67,43 +53,37 @@ class TaskSectionsViewController: UIViewController, UIScrollViewDelegate {
         
         alert.addAction(
             UIAlertAction(title: "Добавить", style: .default, handler: { action in
-                if let sectionTitle = alert.textFields?.first?.text {
-                    let section = self.sectionEm.createCustomSectionWith(title: sectionTitle)
-                    self.sections[1].insert(section, at: 0)
-                    
-                    self.sectionsTableView.reloadData()
+                if let listTitle = alert.textFields?.first?.text {
+                    self.viewModel?.createCustomTaskListWith(title: listTitle)
+                    self.listsTableView.reloadData() // TODO: точно юзать reloadData()?
                 }
             })
         )
         
         present(alert, animated: true)
     }
- 
-    
-    // MARK: other methods
 }
 
 
 // MARK: LAYOUT
-extension TaskSectionsViewController {
+extension TaskListsViewController {
     private func addSubviewsToMainView() {
-        view.addSubview(sectionsTableView)
+        view.addSubview(listsTableView)
     }
     
     private func setupControls() {
         view.backgroundColor = .white
-//        sectionsTableView.backgroundColor = .systemBlue
         
-        sectionsTableView.delegate = self
-        sectionsTableView.dataSource = self
+        listsTableView.delegate = self
+        listsTableView.dataSource = self
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            sectionsTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            sectionsTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            sectionsTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            sectionsTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            listsTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            listsTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            listsTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            listsTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
         ])
     }
     
@@ -111,26 +91,28 @@ extension TaskSectionsViewController {
 
 
 // MARK: table datasource, delegate
-extension TaskSectionsViewController: UITableViewDataSource, UITableViewDelegate {
+extension TaskListsViewController: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return sections.count
+        return viewModel?.getCountOfLists() ?? 0
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return sections[section].count
+        return viewModel?.getTasksCountInList(withListId: section) ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // TODO: зарегистрировать ячейку
         let cell = tableView.dequeueReusableCell(withIdentifier: TaskSectionTableViewCell.identifier) as! TaskSectionTableViewCell
         
-        switch sections[indexPath.section][indexPath.row] {
-        case let customSection as TaskSection :
-            cell.fillFrom(taskSection: customSection)
+        let taskListCellViewModel = viewModel?.getTaskListCellViewModel(forIndexPath: indexPath)
+        
+        switch taskListCellViewModel {
+        case let listCustomCellViewModel as TaskListCustomTableViewCellViewModel :
+            cell.viewModel = listCustomCellViewModel
             
-        case let systemSection as SystemSection:
-            cell.fillFrom(systemSection: systemSection)
+        case let listSystemCellViewModel as TaskListSystemTableViewCellViewModel:
+            cell.viewModel = listSystemCellViewModel
             
         default:
             // TODO: залогировать ошибку
@@ -141,15 +123,29 @@ extension TaskSectionsViewController: UITableViewDataSource, UITableViewDelegate
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let section = sections[indexPath.section][indexPath.row]
+        viewModel?.selectTaskList(forIndexPath: indexPath)
         
-        if let sectionCustom = section as? TaskSection {
-            let taskListVc = TasksListViewController(section: sectionCustom)
+        
+        let taskListCellViewModel = viewModel?.getViewModelForSelectedRow()
+        
+        switch taskListCellViewModel {
+        case let listCustomCellViewModel as TaskListCustomTableViewCellViewModel :
+            // TODO: переделать на view-model
+            let taskListCustom = (viewModel as! TaskListViewModel).lists[indexPath.section][indexPath.row] as! TaskListCustom
+            
+            let taskListVc = TasksListViewController(taskList: taskListCustom)
             navigationController?.pushViewController(taskListVc, animated: true)
             
             tableView.deselectRow(at: indexPath, animated: true)
-        } else if section is String {
             
+            
+        case let listSystemCellViewModel as TaskListSystemTableViewCellViewModel:
+            print("📋 Открыть системный список")
+            
+        default:
+            // TODO: залогировать ошибку
+            // TODO: nil-вариант
+            print("🔴 Залогировать ошибку")
         }
     }
     

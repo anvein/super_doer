@@ -15,13 +15,13 @@ class TaskEntityManager: EntityManager {
         }
     }
     
-    func getTasks(for section: TaskSection?) -> [Task] {
+    func getTasks(for taskList: TaskListCustom?) -> [Task] {
         let fetchRequest = Task.fetchRequest()
         
-        if let safeSection = section {
+        if let safeTaskList = taskList {
             // TODO: избавиться от force unwrapping
-            let sectionPredicate = NSPredicate(format: "section == %@", safeSection)
-            fetchRequest.predicate = sectionPredicate
+            let listPredicate = NSPredicate(format: "list == %@", safeTaskList)
+            fetchRequest.predicate = listPredicate
         }
     
         do {
@@ -68,11 +68,11 @@ class TaskEntityManager: EntityManager {
     
     
     // MARK: insert
-    func createWith(title: String, section: TaskSection?) -> Task {
+    func createWith(title: String, section: TaskListCustom?) -> Task {
         let task = Task(context: getContext())
         task.id = UUID()
         task.title = title
-        task.section = section
+        task.list = section
         
         saveContext()
         

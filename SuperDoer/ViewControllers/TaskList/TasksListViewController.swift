@@ -19,10 +19,10 @@ class TasksListViewController: UIViewController {
     // MARK: data (tasks)
     var tasks = [Task]()
     
-    var section: TaskSection
+    var taskList: TaskListCustom
     
-    init(section: TaskSection) {
-        self.section = section
+    init(taskList: TaskListCustom) {
+        self.taskList = taskList
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -64,8 +64,8 @@ class TasksListViewController: UIViewController {
             .foregroundColor: InterfaceColors.white
         ]
         
-        let customSection = section as? TaskSection
-        tasks = taskEm.getTasks(for: customSection)
+        let taskList = taskList as? TaskListCustom
+        tasks = taskEm.getTasks(for: taskList)
         if tasksTable.numberOfRows(inSection: 0) > 0 {
             tasksTable.reloadData()
         }
@@ -74,9 +74,9 @@ class TasksListViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
-        let task = tasks[0] as! Task
-        let vc = TaskViewController(task: task)
-        navigationController?.pushViewController(vc, animated: false)
+//        let task = tasks[0] as! Task
+//        let vc = TaskViewController(task: task)
+//        navigationController?.pushViewController(vc, animated: false)
     }
     
     
@@ -109,7 +109,7 @@ class TasksListViewController: UIViewController {
     }
     
     @objc private func saveNewTask(taskTitle: String) {
-        let task = taskEm.createWith(title: taskTitle, section: section)
+        let task = taskEm.createWith(title: taskTitle, section: taskList)
         
         tasks.insert(task, at: 0)
         tasksTable.reloadData()
