@@ -7,7 +7,7 @@ class TaskListsViewController: UIViewController, UIScrollViewDelegate {
 
     var listsTableView = TaskSectionsTableView(frame: .zero, style: .grouped)
         
-    var viewModel: TaskListsViewModelType?
+    var viewModel: TaskSectionsViewModelType?
 
     
     // MARK: life cycle
@@ -54,7 +54,7 @@ class TaskListsViewController: UIViewController, UIScrollViewDelegate {
         alert.addAction(
             UIAlertAction(title: "Добавить", style: .default, handler: { action in
                 if let listTitle = alert.textFields?.first?.text {
-                    self.viewModel?.createCustomTaskListWith(title: listTitle)
+                    self.viewModel?.createCustomTaskSectionWith(title: listTitle)
                     self.listsTableView.reloadData() // TODO: точно юзать reloadData()?
                 }
             })
@@ -94,24 +94,24 @@ extension TaskListsViewController {
 extension TaskListsViewController: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return viewModel?.getCountOfLists() ?? 0
+        return viewModel?.getCountOfSections() ?? 0
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel?.getTasksCountInList(withListId: section) ?? 0
+        return viewModel?.getTasksCountInSection(withSectionId: section) ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // TODO: зарегистрировать ячейку
         let cell = tableView.dequeueReusableCell(withIdentifier: TaskSectionTableViewCell.identifier) as! TaskSectionTableViewCell
         
-        let taskListCellViewModel = viewModel?.getTaskListCellViewModel(forIndexPath: indexPath)
+        let taskListCellViewModel = viewModel?.getTaskSectionCellViewModel(forIndexPath: indexPath)
         
         switch taskListCellViewModel {
-        case let listCustomCellViewModel as TaskListCustomTableViewCellViewModel :
+        case let listCustomCellViewModel as TaskSectionCustomTableViewCellViewModel :
             cell.viewModel = listCustomCellViewModel
             
-        case let listSystemCellViewModel as TaskListSystemTableViewCellViewModel:
+        case let listSystemCellViewModel as TaskSectionSystemTableViewCellViewModel:
             cell.viewModel = listSystemCellViewModel
             
         default:
@@ -123,23 +123,23 @@ extension TaskListsViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        viewModel?.selectTaskList(forIndexPath: indexPath)
+        guard let viewModel = viewModel else { return }
         
+        viewModel.selectTaskSection(forIndexPath: indexPath)
         
-        let taskListCellViewModel = viewModel?.getViewModelForSelectedRow()
+        let taskSectionCellViewModel = viewModel.getViewModelForSelectedRow()
         
-        switch taskListCellViewModel {
-        case let listCustomCellViewModel as TaskListCustomTableViewCellViewModel :
+        switch taskSectionCellViewModel {
+        case let sectionCustomCellViewModel as TaskSectionCustomTableViewCellViewModel :
             // TODO: переделать на view-model
-            let taskListCustom = (viewModel as! TaskListViewModel).lists[indexPath.section][indexPath.row] as! TaskListCustom
+            let taskSectionCustom = (viewModel as! TaskSectionsViewModel).sections[indexPath.section][indexPath.row] as! TaskSectionCustom
             
-            let taskListVc = TasksListViewController(taskList: taskListCustom)
-            navigationController?.pushViewController(taskListVc, animated: true)
+            let taskSectionVc = TasksListViewController(taskList: taskSectionCustom)
+            navigationController?.pushViewController(taskSectionVc, animated: true)
             
             tableView.deselectRow(at: indexPath, animated: true)
             
-            
-        case let listSystemCellViewModel as TaskListSystemTableViewCellViewModel:
+        case let listSystemCellViewModel as TaskSectionSystemTableViewCellViewModel:
             print("📋 Открыть системный список")
             
         default:

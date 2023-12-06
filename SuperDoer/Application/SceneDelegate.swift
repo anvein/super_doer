@@ -14,13 +14,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let window = UIWindow(windowScene: windowScene)
         
-        var lists: [[TaskListProtocol]] = [[],[]]
+        var lists: [[TaskSectionProtocol]] = [[],[]]
         lists[0] = SystemListBuilder().buildLists()
-        lists[1] = TaskListEntityManager().getCustomListsWithOrder()
+        lists[1] = TaskSectionEntityManager().getCustomListsWithOrder()
         
         
         
-        let taskListsViewModel = TaskListViewModel(lists: lists)
+        let taskListsViewModel = TaskSectionsViewModel(sections: lists)
         let taskListsViewController = TaskListsViewController()
         taskListsViewController.viewModel = taskListsViewModel
     

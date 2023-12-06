@@ -10,10 +10,10 @@ import Foundation
 import CoreData
 
 
-extension TaskListCustom {
+extension TaskSectionCustom {
 
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<TaskListCustom> {
-        return NSFetchRequest<TaskListCustom>(entityName: TaskListCustom.entityName)
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<TaskSectionCustom> {
+        return NSFetchRequest<TaskSectionCustom>(entityName: TaskSectionCustom.entityName)
     }
 
     @NSManaged public var tasksCount: Int32
@@ -28,7 +28,7 @@ extension TaskListCustom {
 }
 
 // MARK: Generated accessors for tasks
-extension TaskListCustom {
+extension TaskSectionCustom {
 
     @objc(insertObject:inTasksAtIndex:)
     @NSManaged public func insertIntoTasks(_ value: Task, at idx: Int)
@@ -62,6 +62,6 @@ extension TaskListCustom {
 
 }
 
-extension TaskListCustom : Identifiable {
+extension TaskSectionCustom : Identifiable {
 
 }

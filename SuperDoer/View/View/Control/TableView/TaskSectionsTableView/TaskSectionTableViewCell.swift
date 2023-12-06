@@ -5,29 +5,29 @@ class TaskSectionTableViewCell: UITableViewCell {
 
     static let identifier: String = "TaskSectionTableViewCell"
     
-    private let systemSectionsConfig: [TaskListSystem.ListType: SystemSectionViewSetting] = [
-        TaskListSystem.ListType.myDay: SystemSectionViewSetting(
+    private let systemSectionsConfig: [TaskSectionSystem.SectionType: SystemSectionViewSetting] = [
+        TaskSectionSystem.SectionType.myDay: SystemSectionViewSetting(
             imageName: "sun.max",
             imageColor: InterfaceColors.SystemSectionImage.myDay
         ),
-        TaskListSystem.ListType.important: SystemSectionViewSetting(
+        TaskSectionSystem.SectionType.important: SystemSectionViewSetting(
             imageName: "star",
             imageColor: InterfaceColors.SystemSectionImage.important
         ),
-        TaskListSystem.ListType.planned: SystemSectionViewSetting(
+        TaskSectionSystem.SectionType.planned: SystemSectionViewSetting(
             imageName: "calendar",
             imageColor: InterfaceColors.SystemSectionImage.planned
         ),
-        TaskListSystem.ListType.all: SystemSectionViewSetting(
+        TaskSectionSystem.SectionType.all: SystemSectionViewSetting(
             imageName: "infinity",
             imageColor: InterfaceColors.SystemSectionImage.all,
             imageSize: 17
         ),
-        TaskListSystem.ListType.completed: SystemSectionViewSetting(
+        TaskSectionSystem.SectionType.completed: SystemSectionViewSetting(
             imageName: "checkmark.circle",
             imageColor: InterfaceColors.SystemSectionImage.completed
         ),
-        TaskListSystem.ListType.withoutSection: SystemSectionViewSetting(
+        TaskSectionSystem.SectionType.withoutSection: SystemSectionViewSetting(
             imageName: "tray",
             imageColor: InterfaceColors.SystemSectionImage.withoutSection
         ),
@@ -38,7 +38,7 @@ class TaskSectionTableViewCell: UITableViewCell {
         imageColor: InterfaceColors.SystemSectionImage.defaultColor
     )
     
-    weak var viewModel: TaskListTableViewCellViewModelType? {
+    weak var viewModel: TaskSectionsTableViewCellViewModelType? {
         willSet (newViewModel) {
             self.textLabel?.text = newViewModel?.title
             
@@ -88,23 +88,23 @@ class TaskSectionTableViewCell: UITableViewCell {
         textLabel?.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
     }
 
-    private func configureCellImage(_ cellViewModel: TaskListTableViewCellViewModelType) {
-        if let listCustomCellViewModel = cellViewModel as? TaskListCustomTableViewCellViewModel {
+    private func configureCellImage(_ cellViewModel: TaskSectionsTableViewCellViewModelType) {
+        if let listCustomCellViewModel = cellViewModel as? TaskSectionCustomTableViewCellViewModel {
             configureCellImageFor(listCustomCellViewModel: listCustomCellViewModel)
             
-        } else if let listSystemCellViewModel = cellViewModel as? TaskListSystemTableViewCellViewModel {
+        } else if let listSystemCellViewModel = cellViewModel as? TaskSectionSystemTableViewCellViewModel {
             configureCellImageFor(listSystemCellViewModel: listSystemCellViewModel)
         }
         
     }
     
-    private func configureCellImageFor(listCustomCellViewModel: TaskListCustomTableViewCellViewModel) {
+    private func configureCellImageFor(listCustomCellViewModel: TaskSectionCustomTableViewCellViewModel) {
         let symbolConfig = UIImage.SymbolConfiguration(weight: .bold)
         imageView?.image = UIImage(systemName: defaultViewConfig.imageName, withConfiguration: symbolConfig)
         imageView?.tintColor = defaultViewConfig.imageColor
     }
     
-    private func configureCellImageFor(listSystemCellViewModel: TaskListSystemTableViewCellViewModel) {
+    private func configureCellImageFor(listSystemCellViewModel: TaskSectionSystemTableViewCellViewModel) {
         let viewConfig = systemSectionsConfig[listSystemCellViewModel.type] ?? defaultViewConfig
         
         let symbolConfig = UIImage.SymbolConfiguration(

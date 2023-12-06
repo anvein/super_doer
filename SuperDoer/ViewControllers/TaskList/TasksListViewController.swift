@@ -19,9 +19,9 @@ class TasksListViewController: UIViewController {
     // MARK: data (tasks)
     var tasks = [Task]()
     
-    var taskList: TaskListCustom
+    var taskList: TaskSectionCustom
     
-    init(taskList: TaskListCustom) {
+    init(taskList: TaskSectionCustom) {
         self.taskList = taskList
         
         super.init(nibName: nil, bundle: nil)
@@ -64,7 +64,7 @@ class TasksListViewController: UIViewController {
             .foregroundColor: InterfaceColors.white
         ]
         
-        let taskList = taskList as? TaskListCustom
+        let taskList = taskList as? TaskSectionCustom
         tasks = taskEm.getTasks(for: taskList)
         if tasksTable.numberOfRows(inSection: 0) > 0 {
             tasksTable.reloadData()

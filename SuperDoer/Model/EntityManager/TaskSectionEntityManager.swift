@@ -2,13 +2,13 @@
 import Foundation
 import CoreData
 
-class TaskListEntityManager: EntityManager {
+class TaskSectionEntityManager: EntityManager {
     // MARK: select
     /// Возвращает пользовательские списки задач
     /// Не удаленные (deletedAt = nil)
     /// Отсортированные по order = ASC + title = ASC
-    func getCustomListsWithOrder() -> [TaskListCustom] {
-        let fetchRequest: NSFetchRequest<TaskListCustom> = TaskListCustom.fetchRequest()
+    func getCustomListsWithOrder() -> [TaskSectionCustom] {
+        let fetchRequest: NSFetchRequest<TaskSectionCustom> = TaskSectionCustom.fetchRequest()
         
         let deletedAtPredicate = NSPredicate(format: "deletedAt == nil")
         fetchRequest.predicate = deletedAtPredicate
@@ -26,8 +26,8 @@ class TaskListEntityManager: EntityManager {
     }
     
     // MARK: insert
-    func createCustomListWith(title: String, order: Int = 100, isCycled: Bool = false) -> TaskListCustom {
-        let section = TaskListCustom(context: getContext())
+    func createCustomSectionWith(title: String, order: Int = 100, isCycled: Bool = false) -> TaskSectionCustom {
+        let section = TaskSectionCustom(context: getContext())
         
         section.id = UUID()
         section.title = title
