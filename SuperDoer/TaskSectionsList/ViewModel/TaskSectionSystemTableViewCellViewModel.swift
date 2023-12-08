@@ -4,22 +4,25 @@ import Foundation
 /// ViewModel для ячейки таблицы с системным списком
 class TaskSectionSystemTableViewCellViewModel: TaskSectionsTableViewCellViewModelType {
     
-    private var list: TaskSectionSystem
+    private var section: TaskSectionSystem
     
     init(section: TaskSectionSystem) {
-        self.list = section
+        self.section = section
     }
     
     var title: String? {
-        return list.title
+        return section.title
     }
     
     var tasksCount: Int {
-        return Int(list.tasksCount)
+        return Int(section.tasksCount)
     }
     
     var type: TaskSectionSystem.SectionType {
-        return list.type
+        return section.type
     }
     
+    func getTaskSection() -> TaskSectionProtocol /*TaskSectionSystem*/ {
+        return section
+    }
 }

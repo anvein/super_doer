@@ -20,8 +20,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         
         
-        let taskListsViewModel = TaskSectionsViewModel(sections: lists)
-        let taskListsViewController = TaskListsViewController()
+        let taskListsViewModel = TaskSectionsListViewModel(sections: lists)
+        let taskListsViewController = TaskSectionsListViewController()
         taskListsViewController.viewModel = taskListsViewModel
     
         

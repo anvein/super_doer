@@ -3,9 +3,9 @@ import UIKit
 import CoreData
 
 /// Экран списков
-class TaskListsViewController: UIViewController, UIScrollViewDelegate {
+class TaskSectionsListViewController: UIViewController, UIScrollViewDelegate {
 
-    var listsTableView = TaskSectionsTableView(frame: .zero, style: .grouped)
+    var listsTableView = TaskSectionsTableView()
         
     var viewModel: TaskSectionsViewModelType?
 
@@ -66,7 +66,7 @@ class TaskListsViewController: UIViewController, UIScrollViewDelegate {
 
 
 // MARK: LAYOUT
-extension TaskListsViewController {
+extension TaskSectionsListViewController {
     private func addSubviewsToMainView() {
         view.addSubview(listsTableView)
     }
@@ -91,21 +91,21 @@ extension TaskListsViewController {
 
 
 // MARK: table datasource, delegate
-extension TaskListsViewController: UITableViewDataSource, UITableViewDelegate {
+extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return viewModel?.getCountOfSections() ?? 0
+        return viewModel?.getCountOfTableSections() ?? 0
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel?.getTasksCountInSection(withSectionId: section) ?? 0
+        return viewModel?.getTaskSectionsCountInTableSection(withSectionId: section) ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // TODO: зарегистрировать ячейку
         let cell = tableView.dequeueReusableCell(withIdentifier: TaskSectionTableViewCell.identifier) as! TaskSectionTableViewCell
         
-        let taskListCellViewModel = viewModel?.getTaskSectionCellViewModel(forIndexPath: indexPath)
+        let taskListCellViewModel = viewModel?.getTaskSectionTableViewCellViewModel(forIndexPath: indexPath)
         
         switch taskListCellViewModel {
         case let listCustomCellViewModel as TaskSectionCustomTableViewCellViewModel :
@@ -132,10 +132,12 @@ extension TaskListsViewController: UITableViewDataSource, UITableViewDelegate {
         switch taskSectionCellViewModel {
         case let sectionCustomCellViewModel as TaskSectionCustomTableViewCellViewModel :
             // TODO: переделать на view-model
-            let taskSectionCustom = (viewModel as! TaskSectionsViewModel).sections[indexPath.section][indexPath.row] as! TaskSectionCustom
             
-            let taskSectionVc = TasksListViewController(taskList: taskSectionCustom)
-            navigationController?.pushViewController(taskSectionVc, animated: true)
+            let tasksListViewModel = TasksInSectionViewModel(taskSection: sectionCustomCellViewModel.getTaskSection() as! TaskSectionCustom)
+
+            let tasksInSectionVc = TasksInSectionViewController(viewModel: tasksListViewModel)
+            navigationController?.pushViewController(tasksInSectionVc, animated: true)
+            
             
             tableView.deselectRow(at: indexPath, animated: true)
             

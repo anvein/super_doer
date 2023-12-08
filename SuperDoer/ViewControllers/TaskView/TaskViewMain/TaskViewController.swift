@@ -14,7 +14,7 @@ class TaskViewController: UIViewController {
     lazy var taskTitleTextView = UITaskTitleTextView()
     lazy var isPriorityButton = StarButton()
     
-    lazy var taskDataTableView = TaskDataTableView(frame: .zero, style: .plain)
+    lazy var taskDataTableView = TaskDataTableView()
     
     /// Редактируемое в данный момент поле TextField
     var textFieldEditing: UITextField?

@@ -3,6 +3,10 @@ import UIKit
 
 class TasksListTableView: UITableView {
     
+    convenience init() {
+        self.init(frame: .zero, style: .insetGrouped)
+    }
+    
     override init(frame: CGRect, style: UITableView.Style) {
         super.init(frame: frame, style: style)
         

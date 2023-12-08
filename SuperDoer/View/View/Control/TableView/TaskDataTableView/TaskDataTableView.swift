@@ -5,6 +5,10 @@ import UIKit
 /// Таблица с кнопками для страницы просмотра / редактирования задачи
 class TaskDataTableView: UITableView {
     
+    convenience init() {
+        self.init(frame: .zero, style: .plain)
+    }
+    
     override init(frame: CGRect, style: UITableView.Style) {
         super.init(frame: frame, style: style)
         

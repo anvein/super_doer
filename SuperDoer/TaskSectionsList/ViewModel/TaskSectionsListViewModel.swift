@@ -1,11 +1,10 @@
 
 import Foundation
 
-/// ViewModel таблицы страницы с таблицей списков
-class TaskSectionsViewModel: TaskSectionsViewModelType {
+/// ViewModel страницы с таблицей списков (разделов)
+class TaskSectionsListViewModel: TaskSectionsViewModelType {
     
-    // TODO: переделать на private (когда переведу на view model список задач)
-     var sections: [[TaskSectionProtocol]]
+    private var sections: [[TaskSectionProtocol]]
     
     private var selectedSectionIndexPath: IndexPath?
     
@@ -15,16 +14,19 @@ class TaskSectionsViewModel: TaskSectionsViewModelType {
         self.sections = sections
     }
     
-    
-    func getCountOfSections() -> Int {
+    func getCountOfTableSections() -> Int {
         return sections.count
     }
     
-    func getTasksCountInSection(withSectionId sectionId: Int) -> Int {
+    func getTaskSectionsCountInTableSection(withSectionId sectionId: Int) -> Int {
         return sections[sectionId].count
     }
     
-    func getTaskSectionCellViewModel(forIndexPath indexPath: IndexPath) -> TaskSectionsTableViewCellViewModelType? {
+//    func getTasksCountInSection(withSectionId listId: Int) -> Int {
+//        return Int.random(in: 0...11)
+//    }
+    
+    func getTaskSectionTableViewCellViewModel(forIndexPath indexPath: IndexPath) -> TaskSectionsTableViewCellViewModelType? {
         let section = sections[indexPath.section][indexPath.row]
         
         switch section {

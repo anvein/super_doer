@@ -2,27 +2,18 @@
 import UIKit
 import CoreData
 
-// MARK: MAIN
-/// Контроллер списка задач
-class TasksListViewController: UIViewController {
+/// Контроллер списка задач в отдельном списке (разделе)
+class TasksInSectionViewController: UIViewController {
 
-    // TODO: переделать на DI-контейнер
-    lazy var taskEm = TaskEntityManager()
-    
-    
     // MARK: controls
-    lazy var tasksTable = TasksListTableView(frame: .zero, style: .insetGrouped)
+    lazy var tasksTable = TasksListTableView()
     
     lazy var backgroundImageView = UIImageView(image: UIImage(named: "bgList"))
     
+    var viewModel: TasksInSectionViewModelType
     
-    // MARK: data (tasks)
-    var tasks = [Task]()
-    
-    var taskList: TaskSectionCustom
-    
-    init(taskList: TaskSectionCustom) {
-        self.taskList = taskList
+    init(viewModel: TasksInSectionViewModelType) {
+        self.viewModel = viewModel
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -64,8 +55,8 @@ class TasksListViewController: UIViewController {
             .foregroundColor: InterfaceColors.white
         ]
         
-        let taskList = taskList as? TaskSectionCustom
-        tasks = taskEm.getTasks(for: taskList)
+        let taskSection = viewModel.taskSection as? TaskSectionCustom
+        viewModel.tasks = viewModel.taskEm.getTasks(for: taskSection)
         if tasksTable.numberOfRows(inSection: 0) > 0 {
             tasksTable.reloadData()
         }
@@ -109,16 +100,16 @@ class TasksListViewController: UIViewController {
     }
     
     @objc private func saveNewTask(taskTitle: String) {
-        let task = taskEm.createWith(title: taskTitle, section: taskList)
+        let task = viewModel.taskEm.createWith(title: taskTitle, section: viewModel.taskSection)
         
-        tasks.insert(task, at: 0)
+        viewModel.tasks.insert(task, at: 0)
         tasksTable.reloadData()
     }
     
     private func presentDeleteTaskAlertController(tasksIndexPath: [IndexPath]) {
         var deleteTask: Task? = nil
         if tasksIndexPath.count == 1 {
-            deleteTask = tasks[tasksIndexPath[0].row]
+            deleteTask = viewModel.tasks[tasksIndexPath[0].row]
         }
         
         let deleteAlertController = TasksDeleteAlertController(tasksIndexPath: tasksIndexPath, singleTask: deleteTask) { _ in
@@ -131,8 +122,8 @@ class TasksListViewController: UIViewController {
         var deleteTasksArray = [Task]()
         
         for taskIndexPath in tasksIndexPaths {
-            deleteTasksArray.append(tasks[taskIndexPath.row])
-            tasks.remove(at: taskIndexPath.row)
+            deleteTasksArray.append(viewModel.tasks[taskIndexPath.row])
+            viewModel.tasks.remove(at: taskIndexPath.row)
         }
         
         tasksTable.deleteRows(at: tasksIndexPaths, with: .fade)
@@ -143,7 +134,7 @@ class TasksListViewController: UIViewController {
 
 // MARK: CONTROLS AND LAYOUT SETUP
 /// Расширение для инкапсуляции построения макета
-extension TasksListViewController {
+extension TasksInSectionViewController {
     // MARK: add subviews and constraints
     private func addSubviews() {
         view.addSubview(tasksTable)
@@ -195,16 +186,16 @@ extension TasksListViewController {
 
 
 // MARK: table delegate + data source
-extension TasksListViewController: UITableViewDelegate, UITableViewDataSource {
+extension TasksInSectionViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tasks.count
+        return viewModel.getCountTasksInSection()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = TaskListStandartTaskCell(style: .default, reuseIdentifier: "MyCustomCell")
     
-        let taskMO = tasks[indexPath.row]
+        let taskMO = viewModel.tasks[indexPath.row]
         cell.textLabel?.text = taskMO.title
         
         return cell
@@ -213,7 +204,7 @@ extension TasksListViewController: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: select row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedTask = tasks[indexPath.row]
+        let selectedTask = viewModel.tasks[indexPath.row]
         
         let taskController = TaskViewController(task: selectedTask)
         navigationController?.pushViewController(taskController, animated: true)
@@ -293,9 +284,9 @@ extension TasksListViewController: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: move row
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        let moveElement = tasks[sourceIndexPath.row]
-        tasks[sourceIndexPath.row] = tasks[destinationIndexPath.row]
-        tasks[destinationIndexPath.row] = moveElement
+        let moveElement = viewModel.tasks[sourceIndexPath.row]
+        viewModel.tasks[sourceIndexPath.row] = viewModel.tasks[destinationIndexPath.row]
+        viewModel.tasks[destinationIndexPath.row] = moveElement
         
         tasksTable.moveRow(at: sourceIndexPath, to: destinationIndexPath)
     }

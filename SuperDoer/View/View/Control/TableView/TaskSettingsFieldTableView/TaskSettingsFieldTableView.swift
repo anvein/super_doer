@@ -3,6 +3,10 @@ import UIKit
 
 class TaskSettingsFieldTableView: UITableView {
     
+    convenience init() {
+        self.init(frame: .zero, style: .plain)
+    }
+    
     // MARK: init
     override init(frame: CGRect, style: UITableView.Style) {
         super.init(frame: frame, style: style)

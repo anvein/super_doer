@@ -5,4 +5,6 @@ import Foundation
 protocol TaskSectionsTableViewCellViewModelType: AnyObject {
     var title: String? { get }
     var tasksCount: Int { get }
+    
+    func getTaskSection() -> TaskSectionProtocol
 }
