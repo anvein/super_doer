@@ -4,6 +4,7 @@ import UIKit
 /// Класс для реализации наложения "скрина на экран"
 class PixelPerfectScreen {
     var topAnchorConstant: Float = 0
+    var controlsBottomAnchorConstant: Float = 0
     
     // MARK: controls
     private var isViewScreen = false
@@ -22,13 +23,23 @@ class PixelPerfectScreen {
     
     
     // MARK: methods
-    static func getInstanceAndSetup(baseView: UIView, imageName: String? = nil, topAnchorConstant: Float = 0) {
+    static func getInstanceAndSetup(
+        baseView: UIView,
+        imageName: String? = nil,
+        topAnchorConstant: Float = 0,
+        controlsBottomAnchorConstant: Float = 0
+    ) {
         PixelPerfectScreen.instance = PixelPerfectScreen(baseView: baseView)
-        PixelPerfectScreen.instance?.setup(imageName: imageName, topAnchorConstant: topAnchorConstant)
+        PixelPerfectScreen.instance?.setup(
+            imageName: imageName,
+            topAnchorConstant: topAnchorConstant,
+            controlsBottomAnchorConstant: controlsBottomAnchorConstant
+        )
     }
     
-    private func setup(imageName: String? = nil, topAnchorConstant: Float) {
+    private func setup(imageName: String? = nil, topAnchorConstant: Float, controlsBottomAnchorConstant: Float) {
         self.topAnchorConstant = topAnchorConstant
+        self.controlsBottomAnchorConstant = controlsBottomAnchorConstant
         
         if let safeImageName = imageName {
             screenImageView.image = UIImage(named: safeImageName)
@@ -92,14 +103,20 @@ class PixelPerfectScreen {
         // screenIsVisibleSwitch
         NSLayoutConstraint.activate([
             screenIsVisibleSwitch.leftAnchor.constraint(equalTo: baseView.leftAnchor, constant: 20),
-            screenIsVisibleSwitch.bottomAnchor.constraint(equalTo: baseView.safeAreaLayoutGuide.bottomAnchor),
+            screenIsVisibleSwitch.bottomAnchor.constraint(
+                equalTo: baseView.safeAreaLayoutGuide.bottomAnchor,
+                constant: controlsBottomAnchorConstant.cgFloat
+            ),
         ])
 
         // screenOpacitySlider
         NSLayoutConstraint.activate([
-            screenOpacitySlider.bottomAnchor.constraint(equalTo: baseView.safeAreaLayoutGuide.bottomAnchor),
             screenOpacitySlider.leftAnchor.constraint(equalTo: screenIsVisibleSwitch.rightAnchor, constant: 20),
             screenOpacitySlider.rightAnchor.constraint(equalTo: baseView.safeAreaLayoutGuide.rightAnchor, constant: -20),
+            screenOpacitySlider.bottomAnchor.constraint(
+                equalTo: baseView.safeAreaLayoutGuide.bottomAnchor,
+                constant: controlsBottomAnchorConstant.cgFloat
+            ),
         ])
     }
 

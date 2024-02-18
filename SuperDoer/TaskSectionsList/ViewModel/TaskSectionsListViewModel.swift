@@ -2,9 +2,16 @@
 import Foundation
 
 /// ViewModel страницы с таблицей списков (разделов)
-class TaskSectionsListViewModel: TaskSectionsViewModelType {
+class TaskSectionsListViewModel /*: TaskSectionsViewModelType*/ {
     
-    private var sections: [[TaskSectionProtocol]]
+    private var sections: [[TaskSectionProtocol]] {
+        didSet  {
+            sectionsUpdateClosure?(sections)
+        }
+    }
+    
+    var sectionsUpdateClosure: (([[TaskSectionProtocol]]) -> Void)?
+    
     
     private var selectedSectionIndexPath: IndexPath?
     
@@ -48,6 +55,7 @@ class TaskSectionsListViewModel: TaskSectionsViewModelType {
     func createCustomTaskSectionWith(title: String) {
         let section = taskSectionEm.createCustomSectionWith(title: title)
         sections[1].insert(section, at: 0)
+        
     }
     
     func getViewModelForSelectedRow() -> TaskSectionsTableViewCellViewModelType? {

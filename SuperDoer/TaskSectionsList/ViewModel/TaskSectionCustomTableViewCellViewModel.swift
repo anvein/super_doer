@@ -19,6 +19,7 @@ class TaskSectionCustomTableViewCellViewModel: TaskSectionsTableViewCellViewMode
         return Int(section.tasksCount)
     }
     
+    
     func getTaskSection() -> TaskSectionProtocol {
         return section
     }

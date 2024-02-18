@@ -2,13 +2,19 @@
 import UIKit
 import CoreData
 
-/// Экран списков
-class TaskSectionsListViewController: UIViewController, UIScrollViewDelegate {
+/// Экран списков (разделов)
+class TaskSectionsListViewController: UIViewController {
 
-    var listsTableView = TaskSectionsTableView()
-        
-    var viewModel: TaskSectionsViewModelType?
+    lazy var sectionsTableView = TaskSectionsTableView()
+    
+    lazy var addSectionBottomPanelView = AddSectionBottomPanelView()
+    
+    
+    
+    
+    var viewModel: TaskSectionsListViewModel?
 
+    
     
     // MARK: life cycle
     override func viewDidLoad() {
@@ -18,15 +24,24 @@ class TaskSectionsListViewController: UIViewController, UIScrollViewDelegate {
         
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .never
-        navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(showAddListAlertController))
-        ]
+        
+        viewModel?.sectionsUpdateClosure = { [unowned self] in
+            self.sectionsTableView.reloadData()
+        }
         
         setupControls()
         addSubviewsToMainView()
         setupConstraints()
         
-        PixelPerfectScreen.getInstanceAndSetup(baseView: view, imageName: "screen_home", topAnchorConstant: -11)  // TODO: удалить временный код (perfect pixel screen)
+        
+        #if DEBUG
+            PixelPerfectScreen.getInstanceAndSetup(
+                baseView: view,
+                imageName: "screen4",
+                topAnchorConstant: 0,
+                controlsBottomAnchorConstant: -60
+            )
+        #endif
     }
     
     
@@ -40,51 +55,44 @@ class TaskSectionsListViewController: UIViewController, UIScrollViewDelegate {
     
     
     // MARK: action-handlers
-    @objc private func showAddListAlertController() {
-        let alert = UIAlertController(title: "Новый список", message: nil, preferredStyle: .alert)
-        
-        alert.addTextField { textField in
-            textField.placeholder = "Название списка"
-        }
-        
-        alert.addAction(
-            UIAlertAction(title: "Отмена", style: .destructive)
-        )
-        
-        alert.addAction(
-            UIAlertAction(title: "Добавить", style: .default, handler: { action in
-                if let listTitle = alert.textFields?.first?.text {
-                    self.viewModel?.createCustomTaskSectionWith(title: listTitle)
-                    self.listsTableView.reloadData() // TODO: точно юзать reloadData()?
-                }
-            })
-        )
-        
-        present(alert, animated: true)
-    }
+    
+    
 }
 
 
 // MARK: LAYOUT
 extension TaskSectionsListViewController {
     private func addSubviewsToMainView() {
-        view.addSubview(listsTableView)
+        view.addSubview(sectionsTableView)
+        view.addSubview(addSectionBottomPanelView)
     }
     
     private func setupControls() {
         view.backgroundColor = .white
         
-        listsTableView.delegate = self
-        listsTableView.dataSource = self
+        sectionsTableView.delegate = self
+        sectionsTableView.dataSource = self
+        
+        addSectionBottomPanelView.delegate = self
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            listsTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            listsTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            listsTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            listsTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            sectionsTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            sectionsTableView.bottomAnchor.constraint(equalTo: addSectionBottomPanelView.topAnchor),
+            sectionsTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            sectionsTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
         ])
+        
+        let bottomPanelHeightConstraint = addSectionBottomPanelView.heightAnchor.constraint(equalToConstant: 48)
+        addSectionBottomPanelView.panelHeightConstraint = bottomPanelHeightConstraint
+        NSLayoutConstraint.activate([
+            bottomPanelHeightConstraint,
+            addSectionBottomPanelView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            addSectionBottomPanelView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            addSectionBottomPanelView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+        ])
+        
     }
     
 }
@@ -102,17 +110,16 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // TODO: зарегистрировать ячейку
         let cell = tableView.dequeueReusableCell(withIdentifier: TaskSectionTableViewCell.identifier) as! TaskSectionTableViewCell
         
-        let taskListCellViewModel = viewModel?.getTaskSectionTableViewCellViewModel(forIndexPath: indexPath)
+        let sectionCellViewModel = viewModel?.getTaskSectionTableViewCellViewModel(forIndexPath: indexPath)
         
-        switch taskListCellViewModel {
-        case let listCustomCellViewModel as TaskSectionCustomTableViewCellViewModel :
-            cell.viewModel = listCustomCellViewModel
+        switch sectionCellViewModel {
+        case let sectionCustomCellViewModel as TaskSectionCustomTableViewCellViewModel :
+            cell.viewModel = sectionCustomCellViewModel
             
-        case let listSystemCellViewModel as TaskSectionSystemTableViewCellViewModel:
-            cell.viewModel = listSystemCellViewModel
+        case let sectionSystemCellViewModel as TaskSectionSystemTableViewCellViewModel:
+            cell.viewModel = sectionSystemCellViewModel
             
         default:
             // TODO: залогировать ошибку
@@ -133,15 +140,15 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
         case let sectionCustomCellViewModel as TaskSectionCustomTableViewCellViewModel :
             // TODO: переделать на view-model
             
-            let tasksListViewModel = TasksInSectionViewModel(taskSection: sectionCustomCellViewModel.getTaskSection() as! TaskSectionCustom)
+            let tasksSectionViewModel = TasksInSectionViewModel(taskSection: sectionCustomCellViewModel.getTaskSection() as! TaskSectionCustom)
 
-            let tasksInSectionVc = TasksInSectionViewController(viewModel: tasksListViewModel)
+            let tasksInSectionVc = TasksInSectionViewController(viewModel: tasksSectionViewModel)
             navigationController?.pushViewController(tasksInSectionVc, animated: true)
             
             
             tableView.deselectRow(at: indexPath, animated: true)
             
-        case let listSystemCellViewModel as TaskSectionSystemTableViewCellViewModel:
+        case let sectionSystemCellViewModel as TaskSectionSystemTableViewCellViewModel:
             print("📋 Открыть системный список")
             
         default:
@@ -181,4 +188,30 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
     }
     
 }
+
+
+// MARK: add section bottom panel delegate
+extension TaskSectionsListViewController: AddSectionBottomPanelViewDelegate {
+    func createSectionWith(title: String) {
+        viewModel?.createCustomTaskSectionWith(title: title)
+    }
+}
+
+
+@available(iOS 17, *)
+#Preview(traits: .defaultLayout, body: {
+//    var lists: [[TaskSectionProtocol]] = [[],[]]
+//    lists[0] = SystemListBuilder().buildLists()
+//    lists[1] = TaskSectionEntityManager().getCustomListsWithOrder()
+//    
+//    let taskListsViewModel = TaskSectionsListViewModel(sections: lists)
+//    let taskListsViewController = TaskSectionsListViewController()
+//    taskListsViewController.viewModel = taskListsViewModel
+//
+//    let navigationController = UINavigationController(rootViewController: taskListsViewController)
+    
+    return TaskSectionsListViewController()
+})
+
+
 

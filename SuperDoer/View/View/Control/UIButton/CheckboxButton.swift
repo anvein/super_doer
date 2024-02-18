@@ -7,6 +7,14 @@ class CheckboxButton: UIButton {
     static let outerSize: Float = 32
     static let imageSize: Float = 26
     
+    override var isHighlighted: Bool {
+        didSet {
+            Self.animate(withDuration: 0.15, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction]) {
+                self.transform = self.isHighlighted ? .init(scaleX: 0.85, y: 0.85) : .identity
+            }
+        }
+    }
+    
     var isOn: Bool = false {
         didSet {
             guard oldValue != isOn else {
@@ -46,7 +54,6 @@ class CheckboxButton: UIButton {
         
         layer.masksToBounds = true
         
-        addTarget(self, action: #selector(btnTouchDown(sender:)), for: .touchDown)
         addTarget(self, action: #selector(btnTouchUpInside(sender:)), for: .touchUpInside)
     }
     
@@ -81,24 +88,11 @@ class CheckboxButton: UIButton {
     
     
     // MARK: event-handlers
-    @objc private func btnTouchDown(sender: CheckboxButton) {
-        // много методов анимации
-        let animation = { () -> Void in
-            sender.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
-        }
-        
-        UIView.animate(withDuration: 0.25, delay: 0, animations: animation) { _ in
-            sender.transform = CGAffineTransform(scaleX: 1, y: 1)
-        }
-    }
-    
     @objc private func btnTouchUpInside(sender: CheckboxButton) {
         isOn = !isOn
         delegate?.checkboxDidChangeValue(checkbox: self)
-        
-        // TODO: анимировать (желательно универсально)
-        setAppearanceForState(isOn)
     }
+    
     
     // MARK: methods helpers
     private func createCheckmarkImage() -> UIImage {
@@ -118,6 +112,14 @@ class CheckboxButton: UIButton {
     
 }
 
+
 protocol CheckboxButtonDelegate {
     func checkboxDidChangeValue(checkbox: CheckboxButton)
+}
+
+
+// MARK: preview
+@available(iOS 17, *)
+#Preview {
+    CheckboxButton()
 }

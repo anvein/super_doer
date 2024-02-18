@@ -14,8 +14,8 @@ class TaskSectionEntityManager: EntityManager {
         fetchRequest.predicate = deletedAtPredicate
         
         let sortByOrder = NSSortDescriptor(key: "order", ascending: true)
-        let sortByTitle = NSSortDescriptor(key: "title", ascending: true)
-        fetchRequest.sortDescriptors = [sortByOrder, sortByTitle]
+//        let sortByTitle = NSSortDescriptor(key: "title", ascending: true)
+        fetchRequest.sortDescriptors = [sortByOrder, /*sortByTitle*/]
         
         do {
             let sections = try getContext().fetch(fetchRequest)
