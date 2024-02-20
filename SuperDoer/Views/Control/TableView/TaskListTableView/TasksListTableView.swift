@@ -20,6 +20,7 @@ class TasksListTableView: UITableView {
         separatorStyle = .none
         layer.zPosition = 10
         
+        register(StandartTaskTableViewCell.self, forCellReuseIdentifier: StandartTaskTableViewCell.identifier)
         
 //        let tableTitleLabel = UILabel(frame: CGRect(x: 5, y: 5, width: 150, height: 50))
 //        tableHeaderView = tableTitleLabel

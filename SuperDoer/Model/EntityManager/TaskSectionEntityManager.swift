@@ -13,7 +13,7 @@ class TaskSectionEntityManager: EntityManager {
         let deletedAtPredicate = NSPredicate(format: "deletedAt == nil")
         fetchRequest.predicate = deletedAtPredicate
         
-        let sortByOrder = NSSortDescriptor(key: "order", ascending: true)
+        let sortByOrder = NSSortDescriptor(key: "order", ascending: false)
 //        let sortByTitle = NSSortDescriptor(key: "title", ascending: true)
         fetchRequest.sortDescriptors = [sortByOrder, /*sortByTitle*/]
         
@@ -39,4 +39,10 @@ class TaskSectionEntityManager: EntityManager {
         return section
     }
     
+    
+    // MARK: update
+    func updateCustomSectionField(title: String, section: TaskSectionCustom) {
+        section.title = title
+        saveContext()
+    }
 }

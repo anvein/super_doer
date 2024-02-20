@@ -19,11 +19,14 @@ class TaskViewController: UIViewController {
     /// Редактируемое в данный момент поле TextField
     var textFieldEditing: UITextField?
     
+    // TODO: УДАЛЯЮ!!!
     /// объект-массив на основании которого формируется таблица с "кнопками" и данными задачи
     var taskDataCellsValues = TaskDataCellValues()
     
     
-    // MARK: model
+    // MARK: view model
+    var viewModel: TaskViewModel?
+    
     var task: Task
     
     
@@ -47,7 +50,7 @@ class TaskViewController: UIViewController {
         addSubviews()
         setupConstraints()
     
-//        PixelPerfectScreen.getInstanceAndSetup(baseView: view)  // TODO: удалить временный код (perfect pixel screen)
+        // PixelPerfectScreen.getInstanceAndSetup(baseView: view)  // TODO: удалить временный код (perfect pixel screen)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -165,9 +168,17 @@ class TaskViewController: UIViewController {
     
     
     private func fillControls(from task: Task) {
-        taskTitleTextView.text = task.title
-        taskDoneButton.isOn = task.isCompleted
-        isPriorityButton.isOn = task.isPriority
+        viewModel?.taskTitle.bindAndUpdateValue { [unowned self] title in
+            taskTitleTextView.text = title
+        }
+        
+        viewModel?.taskIsCompleted.bindAndUpdateValue { [unowned self] isCompleted in
+            taskDoneButton.isOn = isCompleted
+        }
+        
+        viewModel?.taskIsPriority.bindAndUpdateValue { [unowned self] isPriority in
+            isPriorityButton.isOn = isPriority
+        }
         
         taskDataCellsValues.fill(from: task)
         if !taskDataTableView.visibleCells.isEmpty {
@@ -244,16 +255,17 @@ extension TaskViewController {
 // MARK: table delegate and dataSource
 extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return taskDataCellsValues.cellsValuesArray.count
+        return viewModel!.countTaskDataCellsValues
+        // TODO: неявно извлекаемый опционал
     }
     
     
     // MARK: cell appearance
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let buttonValue = taskDataCellsValues.cellsValuesArray[indexPath.row]
+        let cellValue = viewModel?.getTaskDataCellValueFor(indexPath: indexPath)
         let cell: UITableViewCell
          
-        switch buttonValue {
+        switch cellValue {
         case _ as AddSubTaskCellValue:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: AddSubtaskButtonCell.identifier)!
             if let addSubtaskButtonCell = cell as? AddSubtaskButtonCell {
@@ -418,7 +430,7 @@ extension TaskViewController: UITextViewDelegate {
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
-        taskEm.updateField(title: textView.text, task: task)
+        viewModel?.updateTaskField(title: textView.text)
     }
 
     // TODO: заменять перевод строки на пробел когда заканчивается редактирование названия
@@ -428,11 +440,13 @@ extension TaskViewController: UITextViewDelegate {
 // MARK: subtask TextField delegate
 extension TaskViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
+        // TODO: определять верный ли textField
         showSubtaskAddNavigationItemReady()
         textFieldEditing = textField
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        // TODO: определять верный ли textField
         if textFieldEditing === textField {
             textField.resignFirstResponder()
             navigationItem.setRightBarButton(nil, animated: true)

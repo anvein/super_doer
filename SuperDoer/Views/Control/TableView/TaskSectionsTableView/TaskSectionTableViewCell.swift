@@ -2,8 +2,8 @@
 import UIKit
 
 class TaskSectionTableViewCell: UITableViewCell {
-
     static let identifier: String = "TaskSectionTableViewCell"
+    static let cellHeight = 48.4
     
     private let systemSectionsConfig: [TaskSectionSystem.SectionType: SystemSectionViewSetting] = [
         TaskSectionSystem.SectionType.myDay: SystemSectionViewSetting(
@@ -38,15 +38,17 @@ class TaskSectionTableViewCell: UITableViewCell {
         imageColor: InterfaceColors.SystemSectionImage.defaultColor
     )
     
-    weak var viewModel: TaskSectionsTableViewCellViewModelType? {
+    // TODO: надо ли тут weak???
+    // вроде цикла сильных ссылок быть не должно быть
+    weak var viewModel: TaskSectionTableViewCellViewModelType? {
         willSet (newViewModel) {
-            self.textLabel?.text = newViewModel?.title
-            
-            if let safeNewViewModel = newViewModel {
-                self.detailTextLabel?.text = String(safeNewViewModel.tasksCount)
+            if let newViewModel {
+                self.textLabel?.text = newViewModel.title
+                self.detailTextLabel?.text = newViewModel.tasksCount
                 
-                configureCellImage(safeNewViewModel)
+                configureCellImage(newViewModel)
             } else {
+                self.textLabel?.text = nil
                 self.detailTextLabel?.text = nil
             }
         }
@@ -88,14 +90,13 @@ class TaskSectionTableViewCell: UITableViewCell {
         textLabel?.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
     }
 
-    private func configureCellImage(_ cellViewModel: TaskSectionsTableViewCellViewModelType) {
+    private func configureCellImage(_ cellViewModel: TaskSectionTableViewCellViewModelType) {
         if let listCustomCellViewModel = cellViewModel as? TaskSectionCustomTableViewCellViewModel {
             configureCellImageFor(listCustomCellViewModel: listCustomCellViewModel)
             
         } else if let listSystemCellViewModel = cellViewModel as? TaskSectionSystemTableViewCellViewModel {
             configureCellImageFor(listSystemCellViewModel: listSystemCellViewModel)
-        }
-        
+        } 
     }
     
     private func configureCellImageFor(listCustomCellViewModel: TaskSectionCustomTableViewCellViewModel) {

@@ -2,8 +2,11 @@
 import UIKit
 
 /// Ячейка "задачи" в таблице с задачами
-class TaskListStandartTaskCell: UITableViewCell {
-
+class StandartTaskTableViewCell: UITableViewCell {
+    class var identifier: String {
+        return "StandartTaskTableViewCell"
+    }
+    
     lazy var isDoneButton = CheckboxButton(width: 24, height: 24)
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {

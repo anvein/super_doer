@@ -9,9 +9,6 @@ class TaskSectionsListViewController: UIViewController {
     
     lazy var addSectionBottomPanelView = AddSectionBottomPanelView()
     
-    
-    
-    
     var viewModel: TaskSectionsListViewModel?
 
     
@@ -25,14 +22,10 @@ class TaskSectionsListViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .never
         
-        viewModel?.sectionsUpdateClosure = { [unowned self] in
-            self.sectionsTableView.reloadData()
-        }
-        
         setupControls()
         addSubviewsToMainView()
         setupConstraints()
-        
+        setupBinding()
         
         #if DEBUG
             PixelPerfectScreen.getInstanceAndSetup(
@@ -48,7 +41,9 @@ class TaskSectionsListViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
-//        let vc = TasksListViewController(section: sections[1].first as! TaskSection)
+//        let section = viewModel?.sections[1].first as! TaskSectionCustom
+//        let vm = TasksInSectionViewModel(taskSection: section)
+//        let vc = TasksInSectionViewController(viewModel: vm)
 //        navigationController?.pushViewController(vc, animated: false)
     }
     
@@ -92,7 +87,12 @@ extension TaskSectionsListViewController {
             addSectionBottomPanelView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             addSectionBottomPanelView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
         ])
-        
+    }
+    
+    private func setupBinding() {
+        viewModel?.sections.bindAndUpdateValue(listener: { [unowned self] sections in
+            self.sectionsTableView.reloadData()
+        })
     }
     
 }
@@ -132,36 +132,31 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let viewModel = viewModel else { return }
         
-        viewModel.selectTaskSection(forIndexPath: indexPath)
+        viewModel.selectTaskSection(forIndexPath: indexPath) // TODO: нужен ли этот метод?
         
-        let taskSectionCellViewModel = viewModel.getViewModelForSelectedRow()
+        let taskListInSectionViewModel = viewModel.getTaskListInSectionViewModel(forIndexPath: indexPath)
+        guard let taskListInSectionViewModel else { return }
         
-        switch taskSectionCellViewModel {
-        case let sectionCustomCellViewModel as TaskSectionCustomTableViewCellViewModel :
-            // TODO: переделать на view-model
-            
-            let tasksSectionViewModel = TasksInSectionViewModel(taskSection: sectionCustomCellViewModel.getTaskSection() as! TaskSectionCustom)
-
-            let tasksInSectionVc = TasksInSectionViewController(viewModel: tasksSectionViewModel)
+        switch taskListInSectionViewModel {
+        case let taskListInSectionViewModel as TaskListInSectionViewModel :
+            let tasksInSectionVc = TasksInSectionViewController(viewModel: taskListInSectionViewModel)
             navigationController?.pushViewController(tasksInSectionVc, animated: true)
-            
             
             tableView.deselectRow(at: indexPath, animated: true)
             
-        case let sectionSystemCellViewModel as TaskSectionSystemTableViewCellViewModel:
+        default:
+            // TODO: проработать открытие системного списка
             print("📋 Открыть системный список")
             
-        default:
-            // TODO: залогировать ошибку
+            // TODO: для default залогировать ошибку
             // TODO: nil-вариант
             print("🔴 Залогировать ошибку")
         }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 48.4
+        return TaskSectionTableViewCell.cellHeight
     }
-    
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         return UIView()
