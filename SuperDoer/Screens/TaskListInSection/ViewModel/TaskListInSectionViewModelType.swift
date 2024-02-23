@@ -10,7 +10,7 @@ protocol TaskListInSectionViewModelType {
     
     func getTaskInSectionTableViewCellViewModel(forIndexPath indexPath: IndexPath) -> TaskInSectionTableViewCellViewModelType
     
-    func getTaskViewModel(forIndexPath indexPath: IndexPath) -> TaskViewModel
+    func getTaskViewModel(forIndexPath indexPath: IndexPath) -> TaskDetailViewModel
     
     func createNewTaskInCurrentSectionWith(
         title: String,

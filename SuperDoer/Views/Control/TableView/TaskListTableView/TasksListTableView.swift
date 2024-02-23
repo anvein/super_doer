@@ -4,7 +4,7 @@ import UIKit
 class TasksListTableView: UITableView {
     
     convenience init() {
-        self.init(frame: .zero, style: .insetGrouped)
+        self.init(frame: .zero, style: .grouped)
     }
     
     override init(frame: CGRect, style: UITableView.Style) {
@@ -18,7 +18,7 @@ class TasksListTableView: UITableView {
         backgroundColor = nil
         scrollsToTop = true
         separatorStyle = .none
-        layer.zPosition = 10
+//        layer.zPosition = 1
         
         register(StandartTaskTableViewCell.self, forCellReuseIdentifier: StandartTaskTableViewCell.identifier)
         

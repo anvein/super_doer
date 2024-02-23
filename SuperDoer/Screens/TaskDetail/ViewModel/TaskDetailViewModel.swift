@@ -2,16 +2,15 @@
 import Foundation
 
 /// ViewModel страницы открытой задачи (просмотр / редактирование)
-class TaskViewModel {
+class TaskDetailViewModel {
     
     lazy var taskEm = TaskEntityManager()
     
     // TODO: сделать private всё
+    // инициализировать наблюдаемые поля при инициализации сущности
     private(set) var task: Task {
         didSet {
-            taskTitle.value = task.title
-            taskIsCompleted.value = task.isCompleted
-            taskIsPriority.value = task.isPriority
+            updateObservablePropertiesFrom(task: task)
         }
     }
     
@@ -39,17 +38,34 @@ class TaskViewModel {
     }
     
     
-    func updateTaskField(title: String) {
-        taskEm.updateField(title: title + "+", task: task)
-        // так делать?
-        // или написать общий метод, который будет обновлять все поля???
-        // как правильно???
-        // TODO: проблема в том, что task обновился (его поле), а поле vm (которое Box) не обновляется - как его обновить?
-        taskTitle.value = title
-    }
-    
     func getTaskDataCellValueFor(indexPath: IndexPath) -> TaskDataCellValueProtocol {
         return taskDataCellsValues.cellsValuesArray[indexPath.row]
+    }
+    
+    // ViewModel
+    func updateTaskField(title: String) {
+        let title = title + "+"
+        // поле сущности обновилась
+        taskEm.updateField(title: title, task: task)
+        
+        // обновлять наблюдаемые свойства вручную универсальным методом
+        updateObservablePropertiesFrom(task: task)
+    }
+
+    // сделать метод, который будет обновлять только те наблюдаемые поля,
+    // которые обновились
+    private func updateObservablePropertiesFrom(task: Task) {
+        if task.title != taskTitle.value {
+            taskTitle.value = task.title
+        }
+        
+        if task.isCompleted != taskIsCompleted.value {
+            taskIsCompleted.value = task.isCompleted
+        }
+        
+        if task.isPriority != taskIsPriority.value {
+            taskIsPriority.value = task.isPriority
+        }
     }
     
 }

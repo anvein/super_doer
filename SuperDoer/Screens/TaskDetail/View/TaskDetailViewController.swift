@@ -1,9 +1,9 @@
 
 import UIKit
 
-/// Контроллер задачи
+/// Контроллер просмотра / редактирования задачи
 // MARK: MAIN
-class TaskViewController: UIViewController {
+class TaskDetailViewController: UIViewController {
     
     // TODO: переделать на DI-контейнер
     lazy var taskEm = TaskEntityManager()
@@ -25,7 +25,7 @@ class TaskViewController: UIViewController {
     
     
     // MARK: view model
-    var viewModel: TaskViewModel?
+    var viewModel: TaskDetailViewModel?
     
     var task: Task
     
@@ -49,6 +49,7 @@ class TaskViewController: UIViewController {
         setupControls()
         addSubviews()
         setupConstraints()
+        setupBindings()
     
         // PixelPerfectScreen.getInstanceAndSetup(baseView: view)  // TODO: удалить временный код (perfect pixel screen)
     }
@@ -168,17 +169,7 @@ class TaskViewController: UIViewController {
     
     
     private func fillControls(from task: Task) {
-        viewModel?.taskTitle.bindAndUpdateValue { [unowned self] title in
-            taskTitleTextView.text = title
-        }
         
-        viewModel?.taskIsCompleted.bindAndUpdateValue { [unowned self] isCompleted in
-            taskDoneButton.isOn = isCompleted
-        }
-        
-        viewModel?.taskIsPriority.bindAndUpdateValue { [unowned self] isPriority in
-            isPriorityButton.isOn = isPriority
-        }
         
         taskDataCellsValues.fill(from: task)
         if !taskDataTableView.visibleCells.isEmpty {
@@ -189,7 +180,7 @@ class TaskViewController: UIViewController {
 
 /// Расширение для инкапсуляции настройки контролов и макета
 // MARK: SETUP LAYOUT
-extension TaskViewController {
+extension TaskDetailViewController {
     
     // MARK: add subviews & constraints
     private func addSubviews() {
@@ -249,11 +240,25 @@ extension TaskViewController {
         taskDataTableView.dataSource = self
         taskDataTableView.delegate = self
     }
+    
+    private func setupBindings() {
+        viewModel?.taskTitle.bindAndUpdateValue { [unowned self] title in
+            taskTitleTextView.text = title
+        }
+        
+        viewModel?.taskIsCompleted.bindAndUpdateValue { [unowned self] isCompleted in
+            taskDoneButton.isOn = isCompleted
+        }
+        
+        viewModel?.taskIsPriority.bindAndUpdateValue { [unowned self] isPriority in
+            isPriorityButton.isOn = isPriority
+        }
+    }
 }
 
 
 // MARK: table delegate and dataSource
-extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
+extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel!.countTaskDataCellsValues
         // TODO: неявно извлекаемый опционал
@@ -413,7 +418,7 @@ extension TaskViewController: UITableViewDelegate, UITableViewDataSource {
 
 
 // MARK: task title TextView delegate
-extension TaskViewController: UITextViewDelegate {
+extension TaskDetailViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if (text == "\n") {
             navigationController?.navigationBar.topItem?.setRightBarButton(nil, animated: true)
@@ -438,7 +443,7 @@ extension TaskViewController: UITextViewDelegate {
 
 
 // MARK: subtask TextField delegate
-extension TaskViewController: UITextFieldDelegate {
+extension TaskDetailViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         // TODO: определять верный ли textField
         showSubtaskAddNavigationItemReady()
@@ -460,21 +465,21 @@ extension TaskViewController: UITextFieldDelegate {
 
 // MARK: cell delegates, child controllers delegates
 /// Протокол связанный с чекбоксом "Задача выполнена"
-extension TaskViewController: CheckboxButtonDelegate {
+extension TaskDetailViewController: CheckboxButtonDelegate {
     func checkboxDidChangeValue(checkbox: CheckboxButton) {
         taskEm.updateField(isCompleted: checkbox.isOn, task: task)
     }
 }
 
 /// Протокол связанный с полем "Приоритет"
-extension TaskViewController: StarButtonDelegate {
+extension TaskDetailViewController: StarButtonDelegate {
     func starButtonValueDidChange(starButton: StarButton) {
         taskEm.updateField(isPriority: starButton.isOn, task: task)
     }
 }
 
 /// Делегаты связанные с полем "Описание"
-extension TaskViewController: TaskDescriptionViewControllerDelegate, DescriptionButtonCellDelegateProtocol {
+extension TaskDetailViewController: TaskDescriptionViewControllerDelegate, DescriptionButtonCellDelegateProtocol {
     func didDisappearTaskDescriptionViewController(isSuccess: Bool) {
         taskDataCellsValues.fillDescription(from: task)
         taskDataTableView.reloadData()
@@ -486,7 +491,7 @@ extension TaskViewController: TaskDescriptionViewControllerDelegate, Description
 }
 
 /// Делегат связанный с полем "Добавить в мой день"
-extension TaskViewController: AddToMyDayButtonCellDelegate {
+extension TaskDetailViewController: AddToMyDayButtonCellDelegate {
     func tapAddToMyDayCrossButton() {
         taskEm.updateField(inMyDay: false, task: task)
         
@@ -496,7 +501,7 @@ extension TaskViewController: AddToMyDayButtonCellDelegate {
 }
 
 /// Делегат связанный с полем "Напомнить"
-extension TaskViewController: NotificationsDisabledAlertControllerDelegate {
+extension TaskDetailViewController: NotificationsDisabledAlertControllerDelegate {
     func didChoosenEnableNotifications() {
         // TODO: открыть контроллер установки напоминаний
     }
@@ -507,7 +512,7 @@ extension TaskViewController: NotificationsDisabledAlertControllerDelegate {
 }
 
 /// Методы делегата связанные с полем "Дата выполнения"
-extension TaskViewController: TaskDataDeadlineCellDelegate, DeadlineSettingsViewControllerDelegate {
+extension TaskDetailViewController: TaskDataDeadlineCellDelegate, DeadlineSettingsViewControllerDelegate {
     func tapTaskDeadlineCrossButton() {
         taskEm.updateField(deadlineDate: nil, task: task)
 
@@ -524,7 +529,7 @@ extension TaskViewController: TaskDataDeadlineCellDelegate, DeadlineSettingsView
 }
 
 /// Делегат для взаимодействия с галереей (при загрузке файла)
-extension TaskViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension TaskDetailViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
         guard let originalImage = info[.originalImage] as? UIImage else {
@@ -550,7 +555,7 @@ extension TaskViewController: UIImagePickerControllerDelegate, UINavigationContr
     }
 }
 
-extension TaskViewController: UIDocumentPickerDelegate {
+extension TaskDetailViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
     
         for url in urls {

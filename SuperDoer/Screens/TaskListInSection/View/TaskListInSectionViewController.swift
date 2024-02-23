@@ -3,15 +3,18 @@ import UIKit
 import CoreData
 
 /// Контроллер списка задач в отдельном списке (разделе)
-class TasksInSectionViewController: UIViewController {
+class TaskListInSectionViewController: UIViewController {
 
     // MARK: controls
-    lazy var tasksTable = TasksListTableView()
+    private lazy var tasksTable = TasksListTableView()
+    private lazy var createTaskPanelView = CreateTaskBottomPanelView()
     
-    lazy var backgroundImageView = UIImageView(image: UIImage(named: "bgList"))
+    private lazy var backgroundImageView = UIImageView(image: UIImage(named: "bgList"))
     
     var viewModel: TaskListInSectionViewModelType
     
+    
+    // MARK: init
     init(viewModel: TaskListInSectionViewModelType) {
         self.viewModel = viewModel
         
@@ -21,6 +24,7 @@ class TasksInSectionViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
     
     // MARK: lyfecycle
     override func viewDidLoad() {
@@ -34,9 +38,7 @@ class TasksInSectionViewController: UIViewController {
         
 //        navigationController?.navigationBar.topItem?.rightBarButtonItem
         let editItem = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(editTable))
-        let addItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(showAddTaskAlertController))
-        
-        navigationItem.rightBarButtonItems = [addItem, editItem]
+        navigationItem.rightBarButtonItems = [editItem]
         
 //        navigationController?.navigationBar.setBackgroundImage(UIImage(named: "bgList"), for: UIBarMetrics.compact)
 //        navigationController?.navigationBar.isOpaque = true
@@ -53,6 +55,16 @@ class TasksInSectionViewController: UIViewController {
                 self.tasksTable.reloadData()
             }
         }
+        
+        #if DEBUG
+            PixelPerfectScreen.getInstanceAndSetup(
+                baseView: view,
+                imageName: "task_list_base",
+                topAnchorConstant: 0,
+                controlsBottomAnchorConstant: 20
+            )
+        #endif
+        
     }
     
 
@@ -86,41 +98,6 @@ class TasksInSectionViewController: UIViewController {
         tasksTable.isEditing = !tasksTable.isEditing
     }
     
-    
-    // TODO: переделать на красивую плашку добавления задачи
-    @objc private func showAddTaskAlertController() {
-        let alertController = UIAlertController(title: "Add task", message: "Enter task title", preferredStyle: .alert)
-
-        alertController.addTextField() { taskTitleTf in
-            taskTitleTf.placeholder = "Title"
-        }
-        
-        let saveAction = UIAlertAction(title: "Save", style: .default) { action in
-            guard let taskTitle = alertController.textFields?.first?.text else {
-               return
-            }
-
-            self.createNewTask(taskTitle: taskTitle)
-        }
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
-        
-        alertController.addAction(cancelAction)
-        alertController.addAction(saveAction)
-        
-        present(alertController, animated: true)
-    }
-    
-    @objc private func createNewTask(taskTitle: String) {
-        viewModel.createNewTaskInCurrentSectionWith(
-            title: taskTitle,
-            inMyDay: false,
-            reminderDateTime: nil,
-            deadlineAt: nil,
-            description: nil
-        )
-    }
-    
     private func presentDeleteTaskAlertController(tasksIndexPath: [IndexPath]) {
         // TODO: переделать на ViewModel
 //        var deleteTask: Task? = nil
@@ -143,28 +120,59 @@ class TasksInSectionViewController: UIViewController {
 
 // MARK: CONTROLS AND LAYOUT SETUP
 /// Расширение для инкапсуляции построения макета
-extension TasksInSectionViewController {
+extension TaskListInSectionViewController {
     // MARK: add subviews and constraints
     private func addSubviews() {
         view.addSubview(tasksTable)
         view.addSubview(backgroundImageView)
+        view.addSubview(createTaskPanelView)
     }
     
     private func setupConstraints() {
         // tasksTable
         NSLayoutConstraint.activate([
             tasksTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            tasksTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            tasksTable.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor),
-            tasksTable.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor),
+//            tasksTable.bottomAnchor.constraint(equalTo: createTaskPanelView.topAnchor, constant: -8),
+            tasksTable.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 8),
+            tasksTable.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -8),
         ])
         
         // backgroundImageView
         NSLayoutConstraint.activate([
             backgroundImageView.topAnchor.constraint(equalTo: view.topAnchor),
-            backgroundImageView.rightAnchor.constraint(equalTo: view.rightAnchor),
+            backgroundImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             backgroundImageView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            backgroundImageView.leftAnchor.constraint(equalTo: view.leftAnchor),
+            backgroundImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        ])
+        
+        // addSectionBottomPanelView
+        let panelHeightConstraint = createTaskPanelView.heightAnchor.constraint(
+            equalToConstant: CreateTaskBottomPanelView.State.base.params.panelHeight.cgFloat
+        )
+        let panelLeadingConstraint = createTaskPanelView.leadingAnchor.constraint(
+            equalTo: view.leadingAnchor,
+            constant: CreateTaskBottomPanelView.State.base.params.panelSidesConstraintConstant.cgFloat
+        )
+        let panelTrailingConstraint = createTaskPanelView.trailingAnchor.constraint(
+            equalTo: view.trailingAnchor,
+            constant: -CreateTaskBottomPanelView.State.base.params.panelSidesConstraintConstant.cgFloat
+        )
+        let panelTopConstraint = createTaskPanelView.topAnchor.constraint(
+            equalTo: tasksTable.bottomAnchor,
+            constant: CreateTaskBottomPanelView.State.base.params.panelTopConstraintConstant.cgFloat
+        )
+        
+        createTaskPanelView.panelHeightConstraint = panelHeightConstraint
+        createTaskPanelView.panelLeadingAnchorConstraint = panelLeadingConstraint
+        createTaskPanelView.panelTrailingAnchorConstraint = panelTrailingConstraint
+        createTaskPanelView.panelTopAnchorConstraint = panelTopConstraint
+        
+        NSLayoutConstraint.activate([
+            panelHeightConstraint,
+            panelLeadingConstraint,
+            panelTrailingConstraint,
+            panelTopConstraint,
+            createTaskPanelView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
         ])
     }
     
@@ -172,6 +180,8 @@ extension TasksInSectionViewController {
     private func setupControls() {
         setupLayoutController()
         setupTasksTable()
+        
+        createTaskPanelView.delegate = self
     }
     
     private func setupLayoutController() {
@@ -183,7 +193,7 @@ extension TasksInSectionViewController {
     }
     
     private func setupTasksTable() {
-        tasksTable.layer.zPosition = 10
+        tasksTable.layer.zPosition = 1
         tasksTable.delegate = self
         tasksTable.dataSource = self
         
@@ -195,7 +205,7 @@ extension TasksInSectionViewController {
 
 
 // MARK: table delegate + data source
-extension TasksInSectionViewController: UITableViewDelegate, UITableViewDataSource {
+extension TaskListInSectionViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.getTasksCount()
@@ -216,7 +226,7 @@ extension TasksInSectionViewController: UITableViewDelegate, UITableViewDataSour
     // MARK: select row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedTaskViewModel = viewModel.getTaskViewModel(forIndexPath: indexPath)
-        let taskController = TaskViewController(task: selectedTaskViewModel.task)
+        let taskController = TaskDetailViewController(task: selectedTaskViewModel.task)
         taskController.viewModel = selectedTaskViewModel
         
         navigationController?.pushViewController(taskController, animated: true)
@@ -321,4 +331,21 @@ extension TasksInSectionViewController: UITableViewDelegate, UITableViewDataSour
 ////        })
 //    }
     
+}
+
+extension TaskListInSectionViewController: CreateTaskBottomPanelViewDelegate {
+    func createTaskWith(title: String, inMyDay: Bool, reminderDateTime: Date?, deadlineAt: Date?, description: String?) {
+       // TODO: удалить пробелы по краям
+        
+        let result = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !result.isEmpty {
+            viewModel.createNewTaskInCurrentSectionWith(
+                title: title,
+                inMyDay: inMyDay,
+                reminderDateTime: reminderDateTime,
+                deadlineAt: deadlineAt,
+                description: description
+            )
+        }
+    }
 }

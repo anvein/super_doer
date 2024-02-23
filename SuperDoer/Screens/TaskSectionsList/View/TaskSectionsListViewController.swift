@@ -5,9 +5,9 @@ import CoreData
 /// Экран списков (разделов)
 class TaskSectionsListViewController: UIViewController {
 
-    lazy var sectionsTableView = TaskSectionsTableView()
+    private lazy var sectionsTableView = TaskSectionsTableView()
     
-    lazy var addSectionBottomPanelView = AddSectionBottomPanelView()
+    private lazy var addSectionBottomPanelView = AddSectionBottomPanelView()
     
     var viewModel: TaskSectionsListViewModel?
 
@@ -40,10 +40,9 @@ class TaskSectionsListViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
-        
-//        let section = viewModel?.sections[1].first as! TaskSectionCustom
-//        let vm = TasksInSectionViewModel(taskSection: section)
-//        let vc = TasksInSectionViewController(viewModel: vm)
+      
+//        guard let vm = viewModel?.getTaskListInSectionViewModel(forIndexPath: IndexPath(row: 1, section: 1)) else { return }
+//        let vc = TaskListInSectionViewController(viewModel: vm)
 //        navigationController?.pushViewController(vc, animated: false)
     }
     
@@ -79,7 +78,9 @@ extension TaskSectionsListViewController {
             sectionsTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
         ])
         
-        let bottomPanelHeightConstraint = addSectionBottomPanelView.heightAnchor.constraint(equalToConstant: 48)
+        let bottomPanelHeightConstraint = addSectionBottomPanelView.heightAnchor.constraint(
+            equalToConstant: AddSectionBottomPanelView.State.base.params.panelHeight.cgFloat
+        )
         addSectionBottomPanelView.panelHeightConstraint = bottomPanelHeightConstraint
         NSLayoutConstraint.activate([
             bottomPanelHeightConstraint,
@@ -139,7 +140,7 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
         
         switch taskListInSectionViewModel {
         case let taskListInSectionViewModel as TaskListInSectionViewModel :
-            let tasksInSectionVc = TasksInSectionViewController(viewModel: taskListInSectionViewModel)
+            let tasksInSectionVc = TaskListInSectionViewController(viewModel: taskListInSectionViewModel)
             navigationController?.pushViewController(tasksInSectionVc, animated: true)
             
             tableView.deselectRow(at: indexPath, animated: true)

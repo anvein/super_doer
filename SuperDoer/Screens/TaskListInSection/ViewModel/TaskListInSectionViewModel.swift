@@ -41,10 +41,10 @@ class TaskListInSectionViewModel: TaskListInSectionViewModelType {
         return TaskInSectionTableViewCellViewModel(task: task)
     }
     
-    func getTaskViewModel(forIndexPath indexPath: IndexPath) -> TaskViewModel {
+    func getTaskViewModel(forIndexPath indexPath: IndexPath) -> TaskDetailViewModel {
         let selectedTask = tasks[indexPath.row]
         
-        return TaskViewModel(task: selectedTask)
+        return TaskDetailViewModel(task: selectedTask)
     }
     
     func createNewTaskInCurrentSectionWith(

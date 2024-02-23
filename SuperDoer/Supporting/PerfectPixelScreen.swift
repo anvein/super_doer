@@ -83,7 +83,7 @@ class PixelPerfectScreen {
         screenIsVisibleSwitch.isOn = false
         screenIsVisibleSwitch.onTintColor = .systemOrange
         screenIsVisibleSwitch.thumbTintColor = .systemBlue
-        screenIsVisibleSwitch.layer.zPosition = 11
+        screenIsVisibleSwitch.layer.zPosition = 99999
         screenIsVisibleSwitch.isHidden = false // hidden
         
         screenIsVisibleSwitch.addTarget(self, action: #selector(screenIsVisibleSwitchValueChange(tdSwitch: event:)), for: .valueChanged)
@@ -91,7 +91,7 @@ class PixelPerfectScreen {
         // screenOpacitySlider
         screenOpacitySlider.translatesAutoresizingMaskIntoConstraints = false
         screenOpacitySlider.value = 30
-        screenOpacitySlider.layer.zPosition = 11
+        screenOpacitySlider.layer.zPosition = 99999
         screenOpacitySlider.minimumValue = 0
         screenOpacitySlider.maximumValue = 100
         screenOpacitySlider.isHidden = true // hidden

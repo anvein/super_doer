@@ -4,10 +4,10 @@ import UIKit
 /// Вьюха с элементами для добавления нового раздела (списка) включающая в себя:
 /// - textField - поле для ввода названия нового списка
 /// - createButton - кнопка для добавления раздела (списка)
-class AddSectionBottomPanelView: UIView {
+final class AddSectionBottomPanelView: UIView {
     typealias PanelParams = (
         panelHeight: Float,
-        createButtonTrailingConstant: Float,
+        createButtonCenterYConstant: Float,
         plusImageColor: UIColor,
         textFieldPlaceholderColor: UIColor,
         textFieldPlaceholderWeight: UIFont.Weight
@@ -22,7 +22,7 @@ class AddSectionBottomPanelView: UIView {
             case .base :
                 return (
                     panelHeight: 48,
-                    createButtonTrailingConstant: 50,
+                    createButtonCenterYConstant: 85,
                     plusImageColor: InterfaceColors.textBlue,
                     textFieldPlaceholderColor: InterfaceColors.textBlue,
                     textFieldPlaceholderWeight: .medium
@@ -31,7 +31,7 @@ class AddSectionBottomPanelView: UIView {
             case .editable :
                 return (
                     panelHeight: 68,
-                    createButtonTrailingConstant: -16,
+                    createButtonCenterYConstant: 0,
                     plusImageColor: InterfaceColors.controlsGray,
                     textFieldPlaceholderColor: InterfaceColors.textGray,
                     textFieldPlaceholderWeight: .regular
@@ -52,7 +52,7 @@ class AddSectionBottomPanelView: UIView {
     
     
     // MARK: properties views
-    private lazy var textField = AddSectionTextField()
+    private lazy var textField = AddSectionPanelTextField()
     private lazy var createButton = UIButton()
     
     
@@ -65,19 +65,18 @@ class AddSectionBottomPanelView: UIView {
     private var panelHeight: Float = State.base.params.panelHeight {
         didSet {
             panelHeightConstraint?.constant = panelHeight.cgFloat
-            UIView.animate(withDuration: 0.2) {
-                self.layoutIfNeeded()
-            }
         }
     }
     
-    /// Констрэинт смещения кнопки "Создать раздел (список)" относительно trailing  стороны
-    /// Обновление нужно производить через свойство createButtonTrailingConstant
-    private var createButtonTrailingConstraint: NSLayoutConstraint?
-    private var createButtonTrailingConstant: Float = State.base.params.createButtonTrailingConstant {
+    /// Констрэинт смещения кнопки "Создать раздел (список)" относительно self.centerYAnchor
+    /// Обновление нужно производить через свойство createButtonCenterYConstant
+    private var createButtonCenterYConstraint: NSLayoutConstraint?
+    private var createButtonCenterYConstant: Float = State.base.params.createButtonCenterYConstant {
         didSet {
-            createButtonTrailingConstraint?.constant = createButtonTrailingConstant.cgFloat
-            UIView.animate(withDuration: 0.1) {
+            createButtonCenterYConstraint?.constant = createButtonCenterYConstant.cgFloat
+            
+            let duration = createButtonCenterYConstant < oldValue ? 0.3 : 0.2
+            UIView.animate(withDuration: duration) {
                 self.layoutIfNeeded()
             }
         }
@@ -91,6 +90,7 @@ class AddSectionBottomPanelView: UIView {
         setupViews()
         addSubviews()
         setupConstraints()
+        updateAppearaceFor(state: .base)
     }
     
     required init?(coder: NSCoder) {
@@ -130,21 +130,23 @@ class AddSectionBottomPanelView: UIView {
         ])
         
         
-        let createButtonTrailingConstraint = createButton.trailingAnchor.constraint(
-            equalTo: self.trailingAnchor,
-            constant: currentState.params.createButtonTrailingConstant.cgFloat
-        )
-        self.createButtonTrailingConstraint = createButtonTrailingConstraint
+        let createButtonCenterYConstraint = createButton.centerYAnchor.constraint(equalTo: self.centerYAnchor)
+        self.createButtonCenterYConstraint = createButtonCenterYConstraint
+        
         NSLayoutConstraint.activate([
             createButton.heightAnchor.constraint(equalToConstant: 50),
             createButton.widthAnchor.constraint(equalToConstant: 50),
-            createButton.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            createButtonTrailingConstraint,
+            createButton.trailingAnchor.constraint(equalTo: self.trailingAnchor,constant: -16),
+            createButtonCenterYConstraint
         ])
     }
     
     
     private func updateAppearaceFor(state: State) {
+        let params = state.params
+        panelHeight = params.panelHeight
+        createButtonCenterYConstant = params.createButtonCenterYConstant
+        
         if state == .base {
             layer.shadowOpacity = 0
         } else if state == .editable {
@@ -153,10 +155,6 @@ class AddSectionBottomPanelView: UIView {
             layer.shadowOffset = CGSize(width: 0, height: 0)
             layer.shadowOpacity = 0.25
         }
-        
-        let params = state.params
-        panelHeight = params.panelHeight
-        createButtonTrailingConstant = params.createButtonTrailingConstant
         
         textField.updateAppearanceFor(state: state)
     }
@@ -213,104 +211,6 @@ extension AddSectionBottomPanelView: UITextFieldDelegate {
 
 protocol AddSectionBottomPanelViewDelegate: AnyObject {
     func createSectionWith(title: String)
-}
-
-
-
-
-
-
-class AddSectionTextField: UITextField {
-    let placeholderText = "Создать список"
-    
-    private lazy var leftImageView = UIImageView()
-    
-    
-    override var isHighlighted: Bool {
-        didSet {
-//            if isHighlighted {
-//                leftImageView.tintColor = InterfaceColors.textGray
-//                self.setTextFieldPlaceholderColor(isEditable: true)
-//            } else {
-//                leftImageView.tintColor = InterfaceColors.textBlue
-//                setTextFieldPlaceholderColor(isEditable: false)
-//            }
-        }
-    }
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        translatesAutoresizingMaskIntoConstraints = false
-        
-        font = UIFont.systemFont(ofSize: 17)
-        textColor = InterfaceColors.blackText
-        
-        attributedPlaceholder = NSAttributedString(
-            string: placeholderText,
-            attributes: [
-                .foregroundColor: InterfaceColors.textBlue,
-                .font: UIFont.systemFont(ofSize: 17, weight: .medium)
-            ]
-        )
-        
-        
-        // left image
-        leftImageView.image = createPlusImage()
-        leftImageView.image?.withTintColor(.red)
-        leftImageView.frame.size = CGSize(width: 25, height: 25)
-        
-        leftView = UIView()
-        leftView?.addSubview(leftImageView)
-        leftView?.frame.size = CGSize(width: leftImageView.frame.width + 16, height: leftImageView.frame.height)
-        
-        leftViewMode = .always
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    func updateAppearanceFor(state: AddSectionBottomPanelView.State) {
-        let params = state.params
-        
-        leftImageView.tintColor = params.plusImageColor
-        setTextFieldPlaceholderColorFor(state)
-    }
-    
-    
-    func setTextFieldPlaceholderColorFor(_ state: AddSectionBottomPanelView.State) {
-        guard let attributedPlaceholder = attributedPlaceholder?.mutableCopy() as? NSMutableAttributedString else {
-            return
-        }
-        
-        let params = state.params
-        attributedPlaceholder.addAttribute(
-            .foregroundColor,
-            value: params.textFieldPlaceholderColor,
-            range: NSRange(location: 0, length: attributedPlaceholder.string.count)
-        )
-        
-        attributedPlaceholder.addAttribute(
-            .font,
-            value: UIFont.systemFont(ofSize: 17, weight: params.textFieldPlaceholderWeight),
-            range: NSRange(location: 0, length: attributedPlaceholder.string.count)
-        )
-        
-        self.attributedPlaceholder = attributedPlaceholder
-    }
-    
-    private func createPlusImage() -> UIImage {
-        let image = UIImage.init(systemName: "plus")?.withRenderingMode(.alwaysTemplate)
-        
-        guard let image = image else {
-            // залогировать, а не кидать исключение
-            fatalError("Image plus not found")
-        }
-        
-        return image
-    }
-    
 }
 
 

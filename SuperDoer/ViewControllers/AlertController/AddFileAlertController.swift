@@ -4,11 +4,11 @@ import UIKit
 /// Алерт-контроллер выбора места откуда добавлять файл
 class AddFileAlertController: UIAlertController {
     
-    let taskViewController: TaskViewController
+    let taskViewController: TaskDetailViewController
     
     
     // MARK: init
-    init(controller: TaskViewController) {
+    init(controller: TaskDetailViewController) {
         self.taskViewController = controller
         
         super.init(nibName: nil, bundle: nil)
