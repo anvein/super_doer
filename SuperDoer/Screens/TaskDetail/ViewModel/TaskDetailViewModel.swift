@@ -16,10 +16,10 @@ class TaskDetailViewModel {
     
     /// Объект-массив на основании которого формируется таблица с "кнопками" и данными задачи
     /// Прослойка между сущностью Task и данных для вывода задачи в виде таблицы
-    private var taskDataCellsValues = TaskDataCellValues()
+    private var taskDataCellsValues: Box<TaskDataCellValues>
     
     var countTaskDataCellsValues: Int {
-        return taskDataCellsValues.cellsValuesArray.count
+        return taskDataCellsValues.value.cellsValuesArray.count
     }
     
     var taskTitle: Box<String?>
@@ -34,26 +34,48 @@ class TaskDetailViewModel {
         taskIsCompleted = Box(task.isCompleted)
         taskIsPriority = Box(task.isPriority)
         
-        taskDataCellsValues.fill(from: task)
+        taskDataCellsValues = Box(TaskDataCellValues(task))
     }
     
     
     func getTaskDataCellValueFor(indexPath: IndexPath) -> TaskDataCellValueProtocol {
-        return taskDataCellsValues.cellsValuesArray[indexPath.row]
+        return taskDataCellsValues.value.cellsValuesArray[indexPath.row]
     }
     
-    // ViewModel
+    func getTaskSettingsDeadlineVariantsViewModel() -> TaskSettingsDeadlineTableVariantsViewModel {
+        return TaskSettingsDeadlineTableVariantsViewModel(task: task)
+    }
+    
+    
+    // MARK: model manipulations
     func updateTaskField(title: String) {
-        let title = title + "+"
-        // поле сущности обновилась
         taskEm.updateField(title: title, task: task)
         
-        // обновлять наблюдаемые свойства вручную универсальным методом
         updateObservablePropertiesFrom(task: task)
     }
 
-    // сделать метод, который будет обновлять только те наблюдаемые поля,
-    // которые обновились
+    func updateTaskField(inMyDay: Bool) {
+        taskEm.updateField(inMyDay: inMyDay, task: task)
+        
+        taskDataCellsValues.value.fillAddToMyDay(from: task)
+    }
+    
+    func updateTaskField(deadlineDate: Date?) {
+        taskEm.updateField(deadlineDate: deadlineDate, task: task)
+        taskDataCellsValues.value.fillDeadlineAt(from: task)
+    }
+    
+    func switchValueTaskFieldInMyDay() {
+        let newValue = !task.inMyDay
+        updateTaskField(inMyDay: newValue)
+    }
+    
+    
+    // MARK: binding methods
+    func setupBindingTaskDataCellsValues(listener: @escaping (TaskDataCellValues) -> ()) {
+        taskDataCellsValues.bindAndUpdateValue(listener: listener)
+    }
+    
     private func updateObservablePropertiesFrom(task: Task) {
         if task.title != taskTitle.value {
             taskTitle.value = task.title
@@ -66,6 +88,8 @@ class TaskDetailViewModel {
         if task.isPriority != taskIsPriority.value {
             taskIsPriority.value = task.isPriority
         }
+        
+        taskDataCellsValues.value.fill(from: task)
     }
     
 }

@@ -3,7 +3,7 @@ import UIKit
 
 
 /// Кнопка-ячейка "Периодичность повторов задачи"
-class RepeatButtonCell: TaskViewLabelsButtonCell {
+class RepeatButtonCell: TaskDetailLabelsButtonCell {
     enum State: String {
         case empty
         case defined

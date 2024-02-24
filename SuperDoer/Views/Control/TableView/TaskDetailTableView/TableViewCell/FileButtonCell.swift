@@ -2,7 +2,7 @@
 import UIKit
 
 /// Кнопка-ячейка "Прикрепленный файл" (к задаче)
-class FileButtonCell: TaskViewLabelsButtonCell {
+class FileButtonCell: TaskDetailLabelsButtonCell {
     
     class override var identifier: String {
         return "FileButtonCell"

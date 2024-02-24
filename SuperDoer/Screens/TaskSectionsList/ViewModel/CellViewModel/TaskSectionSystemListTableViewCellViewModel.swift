@@ -2,7 +2,7 @@
 import Foundation
 
 /// ViewModel для ячейки таблицы с системным списком
-class TaskSectionSystemTableViewCellViewModel: TaskSectionTableViewCellViewModelType {
+class TaskSectionSystemListTableViewCellViewModel: TaskSectionListTableViewCellViewModelType {
     
     private var section: TaskSectionSystem
 

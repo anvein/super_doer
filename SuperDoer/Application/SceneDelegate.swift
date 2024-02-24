@@ -16,11 +16,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         var lists: [[TaskSectionProtocol]] = [[],[]]
         lists[0] = SystemListBuilder().buildLists()
-        lists[1] = TaskSectionEntityManager().getCustomListsWithOrder()
+        lists[1] = TaskSectionEntityManager().getCustomSectionsWithOrder()
         
         
         
-        let taskListsViewModel = TaskSectionsListViewModel(sections: lists)
+        let taskListsViewModel = TaskSectionListViewModel(sections: lists)
         let taskListsViewController = TaskSectionsListViewController()
         taskListsViewController.viewModel = taskListsViewModel
     

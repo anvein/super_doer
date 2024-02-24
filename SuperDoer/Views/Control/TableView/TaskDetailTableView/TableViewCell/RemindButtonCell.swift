@@ -4,7 +4,7 @@ import UIKit
 // TODO: наследовать от кнопки с 2мя лэйблами
 
 /// Кнопка-ячейка "Установить напоминания для задачи"
-class RemindButtonCell: TaskViewLabelsButtonCell {
+class RemindButtonCell: TaskDetailLabelsButtonCell {
     enum State: String {
         /// Дата и время напоминания НЕ определено
         case undefined

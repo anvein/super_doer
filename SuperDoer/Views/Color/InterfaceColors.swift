@@ -42,4 +42,8 @@ struct InterfaceColors {
         static let withoutSection = UIColor(red: 92 / 255, green: 112 / 255, blue: 189 / 255, alpha: 1)
         static let defaultColor = UIColor(red: 51 / 255, green: 111 / 255, blue: 238 / 255, alpha: 1)
     }
+    
+    struct TableCell {
+        static let orangeSwipeAction = UIColor.orange
+    }
 }

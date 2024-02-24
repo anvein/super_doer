@@ -3,7 +3,7 @@
 import Foundation
 
 /// ViewModel для ячейки таблицы с касмтомным списком
-class TaskSectionCustomTableViewCellViewModel: TaskSectionTableViewCellViewModelType {
+class TaskSectionCustomListTableViewCellViewModel: TaskSectionListTableViewCellViewModelType {
     
     private var section: TaskSectionCustom
     

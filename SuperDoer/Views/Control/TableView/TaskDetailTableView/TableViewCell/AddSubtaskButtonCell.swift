@@ -1,7 +1,7 @@
 
 import UIKit
 
-class AddSubtaskButtonCell: TaskViewBaseButtonCell {
+class AddSubtaskButtonCell: TaskDetailBaseButtonCell {
     
     typealias State = Bool
     

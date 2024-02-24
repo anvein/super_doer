@@ -10,7 +10,7 @@ class DeadlineCustomDateViewController: UIViewController {
     
     let datePicker = UIDatePicker(frame: .zero)
     
-    weak var delegate: DeadlineSettingsViewControllerDelegate?
+    weak var delegate: PageSheetTableVariantsViewControllerDelegate?
     
     
     // MARK: init

@@ -3,10 +3,10 @@
 import UIKit
 
 /// Ячейка для кнопки с лэйблами
-class TaskViewLabelsButtonCell: TaskViewBaseButtonCell {
+class TaskDetailLabelsButtonCell: TaskDetailBaseButtonCell {
     
     class override var identifier: String {
-        return "WithLabelsButtonCell"
+        return "TaskDetailWithLabelsButtonCell"
     }
     
     let leftImageView = UIImageView()

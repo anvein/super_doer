@@ -1,10 +1,10 @@
 
 import UIKit
 
-/// Базовый класс для "кнопки-ячейки" в таблице на странице "редактирования задачи"
-class TaskViewBaseButtonCell: UITableViewCell {
+/// Базовый класс для "кнопки-ячейки" в таблице на странице "просмотра / редактирования задачи"
+class TaskDetailBaseButtonCell: UITableViewCell {
     class var identifier: String {
-        return "TaskViewBaseButtonCell"
+        return "TaskDetailBaseButtonCell"
     }
     
     var rowHeight: Int {
@@ -19,14 +19,14 @@ class TaskViewBaseButtonCell: UITableViewCell {
     var showTopSeparator: Bool {
         return false
     }
-    lazy var topSeparator = UIView()
+    private lazy var topSeparator = UIView()
     
     /// Показывать ли нижний разделитель (переопределять для конфигурирования)
     // TODO: переделать на конфирурируемое свойство в init
     var showBottomSeparator: Bool {
         return false
     }
-    lazy var bottomSeparator = UIView()
+    private lazy var bottomSeparator = UIView()
 
     
     // MARK: init

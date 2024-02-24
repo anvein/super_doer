@@ -9,9 +9,8 @@ class TaskSectionsListViewController: UIViewController {
     
     private lazy var addSectionBottomPanelView = AddSectionBottomPanelView()
     
-    var viewModel: TaskSectionsListViewModel?
+    var viewModel: TaskSectionListViewModelType?
 
-    
     
     // MARK: life cycle
     override func viewDidLoad() {
@@ -37,19 +36,24 @@ class TaskSectionsListViewController: UIViewController {
         #endif
     }
     
-    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
       
-//        guard let vm = viewModel?.getTaskListInSectionViewModel(forIndexPath: IndexPath(row: 1, section: 1)) else { return }
-//        let vc = TaskListInSectionViewController(viewModel: vm)
-//        navigationController?.pushViewController(vc, animated: false)
+        guard let vm = viewModel?.getTaskListInSectionViewModel(forIndexPath: IndexPath(row: 1, section: 1)) else { return }
+        let vc = TaskListInSectionViewController(viewModel: vm)
+        navigationController?.pushViewController(vc, animated: false)
     }
     
     
     
     // MARK: action-handlers
-    
+    @objc func presentDeleteAlertController(sectionsIndexPaths: [IndexPath]) {
+        let deleteAlertController = DeleteAlertController(itemsIndexPath: sectionsIndexPaths, singleItem: nil) { [unowned self] _ in
+            self.viewModel?.deleteSections(withIndexPaths: sectionsIndexPaths)
+        } 
+        deleteAlertController.itemTypeName = DeleteAlertController.ItemTypeName(oneIP: "список", oneVP: "список", manyIP: "списки")
+        self.present(deleteAlertController, animated: true)
+    }
     
 }
 
@@ -95,7 +99,6 @@ extension TaskSectionsListViewController {
             self.sectionsTableView.reloadData()
         })
     }
-    
 }
 
 
@@ -107,7 +110,7 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel?.getTaskSectionsCountInTableSection(withSectionId: section) ?? 0
+        return viewModel?.getCountTaskSectionsInTableSection(withSectionId: section) ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -116,10 +119,10 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
         let sectionCellViewModel = viewModel?.getTaskSectionTableViewCellViewModel(forIndexPath: indexPath)
         
         switch sectionCellViewModel {
-        case let sectionCustomCellViewModel as TaskSectionCustomTableViewCellViewModel :
+        case let sectionCustomCellViewModel as TaskSectionCustomListTableViewCellViewModel :
             cell.viewModel = sectionCustomCellViewModel
             
-        case let sectionSystemCellViewModel as TaskSectionSystemTableViewCellViewModel:
+        case let sectionSystemCellViewModel as TaskSectionSystemListTableViewCellViewModel:
             cell.viewModel = sectionSystemCellViewModel
             
         default:
@@ -159,6 +162,30 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
         return TaskSectionTableViewCell.cellHeight
     }
     
+    
+    // MARK: swipe actions
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") { [unowned self] _, _, completionHandler in
+            self.presentDeleteAlertController(sectionsIndexPaths: [indexPath])
+            completionHandler(true)
+        }
+        
+        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 16, weight: .semibold)
+        deleteAction.image = UIImage(systemName: "trash")?
+            .withConfiguration(symbolConfig)
+        
+        let archiveAction = UIContextualAction(style: .normal, title: "Архивировать") { [unowned self] _,_,completionHandler in
+            self.viewModel?.archiveCustomSection(indexPath: indexPath)
+            completionHandler(true)
+        }
+        archiveAction.image = UIImage(systemName: "archivebox")?
+            .withConfiguration(symbolConfig)
+        archiveAction.backgroundColor = InterfaceColors.TableCell.orangeSwipeAction
+        
+        return UISwipeActionsConfiguration(actions: [deleteAction, archiveAction])
+    }
+    
+
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         return UIView()
     }

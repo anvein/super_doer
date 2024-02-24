@@ -2,7 +2,7 @@
 import UIKit
 
 /// Кнопка-ячейка "Добавить задачу в Мой день"
-class AddToMyDayButtonCell: TaskViewLabelsButtonCell {
+class AddToMyDayButtonCell: TaskDetailLabelsButtonCell {
     typealias State = Bool
     
     class override var identifier: String {

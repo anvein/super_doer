@@ -84,12 +84,10 @@ class TaskListInSectionViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
-//        let task = viewModel.tasks[0] as! Task
-//        let vm = TaskViewModel(task: task)
-//        let vc = TaskViewController(task: task)
-//        vc.viewModel = vm
+        let selectedTaskViewModel = viewModel.getTaskViewModel(forIndexPath: IndexPath(row: 0, section: 0))
+        let taskController = TaskDetailViewController(viewModel: selectedTaskViewModel)
         
-//        navigationController?.pushViewController(vc, animated: false)
+        navigationController?.pushViewController(taskController, animated: true)
     }
     
     
@@ -105,9 +103,10 @@ class TaskListInSectionViewController: UIViewController {
 //            deleteTask = viewModel.tasks[tasksIndexPath[0].row]
 //        }
         
-        let deleteAlertController = TasksDeleteAlertController(tasksIndexPath: [], singleTask: nil) { _ in
+        let deleteAlertController = DeleteAlertController(itemsIndexPath: tasksIndexPath, singleItem: nil) { _ in
             self.deleteTasks(tasksIndexPaths: tasksIndexPath)
         }
+        deleteAlertController.itemTypeName = DeleteAlertController.ItemTypeName(oneIP: "задача", oneVP: "задачу", manyIP: "задачи")
         self.present(deleteAlertController, animated: true)
     }
     
@@ -226,8 +225,7 @@ extension TaskListInSectionViewController: UITableViewDelegate, UITableViewDataS
     // MARK: select row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedTaskViewModel = viewModel.getTaskViewModel(forIndexPath: indexPath)
-        let taskController = TaskDetailViewController(task: selectedTaskViewModel.task)
-        taskController.viewModel = selectedTaskViewModel
+        let taskController = TaskDetailViewController(viewModel: selectedTaskViewModel)
         
         navigationController?.pushViewController(taskController, animated: true)
         

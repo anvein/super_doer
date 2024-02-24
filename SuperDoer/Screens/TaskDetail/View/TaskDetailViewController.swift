@@ -5,34 +5,24 @@ import UIKit
 // MARK: MAIN
 class TaskDetailViewController: UIViewController {
     
-    // TODO: переделать на DI-контейнер
-    lazy var taskEm = TaskEntityManager()
-    lazy var taskFileEm = TaskFileEntityManager()
-    
     // MARK: controls
-    lazy var taskDoneButton = CheckboxButton()
-    lazy var taskTitleTextView = UITaskTitleTextView()
-    lazy var isPriorityButton = StarButton()
+    private lazy var taskDoneButton = CheckboxButton()
+    private lazy var taskTitleTextView = UITaskTitleTextView()
+    private lazy var isPriorityButton = StarButton()
     
-    lazy var taskDataTableView = TaskDataTableView()
+    private lazy var taskDataTableView = TaskDetailTableView()
     
     /// Редактируемое в данный момент поле TextField
-    var textFieldEditing: UITextField?
-    
-    // TODO: УДАЛЯЮ!!!
-    /// объект-массив на основании которого формируется таблица с "кнопками" и данными задачи
-    var taskDataCellsValues = TaskDataCellValues()
+    private var textFieldEditing: UITextField?
     
     
     // MARK: view model
-    var viewModel: TaskDetailViewModel?
-    
-    var task: Task
+    private var viewModel: TaskDetailViewModel
     
     
     // MARK: init
-    init(task: Task) {
-        self.task = task
+    init(viewModel: TaskDetailViewModel) {
+        self.viewModel = viewModel
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -50,16 +40,10 @@ class TaskDetailViewController: UIViewController {
         addSubviews()
         setupConstraints()
         setupBindings()
-    
+        
         // PixelPerfectScreen.getInstanceAndSetup(baseView: view)  // TODO: удалить временный код (perfect pixel screen)
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        fillControls(from: task)
-    }
-    
+
     
     // MARK: controller action-handlers
     @objc func showTaskTitleNavigationItemReady() {
@@ -110,7 +94,7 @@ class TaskDetailViewController: UIViewController {
     
     // MARK: other methods
     
-    private func setTaskReminder(_ remindButton: RemindButtonCell) {
+    private func showSettingsTaskReminder(_ remindButton: RemindButtonCell) {
         // TODO: сделать проверку включены ли уведомления для приложения
         let isEnableNotifications = false
         if !isEnableNotifications {
@@ -123,8 +107,10 @@ class TaskDetailViewController: UIViewController {
         }
     }
     
-    private func showDeadlineSettingsController(_ task: Task) {
-        let deadlineVariantsController = DeadlineVariantsViewController(task: task)
+    private func showSettingsDeadlineVariantsController(forIndexPath indexPath: IndexPath) {
+        let vm = viewModel.getTaskSettingsDeadlineVariantsViewModel()
+        
+        let deadlineVariantsController = PageSheetTableVariantsViewController(viewModel: vm)
         deadlineVariantsController.delegate = self
         let navigationController = UINavigationController(rootViewController: deadlineVariantsController)
         
@@ -140,17 +126,17 @@ class TaskDetailViewController: UIViewController {
     }
     
     private func deleteFile(fileCellIndexPath indexPath: IndexPath) {
-        let cellValue = taskDataCellsValues.cellsValuesArray[indexPath.row]
-        if let fileCellValue = cellValue as? FileCellValue {
-
-            let taskFile = task.getFileBy(id: fileCellValue.id)
-            if let safeTaskFile = taskFile {
-                self.taskFileEm.delete(file: safeTaskFile)
-            }
-            
-            taskDataCellsValues.cellsValuesArray.remove(at: indexPath.row)
-            taskDataTableView.deleteRows(at: [indexPath], with: .fade)
-        }
+//        let cellValue = taskDataCellsValues.cellsValuesArray[indexPath.row]
+//        if let fileCellValue = cellValue as? FileCellValue {
+//
+//            let taskFile = task.getFileBy(id: fileCellValue.id)
+//            if let safeTaskFile = taskFile {
+//                self.taskFileEm.delete(file: safeTaskFile)
+//            }
+//            
+//            taskDataCellsValues.cellsValuesArray.remove(at: indexPath.row)
+//            taskDataTableView.deleteRows(at: [indexPath], with: .fade)
+//        }
     }
     
     private func presentAddFileAlertController() {
@@ -161,20 +147,20 @@ class TaskDetailViewController: UIViewController {
     
     
     private func presentDescriptionController() {
-        let taskDescriptionController = TaskDescriptionViewController(task: task)
-        taskDescriptionController.dismissDelegate = self
-        
-        present(taskDescriptionController, animated: true)
+//        let taskDescriptionController = TaskDescriptionViewController(task: task)
+//        taskDescriptionController.dismissDelegate = self
+//        
+//        present(taskDescriptionController, animated: true)
     }
     
     
     private func fillControls(from task: Task) {
         
-        
-        taskDataCellsValues.fill(from: task)
-        if !taskDataTableView.visibleCells.isEmpty {
-            taskDataTableView.reloadData()
-        }
+//        
+//        taskDataCellsValues.fill(from: task)
+//        if !taskDataTableView.visibleCells.isEmpty {
+//            taskDataTableView.reloadData()
+//        }
     }
 }
 
@@ -242,17 +228,22 @@ extension TaskDetailViewController {
     }
     
     private func setupBindings() {
-        viewModel?.taskTitle.bindAndUpdateValue { [unowned self] title in
+        viewModel.taskTitle.bindAndUpdateValue { [unowned self] title in
             taskTitleTextView.text = title
         }
         
-        viewModel?.taskIsCompleted.bindAndUpdateValue { [unowned self] isCompleted in
+        viewModel.taskIsCompleted.bindAndUpdateValue { [unowned self] isCompleted in
             taskDoneButton.isOn = isCompleted
         }
         
-        viewModel?.taskIsPriority.bindAndUpdateValue { [unowned self] isPriority in
+        viewModel.taskIsPriority.bindAndUpdateValue { [unowned self] isPriority in
             isPriorityButton.isOn = isPriority
         }
+        
+        viewModel.setupBindingTaskDataCellsValues(listener: {[unowned self]  taskDataCellsValues in
+            // TODO: сделать красивое обновление
+            self.taskDataTableView.reloadData()
+        })
     }
 }
 
@@ -260,14 +251,14 @@ extension TaskDetailViewController {
 // MARK: table delegate and dataSource
 extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel!.countTaskDataCellsValues
+        return viewModel.countTaskDataCellsValues
         // TODO: неявно извлекаемый опционал
     }
     
     
     // MARK: cell appearance
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cellValue = viewModel?.getTaskDataCellValueFor(indexPath: indexPath)
+        let cellValue = viewModel.getTaskDataCellValueFor(indexPath: indexPath)
         let cell: UITableViewCell
          
         switch cellValue {
@@ -320,8 +311,8 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
             }
             
         default :
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskViewLabelsButtonCell.identifier)!
-            if cell is TaskViewLabelsButtonCell {
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailLabelsButtonCell.identifier)!
+            if cell is TaskDetailLabelsButtonCell {
 //                buttonWithLabel.mainTextLabel.text = buttonValue.maintext
             }
         }
@@ -329,6 +320,7 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
 
+    
     // MARK: select row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath)
@@ -338,17 +330,13 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
             addSubtaskButton.subtaskTextField.becomeFirstResponder()
         
         case _ as AddToMyDayButtonCell :
-            taskEm.updateField(inMyDay: !task.inMyDay, task: task)
+            viewModel.switchValueTaskFieldInMyDay()
             
-            taskDataCellsValues.fillAddToMyDay(from: task)
-            taskDataTableView.reloadData()
-        
         case let remindButton as RemindButtonCell :
-            setTaskReminder(remindButton)
+            showSettingsTaskReminder(remindButton)
             
         case _ as TaskDataDeadlineCell :
-            showDeadlineSettingsController(task)
-            break
+            showSettingsDeadlineVariantsController(forIndexPath: indexPath)
             
         case _ as RepeatButtonCell :
             print("🔁 Открылись настройки повтора задачи")
@@ -391,9 +379,9 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: "edit" / delete row
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        if taskDataCellsValues.cellsValuesArray[indexPath.row] is FileCellValue {
-            return true
-        }
+//        if taskDataCellsValues.cellsValuesArray[indexPath.row] is FileCellValue {
+//            return true
+//        }
         
         return false
     }
@@ -435,7 +423,7 @@ extension TaskDetailViewController: UITextViewDelegate {
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
-        viewModel?.updateTaskField(title: textView.text)
+        viewModel.updateTaskField(title: textView.text)
     }
 
     // TODO: заменять перевод строки на пробел когда заканчивается редактирование названия
@@ -467,22 +455,22 @@ extension TaskDetailViewController: UITextFieldDelegate {
 /// Протокол связанный с чекбоксом "Задача выполнена"
 extension TaskDetailViewController: CheckboxButtonDelegate {
     func checkboxDidChangeValue(checkbox: CheckboxButton) {
-        taskEm.updateField(isCompleted: checkbox.isOn, task: task)
+//        taskEm.updateField(isCompleted: checkbox.isOn, task: task)
     }
 }
 
 /// Протокол связанный с полем "Приоритет"
 extension TaskDetailViewController: StarButtonDelegate {
     func starButtonValueDidChange(starButton: StarButton) {
-        taskEm.updateField(isPriority: starButton.isOn, task: task)
+//        taskEm.updateField(isPriority: starButton.isOn, task: task)
     }
 }
 
 /// Делегаты связанные с полем "Описание"
 extension TaskDetailViewController: TaskDescriptionViewControllerDelegate, DescriptionButtonCellDelegateProtocol {
     func didDisappearTaskDescriptionViewController(isSuccess: Bool) {
-        taskDataCellsValues.fillDescription(from: task)
-        taskDataTableView.reloadData()
+//        taskDataCellsValues.fillDescription(from: task)
+//        taskDataTableView.reloadData()
     }
     
     func pressTaskDescriptionOpenButton() {
@@ -493,10 +481,7 @@ extension TaskDetailViewController: TaskDescriptionViewControllerDelegate, Descr
 /// Делегат связанный с полем "Добавить в мой день"
 extension TaskDetailViewController: AddToMyDayButtonCellDelegate {
     func tapAddToMyDayCrossButton() {
-        taskEm.updateField(inMyDay: false, task: task)
-        
-        taskDataCellsValues.fillAddToMyDay(from: task)
-        taskDataTableView.reloadData()
+        viewModel.updateTaskField(inMyDay: false)
     }
 }
 
@@ -512,19 +497,13 @@ extension TaskDetailViewController: NotificationsDisabledAlertControllerDelegate
 }
 
 /// Методы делегата связанные с полем "Дата выполнения"
-extension TaskDetailViewController: TaskDataDeadlineCellDelegate, DeadlineSettingsViewControllerDelegate {
+extension TaskDetailViewController: TaskDataDeadlineCellDelegate, PageSheetTableVariantsViewControllerDelegate {
     func tapTaskDeadlineCrossButton() {
-        taskEm.updateField(deadlineDate: nil, task: task)
-
-        taskDataCellsValues.fillDeadlineAt(from: task)
-        taskDataTableView.reloadData()
+        viewModel.updateTaskField(deadlineDate: nil)
     }
     
     func didChooseDeadlineDate(newDate: Date?) {
-        taskEm.updateField(deadlineDate: newDate, task: task)
-        
-        taskDataCellsValues.fillDeadlineAt(from: task)
-        taskDataTableView.reloadData()
+        viewModel.updateTaskField(deadlineDate: newDate)
     }
 }
 
@@ -532,47 +511,47 @@ extension TaskDetailViewController: TaskDataDeadlineCellDelegate, DeadlineSettin
 extension TaskDetailViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
-        guard let originalImage = info[.originalImage] as? UIImage else {
-            picker.dismiss(animated: true)
-            return
-        }
-        
-        picker.dismiss(animated: true)
-        
-        let imgData = NSData(data: originalImage.jpegData(compressionQuality: 1)!)
-        
-        // TODO: вынести в EM
-        let taskFile = taskFileEm.createWith(
-            fileName: "Фото размером \(imgData.count) kb",
-            fileExtension: "jpg",
-            fileSize: imgData.count,
-            task: task
-        )
-        taskFileEm.saveContext()
-        
-        let indexNewFile = taskDataCellsValues.appendFile(taskFile)
-        taskDataTableView.insertRows(at: [IndexPath(row: indexNewFile, section: 0)], with: .fade)
+//        guard let originalImage = info[.originalImage] as? UIImage else {
+//            picker.dismiss(animated: true)
+//            return
+//        }
+//        
+//        picker.dismiss(animated: true)
+//        
+//        let imgData = NSData(data: originalImage.jpegData(compressionQuality: 1)!)
+//        
+//        // TODO: вынести в EM
+//        let taskFile = taskFileEm.createWith(
+//            fileName: "Фото размером \(imgData.count) kb",
+//            fileExtension: "jpg",
+//            fileSize: imgData.count,
+//            task: task
+//        )
+//        taskFileEm.saveContext()
+//        
+//        let indexNewFile = taskDataCellsValues.appendFile(taskFile)
+//        taskDataTableView.insertRows(at: [IndexPath(row: indexNewFile, section: 0)], with: .fade)
     }
 }
 
 extension TaskDetailViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-    
-        for url in urls {
-            let taskFile = taskFileEm.createWith(
-                fileName: "Файл размером ??? kb",
-                fileExtension: url.pathExtension,
-                fileSize: 0,
-                task: task
-            )
-            taskFileEm.saveContext()
-            
-            let indexNewFile = taskDataCellsValues.appendFile(taskFile)
-            taskDataTableView.insertRows(at: [IndexPath(row: indexNewFile, section: 0)], with: .fade)
-            
-            break
-        }
-        
-        controller.dismiss(animated: true)
+//    
+//        for url in urls {
+//            let taskFile = taskFileEm.createWith(
+//                fileName: "Файл размером ??? kb",
+//                fileExtension: url.pathExtension,
+//                fileSize: 0,
+//                task: task
+//            )
+//            taskFileEm.saveContext()
+//            
+//            let indexNewFile = taskDataCellsValues.appendFile(taskFile)
+//            taskDataTableView.insertRows(at: [IndexPath(row: indexNewFile, section: 0)], with: .fade)
+//            
+//            break
+//        }
+//        
+//        controller.dismiss(animated: true)
     }
 }

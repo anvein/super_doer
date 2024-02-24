@@ -3,7 +3,7 @@ import UIKit
 
 
 /// Кнопка-ячейка "Добавить файл в задачу"
-class AddFileButtonCell: TaskViewLabelsButtonCell {
+class AddFileButtonCell: TaskDetailLabelsButtonCell {
     
     class override var identifier: String {
         return "AddFileButtonCell"

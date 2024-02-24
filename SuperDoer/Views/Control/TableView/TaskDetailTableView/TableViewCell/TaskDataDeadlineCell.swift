@@ -3,7 +3,7 @@ import UIKit
 
 
 /// Кнопка-ячейка "Срок выполнения задачи"
-class TaskDataDeadlineCell: TaskViewLabelsButtonCell {
+class TaskDataDeadlineCell: TaskDetailLabelsButtonCell {
     
     /// UUID файла, который отображается в этой ячейке
     var fileId: UUID?

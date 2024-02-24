@@ -7,7 +7,7 @@ class EntityManager {
     private var managedObjectContext: NSManagedObjectContext? = nil
     
     func getContext() -> NSManagedObjectContext {
-        if let safeManagedObjectContext = managedObjectContext as? NSManagedObjectContext {
+        if let safeManagedObjectContext = managedObjectContext {
             return safeManagedObjectContext
         } else {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate

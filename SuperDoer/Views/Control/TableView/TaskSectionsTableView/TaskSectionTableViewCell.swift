@@ -40,7 +40,7 @@ class TaskSectionTableViewCell: UITableViewCell {
     
     // TODO: надо ли тут weak???
     // вроде цикла сильных ссылок быть не должно быть
-    weak var viewModel: TaskSectionTableViewCellViewModelType? {
+    weak var viewModel: TaskSectionListTableViewCellViewModelType? {
         willSet (newViewModel) {
             if let newViewModel {
                 self.textLabel?.text = newViewModel.title
@@ -90,22 +90,22 @@ class TaskSectionTableViewCell: UITableViewCell {
         textLabel?.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
     }
 
-    private func configureCellImage(_ cellViewModel: TaskSectionTableViewCellViewModelType) {
-        if let listCustomCellViewModel = cellViewModel as? TaskSectionCustomTableViewCellViewModel {
+    private func configureCellImage(_ cellViewModel: TaskSectionListTableViewCellViewModelType) {
+        if let listCustomCellViewModel = cellViewModel as? TaskSectionCustomListTableViewCellViewModel {
             configureCellImageFor(listCustomCellViewModel: listCustomCellViewModel)
             
-        } else if let listSystemCellViewModel = cellViewModel as? TaskSectionSystemTableViewCellViewModel {
+        } else if let listSystemCellViewModel = cellViewModel as? TaskSectionSystemListTableViewCellViewModel {
             configureCellImageFor(listSystemCellViewModel: listSystemCellViewModel)
         } 
     }
     
-    private func configureCellImageFor(listCustomCellViewModel: TaskSectionCustomTableViewCellViewModel) {
+    private func configureCellImageFor(listCustomCellViewModel: TaskSectionCustomListTableViewCellViewModel) {
         let symbolConfig = UIImage.SymbolConfiguration(weight: .bold)
         imageView?.image = UIImage(systemName: defaultViewConfig.imageName, withConfiguration: symbolConfig)
         imageView?.tintColor = defaultViewConfig.imageColor
     }
     
-    private func configureCellImageFor(listSystemCellViewModel: TaskSectionSystemTableViewCellViewModel) {
+    private func configureCellImageFor(listSystemCellViewModel: TaskSectionSystemListTableViewCellViewModel) {
         let viewConfig = systemSectionsConfig[listSystemCellViewModel.type] ?? defaultViewConfig
         
         let symbolConfig = UIImage.SymbolConfiguration(

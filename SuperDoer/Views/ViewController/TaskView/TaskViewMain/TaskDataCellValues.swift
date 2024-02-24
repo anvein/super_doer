@@ -1,14 +1,18 @@
 
 import Foundation
 
-/// Класс хранящий данные задачи в подходящем формате для заполения таблицы
-class TaskDataCellValues {
+/// Структура хранящая данные задачи в подходящем формате для заполения таблицы
+struct TaskDataCellValues {
     // TODO: добавить доступ через сабскрипт?)
     
     var cellsValuesArray = [TaskDataCellValueProtocol]()
     
+    init(_ task: Task) {
+        fill(from: task)
+    }
+    
     /// Полностью обновляет все данные для таблицы на основании task
-    func fill(from task: Task) {
+    mutating func fill(from task: Task) {
         cellsValuesArray.removeAll()
         
         cellsValuesArray.append(AddSubTaskCellValue())
@@ -43,7 +47,7 @@ class TaskDataCellValues {
         )
     }
     
-    func fillAddToMyDay(from task: Task) {
+    mutating func fillAddToMyDay(from task: Task) {
         for (index, buttonValue) in cellsValuesArray.enumerated() {
             if var addToMyDayCellValue = buttonValue as? AddToMyDayCellValue {
                 addToMyDayCellValue.inMyDay = task.inMyDay
@@ -54,7 +58,7 @@ class TaskDataCellValues {
         }
     }
     
-    func fillDeadlineAt(from task: Task) {
+    mutating func fillDeadlineAt(from task: Task) {
         for (index, buttonValue) in cellsValuesArray.enumerated() {
             if var deadlineAtCellValue = buttonValue as? DeadlineCellValue {
                 deadlineAtCellValue.date = task.deadlineDate
@@ -65,7 +69,7 @@ class TaskDataCellValues {
         }
     }
     
-    func appendFile(_ file: TaskFile) -> RowIndex {
+    mutating func appendFile(_ file: TaskFile) -> RowIndex {
         let indexOfLastFile = getIndexOfLastFileOrAddFileButton()
         
         guard let safeIndexOfLastFile = indexOfLastFile else {
@@ -88,7 +92,7 @@ class TaskDataCellValues {
         return indexNewFile
     }
     
-    func fillDescription(from task: Task) {
+    mutating func fillDescription(from task: Task) {
         for (index, buttonValue) in cellsValuesArray.enumerated() {
             if var descriptionCellValue = buttonValue as? DescriptionCellValue {
                 // TODO: сконвертировать нормально хранимый string в NSAttributedString
@@ -120,3 +124,70 @@ class TaskDataCellValues {
 
 typealias RowIndex = Int
 
+
+
+
+// MARK: TaskData classes
+protocol TaskDataCellValueProtocol {
+    
+}
+
+struct AddToMyDayCellValue: TaskDataCellValueProtocol {
+    var inMyDay: Bool = false
+}
+
+struct SubTaskCellValue: TaskDataCellValueProtocol {
+    var isCompleted: Bool = false
+    var title: String
+}
+
+struct AddSubTaskCellValue: TaskDataCellValueProtocol {
+    
+}
+
+struct RemindCellValue: TaskDataCellValueProtocol {
+    var dateTime: Date?
+}
+
+struct DeadlineCellValue: TaskDataCellValueProtocol {
+    var date: Date?
+}
+
+struct RepeatCellValue: TaskDataCellValueProtocol {
+    // TODO: определить параметры
+}
+
+struct AddFileCellValue: TaskDataCellValueProtocol {
+    
+}
+
+struct FileCellValue: TaskDataCellValueProtocol {
+    var id: UUID
+    var name: String
+    var fileExtension: String
+    var size: Int
+}
+
+
+struct DescriptionCellValue: TaskDataCellValueProtocol {
+    var content: NSAttributedString?
+    var updatedAt: Date?
+    
+    init(contentAsHtml: String? = nil, dateUpdatedAt: Date? = nil) {
+        self.content = convertToNsAttributedStringFrom(contentAsHtml: contentAsHtml)
+        self.updatedAt = dateUpdatedAt
+    }
+    
+    private func convertToNsAttributedStringFrom(contentAsHtml: String?) -> NSAttributedString? {
+//        self.content = NSAttributedString(string: "", attributes: []).data(from: 0..<contentAsHtml.len, documentAttributes: <#T##[NSAttributedString.DocumentAttributeKey : Any]#>)
+//        NSAttributedString().data(from: 0.., documentAttributes: <#T##[NSAttributedString.DocumentAttributeKey : Any]#>)
+//
+//        NSAttributedString(data: Data(), documentAttributes: <#T##AutoreleasingUnsafeMutablePointer<NSDictionary?>?#>)
+        
+        if let filledContentAsHtml = contentAsHtml {
+            return NSAttributedString(string: filledContentAsHtml)
+        } else {
+            return nil
+        }
+    }
+}

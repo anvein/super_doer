@@ -23,6 +23,7 @@
     <entity name="TaskSectionCustom" representedClassName=".TaskSectionCustom" syncable="YES">
         <attribute name="deletedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isArchived" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isCycledList" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES">
             <userInfo>
                 <entry key="Описание" value="Является ли список с цикличными задачами (у таких списков другая логика подсчета кол-ва задач в списке)"/>

@@ -1,8 +1,8 @@
 //
-//  TaskList+CoreDataProperties.swift
+//  TaskSectionCustom+CoreDataProperties.swift
 //  SuperDoer
 //
-//  Created by Виталий Нохрин on 02.12.2023.
+//  Created by Виталий Нохрин on 23.02.2024.
 //
 //
 
@@ -13,14 +13,15 @@ import CoreData
 extension TaskSectionCustom {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<TaskSectionCustom> {
-        return NSFetchRequest<TaskSectionCustom>(entityName: TaskSectionCustom.entityName)
+        return NSFetchRequest<TaskSectionCustom>(entityName: "TaskSectionCustom")
     }
 
-    @NSManaged public var tasksCount: Int32
     @NSManaged public var deletedAt: Date?
     @NSManaged public var id: UUID?
+    @NSManaged public var isArchived: Bool
     @NSManaged public var isCycledList: Bool
     @NSManaged public var order: Int32
+    @NSManaged public var tasksCount: Int32
     @NSManaged public var title: String?
     @NSManaged public var titleEmoji: String?
     @NSManaged public var tasks: NSOrderedSet?
