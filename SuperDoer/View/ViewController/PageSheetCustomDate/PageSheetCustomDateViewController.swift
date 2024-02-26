@@ -1,21 +1,34 @@
 
 import UIKit
 
-/// Контролле для установки кастомной даты в поле "Срок"
-class DeadlineCustomDateViewController: UIViewController {
-
-    var task: Task
+/// Контроллер  в виде PageSheet для выбора  кастомной даты
+class PageSheetCustomDateViewController: UIViewController {
+    enum SupportedDatePickerMode {
+        case date
+        case dateAndTime
+        
+        var asUIDatePickerMode: UIDatePicker.Mode {
+            switch self {
+            case .date :
+                return UIDatePicker.Mode.date
+            case .dateAndTime :
+                return UIDatePicker.Mode.dateAndTime
+            }
+        }
+    }
     
-    var taskEm = TaskEntityManager()
+    private var viewModel: CustomDateViewModel
     
-    let datePicker = UIDatePicker(frame: .zero)
+    private var datePickerMode: SupportedDatePickerMode
+    private lazy var datePicker = UIDatePicker(frame: .zero)
     
-    weak var delegate: PageSheetTableVariantsViewControllerDelegate?
+    weak var delegate: PageSheetCustomDateViewControllerDelegate?
     
     
     // MARK: init
-    init(task: Task) {
-        self.task = task
+    init(viewModel: CustomDateViewModel, datePickerMode: SupportedDatePickerMode = .date) {
+        self.viewModel = viewModel
+        self.datePickerMode = datePickerMode
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -32,6 +45,7 @@ class DeadlineCustomDateViewController: UIViewController {
         setupControls()
         addControlsAsSubviews()
         setupConstraints()
+        setupBindings()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -39,7 +53,6 @@ class DeadlineCustomDateViewController: UIViewController {
         
         // TODO: анимировать изменение высоты контроллера
         configureSheetPresentationController()
-        fillFrom(task: task)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -70,7 +83,7 @@ class DeadlineCustomDateViewController: UIViewController {
     
     private func setupDatePicker() {
         datePicker.translatesAutoresizingMaskIntoConstraints = false
-        datePicker.datePickerMode = .date
+        datePicker.datePickerMode = datePickerMode.asUIDatePickerMode
         datePicker.preferredDatePickerStyle = .inline
         datePicker.tintColor = InterfaceColors.textBlue
         datePicker.locale = .current
@@ -85,25 +98,58 @@ class DeadlineCustomDateViewController: UIViewController {
     private func configureSheetPresentationController() {
         if let sheet = sheetPresentationController {
             sheet.detents = [
-                .custom(identifier: .taskDeadlineCustomDate, resolver: { context in
-                    return 410
-                })
+                self.buildDetentForDatePickerMode(self.datePickerMode)
             ]
             
             sheet.presentedViewController.additionalSafeAreaInsets.top = 0
-            sheet.selectedDetentIdentifier = .taskDeadlineCustomDate
+            sheet.selectedDetentIdentifier = .pageSheetCustomDate
         }
     }
     
-    private func fillFrom(task: Task) {
-        datePicker.date = task.deadlineDate ?? Date()
+    private func buildDetentForDatePickerMode(_ mode: SupportedDatePickerMode) -> UISheetPresentationController.Detent {
+        switch mode {
+        case .date:
+            return .custom(identifier: .pageSheetCustomDate, resolver: { context in
+                return 410
+            })
+        case .dateAndTime:
+            return .custom(identifier: .pageSheetCustomDateAndTime, resolver: { context in
+                return 470
+            })
+        }
+        
+    }
+    
+    private func setupBindings() {
+        viewModel.date.bindAndUpdateValue { date in
+            self.datePicker.date = date ?? Date()
+        }
     }
     
     
     // MARK: action-handlers
     @objc private func tapButtonReady() {
-        delegate?.didChooseDeadlineDate(newDate: datePicker.date)
+        delegate?.didChooseDate(newDate: datePicker.date)
         
         dismiss(animated: true)
     }
 }
+
+// MARK: detent identifier for ViewController
+extension UISheetPresentationController.Detent.Identifier {
+    typealias SheetDetentIdentifier = UISheetPresentationController.Detent.Identifier
+    
+    /// Для PageSheetCustomDateViewController (только date)
+    static let pageSheetCustomDate: SheetDetentIdentifier = SheetDetentIdentifier("pageSheetCustomDate")
+    
+    /// Для PageSheetCustomDateViewController (date + time)
+    static let pageSheetCustomDateAndTime: SheetDetentIdentifier = SheetDetentIdentifier("pageSheetCustomDateAndTime")
+}
+
+
+
+// MARK: controller delegate protocol
+protocol PageSheetCustomDateViewControllerDelegate: AnyObject {
+    func didChooseDate(newDate: Date?)
+}
+

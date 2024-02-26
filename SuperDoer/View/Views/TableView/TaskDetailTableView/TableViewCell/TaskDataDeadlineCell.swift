@@ -70,7 +70,8 @@ class TaskDataDeadlineCell: TaskDetailLabelsButtonCell {
         if let filledDate = cellValue.date {
             let dateFormatter = DateFormatter()
             dateFormatter.locale = Locale(identifier: "ru_RU")
-            dateFormatter.dateFormat = "dd MM yyyy"
+            // TODO: Сделать формирование красивой даты (сегодня, завтра + не выводить текущий год)
+            dateFormatter.dateFormat = "EEEEEE, d MMMM y"
             
             let stringDate = dateFormatter.string(from: filledDate)
             

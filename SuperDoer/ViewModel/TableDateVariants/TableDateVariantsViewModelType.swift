@@ -1,9 +1,9 @@
 
 import Foundation
 
-protocol VariantsViewModelType {
-//    var isShowReadyButton: Bool { get }
-//    var isShowDeleteButton: Bool { get }
+protocol TableDateVariantsViewModelType {
+    var isShowReadyButton: Box<Bool> { get }
+    var isShowDeleteButton: Box<Bool> { get }
     
     var variantsCellValuesArray: Box<[BaseVariantCellValue]> { get }
     

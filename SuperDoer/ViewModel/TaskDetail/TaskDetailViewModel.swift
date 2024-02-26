@@ -42,8 +42,8 @@ class TaskDetailViewModel {
         return taskDataCellsValues.value.cellsValuesArray[indexPath.row]
     }
     
-    func getTaskSettingsDeadlineVariantsViewModel() -> TaskSettingsDeadlineTableVariantsViewModel {
-        return TaskSettingsDeadlineTableVariantsViewModel(task: task)
+    func getTaskSettingsDeadlineVariantsViewModel() -> TaskDeadlineTableVariantsViewModel {
+        return TaskDeadlineTableVariantsViewModel(task: task)
     }
     
     

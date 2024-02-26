@@ -110,7 +110,7 @@ class TaskDetailViewController: UIViewController {
     private func showSettingsDeadlineVariantsController(forIndexPath indexPath: IndexPath) {
         let vm = viewModel.getTaskSettingsDeadlineVariantsViewModel()
         
-        let deadlineVariantsController = PageSheetTableVariantsViewController(viewModel: vm)
+        let deadlineVariantsController = PageSheetTableDateVariantsViewController(viewModel: vm)
         deadlineVariantsController.delegate = self
         let navigationController = UINavigationController(rootViewController: deadlineVariantsController)
         
@@ -497,15 +497,21 @@ extension TaskDetailViewController: NotificationsDisabledAlertControllerDelegate
 }
 
 /// Методы делегата связанные с полем "Дата выполнения"
-extension TaskDetailViewController: TaskDataDeadlineCellDelegate, PageSheetTableVariantsViewControllerDelegate {
+extension TaskDetailViewController: TaskDataDeadlineCellDelegate, PageSheetTableVariantsViewControllerDelegate, PageSheetCustomDateViewControllerDelegate {
     func tapTaskDeadlineCrossButton() {
         viewModel.updateTaskField(deadlineDate: nil)
     }
     
-    func didChooseDeadlineDate(newDate: Date?) {
+    func didChooseDateVariant(newDate: Date?) {
         viewModel.updateTaskField(deadlineDate: newDate)
     }
+    
+    func didChooseDate(newDate: Date?) {
+        viewModel.updateTaskField(deadlineDate: newDate)
+    }
+    
 }
+
 
 /// Делегат для взаимодействия с галереей (при загрузке файла)
 extension TaskDetailViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {

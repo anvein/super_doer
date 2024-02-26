@@ -1,10 +1,10 @@
 
 import Foundation
 
-/// ViewModel для контроллера выбора предустановленного варианта
-/// поля "Дата выполнения" (дедлайн) у задачи
-class TaskSettingsDeadlineTableVariantsViewModel: VariantsViewModelType {
-    
+/// ViewModel для контроллера выбора предустановленного варианта даты
+/// для поля "Дата выполнения" (дедлайн) у задачи
+class TaskDeadlineTableVariantsViewModel: TableDateVariantsViewModelType {
+  
     // TODO: переделать на DI
     var taskEm = TaskEntityManager()
      
@@ -12,7 +12,7 @@ class TaskSettingsDeadlineTableVariantsViewModel: VariantsViewModelType {
     // MARK: model
     private var task: Task {
         didSet {
-            let cellValues = TaskSettingsDeadlineTableVariantsViewModel.buildCellsValues()
+            let cellValues = TaskDeadlineTableVariantsViewModel.buildCellsValues()
             variantsCellValuesArray = Box(cellValues)
             
             refreshSelectionOfVariantCellValue(fromTask: task)
@@ -22,6 +22,9 @@ class TaskSettingsDeadlineTableVariantsViewModel: VariantsViewModelType {
     
     
     // MARK: state
+    var isShowReadyButton: Box<Bool> = Box(true)
+    var isShowDeleteButton: Box<Bool>
+    
     var variantsCellValuesArray: Box<[BaseVariantCellValue]>
     
     
@@ -29,9 +32,12 @@ class TaskSettingsDeadlineTableVariantsViewModel: VariantsViewModelType {
     init(task: Task) {
         self.task = task
         
-        let cellValues = TaskSettingsDeadlineTableVariantsViewModel.buildCellsValues()
-        self.variantsCellValuesArray = Box(cellValues)
+        let cellValues = TaskDeadlineTableVariantsViewModel.buildCellsValues()
+        variantsCellValuesArray = Box(cellValues)
+        isShowDeleteButton = Box(false)
+        
         refreshSelectionOfVariantCellValue(fromTask: task)
+        refreshIsShowDeleteButton(fromTask: task)
     }
     
     /// Обновляет выбранный VariantCellValue
@@ -53,7 +59,7 @@ class TaskSettingsDeadlineTableVariantsViewModel: VariantsViewModelType {
         
         var resultIndex: Int?
         for (index, variant) in variants.enumerated() {
-            guard let variant = variant as? DeadlineVariantCellValue else {
+            guard let variant = variant as? DateVariantCellValue else {
                 continue
             }
             
@@ -72,6 +78,9 @@ class TaskSettingsDeadlineTableVariantsViewModel: VariantsViewModelType {
         return resultIndex
     }
     
+    private func refreshIsShowDeleteButton(fromTask task: Task) {
+        isShowDeleteButton.value = task.deadlineDate != nil
+    }
     
     // TODO: переделать метод
     // общие функции можно вынести во внешний сервис
@@ -82,8 +91,8 @@ class TaskSettingsDeadlineTableVariantsViewModel: VariantsViewModelType {
         today = today.setComponents(hours: 12, minutes: 0, seconds: 0)
         
         cellValuesArray.append(
-            DeadlineVariantCellValue(
-                imageSettings: DeadlineVariantCellValue.ImageSettings(name: "calendar.badge.clock"),
+            DateVariantCellValue(
+                imageSettings: DateVariantCellValue.ImageSettings(name: "calendar.badge.clock"),
                 title: "Сегодня",
                 date: today,
                 additionalText: today.formatWith(dateFormat: "EE")
@@ -95,8 +104,8 @@ class TaskSettingsDeadlineTableVariantsViewModel: VariantsViewModelType {
         tomorrow = tomorrow.add(days: 1)
         
         cellValuesArray.append(
-            DeadlineVariantCellValue(
-                imageSettings: DeadlineVariantCellValue.ImageSettings(name: "arrow.right.square", size: 20),
+            DateVariantCellValue(
+                imageSettings: DateVariantCellValue.ImageSettings(name: "arrow.right.square", size: 20),
                 title: "Завтра",
                 date: tomorrow,
                 additionalText: tomorrow.formatWith(dateFormat: "EE")
@@ -104,8 +113,8 @@ class TaskSettingsDeadlineTableVariantsViewModel: VariantsViewModelType {
         )
         
         cellValuesArray.append(
-            DeadlineVariantCellValue(
-                imageSettings: DeadlineVariantCellValue.ImageSettings(name: "calendar.day.timeline.right"),
+            DateVariantCellValue(
+                imageSettings: DateVariantCellValue.ImageSettings(name: "calendar.day.timeline.right"),
                 title: "Следующая неделя (завтра)",
                 date: tomorrow,
                 additionalText: today.formatWith(dateFormat: "EE")
@@ -113,8 +122,8 @@ class TaskSettingsDeadlineTableVariantsViewModel: VariantsViewModelType {
         )
         
         cellValuesArray.append(
-            DealineCustomVariantCellValue(
-                imageSettings: DeadlineVariantCellValue.ImageSettings(name: "calendar"),
+            CustomVariantCellValue(
+                imageSettings: DateVariantCellValue.ImageSettings(name: "calendar"),
                 title: "Выбрать дату"
             )
         )
@@ -130,4 +139,7 @@ class TaskSettingsDeadlineTableVariantsViewModel: VariantsViewModelType {
         return variantsCellValuesArray.value[indexPath.row]
     }
     
+    func getTaskDeadlineCustomDateViewModel() -> TaskDeadlineCustomDateViewModel {
+        return TaskDeadlineCustomDateViewModel(task: task)
+    }
 }

@@ -2,7 +2,6 @@
 import Foundation
 import UIKit
 
-
 // MARK: cell values objects
 class BaseVariantCellValue {
     struct ImageSettings {
@@ -21,7 +20,7 @@ class BaseVariantCellValue {
     }
 }
 
-class DeadlineVariantCellValue: BaseVariantCellValue {
+class DateVariantCellValue: BaseVariantCellValue {
     var date: Date
     var additionalText: String?
     
@@ -34,5 +33,5 @@ class DeadlineVariantCellValue: BaseVariantCellValue {
     }
 }
 
-class DealineCustomVariantCellValue: BaseVariantCellValue  {
+class CustomVariantCellValue: BaseVariantCellValue  {
 }

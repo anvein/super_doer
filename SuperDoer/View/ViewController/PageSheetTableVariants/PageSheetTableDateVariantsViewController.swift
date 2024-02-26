@@ -2,23 +2,20 @@
 import UIKit
 import Foundation
 
-/// Контролер в виде PageSheet с таблицей  (для выбора вариантов из списка)
-class PageSheetTableVariantsViewController: UIViewController {
+/// Контролер в виде PageSheet с таблицей  (для выбора вариантов даты из списка)
+class PageSheetTableDateVariantsViewController: UIViewController {
    
-    private var viewModel: VariantsViewModelType
+    private var viewModel: TableDateVariantsViewModelType
     
     
     // MARK: controls
     private lazy var variantsTableView = TaskSettingsFieldTableView()
     
-    private lazy var deleteBarButton = UIBarButtonItem()
-    private lazy var readyBarButton = UIBarButtonItem()
-    
     weak var delegate: PageSheetTableVariantsViewControllerDelegate?
     
     
     // MARK: init
-    init(viewModel: VariantsViewModelType) {
+    init(viewModel: TableDateVariantsViewModelType) {
         self.viewModel = viewModel
         
         super.init(nibName: nil, bundle: nil)
@@ -47,10 +44,17 @@ class PageSheetTableVariantsViewController: UIViewController {
     
     // MARK: actions
     private func showDeadlineCustomDateViewController() {
-//        let deadlineCustomVc = DeadlineCustomDateViewController(task: task)
-//        deadlineCustomVc.delegate = self.delegate
-//        
-//        navigationController?.pushViewController(deadlineCustomVc, animated: true)
+        
+        guard let viewModel = viewModel as? TaskDeadlineTableVariantsViewModel else { return }
+        
+        let customDateVM = viewModel.getTaskDeadlineCustomDateViewModel()
+        let customDateVC = PageSheetCustomDateViewController(viewModel: customDateVM)
+        
+        if let delegate = delegate as? PageSheetCustomDateViewControllerDelegate {
+            customDateVC.delegate = delegate
+        }
+        
+        navigationController?.pushViewController(customDateVC, animated: true)
     }
     
     
@@ -60,7 +64,7 @@ class PageSheetTableVariantsViewController: UIViewController {
     }
     
     @objc private func tapButtonDelete() {
-        delegate?.didChooseDeadlineDate(newDate: nil)
+        delegate?.didChooseDateVariant(newDate: nil)
         
         dismiss(animated: true)
     }
@@ -69,7 +73,7 @@ class PageSheetTableVariantsViewController: UIViewController {
 
 
 // MARK: setup methods
-extension PageSheetTableVariantsViewController {
+extension PageSheetTableDateVariantsViewController {
     
     private func setupControls() {
         setupController()
@@ -94,20 +98,28 @@ extension PageSheetTableVariantsViewController {
         }
     }
     
+    private func configureSheetPresentationController() {
+        if let sheet = sheetPresentationController {
+            sheet.presentedViewController.additionalSafeAreaInsets.top = 14
+            sheet.detents = [
+                .custom(identifier: .taskDeadlineVariants, resolver: { context in
+                    return 280
+                }),
+            ]
+            sheet.selectedDetentIdentifier = .taskDeadlineVariants
+        }
+    }
+    
     private func setupNavigationBar() {
         // deleteBarButton
-        deleteBarButton.title = "Удалить"
-        deleteBarButton.style = .done
-        deleteBarButton.target = self
-        deleteBarButton.action = #selector(tapButtonDelete)
+        let deleteBarButton = UIBarButtonItem(title: "Удалить", style: .done, target: self, action: #selector(tapButtonDelete))
         deleteBarButton.tintColor = InterfaceColors.textRed
+        navigationItem.leftBarButtonItem = deleteBarButton
         
         // readyBarButton
-        readyBarButton.title = "Готово"
-        readyBarButton.style = .done
-        readyBarButton.target = self
-        readyBarButton.action = #selector(tapButtonReady)
+        let readyBarButton = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(tapButtonReady))
         readyBarButton.tintColor = InterfaceColors.textBlue
+        navigationItem.rightBarButtonItem = readyBarButton
         
         // navigationBar
         if let naviBar = navigationController?.navigationBar {
@@ -141,24 +153,17 @@ extension PageSheetTableVariantsViewController {
         viewModel.variantsCellValuesArray.bindAndUpdateValue { [unowned self] variants in
             self.variantsTableView.reloadData()
         }
-    }
-    
-    private func configureSheetPresentationController() {
-        if let sheet = sheetPresentationController {
-            sheet.presentedViewController.additionalSafeAreaInsets.top = 14
-            sheet.detents = [
-                .custom(identifier: .taskDeadlineVariants, resolver: { context in
-                    return 280
-                }),
-            ]
-            sheet.selectedDetentIdentifier = .taskDeadlineVariants
+        
+        viewModel.isShowDeleteButton.bindAndUpdateValue { [unowned self] isShowDeleteButton in
+            self.navigationItem.leftBarButtonItem?.isHidden = !isShowDeleteButton
         }
     }
+    
 }
 
 
 // MARK: table delegate & datasource
-extension PageSheetTableVariantsViewController: UITableViewDelegate, UITableViewDataSource {
+extension PageSheetTableDateVariantsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.getCountVariants()
     }
@@ -178,10 +183,10 @@ extension PageSheetTableVariantsViewController: UITableViewDelegate, UITableView
             taskFieldSettingsCell.state = cellValue.isSelected ? .defined : .undefined
             
             switch cellValue {
-            case let variantCellValue as DeadlineVariantCellValue:
+            case let variantCellValue as DateVariantCellValue:
                 taskFieldSettingsCell.detailTextLabel?.text = variantCellValue.additionalText
                 
-            case _ as DealineCustomVariantCellValue:
+            case _ as CustomVariantCellValue:
                 taskFieldSettingsCell.accessoryType = .disclosureIndicator
                 
             default:
@@ -196,11 +201,11 @@ extension PageSheetTableVariantsViewController: UITableViewDelegate, UITableView
         let cellValue = viewModel.getVariantCellValue(forIndexPath: indexPath)
         
         switch cellValue {
-        case let deadlineVariantCellValue as DeadlineVariantCellValue:
-            delegate?.didChooseDeadlineDate(newDate: deadlineVariantCellValue.date)
+        case let deadlineVariantCellValue as DateVariantCellValue:
+            delegate?.didChooseDateVariant(newDate: deadlineVariantCellValue.date)
             dismiss(animated: true)
             
-        case _ as DealineCustomVariantCellValue:
+        case _ as CustomVariantCellValue:
             showDeadlineCustomDateViewController()
         default:
             break
@@ -214,19 +219,14 @@ extension PageSheetTableVariantsViewController: UITableViewDelegate, UITableView
 
 // MARK: controller delegate protocol
 protocol PageSheetTableVariantsViewControllerDelegate: AnyObject {
-    func didChooseDeadlineDate(newDate: Date?)
+    func didChooseDateVariant(newDate: Date?)
 }
 
-
+// TODO: вынести / сделать изменяемыми
 // MARK: detent identifier
 typealias SheetDetentIdentifier = UISheetPresentationController.Detent.Identifier
 
 extension UISheetPresentationController.Detent.Identifier {
     /// Для DeadlineVariantsViewController
     static let taskDeadlineVariants: SheetDetentIdentifier = SheetDetentIdentifier("taskDeadlineVariants")
-    
-    /// Для DeadlineCustomDateViewController
-    static let taskDeadlineCustomDate: SheetDetentIdentifier = SheetDetentIdentifier("taskDeadlineCustomDate")
 }
-
-
