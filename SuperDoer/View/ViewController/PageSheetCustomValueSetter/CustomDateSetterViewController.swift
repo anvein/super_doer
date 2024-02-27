@@ -2,7 +2,7 @@
 import UIKit
 
 /// Контроллер  в виде PageSheet для выбора  кастомной даты
-class PageSheetCustomDateViewController: UIViewController {
+class CustomDateSetterViewController: UIViewController {
     enum SupportedDatePickerMode {
         case date
         case dateAndTime
@@ -17,7 +17,7 @@ class PageSheetCustomDateViewController: UIViewController {
         }
     }
     
-    private var viewModel: CustomDateViewModelType
+    private var viewModel: CustomDateSetterViewModelType
     
     private var datePickerMode: SupportedDatePickerMode
     private lazy var datePicker = UIDatePicker(frame: .zero)
@@ -43,7 +43,7 @@ class PageSheetCustomDateViewController: UIViewController {
     
     
     // MARK: init
-    init(viewModel: CustomDateViewModelType, identifier: String, datePickerMode: SupportedDatePickerMode = .date) {
+    init(viewModel: CustomDateSetterViewModelType, identifier: String, datePickerMode: SupportedDatePickerMode = .date) {
         self.viewModel = viewModel
         self.identifier = identifier
         self.datePickerMode = datePickerMode
@@ -61,6 +61,7 @@ class PageSheetCustomDateViewController: UIViewController {
         super.viewDidLoad()
         
         setupControls()
+        setupNavigationBar()
         addControlsAsSubviews()
         setupConstraints()
         setupBindings()
@@ -71,8 +72,6 @@ class PageSheetCustomDateViewController: UIViewController {
         
         // TODO: анимировать изменение высоты контроллера
         configureSheetPresentationController()
-        
-        setupNavigationBar()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -125,10 +124,10 @@ class PageSheetCustomDateViewController: UIViewController {
     private func setupNavigationBar() {
         if navigationController != nil {
             navigationItem.rightBarButtonItem = buildReadyBarButton()
+            navigationItem.title = title
         } else {
-            let deleteBarButton = buildDeleteBarButton()
-            
             let navItem = UINavigationItem()
+            navItem.title = title
             navItem.rightBarButtonItem = buildReadyBarButton()
             navItem.leftBarButtonItem = buildDeleteBarButton()
             
@@ -136,18 +135,14 @@ class PageSheetCustomDateViewController: UIViewController {
         }
     }
     
-    private func buildReadyBarButton() -> UIBarButtonItem? {
-        guard viewModel.isShowReadyButton.value else { return nil }
-        
+    private func buildReadyBarButton() -> UIBarButtonItem {
         let readyBarButton = UIBarButtonItem(title: "Установить", style: .done, target: self, action: #selector(tapButtonReady))
         readyBarButton.tintColor = InterfaceColors.textBlue
         
         return readyBarButton
     }
     
-    private func buildDeleteBarButton() -> UIBarButtonItem? {
-        guard viewModel.isShowDeleteButton.value else { return nil }
-        
+    private func buildDeleteBarButton() -> UIBarButtonItem {
         let deleteBarButton = UIBarButtonItem(title: "Удалить", style: .done, target: self, action: #selector(tapButtonDelete))
         deleteBarButton.tintColor = InterfaceColors.textRed
         
@@ -188,17 +183,33 @@ class PageSheetCustomDateViewController: UIViewController {
         viewModel.date.bindAndUpdateValue { date in
             self.datePicker.date = date ?? self.viewModel.defaultDate
         }
+        
+        viewModel.isShowDeleteButton.bindAndUpdateValue { [unowned self] isShowDeleteButton in
+            if self.navigationController != nil {
+                self.navigationItem.leftBarButtonItem?.isHidden = !isShowDeleteButton
+            } else {
+                self.navigationBar.topItem?.leftBarButtonItem?.isHidden = !isShowDeleteButton
+            }
+        }
+        
+        viewModel.isShowReadyButton.bindAndUpdateValue { [unowned self] isShowReadyButton in
+            if self.navigationController != nil {
+                self.navigationItem.rightBarButtonItem?.isHidden = !isShowReadyButton
+            } else {
+                self.navigationBar.topItem?.rightBarButtonItem?.isHidden = !isShowReadyButton
+            }
+        }
     }
     
     
     // MARK: action-handlers
     @objc private func tapButtonReady() {
-        delegate?.didChooseDate(newDate: datePicker.date, identifier: identifier)
+        delegate?.didChooseCustomDateReady?(newDate: datePicker.date, identifier: identifier)
         dismiss(animated: true)
     }
     
     @objc private func tapButtonDelete() {
-        delegate?.didChooseDate(newDate: nil, identifier: identifier)
+        delegate?.didChooseCustomDateDelete?(identifier: identifier)
         dismiss(animated: true)
     }
 }
@@ -217,10 +228,15 @@ extension UISheetPresentationController.Detent.Identifier {
 
 
 // MARK: controller delegate protocol
-protocol PageSheetCustomDateViewControllerDelegate: AnyObject {
-    /// Была нажата кнопка "Готово" (установить) или  "Удалить" (очистить)
+@objc protocol PageSheetCustomDateViewControllerDelegate: AnyObject {
+    /// Была нажата кнопка "Готово" (установить) - выбрана дата
     /// - Parameters:
     ///   - newDate: Date - если нажата кнопка "Готово" (установить), nil - если нажата кнопка "Удалить" (очистить)
     ///   - identifier: идентификатор открытого экземпляра контроллера (связан с полем, для которого он открыт)
-    func didChooseDate(newDate: Date?, identifier: String)
+    @objc optional func didChooseCustomDateReady(newDate: Date?, identifier: String)
+    
+    /// Была нажата кнопка "Удалить" (очистить)
+    /// - Parameters:
+    ///   - identifier: идентификатор открытого экземпляра контроллера (связан с полем, для которого он открыт)
+    @objc optional func didChooseCustomDateDelete(identifier: String)
 }

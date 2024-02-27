@@ -64,6 +64,11 @@ class TaskEntityManager: EntityManager {
         saveContext()
     }
     
+    func updateField(repeatPeriod: String?, task: Task) {
+        task.repeatPeriod = repeatPeriod
+        saveContext()
+    }
+    
     func updateFields(taskDescription: String?, descriptionUpdatedAt: Date, task: Task) {
         task.taskDescription = taskDescription
         task.descriptionUpdatedAt = descriptionUpdatedAt

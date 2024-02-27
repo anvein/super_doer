@@ -22,7 +22,7 @@ struct TaskDataCellValues {
         cellsValuesArray.append(ReminderDateCellValue(dateTime: task.reminderDateTime))
         
         cellsValuesArray.append(DeadlineDateCellValue(date: task.deadlineDate))
-        cellsValuesArray.append(RepeatCellValue())
+        cellsValuesArray.append(RepeatPeriodCellValue(period: task.repeatPeriod))
         cellsValuesArray.append(AddFileCellValue())
         
         
@@ -75,6 +75,17 @@ struct TaskDataCellValues {
                 reminderDateTimeCellValue.dateTime = task.reminderDateTime
 
                 cellsValuesArray[index] = reminderDateTimeCellValue
+                break
+            }
+        }
+    }
+    
+    mutating func fillRepeatPeriod(from task: Task) {
+        for (index, buttonValue) in cellsValuesArray.enumerated() {
+            if var repeatPeriodCellValue = buttonValue as? RepeatPeriodCellValue {
+                repeatPeriodCellValue.period = task.repeatPeriod
+
+                cellsValuesArray[index] = repeatPeriodCellValue
                 break
             }
         }
@@ -164,8 +175,9 @@ struct DeadlineDateCellValue: TaskDataCellValueProtocol {
     var date: Date?
 }
 
-struct RepeatCellValue: TaskDataCellValueProtocol {
-    // TODO: определить параметры
+struct RepeatPeriodCellValue: TaskDataCellValueProtocol {
+    // TODO: переделать тип
+    var period: String?
 }
 
 struct AddFileCellValue: TaskDataCellValueProtocol {

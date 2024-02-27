@@ -1,7 +1,7 @@
 
 import Foundation
 
-protocol CustomDateViewModelType: AnyObject {
+protocol CustomDateSetterViewModelType: AnyObject {
     var isShowReadyButton: Box<Bool> { get }
     var isShowDeleteButton: Box<Bool> { get }
     

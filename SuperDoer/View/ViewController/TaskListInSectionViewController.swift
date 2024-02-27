@@ -32,16 +32,16 @@ class TaskListInSectionViewController: UIViewController {
         
         self.title = viewModel.taskSectionTitle
         
-//        navigationController?.navigationBar.prefersLargeTitles = true
+        //        navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .always
-//        navigationController?.navigationBar.scrollEdgeAppearance = .
+        //        navigationController?.navigationBar.scrollEdgeAppearance = .
         
-//        navigationController?.navigationBar.topItem?.rightBarButtonItem
+        //        navigationController?.navigationBar.topItem?.rightBarButtonItem
         let editItem = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(editTable))
         navigationItem.rightBarButtonItems = [editItem]
         
-//        navigationController?.navigationBar.setBackgroundImage(UIImage(named: "bgList"), for: UIBarMetrics.compact)
-//        navigationController?.navigationBar.isOpaque = true
+        //        navigationController?.navigationBar.setBackgroundImage(UIImage(named: "bgList"), for: UIBarMetrics.compact)
+        //        navigationController?.navigationBar.isOpaque = true
         
         setupControls()
         addSubviews()
@@ -57,16 +57,14 @@ class TaskListInSectionViewController: UIViewController {
         }
         
         #if DEBUG
-            PixelPerfectScreen.getInstanceAndSetup(
-                baseView: view,
-                imageName: "task_list_base",
-                topAnchorConstant: 0,
-                controlsBottomAnchorConstant: 20
-            )
+                PixelPerfectScreen.getInstanceAndSetup(
+                    baseView: view,
+                    imageName: "task_list_base",
+                    topAnchorConstant: 0,
+                    controlsBottomAnchorConstant: 20
+                )
         #endif
-        
     }
-    
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

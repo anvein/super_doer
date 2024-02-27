@@ -104,12 +104,12 @@ class ReminderDateButtonCell: TaskDetailLabelsButtonCell {
  
     // MARK: handlers
     @objc func handleTapActionButton(actionButton: UIButton) {
-        delegate?.tapReminderDateCrossButton()
+        delegate?.didTapReminderDateCrossButton()
     }
 }
 
 // MARK: delegate protocol
 protocol ReminderDateButtonCellDelegate: AnyObject {
     /// Была нажата кнопка "крестик"
-    func tapReminderDateCrossButton()
+    func didTapReminderDateCrossButton()
 }

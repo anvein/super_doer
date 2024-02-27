@@ -3,20 +3,16 @@ import Foundation
 
 /// ViewModel для контроллера выбора предустановленного варианта даты
 /// для поля "Дата выполнения" (дедлайн) у задачи
-class TaskDeadlineTableVariantsViewModel: TableDateVariantsViewModelType {
-  
-    // TODO: переделать на DI
-    var taskEm = TaskEntityManager()
-     
-    
+class TaskDeadlineTableVariantsViewModel: TableVariantsViewModelType {
+
     // MARK: model
     private var task: Task {
         didSet {
-            let cellValues = TaskDeadlineTableVariantsViewModel.buildCellsValues()
-            variantsCellValuesArray = Box(cellValues)
+            let cellValues = TaskDeadlineTableVariantsViewModel.buildCellViewModels()
+            variantCellViewModels = Box(cellValues)
             
-            refreshSelectionOfVariantCellValue(fromTask: task)
-            variantsCellValuesArray.forceUpdate()
+            refreshSelectionOfVariantCellViewModel(fromTask: task)
+            variantCellViewModels.forceUpdate()
         }
     }
     
@@ -25,41 +21,41 @@ class TaskDeadlineTableVariantsViewModel: TableDateVariantsViewModelType {
     var isShowReadyButton: Box<Bool> = Box(true)
     var isShowDeleteButton: Box<Bool>
     
-    var variantsCellValuesArray: Box<[BaseVariantCellValue]>
+    var variantCellViewModels: Box<[BaseVariantCellViewModel]>
     
     
     // MARK: init
     init(task: Task) {
         self.task = task
         
-        let cellValues = TaskDeadlineTableVariantsViewModel.buildCellsValues()
-        variantsCellValuesArray = Box(cellValues)
+        let cellViewModels = TaskDeadlineTableVariantsViewModel.buildCellViewModels()
+        variantCellViewModels = Box(cellViewModels)
         isShowDeleteButton = Box(false)
         
-        refreshSelectionOfVariantCellValue(fromTask: task)
+        refreshSelectionOfVariantCellViewModel(fromTask: task)
         refreshIsShowDeleteButton(fromTask: task)
     }
     
     /// Обновляет выбранный VariantCellValue
-    private func refreshSelectionOfVariantCellValue(fromTask task: Task) {
+    private func refreshSelectionOfVariantCellViewModel(fromTask task: Task) {
         let selectedIndex = calculateIndexSelectedValue(
-            variants: variantsCellValuesArray.value,
+            variants: variantCellViewModels.value,
             task: task
         )
         
-        for (index, variant) in variantsCellValuesArray.value.enumerated() {
+        for (index, variant) in variantCellViewModels.value.enumerated() {
             variant.isSelected = index == selectedIndex
         }
     }
     
-    private func calculateIndexSelectedValue(variants: [BaseVariantCellValue], task: Task) -> Int? {
+    private func calculateIndexSelectedValue(variants: [BaseVariantCellViewModel], task: Task) -> Int? {
         guard let taskDeadlineDate = task.deadlineDate else {
             return nil
         }
         
         var resultIndex: Int?
         for (index, variant) in variants.enumerated() {
-            guard let variant = variant as? DateVariantCellValue else {
+            guard let variant = variant as? DateVariantCellViewModel else {
                 continue
             }
             
@@ -84,15 +80,15 @@ class TaskDeadlineTableVariantsViewModel: TableDateVariantsViewModelType {
     
     // TODO: переделать метод
     // общие функции можно вынести во внешний сервис
-    private static func buildCellsValues() -> [BaseVariantCellValue] {
-        var cellValuesArray = [BaseVariantCellValue]()
+    private static func buildCellViewModels() -> [BaseVariantCellViewModel] {
+        var cellViewModels = [BaseVariantCellViewModel]()
         
         var today = Date()
         today = today.setComponents(hours: 12, minutes: 0, seconds: 0)
         
-        cellValuesArray.append(
-            DateVariantCellValue(
-                imageSettings: DateVariantCellValue.ImageSettings(name: "calendar.badge.clock"),
+        cellViewModels.append(
+            DateVariantCellViewModel(
+                imageSettings: DateVariantCellViewModel.ImageSettings(name: "calendar.badge.clock"),
                 title: "Сегодня",
                 date: today,
                 additionalText: today.formatWith(dateFormat: "EE")
@@ -103,43 +99,40 @@ class TaskDeadlineTableVariantsViewModel: TableDateVariantsViewModelType {
         tomorrow = tomorrow.setComponents(hours: 12, minutes: 0, seconds: 0)
         tomorrow = tomorrow.add(days: 1)
         
-        cellValuesArray.append(
-            DateVariantCellValue(
-                imageSettings: DateVariantCellValue.ImageSettings(name: "arrow.right.square", size: 20),
+        cellViewModels.append(
+            DateVariantCellViewModel(
+                imageSettings: DateVariantCellViewModel.ImageSettings(name: "arrow.right.square", size: 20),
                 title: "Завтра",
                 date: tomorrow,
                 additionalText: tomorrow.formatWith(dateFormat: "EE")
             )
         )
         
-        cellValuesArray.append(
-            DateVariantCellValue(
-                imageSettings: DateVariantCellValue.ImageSettings(name: "calendar.day.timeline.right"),
+        cellViewModels.append(
+            DateVariantCellViewModel(
+                imageSettings: DateVariantCellViewModel.ImageSettings(name: "calendar.day.timeline.right"),
                 title: "Следующая неделя (завтра)",
                 date: tomorrow,
                 additionalText: today.formatWith(dateFormat: "EE")
             )
         )
         
-        cellValuesArray.append(
-            CustomVariantCellValue(
-                imageSettings: DateVariantCellValue.ImageSettings(name: "calendar"),
+        cellViewModels.append(
+            CustomVariantCellViewModel(
+                imageSettings: DateVariantCellViewModel.ImageSettings(name: "calendar"),
                 title: "Выбрать дату"
             )
         )
         
-        return cellValuesArray
+        return cellViewModels
     }
     
     func getCountVariants() -> Int {
-        return variantsCellValuesArray.value.count
+        return variantCellViewModels.value.count
     }
     
-    func getVariantCellValue(forIndexPath indexPath: IndexPath) -> BaseVariantCellValue {
-        return variantsCellValuesArray.value[indexPath.row]
+    func getVariantCellViewModel(forIndexPath indexPath: IndexPath) -> BaseVariantCellViewModel {
+        return variantCellViewModels.value[indexPath.row]
     }
     
-    func getTaskDeadlineCustomDateViewModel() -> TaskDeadlineCustomDateViewModel {
-        return TaskDeadlineCustomDateViewModel(task: task)
-    }
 }

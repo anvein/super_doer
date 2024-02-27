@@ -2,7 +2,7 @@
 import Foundation
 
 /// ViewModel для установки кастомной даты дедлайна (выполнения задачи)
-class TaskDeadlineCustomDateViewModel: CustomDateViewModelType {
+class TaskDeadlineCustomDateViewModel: CustomDateSetterViewModelType {
     private var task: Task {
         didSet {
             date.value = task.deadlineDate

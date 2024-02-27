@@ -92,7 +92,7 @@ class DeadlineDateButtonCell: TaskDetailLabelsButtonCell {
  
     // MARK: handlers
     @objc func handleTapActionButton(actionButton: UIButton) {
-        delegate?.tapTaskDeadlineCrossButton()
+        delegate?.didTapTaskDeadlineCrossButton()
     }
 }
 
@@ -100,5 +100,5 @@ class DeadlineDateButtonCell: TaskDetailLabelsButtonCell {
 // MARK: delegate protocol
 protocol DeadlineDateButtonCellDelegate: AnyObject {
     /// Была нажата кнопка "крестик"
-    func tapTaskDeadlineCrossButton()
+    func didTapTaskDeadlineCrossButton()
 }

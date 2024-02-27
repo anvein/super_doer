@@ -72,11 +72,11 @@ class AddToMyDayButtonCell: TaskDetailLabelsButtonCell {
     
     // MARK: handlers
     @objc func handleTapActionButton(actionButton: UIButton) {
-        delegate?.tapAddToMyDayCrossButton()
+        delegate?.didTapAddToMyDayCrossButton()
     }
 }
 
 // MARK: delegate protocol
 protocol AddToMyDayButtonCellDelegate: AnyObject {
-    func tapAddToMyDayCrossButton()
+    func didTapAddToMyDayCrossButton()
 }

@@ -1,7 +1,8 @@
 
 import UIKit
 
-class TaskSettingsFieldTableView: UITableView {
+/// Таблица с вариантами чего либо
+class VariantsTableView: UITableView {
     
     convenience init() {
         self.init(frame: .zero, style: .plain)
@@ -26,6 +27,6 @@ class TaskSettingsFieldTableView: UITableView {
         backgroundColor = nil
         rowHeight = 50
         
-        register(TaskSettingsFieldTableViewCell.self, forCellReuseIdentifier: TaskSettingsFieldTableViewCell.identifier)
+        register(VariantTableViewCell.self, forCellReuseIdentifier: VariantTableViewCell.identifier)
     }
 }

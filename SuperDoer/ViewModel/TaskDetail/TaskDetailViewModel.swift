@@ -47,14 +47,25 @@ class TaskDetailViewModel {
         return TaskDeadlineTableVariantsViewModel(task: task)
     }
     
+    func getTaskDeadlineCustomDateSetterViewModel() -> TaskDeadlineCustomDateViewModel {
+        return TaskDeadlineCustomDateViewModel(task: task)
+    }
+    
     func getTaskReminderCustomDateViewModel() -> TaskReminderCustomDateViewModel {
         return TaskReminderCustomDateViewModel(task: task)
+    }
+    
+    func getTaskRepeatPeriodTableVariantsViewModel() -> TaskRepeatPeriodTableVariantsViewModel {
+        return TaskRepeatPeriodTableVariantsViewModel(task: task)
+    }
+    
+    func getCustomTaskRepeatPeriodSetterViewModel() -> CustomTaskRepeatPeriodSetterViewModel {
+        return CustomTaskRepeatPeriodSetterViewModel(task: task)
     }
     
     func getTaskDescriptionEditorViewModel() -> TaskDescriptionEditorViewModel {
         return TaskDescriptionEditorViewModel(task: task)
     }
-    
     
     
     // MARK: model manipulations
@@ -78,6 +89,11 @@ class TaskDetailViewModel {
     func updateTaskField(reminderDateTime: Date?) {
         taskEm.updateField(reminderDateTime: reminderDateTime, task: task)
         taskDataCellsValues.value.fillReminderDateTime(from: task)
+    }
+    
+    func updateTaskField(repeatPeriod: String?) {
+        taskEm.updateField(repeatPeriod: repeatPeriod, task: task)
+        taskDataCellsValues.value.fillRepeatPeriod(from: task)
     }
     
     func switchValueTaskFieldInMyDay() {

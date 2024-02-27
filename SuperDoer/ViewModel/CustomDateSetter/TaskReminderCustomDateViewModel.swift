@@ -2,7 +2,7 @@
 import Foundation
 
 /// ViewModel для установки кастомной даты напоминания у задачи
-class TaskReminderCustomDateViewModel: CustomDateViewModelType {
+class TaskReminderCustomDateViewModel: CustomDateSetterViewModelType {
     private var task: Task {
         didSet {
             date.value = task.reminderDateTime

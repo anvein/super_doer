@@ -3,7 +3,7 @@ import UIKit
 
 
 /// Кнопка-ячейка "Периодичность повторов задачи"
-class RepeatButtonCell: TaskDetailLabelsButtonCell {
+class RepeatPeriodButtonCell: TaskDetailLabelsButtonCell {
     enum State: String {
         case empty
         case defined
@@ -23,6 +23,9 @@ class RepeatButtonCell: TaskDetailLabelsButtonCell {
         }
     }
     
+    weak var delegate: RepeatPeriodButtonCellDelegate?
+    
+    
     override var showBottomSeparator: Bool {
         return true
     }
@@ -40,8 +43,10 @@ class RepeatButtonCell: TaskDetailLabelsButtonCell {
         
         actionButton.addTarget(self, action: #selector(handleTapActionButton(actionButton:)), for: .touchUpInside)
     }
-    
-    func configureForState(_ state: State) {
+
+    /// Этот метод не нужно вызывать самостоятельно
+    /// Нужно менять свойство state
+    private func configureForState(_ state: State) {
         switch state {
         case .empty :
             mainTextLabel.text = "Повтор"
@@ -54,10 +59,6 @@ class RepeatButtonCell: TaskDetailLabelsButtonCell {
             actionButton.isHidden = true
             
         case .defined :
-            // TODO: получить из модели задачи настройки + сформировать строку
-            mainTextLabel.text = "Каждый месяц"
-            miniTextLabel.text = "пятница"
-            
             labelsStackView.spacing = 2
             
             mainTextLabel.textColor = InterfaceColors.textBlue
@@ -65,6 +66,19 @@ class RepeatButtonCell: TaskDetailLabelsButtonCell {
             leftImageView.tintColor = InterfaceColors.textBlue
             actionButton.isHidden = false
         }
+    }
+    
+    func fillFrom(_ cellValue: RepeatPeriodCellValue) {
+        if let repeatePeriod = cellValue.period {
+            mainTextLabel.text = cellValue.period
+            miniTextLabel.text = "вт, чт"
+            state = .defined
+        } else {
+            mainTextLabel.text = "Период"
+            miniTextLabel.text = nil
+            state = .empty
+        }
+        
     }
     
     // MARK: methods helpers
@@ -79,9 +93,13 @@ class RepeatButtonCell: TaskDetailLabelsButtonCell {
  
     // MARK: handlers
     @objc func handleTapActionButton(actionButton: UIButton) {
-        
-        if state == .defined {
-            state = .empty
-        }
+        delegate?.didTapRepeatPeriodCrossButton()
     }
+}
+
+
+// MARK: delegate protocol
+protocol RepeatPeriodButtonCellDelegate: AnyObject {
+    /// Была нажата кнопка "крестик"
+    func didTapRepeatPeriodCrossButton()
 }

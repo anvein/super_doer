@@ -154,7 +154,7 @@ class DescriptionButtonCell: UITableViewCell {
     
     // MARK: action-handlers
     @objc func pressOpenButton() {
-        delegate?.pressTaskDescriptionOpenButton()
+        delegate?.didTapTaskDescriptionOpenButton()
     }
     
     
@@ -196,5 +196,5 @@ class DescriptionButtonCell: UITableViewCell {
 
 // MARK: delegate protocol
 protocol DescriptionButtonCellDelegateProtocol: AnyObject {
-    func pressTaskDescriptionOpenButton()
+    func didTapTaskDescriptionOpenButton()
 }
