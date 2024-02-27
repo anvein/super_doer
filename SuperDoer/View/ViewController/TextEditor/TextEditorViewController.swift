@@ -1,26 +1,24 @@
 
 import UIKit
 
-/// Контроллер редактирования описания задачи
-class TaskDescriptionViewController: UIViewController {
-
-    let taskEm = TaskEntityManager()
+/// Контроллер редактирования и форматирования "текста"
+class TextEditorViewController: UIViewController {
     
-    lazy var navigationBar = UINavigationBar()
-    lazy var descriptionTextView = UITextView()
+    private var viewModel: TextEditorViewModelType
+    
+    private lazy var navigationBar = UINavigationBar()
+    private lazy var textView = UITextView()
     
     // MARK: toolbar controls
-    lazy var toolbar = UIToolbar()
-    lazy var boldBarButtonItem = UIBarButtonItem(title: "bold", style: .plain, target: nil, action: nil)
+    private lazy var toolbar = UIToolbar()
+    private lazy var boldBarButtonItem = UIBarButtonItem(title: "bold", style: .plain, target: nil, action: nil)
     
-    var task: Task
-    
-    var dismissDelegate: TaskDescriptionViewControllerDelegate?
+    var dismissDelegate: TextEditorViewControllerDelegate?
     
     
     // MARK: init
-    init(task: Task) {
-        self.task = task
+    init(viewModel: TaskDescriptionEditorViewModel) {
+        self.viewModel = viewModel
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -37,24 +35,16 @@ class TaskDescriptionViewController: UIViewController {
         setupControls()
         addSubviews()
         setupConstraints()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        fillControlsFromTask()
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        updateTask()
+        setupBindings()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
-        dismissDelegate?.didDisappearTaskDescriptionViewController(isSuccess: true)
+        dismissDelegate?.didDisappearTextEditorViewController(
+            text: textView.attributedText,
+            isSuccess: true
+        )
     }
     
     
@@ -82,15 +72,15 @@ class TaskDescriptionViewController: UIViewController {
         navigationBar.pushItem(navigationItem, animated: false)
     
         title = "Заметка"
-        navigationBar.topItem?.prompt = task.title
+        navigationBar.topItem?.prompt = viewModel.title
         navigationBar.topItem?.rightBarButtonItem = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(readyEditTaskDescription))
     }
     
     private func setupTaskDescriptionTextView() {
-        descriptionTextView.translatesAutoresizingMaskIntoConstraints = false
-        descriptionTextView.delegate = self
-        descriptionTextView.backgroundColor = InterfaceColors.white
-        descriptionTextView.textColor = InterfaceColors.blackText
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.delegate = self
+        textView.backgroundColor = InterfaceColors.white
+        textView.textColor = InterfaceColors.blackText
     }
     
     private func setupToolbar() {
@@ -106,12 +96,12 @@ class TaskDescriptionViewController: UIViewController {
 //
 //        toolbar.setItems([boldBarButtonItem], animated: false)
         
-        descriptionTextView.inputAccessoryView = toolbar
+        textView.inputAccessoryView = toolbar
     }
     
     private func addSubviews() {
         view.addSubview(navigationBar)
-        view.addSubview(descriptionTextView)
+        view.addSubview(textView)
     }
     
     private func setupConstraints() {
@@ -124,18 +114,25 @@ class TaskDescriptionViewController: UIViewController {
         
         // descriptionTextView
         NSLayoutConstraint.activate([
-            descriptionTextView.topAnchor.constraint(equalTo: navigationBar.bottomAnchor),
-            descriptionTextView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            descriptionTextView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            descriptionTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            textView.topAnchor.constraint(equalTo: navigationBar.bottomAnchor),
+            textView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            textView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            textView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
+    }
+    
+    private func setupBindings() {
+        viewModel.text.bindAndUpdateValue { mutableAttrString in
+            self.textView.attributedText = mutableAttrString
+            self.textView.font = UIFont.systemFont(ofSize: 18)
+        }
     }
     
     
     // MARK: action-handlers
     @objc private func readyEditTaskDescription() {
-        if descriptionTextView.isFirstResponder {
-            descriptionTextView.resignFirstResponder()
+        if textView.isFirstResponder {
+            textView.resignFirstResponder()
         }
         
         dismiss(animated: true)
@@ -145,30 +142,11 @@ class TaskDescriptionViewController: UIViewController {
         
     }
     
-    // MARK: work with model (task)
-    private func updateTask() {
-        // TODO: конвертировать из NSAttributedString в хранимый string
-        taskEm.updateFields(
-            taskDescription: descriptionTextView.attributedText.string,
-            descriptionUpdatedAt: Date(),
-            task: task
-        )
-    }
-    
-    private func fillControlsFromTask() {
-        if let filledTaskDescription = task.taskDescription {
-            // TODO: конвертировать нормально в NSAttributedString
-            descriptionTextView.attributedText = NSAttributedString(string: filledTaskDescription)
-        }
-            
-        descriptionTextView.font = UIFont.systemFont(ofSize: 18)
-    }
-    
 }
 
 
 // MARK: descriptionTextView delegate
-extension TaskDescriptionViewController: UITextViewDelegate {
+extension TextEditorViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         
         return true
@@ -183,7 +161,7 @@ extension TaskDescriptionViewController: UITextViewDelegate {
 
 
 // MARK: NavigationBar delegate
-extension TaskDescriptionViewController: UINavigationBarDelegate {
+extension TextEditorViewController: UINavigationBarDelegate {
 //    func position(for bar: UIBarPositioning) -> UIBarPosition {
 //        return .topAttached
 //    }
@@ -191,6 +169,7 @@ extension TaskDescriptionViewController: UINavigationBarDelegate {
 
 
 // MARK: dismiss protocol
-protocol TaskDescriptionViewControllerDelegate {
-    func didDisappearTaskDescriptionViewController(isSuccess: Bool)
+protocol TextEditorViewControllerDelegate {
+    /// Контроллер редактирования текста был закрыт
+    func didDisappearTextEditorViewController(text: NSAttributedString, isSuccess: Bool)
 }

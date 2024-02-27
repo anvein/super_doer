@@ -3,21 +3,18 @@ import UIKit
 
 
 /// Кнопка-ячейка "Срок выполнения задачи"
-class TaskDataDeadlineCell: TaskDetailLabelsButtonCell {
-    
-    /// UUID файла, который отображается в этой ячейке
-    var fileId: UUID?
+class DeadlineDateButtonCell: TaskDetailLabelsButtonCell {
     
     enum State: String {
-        /// Дата срока выполнения НЕ определена
+        /// Дата дедлайна НЕ определена
         case undefined
         
-        ///  Дата срока выполнения определена
+        ///  Дата дедлайна определена
         case defined
     }
     
     class override var identifier: String {
-        return "TaskDataDeadlineCell"
+        return "DeadlineDateButtonCell"
     }
     
     var state: State = .undefined {
@@ -30,7 +27,7 @@ class TaskDataDeadlineCell: TaskDetailLabelsButtonCell {
         }
     }
     
-    weak var delegate: TaskDataDeadlineCellDelegate?
+    weak var delegate: DeadlineDateButtonCellDelegate?
     
     
     // MARK: setup methods
@@ -64,9 +61,8 @@ class TaskDataDeadlineCell: TaskDetailLabelsButtonCell {
         }
     }
     
-    // MARK: methods helpers
     /// Управлять контентом и состоянием кнопки надо через этот метод
-    func fillFrom(_ cellValue: DeadlineCellValue) {
+    func fillFrom(_ cellValue: DeadlineDateCellValue) {
         if let filledDate = cellValue.date {
             let dateFormatter = DateFormatter()
             dateFormatter.locale = Locale(identifier: "ru_RU")
@@ -83,6 +79,8 @@ class TaskDataDeadlineCell: TaskDetailLabelsButtonCell {
         }
     }
     
+    
+    // MARK: methods helpers
     override func createLeftButtonImage() -> UIImage? {
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 19, weight: .semibold)
         
@@ -100,6 +98,7 @@ class TaskDataDeadlineCell: TaskDetailLabelsButtonCell {
 
 
 // MARK: delegate protocol
-protocol TaskDataDeadlineCellDelegate: AnyObject {
+protocol DeadlineDateButtonCellDelegate: AnyObject {
+    /// Была нажата кнопка "крестик"
     func tapTaskDeadlineCrossButton()
 }

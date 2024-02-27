@@ -34,8 +34,8 @@ class TaskDetailTableView: UITableView {
         register(AddSubtaskButtonCell.self, forCellReuseIdentifier: AddSubtaskButtonCell.identifier)
         
         register(AddToMyDayButtonCell.self, forCellReuseIdentifier: AddToMyDayButtonCell.identifier)
-        register(RemindButtonCell.self, forCellReuseIdentifier: RemindButtonCell.identifier)
-        register(TaskDataDeadlineCell.self, forCellReuseIdentifier: TaskDataDeadlineCell.identifier)
+        register(ReminderDateButtonCell.self, forCellReuseIdentifier: ReminderDateButtonCell.identifier)
+        register(DeadlineDateButtonCell.self, forCellReuseIdentifier: DeadlineDateButtonCell.identifier)
         register(RepeatButtonCell.self, forCellReuseIdentifier: RepeatButtonCell.identifier)
         register(AddFileButtonCell.self, forCellReuseIdentifier: AddFileButtonCell.identifier)
         register(FileButtonCell.self, forCellReuseIdentifier: FileButtonCell.identifier)

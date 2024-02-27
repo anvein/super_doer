@@ -19,9 +19,9 @@ struct TaskDataCellValues {
         // TODO: подзадачи
         
         cellsValuesArray.append(AddToMyDayCellValue(inMyDay: task.inMyDay))
-        cellsValuesArray.append(RemindCellValue(dateTime: task.reminderDateTime))
+        cellsValuesArray.append(ReminderDateCellValue(dateTime: task.reminderDateTime))
         
-        cellsValuesArray.append(DeadlineCellValue(date: task.deadlineDate))
+        cellsValuesArray.append(DeadlineDateCellValue(date: task.deadlineDate))
         cellsValuesArray.append(RepeatCellValue())
         cellsValuesArray.append(AddFileCellValue())
         
@@ -60,10 +60,21 @@ struct TaskDataCellValues {
     
     mutating func fillDeadlineAt(from task: Task) {
         for (index, buttonValue) in cellsValuesArray.enumerated() {
-            if var deadlineAtCellValue = buttonValue as? DeadlineCellValue {
+            if var deadlineAtCellValue = buttonValue as? DeadlineDateCellValue {
                 deadlineAtCellValue.date = task.deadlineDate
 
                 cellsValuesArray[index] = deadlineAtCellValue
+                break
+            }
+        }
+    }
+    
+    mutating func fillReminderDateTime(from task: Task) {
+        for (index, buttonValue) in cellsValuesArray.enumerated() {
+            if var reminderDateTimeCellValue = buttonValue as? ReminderDateCellValue {
+                reminderDateTimeCellValue.dateTime = task.reminderDateTime
+
+                cellsValuesArray[index] = reminderDateTimeCellValue
                 break
             }
         }
@@ -145,11 +156,11 @@ struct AddSubTaskCellValue: TaskDataCellValueProtocol {
     
 }
 
-struct RemindCellValue: TaskDataCellValueProtocol {
+struct ReminderDateCellValue: TaskDataCellValueProtocol {
     var dateTime: Date?
 }
 
-struct DeadlineCellValue: TaskDataCellValueProtocol {
+struct DeadlineDateCellValue: TaskDataCellValueProtocol {
     var date: Date?
 }
 

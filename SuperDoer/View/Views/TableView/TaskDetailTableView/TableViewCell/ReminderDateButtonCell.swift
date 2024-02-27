@@ -3,8 +3,8 @@ import UIKit
 
 // TODO: наследовать от кнопки с 2мя лэйблами
 
-/// Кнопка-ячейка "Установить напоминания для задачи"
-class RemindButtonCell: TaskDetailLabelsButtonCell {
+/// Кнопка-ячейка "Установить напоминание для задачи"
+class ReminderDateButtonCell: TaskDetailLabelsButtonCell {
     enum State: String {
         /// Дата и время напоминания НЕ определено
         case undefined
@@ -27,6 +27,9 @@ class RemindButtonCell: TaskDetailLabelsButtonCell {
         }
     }
     
+    weak var delegate: ReminderDateButtonCellDelegate?
+    
+    
     // MARK: setup methods
     override func setupViews()
     {
@@ -41,7 +44,9 @@ class RemindButtonCell: TaskDetailLabelsButtonCell {
         actionButton.addTarget(self, action: #selector(handleTapActionButton(actionButton:)), for: .touchUpInside)
     }
     
-    func configureForState(_ state: State) {
+    /// Этот метод не нужно вызывать самостоятельно
+    /// Нужно менять свойство state
+    private func configureForState(_ state: State) {
         switch state {
         case .undefined :
             mainTextLabel.text = "Напомнить"
@@ -55,9 +60,6 @@ class RemindButtonCell: TaskDetailLabelsButtonCell {
             
         case .defined :
             // TODO: получить из модели задачи дату + сформировать строку с датой + заполнить 2ю строку
-            mainTextLabel.text = "Напомнить мне в 09:00"
-            miniTextLabel.text = "Завтра"
-            
             labelsStackView.spacing = 2
             
             mainTextLabel.textColor = InterfaceColors.textBlue
@@ -66,6 +68,29 @@ class RemindButtonCell: TaskDetailLabelsButtonCell {
             actionButton.isHidden = false
         }
     }
+    
+    /// Управлять контентом и состоянием кнопки надо через этот метод
+    func fillFrom(_ cellValue: ReminderDateCellValue) {
+        if let date = cellValue.dateTime {
+            let dateFormatter = DateFormatter()
+            dateFormatter.locale = Locale(identifier: "ru_RU")
+            
+            // TODO: Сделать формирование красивой даты (сегодня, завтра)
+            dateFormatter.dateFormat = "EEEEEE, d MMMM"
+            miniTextLabel.text = dateFormatter.string(from: date)
+            
+            dateFormatter.dateFormat = "HH:mm"
+            let timeString = dateFormatter.string(from: date)
+            mainTextLabel.text = "Напомнить мне в \(timeString)"
+            
+            state = .defined
+        } else {
+            mainTextLabel.text = "Напомнить"
+            miniTextLabel.text = nil
+            state = .undefined
+        }
+    }
+
     
     // MARK: methods helpers
     override func createLeftButtonImage() -> UIImage? {
@@ -79,8 +104,12 @@ class RemindButtonCell: TaskDetailLabelsButtonCell {
  
     // MARK: handlers
     @objc func handleTapActionButton(actionButton: UIButton) {
-        if state == .defined {
-            state = .undefined
-        }
+        delegate?.tapReminderDateCrossButton()
     }
+}
+
+// MARK: delegate protocol
+protocol ReminderDateButtonCellDelegate: AnyObject {
+    /// Была нажата кнопка "крестик"
+    func tapReminderDateCrossButton()
 }

@@ -4,6 +4,10 @@ import UIKit
 /// Контроллер просмотра / редактирования задачи
 // MARK: MAIN
 class TaskDetailViewController: UIViewController {
+    enum FieldName: String {
+        case taskDeadline
+        case taskReminderDate
+    }
     
     // MARK: controls
     private lazy var taskDoneButton = CheckboxButton()
@@ -41,7 +45,7 @@ class TaskDetailViewController: UIViewController {
         setupConstraints()
         setupBindings()
         
-        // PixelPerfectScreen.getInstanceAndSetup(baseView: view)  // TODO: удалить временный код (perfect pixel screen)
+         //PixelPerfectScreen.getInstanceAndSetup(baseView: view)  // TODO: удалить временный код (perfect pixel screen)
     }
 
     
@@ -94,24 +98,41 @@ class TaskDetailViewController: UIViewController {
     
     // MARK: other methods
     
-    private func showSettingsTaskReminder(_ remindButton: RemindButtonCell) {
-        // TODO: сделать проверку включены ли уведомления для приложения
-        let isEnableNotifications = false
+    private func presentSettingsTaskReminder(_ remindButton: ReminderDateButtonCell) {
+        // TODO: сделать проверку включены ли уведомления для приложения (+ вынести в VM + сервис)
+        let isEnableNotifications = true
         if !isEnableNotifications {
             let notificationDisableAlert = NotificationDisabledAlertController()
             notificationDisableAlert.delegate = self
             
             present(notificationDisableAlert, animated: true)
         } else {
-            
+            presentTaskReminderCustomDateController()
         }
     }
     
-    private func showSettingsDeadlineVariantsController(forIndexPath indexPath: IndexPath) {
-        let vm = viewModel.getTaskSettingsDeadlineVariantsViewModel()
+    private func presentTaskReminderCustomDateController() {
+        let vm = viewModel.getTaskReminderCustomDateViewModel()
+        let vc = PageSheetCustomDateViewController(
+            viewModel: vm,
+            identifier: FieldName.taskReminderDate.rawValue,
+            datePickerMode: .dateAndTime
+        )
+        vc.delegate = self
+        vc.title = "Напоминание"
         
-        let deadlineVariantsController = PageSheetTableDateVariantsViewController(viewModel: vm)
+        present(vc, animated: true)
+    }
+    
+    private func presentTaskDeadlineTableVariantsController() {
+        let vm = viewModel.getTaskDeadlineTableVariantsViewModel()
+        
+        let deadlineVariantsController = PageSheetTableDateVariantsViewController(
+            viewModel: vm,
+            identifier: FieldName.taskDeadline.rawValue
+        )
         deadlineVariantsController.delegate = self
+        deadlineVariantsController.title = "Срок"
         let navigationController = UINavigationController(rootViewController: deadlineVariantsController)
         
         present(navigationController, animated: true)
@@ -145,23 +166,14 @@ class TaskDetailViewController: UIViewController {
         present(addFileAlertController, animated: true)
     }
     
-    
     private func presentDescriptionController() {
-//        let taskDescriptionController = TaskDescriptionViewController(task: task)
-//        taskDescriptionController.dismissDelegate = self
-//        
-//        present(taskDescriptionController, animated: true)
-    }
-    
-    
-    private func fillControls(from task: Task) {
+        let vm = viewModel.getTaskDescriptionEditorViewModel()
+        let vc = TextEditorViewController(viewModel: vm)
+        vc.dismissDelegate = self
         
-//        
-//        taskDataCellsValues.fill(from: task)
-//        if !taskDataTableView.visibleCells.isEmpty {
-//            taskDataTableView.reloadData()
-//        }
+        present(vc, animated: true)
     }
+    
 }
 
 /// Расширение для инкапсуляции настройки контролов и макета
@@ -260,7 +272,7 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cellValue = viewModel.getTaskDataCellValueFor(indexPath: indexPath)
         let cell: UITableViewCell
-         
+
         switch cellValue {
         case _ as AddSubTaskCellValue:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: AddSubtaskButtonCell.identifier)!
@@ -275,12 +287,16 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
                 addToMyDayButtonCell.delegate = self
             }
         
-        case _ as RemindCellValue:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: RemindButtonCell.identifier)!
+        case let reminderDateCellValue as ReminderDateCellValue:
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: ReminderDateButtonCell.identifier)!
+            if let reminderDateCell = cell as? ReminderDateButtonCell {
+                reminderDateCell.fillFrom(reminderDateCellValue)
+                reminderDateCell.delegate = self
+            }
             
-        case let deadlineCellValue as DeadlineCellValue:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDataDeadlineCell.identifier)!
-            if let deadlineCell = cell as? TaskDataDeadlineCell {
+        case let deadlineCellValue as DeadlineDateCellValue:
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: DeadlineDateButtonCell.identifier)!
+            if let deadlineCell = cell as? DeadlineDateButtonCell {
                 deadlineCell.fillFrom(deadlineCellValue)
                 deadlineCell.delegate = self
             }
@@ -332,11 +348,11 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
         case _ as AddToMyDayButtonCell :
             viewModel.switchValueTaskFieldInMyDay()
             
-        case let remindButton as RemindButtonCell :
-            showSettingsTaskReminder(remindButton)
+        case let remindButton as ReminderDateButtonCell :
+            presentSettingsTaskReminder(remindButton)
             
-        case _ as TaskDataDeadlineCell :
-            showSettingsDeadlineVariantsController(forIndexPath: indexPath)
+        case _ as DeadlineDateButtonCell :
+            presentTaskDeadlineTableVariantsController()
             
         case _ as RepeatButtonCell :
             print("🔁 Открылись настройки повтора задачи")
@@ -467,12 +483,15 @@ extension TaskDetailViewController: StarButtonDelegate {
 }
 
 /// Делегаты связанные с полем "Описание"
-extension TaskDetailViewController: TaskDescriptionViewControllerDelegate, DescriptionButtonCellDelegateProtocol {
-    func didDisappearTaskDescriptionViewController(isSuccess: Bool) {
-//        taskDataCellsValues.fillDescription(from: task)
-//        taskDataTableView.reloadData()
+extension TaskDetailViewController: TextEditorViewControllerDelegate {
+    func didDisappearTextEditorViewController(text: NSAttributedString, isSuccess: Bool) {
+        viewModel.updateTaskField(taskDescription: text)
     }
     
+   
+}
+
+extension TaskDetailViewController: DescriptionButtonCellDelegateProtocol {
     func pressTaskDescriptionOpenButton() {
         presentDescriptionController()
     }
@@ -485,31 +504,48 @@ extension TaskDetailViewController: AddToMyDayButtonCellDelegate {
     }
 }
 
-/// Делегат связанный с полем "Напомнить"
+/// Делегат связанный с полем "Дата напоминания"
 extension TaskDetailViewController: NotificationsDisabledAlertControllerDelegate {
     func didChoosenEnableNotifications() {
-        // TODO: открыть контроллер установки напоминаний
+        print("🎚️ Открыть настройки уведомлений")
+        
+        presentTaskReminderCustomDateController()
     }
     
     func didChoosenNotNowEnableNotification() {
-        // TODO: открыть контроллер установки напоминаний
+        presentTaskReminderCustomDateController()
     }
 }
 
-/// Методы делегата связанные с полем "Дата выполнения"
-extension TaskDetailViewController: TaskDataDeadlineCellDelegate, PageSheetTableVariantsViewControllerDelegate, PageSheetCustomDateViewControllerDelegate {
+/// Делегаты связанные с полями "Дата выполнения"
+extension TaskDetailViewController: DeadlineDateButtonCellDelegate {
     func tapTaskDeadlineCrossButton() {
         viewModel.updateTaskField(deadlineDate: nil)
     }
-    
-    func didChooseDateVariant(newDate: Date?) {
+}
+
+extension TaskDetailViewController: PageSheetTableVariantsViewControllerDelegate {
+    func didChooseDateVariant(newDate: Date?, identifier: String) {
         viewModel.updateTaskField(deadlineDate: newDate)
     }
-    
-    func didChooseDate(newDate: Date?) {
-        viewModel.updateTaskField(deadlineDate: newDate)
+}
+
+/// Делегаты связанные с полями "Дата выполнения" и "Дата напоминания"
+extension TaskDetailViewController: PageSheetCustomDateViewControllerDelegate {
+    func didChooseDate(newDate: Date?, identifier: String) {
+        if identifier == FieldName.taskDeadline.rawValue {
+            viewModel.updateTaskField(deadlineDate: newDate)
+        } else if identifier == FieldName.taskReminderDate.rawValue {
+            viewModel.updateTaskField(reminderDateTime: newDate)
+        }
     }
-    
+}
+
+// Делегат связанный с полем "Дата напоминания"
+extension TaskDetailViewController: ReminderDateButtonCellDelegate {
+    func tapReminderDateCrossButton() {
+        viewModel.updateTaskField(reminderDateTime: nil)
+    }
 }
 
 

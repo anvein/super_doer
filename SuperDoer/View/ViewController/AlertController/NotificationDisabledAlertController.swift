@@ -29,7 +29,6 @@ class NotificationDisabledAlertController: UIAlertController {
             title: "Включить уведомления",
             style: .default,
             handler: { actionEnableNotifications in
-                NotificationDisabledAlertController.openNotificationsSettings()
                 self.delegate?.didChoosenEnableNotifications()
             }
         )
@@ -47,17 +46,15 @@ class NotificationDisabledAlertController: UIAlertController {
     
     
     // MARK: other methods
-    static func openNotificationsSettings() {
-        // TODO: открыть настройки уведомлений
-        print("🎚️ Открыть настройки уведомлений")
-    }
 
 }
 
 
 // MARK: delegate
 protocol NotificationsDisabledAlertControllerDelegate: AnyObject {
+    /// Был выбран вариант "Включить уведомления" (в настройках)
     func didChoosenEnableNotifications()
     
+    /// Был выбран вариант "Не сейчас" (включать уведомления в настройках)
     func didChoosenNotNowEnableNotification()
 }

@@ -182,10 +182,11 @@ class DescriptionButtonCell: UITableViewCell {
     
     func fillInfoLabel(dateUpdated: Date?) {
         if let fillDateUpdated = dateUpdated {
-            let calendar = Calendar.current
-            let dateComponents = calendar.dateComponents([.day, .month, .year, .hour, .minute, .second], from: fillDateUpdated)
+            let dateFormatter = DateFormatter()
+            dateFormatter.locale = Locale(identifier: "ru_RU")
+            dateFormatter.dateFormat = "EEEEEE, d MMMM y HH:mm:ss"
             
-            infoLabel.text = "Обновлено \(dateComponents.day ?? 0).\(dateComponents.month ?? 0).\(dateComponents.year ?? 0) \(dateComponents.hour ?? 0):\(dateComponents.minute ?? 0):\(dateComponents.second ?? 0)"
+            infoLabel.text = "Обновлено: \(dateFormatter.string(from: fillDateUpdated))"
         } else {
             infoLabel.text = nil
         }

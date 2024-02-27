@@ -38,13 +38,23 @@ class TaskDetailViewModel {
     }
     
     
+    // MARK: children view models building
     func getTaskDataCellValueFor(indexPath: IndexPath) -> TaskDataCellValueProtocol {
         return taskDataCellsValues.value.cellsValuesArray[indexPath.row]
     }
     
-    func getTaskSettingsDeadlineVariantsViewModel() -> TaskDeadlineTableVariantsViewModel {
+    func getTaskDeadlineTableVariantsViewModel() -> TaskDeadlineTableVariantsViewModel {
         return TaskDeadlineTableVariantsViewModel(task: task)
     }
+    
+    func getTaskReminderCustomDateViewModel() -> TaskReminderCustomDateViewModel {
+        return TaskReminderCustomDateViewModel(task: task)
+    }
+    
+    func getTaskDescriptionEditorViewModel() -> TaskDescriptionEditorViewModel {
+        return TaskDescriptionEditorViewModel(task: task)
+    }
+    
     
     
     // MARK: model manipulations
@@ -65,9 +75,24 @@ class TaskDetailViewModel {
         taskDataCellsValues.value.fillDeadlineAt(from: task)
     }
     
+    func updateTaskField(reminderDateTime: Date?) {
+        taskEm.updateField(reminderDateTime: reminderDateTime, task: task)
+        taskDataCellsValues.value.fillReminderDateTime(from: task)
+    }
+    
     func switchValueTaskFieldInMyDay() {
         let newValue = !task.inMyDay
         updateTaskField(inMyDay: newValue)
+    }
+    
+    func updateTaskField(taskDescription: NSAttributedString?) {
+        // TODO: конвертировать из NSAttributedString в хранимый string
+        taskEm.updateFields(
+            taskDescription: taskDescription?.string,
+            descriptionUpdatedAt: Date(),
+            task: task
+        )
+        taskDataCellsValues.value.fillDescription(from: task)
     }
     
     

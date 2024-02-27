@@ -12,11 +12,15 @@ class PageSheetTableDateVariantsViewController: UIViewController {
     private lazy var variantsTableView = TaskSettingsFieldTableView()
     
     weak var delegate: PageSheetTableVariantsViewControllerDelegate?
+    /// Индентификатор для случая, чтобы различать из какого ViewController'а были вызваны методы делегата
+    /// Например: из того, который устанавливает дату дедлайна задачи или который устанавливает дату напоминания
+    var identifier: String
     
     
     // MARK: init
-    init(viewModel: TableDateVariantsViewModelType) {
+    init(viewModel: TableDateVariantsViewModelType, identifier: String) {
         self.viewModel = viewModel
+        self.identifier = identifier
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -42,13 +46,13 @@ class PageSheetTableDateVariantsViewController: UIViewController {
         configureSheetPresentationController()
     }
     
+    
     // MARK: actions
     private func showDeadlineCustomDateViewController() {
-        
         guard let viewModel = viewModel as? TaskDeadlineTableVariantsViewModel else { return }
         
         let customDateVM = viewModel.getTaskDeadlineCustomDateViewModel()
-        let customDateVC = PageSheetCustomDateViewController(viewModel: customDateVM)
+        let customDateVC = PageSheetCustomDateViewController(viewModel: customDateVM, identifier: self.identifier)
         
         if let delegate = delegate as? PageSheetCustomDateViewControllerDelegate {
             customDateVC.delegate = delegate
@@ -64,7 +68,7 @@ class PageSheetTableDateVariantsViewController: UIViewController {
     }
     
     @objc private func tapButtonDelete() {
-        delegate?.didChooseDateVariant(newDate: nil)
+        delegate?.didChooseDateVariant(newDate: nil, identifier: self.identifier)
         
         dismiss(animated: true)
     }
@@ -85,8 +89,6 @@ extension PageSheetTableDateVariantsViewController {
     private func setupController() {
         view.backgroundColor = InterfaceColors.white
         // TODO: заголовок (title) в ночном режиме не виден (он белый)
-
-        title = "Срок"
         
         modalPresentationStyle = .pageSheet
         
@@ -202,7 +204,7 @@ extension PageSheetTableDateVariantsViewController: UITableViewDelegate, UITable
         
         switch cellValue {
         case let deadlineVariantCellValue as DateVariantCellValue:
-            delegate?.didChooseDateVariant(newDate: deadlineVariantCellValue.date)
+            delegate?.didChooseDateVariant(newDate: deadlineVariantCellValue.date, identifier: identifier)
             dismiss(animated: true)
             
         case _ as CustomVariantCellValue:
@@ -219,7 +221,12 @@ extension PageSheetTableDateVariantsViewController: UITableViewDelegate, UITable
 
 // MARK: controller delegate protocol
 protocol PageSheetTableVariantsViewControllerDelegate: AnyObject {
-    func didChooseDateVariant(newDate: Date?)
+    /// Был выбран вариант из таблицы или нажата кнопка "Удалить" (очистить)
+    /// - Parameters:
+    ///   - newDate: Date - если выбран вариант из таблицы (со значением), nil - если нажата кнопка "Удалить",
+    ///   - identifier: идентификатор открытого экземпляра контроллера
+    ///    (связан с полем для заполнения которорого был открыть контроллер
+    func didChooseDateVariant(newDate: Date?, identifier: String)
 }
 
 // TODO: вынести / сделать изменяемыми
