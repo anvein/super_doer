@@ -3,6 +3,8 @@ import Foundation
 
 /// Структура содержащая ячейки ViewModel хранящие данные задачи для таблицы
 struct TaskDataCellViewModels {
+    typealias RowIndex = Int
+    
     // TODO: добавить доступ через сабскрипт?)
     
     var viewModels = [TaskDataCellViewModelType]()
@@ -47,48 +49,56 @@ struct TaskDataCellViewModels {
         )
     }
     
-    mutating func fillAddToMyDay(from task: Task) {
+    mutating func fillAddToMyDay(from task: Task) -> RowIndex? {
         for (index, buttonValue) in viewModels.enumerated() {
             if var addToMyDayCellValue = buttonValue as? AddToMyDayCellViewModel {
                 addToMyDayCellValue.inMyDay = task.inMyDay
-
                 viewModels[index] = addToMyDayCellValue
-                break
+                
+                return index
             }
         }
+        
+        return nil
     }
     
-    mutating func fillDeadlineAt(from task: Task) {
+    mutating func fillDeadlineAt(from task: Task) -> RowIndex? {
         for (index, buttonValue) in viewModels.enumerated() {
             if var deadlineAtCellValue = buttonValue as? DeadlineDateCellViewModel {
                 deadlineAtCellValue.date = task.deadlineDate
-
                 viewModels[index] = deadlineAtCellValue
-                break
+                
+                return index
             }
         }
+        
+        return nil
     }
     
-    mutating func fillReminderDateTime(from task: Task) {
+    mutating func fillReminderDateTime(from task: Task) -> RowIndex? {
         for (index, buttonValue) in viewModels.enumerated() {
             if var reminderDateTimeCellValue = buttonValue as? ReminderDateCellViewModel {
                 reminderDateTimeCellValue.dateTime = task.reminderDateTime
-
                 viewModels[index] = reminderDateTimeCellValue
-                break
+                
+                return index
             }
         }
+        
+        return nil
     }
     
-    mutating func fillRepeatPeriod(from task: Task) {
+    mutating func fillRepeatPeriod(from task: Task) -> RowIndex? {
         for (index, buttonValue) in viewModels.enumerated() {
             if var repeatPeriodCellValue = buttonValue as? RepeatPeriodCellViewModel {
                 repeatPeriodCellValue.period = task.repeatPeriod
-
                 viewModels[index] = repeatPeriodCellValue
-                break
+                
+                return index
             }
         }
+        
+        return nil
     }
     
     mutating func appendFile(_ file: TaskFile) -> RowIndex {
@@ -114,7 +124,7 @@ struct TaskDataCellViewModels {
         return indexNewFile
     }
     
-    mutating func fillDescription(from task: Task) {
+    mutating func fillDescription(from task: Task) -> RowIndex? {
         for (index, buttonValue) in viewModels.enumerated() {
             if var descriptionCellValue = buttonValue as? DescriptionCellViewModel {
                 // TODO: сконвертировать нормально хранимый string в NSAttributedString
@@ -126,9 +136,12 @@ struct TaskDataCellViewModels {
                 descriptionCellValue.updatedAt = task.descriptionUpdatedAt
 
                 viewModels[index] = descriptionCellValue
-                break
+                
+                return index
             }
         }
+        
+        return nil
     }
     
     
@@ -144,7 +157,6 @@ struct TaskDataCellViewModels {
     }
 }
 
-typealias RowIndex = Int
 
 
 

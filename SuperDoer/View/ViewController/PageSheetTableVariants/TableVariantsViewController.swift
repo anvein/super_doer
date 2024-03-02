@@ -3,7 +3,7 @@ import UIKit
 import Foundation
 
 /// Контролер в виде PageSheet с таблицей  (для выбора вариантов из списка)
-class PageSheetTableVariantsViewController: UIViewController {
+class TableVariantsViewController: UIViewController {
     typealias TaskFieldIdentifier = TaskDetailViewController.FieldNameIdentifier
     
     private var viewModel: TableVariantsViewModelType
@@ -11,7 +11,7 @@ class PageSheetTableVariantsViewController: UIViewController {
     // MARK: controls
     private lazy var variantsTableView = VariantsTableView()
     
-    weak var delegate: PageSheetTableVariantsViewControllerDelegate?
+    weak var delegate: TableVariantsViewControllerDelegate?
     /// Индентификатор для случая, чтобы различать из какого ViewController'а были вызваны методы делегата
     /// Например: из того, который устанавливает дату дедлайна задачи или который устанавливает дату напоминания
     var identifier: String
@@ -62,7 +62,7 @@ class PageSheetTableVariantsViewController: UIViewController {
 
 
 // MARK: setup methods
-extension PageSheetTableVariantsViewController {
+extension TableVariantsViewController {
     
     private func setupControls() {
         setupController()
@@ -175,7 +175,7 @@ extension PageSheetTableVariantsViewController {
 
 
 // MARK: table delegate & datasource
-extension PageSheetTableVariantsViewController: UITableViewDelegate, UITableViewDataSource {
+extension TableVariantsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.getCountVariants()
     }
@@ -230,7 +230,7 @@ extension PageSheetTableVariantsViewController: UITableViewDelegate, UITableView
 
 
 // MARK: controller delegate protocol
-@objc protocol PageSheetTableVariantsViewControllerDelegate: AnyObject {
+@objc protocol TableVariantsViewControllerDelegate: AnyObject {
     /// Был выбран вариант с типом "дата" из таблицы или нажата кнопка "Удалить" (очистить)
     /// Вызывается перед закрытие контроллера
     /// - Parameters:

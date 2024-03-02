@@ -90,7 +90,7 @@ class CheckboxButton: UIButton {
     // MARK: event-handlers
     @objc private func btnTouchUpInside(sender: CheckboxButton) {
         isOn = !isOn
-        delegate?.checkboxDidChangeValue(checkbox: self)
+        delegate?.checkboxDidChangeValue(newValue: isOn)
     }
     
     
@@ -114,7 +114,7 @@ class CheckboxButton: UIButton {
 
 
 protocol CheckboxButtonDelegate {
-    func checkboxDidChangeValue(checkbox: CheckboxButton)
+    func checkboxDidChangeValue(newValue: Bool)
 }
 
 

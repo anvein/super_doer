@@ -12,22 +12,24 @@ class TaskDetailViewModel {
     // инициализировать наблюдаемые поля при инициализации сущности
     private(set) var task: Task {
         didSet {
-            updateObservablePropertiesFrom(task: task)
+            updateSimpleObservablePropertiesFrom(task)
+            taskDataViewModels.fill(from: task)
         }
     }
     
     /// Объект-массив на основании которого формируется таблица с "кнопками" и данными задачи
     /// Прослойка между сущностью Task и данных для вывода задачи в виде таблицы
-    private var taskDataViewModels: Box<TaskDataCellViewModels>
+    private var taskDataViewModels: TaskDataCellViewModels
     
     var countTaskDataCellsValues: Int {
-        return taskDataViewModels.value.viewModels.count
+        return taskDataViewModels.viewModels.count
     }
     
     var taskTitle: Box<String?>
     var taskIsCompleted: Box<Bool>
     var taskIsPriority: Box<Bool>
     
+    weak var bindingDelegate: TaskDetailViewModelBindingDelegate?
     
     init(task: Task) {
         self.task = task
@@ -36,13 +38,13 @@ class TaskDetailViewModel {
         taskIsCompleted = Box(task.isCompleted)
         taskIsPriority = Box(task.isPriority)
         
-        taskDataViewModels = Box(TaskDataCellViewModels(task))
+        taskDataViewModels = TaskDataCellViewModels(task)
     }
     
     
     // MARK: children view models building
-    func getTaskDataCellValueFor(indexPath: IndexPath) -> TaskDataCellViewModelType {
-        return taskDataViewModels.value.viewModels[indexPath.row]
+    func getTaskDataCellViewModelFor(indexPath: IndexPath) -> TaskDataCellViewModelType {
+        return taskDataViewModels.viewModels[indexPath.row]
     }
     
     func getTaskDeadlineTableVariantsViewModel() -> TaskDeadlineTableVariantsViewModel {
@@ -66,14 +68,14 @@ class TaskDetailViewModel {
     }
     
     func getFileCellViewModel(forIndexPath indexPath: IndexPath) -> FileCellViewModel? {
-        let fileCellVM = taskDataViewModels.value.viewModels[indexPath.row]
+        let fileCellVM = taskDataViewModels.viewModels[indexPath.row]
         guard let fileCellVM = fileCellVM as? FileCellViewModel else { return nil }
         
         return fileCellVM
     }
     
     func isFileCellViewModel(byIndexPath indexPath: IndexPath) -> Bool {
-        return taskDataViewModels.value.viewModels[indexPath.row] is FileCellViewModel
+        return taskDataViewModels.viewModels[indexPath.row] is FileCellViewModel
     }
     
     func getTaskDescriptionEditorViewModel() -> TaskDescriptionEditorViewModel {
@@ -85,33 +87,60 @@ class TaskDetailViewModel {
     func updateTaskField(title: String) {
         taskEm.updateField(title: title, task: task)
         
-        updateObservablePropertiesFrom(task: task)
+        updateSimpleObservablePropertiesFrom(task)
+    }
+    
+    func updateTaskField(isCompleted: Bool) {
+        taskEm.updateField(isCompleted: isCompleted, task: task)
+        
+        updateSimpleObservablePropertiesFrom(task)
+    }
+    
+    func updateTaskField(isPriority: Bool) {
+        taskEm.updateField(isPriority: isPriority, task: task)
+        
+        updateSimpleObservablePropertiesFrom(task)
     }
 
     func updateTaskField(inMyDay: Bool) {
         taskEm.updateField(inMyDay: inMyDay, task: task)
         
-        taskDataViewModels.value.fillAddToMyDay(from: task)
-    }
-    
-    func updateTaskField(deadlineDate: Date?) {
-        taskEm.updateField(deadlineDate: deadlineDate, task: task)
-        taskDataViewModels.value.fillDeadlineAt(from: task)
-    }
-    
-    func updateTaskField(reminderDateTime: Date?) {
-        taskEm.updateField(reminderDateTime: reminderDateTime, task: task)
-        taskDataViewModels.value.fillReminderDateTime(from: task)
-    }
-    
-    func updateTaskField(repeatPeriod: String?) {
-        taskEm.updateField(repeatPeriod: repeatPeriod, task: task)
-        taskDataViewModels.value.fillRepeatPeriod(from: task)
+        let rowIndex = taskDataViewModels.fillAddToMyDay(from: task)
+        
+        guard let rowIndex else { return }
+        updateBindedCell(withRowIndex: rowIndex)
     }
     
     func switchValueTaskFieldInMyDay() {
         let newValue = !task.inMyDay
         updateTaskField(inMyDay: newValue)
+    }
+    
+    func updateTaskField(deadlineDate: Date?) {
+        taskEm.updateField(deadlineDate: deadlineDate, task: task)
+        
+        let rowIndex = taskDataViewModels.fillDeadlineAt(from: task)
+        
+        guard let rowIndex else { return }
+        updateBindedCell(withRowIndex: rowIndex)
+    }
+    
+    func updateTaskField(reminderDateTime: Date?) {
+        taskEm.updateField(reminderDateTime: reminderDateTime, task: task)
+        
+        let rowIndex = taskDataViewModels.fillReminderDateTime(from: task)
+        
+        guard let rowIndex else { return }
+        updateBindedCell(withRowIndex: rowIndex)
+    }
+    
+    func updateTaskField(repeatPeriod: String?) {
+        taskEm.updateField(repeatPeriod: repeatPeriod, task: task)
+        
+        let rowIndex = taskDataViewModels.fillRepeatPeriod(from: task)
+        
+        guard let rowIndex else { return }
+        updateBindedCell(withRowIndex: rowIndex)
     }
     
     func updateTaskField(taskDescription: NSAttributedString?) {
@@ -121,7 +150,10 @@ class TaskDetailViewModel {
             descriptionUpdatedAt: Date(),
             task: task
         )
-        taskDataViewModels.value.fillDescription(from: task)
+        let rowIndex = taskDataViewModels.fillDescription(from: task)
+        
+        guard let rowIndex else { return }
+        updateBindedCell(withRowIndex: rowIndex)
     }
     
     func createTaskFile(fromImageData imageData: NSData) {
@@ -132,7 +164,8 @@ class TaskDetailViewModel {
             task: task
         )
         
-        taskDataViewModels.value.appendFile(taskFile)
+        let rowIndex = taskDataViewModels.appendFile(taskFile)
+        addBindedCell(withRowIndex: rowIndex)
     }
     
     func createTaskFile(fromUrl url: URL) {
@@ -143,11 +176,12 @@ class TaskDetailViewModel {
             task: task
         )
         
-        taskDataViewModels.value.appendFile(taskFile)
+        let rowIndex = taskDataViewModels.appendFile(taskFile)
+        addBindedCell(withRowIndex: rowIndex)
     }
     
     func deleteTaskFile(fileCellIndexPath indexPath: IndexPath) {
-        let cellValue = taskDataViewModels.value.viewModels[indexPath.row]
+        let cellValue = taskDataViewModels.viewModels[indexPath.row]
         guard let fileCellValue = cellValue as? FileCellViewModel else {
             // TODO: показать сообщение об ошибке (файл не получилось удалить)
             return
@@ -160,16 +194,13 @@ class TaskDetailViewModel {
         }
         
         taskFileEm.delete(file: taskFile)
+        taskDataViewModels.viewModels.remove(at: indexPath.row)
         
-        taskDataViewModels.value.viewModels.remove(at: indexPath.row)
+        bindingDelegate?.removeCells(withIndexPaths: [indexPath])
     }
     
     // MARK: binding methods
-    func setupBindingTaskDataCellsValues(listener: @escaping (TaskDataCellViewModels) -> ()) {
-        taskDataViewModels.bindAndUpdateValue(listener: listener)
-    }
-    
-    private func updateObservablePropertiesFrom(task: Task) {
+    private func updateSimpleObservablePropertiesFrom(_ task: Task) {
         if task.title != taskTitle.value {
             taskTitle.value = task.title
         }
@@ -181,8 +212,37 @@ class TaskDetailViewModel {
         if task.isPriority != taskIsPriority.value {
             taskIsPriority.value = task.isPriority
         }
-        
-        taskDataViewModels.value.fill(from: task)
     }
     
+    private func updateBindedCell(
+        withRowIndex rowIndex: TaskDataCellViewModels.RowIndex
+    ) {
+        let indexPath =  IndexPath(row: rowIndex, section: 0)
+
+        bindingDelegate?.updateCell(
+            withIndexPath: indexPath,
+            cellViewModel: getTaskDataCellViewModelFor(indexPath: indexPath)
+        )
+    }
+    
+    private func addBindedCell(
+        withRowIndex rowIndex: TaskDataCellViewModels.RowIndex
+    ) {
+        let indexPath = IndexPath(row: rowIndex, section: 0)
+        bindingDelegate?.addCell(
+            toIndexPath: indexPath,
+            cellViewModel: getTaskDataCellViewModelFor(indexPath: indexPath)
+        )
+    }
 }
+
+
+// MARK: delegate protocol for update view (binding)
+protocol TaskDetailViewModelBindingDelegate: AnyObject {
+    func addCell(toIndexPath indexPath: IndexPath, cellViewModel: TaskDataCellViewModelType)
+    
+    func updateCell(withIndexPath indexPath: IndexPath, cellViewModel: TaskDataCellViewModelType)
+    
+    func removeCells(withIndexPaths indexPaths: [IndexPath])
+}
+

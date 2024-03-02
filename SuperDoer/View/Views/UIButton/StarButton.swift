@@ -92,7 +92,7 @@ class StarButton: UIButton {
     
     @objc private func btnTouchUpInside(sender: StarButton) {
         isOn = !isOn
-        delegate?.starButtonValueDidChange(starButton: self)
+        delegate?.starButtonValueDidChange(newValue: isOn)
         
         // TODO: анимировать (желательно универсально)
         setAppearanceForState(isOn)
@@ -101,5 +101,5 @@ class StarButton: UIButton {
 }
 
 protocol StarButtonDelegate {
-    func starButtonValueDidChange(starButton: StarButton)
+    func starButtonValueDidChange(newValue: Bool)
 }

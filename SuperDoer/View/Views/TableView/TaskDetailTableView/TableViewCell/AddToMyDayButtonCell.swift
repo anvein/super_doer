@@ -49,6 +49,10 @@ class AddToMyDayButtonCell: TaskDetailLabelsButtonCell {
         }
     }
     
+    func fillFrom(_ cellViewModel: AddToMyDayCellViewModel) {
+        self.isOn = cellViewModel.inMyDay
+    }
+    
     
     // MARK: methods helpers
     override func createLeftButtonImage() -> UIImage? {

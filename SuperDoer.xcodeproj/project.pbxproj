@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		3600ACCC2AA0C3D70022506A /* UITaskTitleTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3600ACCB2AA0C3D70022506A /* UITaskTitleTextView.swift */; };
 		3600ACCE2AA0E3DC0022506A /* PerfectPixelScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3600ACCD2AA0E3DC0022506A /* PerfectPixelScreen.swift */; };
-		3600ACD32AA0F4C80022506A /* PageSheetTableVariantsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3600ACD22AA0F4C80022506A /* PageSheetTableVariantsViewController.swift */; };
+		3600ACD32AA0F4C80022506A /* TableVariantsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3600ACD22AA0F4C80022506A /* TableVariantsViewController.swift */; };
 		360784842B0E1D1700ED7BD6 /* TaskFile+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360784822B0E1D1700ED7BD6 /* TaskFile+CoreDataClass.swift */; };
 		3607F5562B135905009B5D1D /* SuperDoer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3607F5542B135904009B5D1D /* SuperDoer.xcdatamodeld */; };
 		360D6C5C2A8BC3350092EA5C /* FileButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D6C5B2A8BC3350092EA5C /* FileButtonCell.swift */; };
@@ -31,6 +31,8 @@
 		3630CB842B1B455100E65115 /* TaskSectionSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3630CB832B1B455100E65115 /* TaskSectionSystem.swift */; };
 		3630CB862B1B467400E65115 /* TaskSectionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3630CB852B1B467400E65115 /* TaskSectionProtocol.swift */; };
 		3642C0382A8CAEF00000A078 /* DescriptionButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3642C0372A8CAEF00000A078 /* DescriptionButtonCell.swift */; };
+		364533912B94A17E00375F9F /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 364533902B94A17E00375F9F /* Swinject */; };
+		364533932B94A17E00375F9F /* Swinject-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 364533922B94A17E00375F9F /* Swinject-Dynamic */; };
 		3645DD6F2B8DD8D8009CB533 /* TaskRepeatPeriodTableVariantsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3645DD6E2B8DD8D8009CB533 /* TaskRepeatPeriodTableVariantsViewModel.swift */; };
 		3645DD712B8DD981009CB533 /* DateVariantCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3645DD702B8DD981009CB533 /* DateVariantCellViewModel.swift */; };
 		3645DD732B8DD9A9009CB533 /* CustomVariantCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3645DD722B8DD9A9009CB533 /* CustomVariantCellViewModel.swift */; };
@@ -99,7 +101,7 @@
 /* Begin PBXFileReference section */
 		3600ACCB2AA0C3D70022506A /* UITaskTitleTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITaskTitleTextView.swift; sourceTree = "<group>"; };
 		3600ACCD2AA0E3DC0022506A /* PerfectPixelScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerfectPixelScreen.swift; sourceTree = "<group>"; };
-		3600ACD22AA0F4C80022506A /* PageSheetTableVariantsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageSheetTableVariantsViewController.swift; sourceTree = "<group>"; };
+		3600ACD22AA0F4C80022506A /* TableVariantsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableVariantsViewController.swift; sourceTree = "<group>"; };
 		360784822B0E1D1700ED7BD6 /* TaskFile+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskFile+CoreDataClass.swift"; sourceTree = "<group>"; };
 		3607F5552B135904009B5D1D /* SuperDoer.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SuperDoer.xcdatamodel; sourceTree = "<group>"; };
 		360D6C5B2A8BC3350092EA5C /* FileButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileButtonCell.swift; sourceTree = "<group>"; };
@@ -194,6 +196,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				364533912B94A17E00375F9F /* Swinject in Frameworks */,
+				364533932B94A17E00375F9F /* Swinject-Dynamic in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -428,7 +432,7 @@
 			children = (
 				36A050222A500A87006F61D4 /* TaskSectionsListViewController.swift */,
 				36A050382A504E21006F61D4 /* TaskListInSectionViewController.swift */,
-				36CA12C52B8C93CA005E1FCD /* TaskDetail */,
+				36A0503A2A504E4B006F61D4 /* TaskDetailViewController.swift */,
 				36FCF9282B89DEB0002B2CB8 /* PageSheetTableVariants */,
 				36FCF9292B89DEE5002B2CB8 /* PageSheetCustomValueSetter */,
 				36CBA1012A920291000C78FB /* AlertController */,
@@ -543,14 +547,6 @@
 			path = TaskDetail;
 			sourceTree = "<group>";
 		};
-		36CA12C52B8C93CA005E1FCD /* TaskDetail */ = {
-			isa = PBXGroup;
-			children = (
-				36A0503A2A504E4B006F61D4 /* TaskDetailViewController.swift */,
-			);
-			path = TaskDetail;
-			sourceTree = "<group>";
-		};
 		36CB90302B17D2CD00E897F4 /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -629,7 +625,7 @@
 		36FCF9282B89DEB0002B2CB8 /* PageSheetTableVariants */ = {
 			isa = PBXGroup;
 			children = (
-				3600ACD22AA0F4C80022506A /* PageSheetTableVariantsViewController.swift */,
+				3600ACD22AA0F4C80022506A /* TableVariantsViewController.swift */,
 			);
 			path = PageSheetTableVariants;
 			sourceTree = "<group>";
@@ -695,6 +691,10 @@
 			dependencies = (
 			);
 			name = SuperDoer;
+			packageProductDependencies = (
+				364533902B94A17E00375F9F /* Swinject */,
+				364533922B94A17E00375F9F /* Swinject-Dynamic */,
+			);
 			productName = SuperDoer;
 			productReference = 36A0501B2A500A87006F61D4 /* SuperDoer.app */;
 			productType = "com.apple.product-type.application";
@@ -724,6 +724,9 @@
 				ru,
 			);
 			mainGroup = 36A050122A500A87006F61D4;
+			packageReferences = (
+				3645338F2B94A17E00375F9F /* XCRemoteSwiftPackageReference "Swinject" */,
+			);
 			productRefGroup = 36A0501C2A500A87006F61D4 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -790,7 +793,7 @@
 				36612C012B88E9BD00AFE168 /* TaskSectionCustom+CoreDataProperties.swift in Sources */,
 				36A050232A500A87006F61D4 /* TaskSectionsListViewController.swift in Sources */,
 				36626DA92B1CC16300F17CE4 /* TaskSectionSystemListTableViewCellViewModel.swift in Sources */,
-				3600ACD32AA0F4C80022506A /* PageSheetTableVariantsViewController.swift in Sources */,
+				3600ACD32AA0F4C80022506A /* TableVariantsViewController.swift in Sources */,
 				36A7B5A52B20B34300F1E952 /* TaskInSectionTableViewCellViewModel.swift in Sources */,
 				366BC5D52A8944A000D67230 /* AddFileButtonCell.swift in Sources */,
 				360D6C5C2A8BC3350092EA5C /* FileButtonCell.swift in Sources */,
@@ -1055,6 +1058,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3645338F2B94A17E00375F9F /* XCRemoteSwiftPackageReference "Swinject" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Swinject/Swinject";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.8.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		364533902B94A17E00375F9F /* Swinject */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3645338F2B94A17E00375F9F /* XCRemoteSwiftPackageReference "Swinject" */;
+			productName = Swinject;
+		};
+		364533922B94A17E00375F9F /* Swinject-Dynamic */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3645338F2B94A17E00375F9F /* XCRemoteSwiftPackageReference "Swinject" */;
+			productName = "Swinject-Dynamic";
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		3607F5542B135904009B5D1D /* SuperDoer.xcdatamodeld */ = {

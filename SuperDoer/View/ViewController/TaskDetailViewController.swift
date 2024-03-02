@@ -84,7 +84,7 @@ class TaskDetailViewController: UIViewController {
     }
     
     
-    // MARK: other methods
+    // MARK: coordinator methods
     private func presentSettingsTaskReminder() {
         // TODO: сделать проверку включены ли уведомления для приложения (+ вынести в VM + сервис)
         let isEnableNotifications = true
@@ -114,7 +114,7 @@ class TaskDetailViewController: UIViewController {
     private func presentTaskDeadlineTableVariantsController() {
         let vm = viewModel.getTaskDeadlineTableVariantsViewModel()
         
-        let deadlineVariantsController = PageSheetTableVariantsViewController(
+        let deadlineVariantsController = TableVariantsViewController(
             viewModel: vm,
             identifier: FieldNameIdentifier.taskDeadline.rawValue
         )
@@ -128,7 +128,7 @@ class TaskDetailViewController: UIViewController {
     private func presentTaskRepeatPeriodTableVariantsController() {
         let vm = viewModel.getTaskRepeatPeriodTableVariantsViewModel()
         
-        let variantsController = PageSheetTableVariantsViewController(
+        let variantsController = TableVariantsViewController(
             viewModel: vm,
             identifier: FieldNameIdentifier.taskRepeatPeriod.rawValue
         )
@@ -165,6 +165,71 @@ class TaskDetailViewController: UIViewController {
         vc.dismissDelegate = self
         
         present(vc, animated: true)
+    }
+    
+    
+    // MARK: other methods
+    private func buildTableViewCellFor(_ cellViewModel: TaskDataCellViewModelType) -> UITableViewCell {
+        let cell: UITableViewCell
+        
+        switch cellViewModel {
+        case _ as AddSubTaskCellViewModel:
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: AddSubtaskButtonCell.identifier)!
+            if let cell = cell as? AddSubtaskButtonCell {
+                cell.subtaskTextField.delegate = self
+            }
+            
+        case let cellVM as AddToMyDayCellViewModel:
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: AddToMyDayButtonCell.identifier)!
+            if let cell = cell as? AddToMyDayButtonCell {
+                cell.isOn = cellVM.inMyDay
+                cell.delegate = self
+            }
+        
+        case let cellVM as ReminderDateCellViewModel:
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: ReminderDateButtonCell.identifier)!
+            if let cell = cell as? ReminderDateButtonCell {
+                cell.fillFrom(cellVM)
+                cell.delegate = self
+            }
+            
+        case let cellVM as DeadlineDateCellViewModel:
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: DeadlineDateButtonCell.identifier)!
+            if let cell = cell as? DeadlineDateButtonCell {
+                cell.fillFrom(cellVM)
+                cell.delegate = self
+            }
+            
+        case let cellVM as RepeatPeriodCellViewModel:
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: RepeatPeriodButtonCell.identifier)!
+            if let cell = cell as? RepeatPeriodButtonCell {
+                cell.fillFrom(cellVM)
+                cell.delegate = self
+            }
+            
+        case _ as AddFileCellVeiwModel:
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: AddFileButtonCell.identifier)!
+        
+        case let cellVM as FileCellViewModel:
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: FileButtonCell.identifier)!
+            if let cell = cell as? FileButtonCell {
+                cell.delegate = self
+                cell.fillFrom(cellValue: cellVM)
+            }
+            
+        case let cellVM as DescriptionCellViewModel:
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: DescriptionButtonCell.identifier)!
+            if let cell = cell as? DescriptionButtonCell {
+                cell.delegate = self
+                cell.fillFrom(cellVM)
+            }
+            
+        default :
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailLabelsButtonCell.identifier)!
+            // TODO: залогировать
+        }
+        
+        return cell
     }
     
 }
@@ -227,7 +292,7 @@ extension TaskDetailViewController {
         taskDoneButton.delegate = self
         isPriorityButton.delegate = self
         
-        // buttonsTableView
+        // taskDataTableView
         taskDataTableView.dataSource = self
         taskDataTableView.delegate = self
     }
@@ -245,10 +310,7 @@ extension TaskDetailViewController {
             isPriorityButton.isOn = isPriority
         }
         
-        viewModel.setupBindingTaskDataCellsValues(listener: {[unowned self]  taskDataCellsValues in
-            // TODO: сделать красивое обновление
-            self.taskDataTableView.reloadData()
-        })
+        viewModel.bindingDelegate = self
     }
 }
 
@@ -262,72 +324,11 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: cell appearance
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cellValue = viewModel.getTaskDataCellValueFor(indexPath: indexPath)
-        let cell: UITableViewCell
-
-        switch cellValue {
-        case _ as AddSubTaskCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: AddSubtaskButtonCell.identifier)!
-            if let addSubtaskButtonCell = cell as? AddSubtaskButtonCell {
-                addSubtaskButtonCell.subtaskTextField.delegate = self
-            }
-            
-        case let addToMyDayCellValue as AddToMyDayCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: AddToMyDayButtonCell.identifier)!
-            if let addToMyDayButtonCell = cell as? AddToMyDayButtonCell {
-                addToMyDayButtonCell.isOn = addToMyDayCellValue.inMyDay
-                addToMyDayButtonCell.delegate = self
-            }
+        let cellVM = viewModel.getTaskDataCellViewModelFor(indexPath: indexPath)
         
-        case let reminderDateCellValue as ReminderDateCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: ReminderDateButtonCell.identifier)!
-            if let reminderDateCell = cell as? ReminderDateButtonCell {
-                reminderDateCell.fillFrom(reminderDateCellValue)
-                reminderDateCell.delegate = self
-            }
-            
-        case let deadlineCellValue as DeadlineDateCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: DeadlineDateButtonCell.identifier)!
-            if let deadlineCell = cell as? DeadlineDateButtonCell {
-                deadlineCell.fillFrom(deadlineCellValue)
-                deadlineCell.delegate = self
-            }
-            
-        case let repeatPeriodCellValue as RepeatPeriodCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: RepeatPeriodButtonCell.identifier)!
-            if let repeatPeriodCell = cell as? RepeatPeriodButtonCell {
-                repeatPeriodCell.fillFrom(repeatPeriodCellValue)
-                repeatPeriodCell.delegate = self
-            }
-            
-        case _ as AddFileCellVeiwModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: AddFileButtonCell.identifier)!
-        
-        case let fileCellValue as FileCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: FileButtonCell.identifier)!
-            if let fileButtonCell = cell as? FileButtonCell {
-                fileButtonCell.delegate = self
-                fileButtonCell.fillFrom(cellValue: fileCellValue)
-            }
-            
-        case let descriptionCellValue as DescriptionCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: DescriptionButtonCell.identifier)!
-            if let descriptionButtonCell = cell as? DescriptionButtonCell {
-                descriptionButtonCell.delegate = self
-                descriptionButtonCell.fillCellData(content: descriptionCellValue.content, updatedAt: descriptionCellValue.updatedAt)
-            }
-            
-        default :
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailLabelsButtonCell.identifier)!
-            if let cell = cell as? TaskDetailLabelsButtonCell {
-                cell.mainTextLabel.text = "Ошибка получения данных"
-                // TODO: залогировать
-            }
-        }
-        
-        return cell
+        return buildTableViewCellFor(cellVM)
     }
-
+    
     
     // MARK: select row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -452,15 +453,15 @@ extension TaskDetailViewController: UITextFieldDelegate {
 // MARK: cell delegates, child controllers delegates
 /// Протокол связанный с чекбоксом "Задача выполнена"
 extension TaskDetailViewController: CheckboxButtonDelegate {
-    func checkboxDidChangeValue(checkbox: CheckboxButton) {
-//        taskEm.updateField(isCompleted: checkbox.isOn, task: task)
+    func checkboxDidChangeValue(newValue: Bool) {
+        viewModel.updateTaskField(isCompleted: newValue)
     }
 }
 
 /// Протокол связанный с полем "Приоритет"
 extension TaskDetailViewController: StarButtonDelegate {
-    func starButtonValueDidChange(starButton: StarButton) {
-//        taskEm.updateField(isPriority: starButton.isOn, task: task)
+    func starButtonValueDidChange(newValue: Bool) {
+        viewModel.updateTaskField(isPriority: newValue)
     }
 }
 
@@ -479,7 +480,7 @@ extension TaskDetailViewController: NotificationsDisabledAlertControllerDelegate
 
 /// Делегаты связанные с полями: "Дата выполнения" (дедлайн), "Дата напоминания", "Период повтора"
 /// и контроллерами с вариантами значений и установкой кастомного значения
-extension TaskDetailViewController: PageSheetTableVariantsViewControllerDelegate {
+extension TaskDetailViewController: TableVariantsViewControllerDelegate {
     func didChooseDateVariant(newDate: Date?, identifier: String) {
         if identifier == FieldNameIdentifier.taskDeadline.rawValue {
             viewModel.updateTaskField(deadlineDate: newDate)
@@ -678,5 +679,59 @@ extension TaskDetailViewController: UIDocumentPickerDelegate {
             viewModel.createTaskFile(fromUrl: url)
             break
         }
+    }
+}
+
+
+// MARK: binding with ViewModel delegate
+extension TaskDetailViewController: TaskDetailViewModelBindingDelegate {
+    func addCell(toIndexPath indexPath: IndexPath, cellViewModel: TaskDataCellViewModelType) {
+        let cell = buildTableViewCellFor(cellViewModel)
+        
+        taskDataTableView.insertRows(at: [indexPath], with: .fade)
+    }
+    
+    func updateCell(withIndexPath indexPath: IndexPath, cellViewModel: TaskDataCellViewModelType) {
+        let cell = taskDataTableView.cellForRow(at: indexPath)
+        
+        switch cellViewModel {
+        case _ as AddSubTaskCellViewModel:
+            break
+            
+        case let cellVM as AddToMyDayCellViewModel:
+            guard let cell = cell as? AddToMyDayButtonCell else { return }
+            cell.fillFrom(cellVM)
+        
+        case let cellVM as ReminderDateCellViewModel:
+            guard let cell = cell as? ReminderDateButtonCell else { return }
+            cell.fillFrom(cellVM)
+            
+        case let cellVM as DeadlineDateCellViewModel:
+            guard let cell = cell as? DeadlineDateButtonCell else { return }
+            cell.fillFrom(cellVM)
+            
+        case let cellVM as RepeatPeriodCellViewModel:
+            guard let cell = cell as? RepeatPeriodButtonCell else { return }
+            cell.fillFrom(cellVM)
+            
+        case _ as AddFileCellVeiwModel:
+            break
+        
+        case let cellVM as FileCellViewModel:
+            guard let cell = cell as? FileButtonCell else { return }
+            cell.fillFrom(cellValue: cellVM)
+            
+        case let cellVM as DescriptionCellViewModel:
+            guard let cell = cell as? DescriptionButtonCell else { return }
+            cell.fillFrom(cellVM)
+            
+        default :
+            // TODO: залогировать
+            break
+        }
+    }
+    
+    func removeCells(withIndexPaths indexPaths: [IndexPath]) {
+        taskDataTableView.deleteRows(at: indexPaths, with: .fade)
     }
 }

@@ -82,10 +82,10 @@ class TaskListInSectionViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
-        let selectedTaskViewModel = viewModel.getTaskViewModel(forIndexPath: IndexPath(row: 0, section: 0))
-        let taskController = TaskDetailViewController(viewModel: selectedTaskViewModel)
-        
-        navigationController?.pushViewController(taskController, animated: true)
+//        let selectedTaskViewModel = viewModel.getTaskViewModel(forIndexPath: IndexPath(row: 0, section: 0))
+//        let taskController = TaskDetailViewController(viewModel: selectedTaskViewModel)
+//        
+//        navigationController?.pushViewController(taskController, animated: true)
     }
     
     

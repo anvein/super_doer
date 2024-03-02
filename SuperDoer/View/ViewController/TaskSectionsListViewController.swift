@@ -39,9 +39,9 @@ class TaskSectionsListViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
       
-        guard let vm = viewModel?.getTaskListInSectionViewModel(forIndexPath: IndexPath(row: 0, section: 1)) else { return }
-        let vc = TaskListInSectionViewController(viewModel: vm)
-        navigationController?.pushViewController(vc, animated: false)
+//        guard let vm = viewModel?.getTaskListInSectionViewModel(forIndexPath: IndexPath(row: 0, section: 1)) else { return }
+//        let vc = TaskListInSectionViewController(viewModel: vm)
+//        navigationController?.pushViewController(vc, animated: false)
     }
     
     
