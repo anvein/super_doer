@@ -59,8 +59,6 @@ class TaskDetailLabels2StatesButtonCell: TaskDetailLabelsButtonCell {
         }
     }
     
-    weak var delegate: Labels2StatesButtonCellDelegate?
-    
     
     // MARK: setup methods
     override func setupViews()
@@ -68,12 +66,6 @@ class TaskDetailLabels2StatesButtonCell: TaskDetailLabelsButtonCell {
         super.setupViews()
         
         configureForState(state)
-    }
-    
-    override func setupHandlers() {
-        super.setupHandlers()
-        
-        actionButton.addTarget(self, action: #selector(handleTapActionButton(actionButton:)), for: .touchUpInside)
     }
     
     /// Этот метод не нужно вызывать самостоятельно
@@ -100,16 +92,4 @@ class TaskDetailLabels2StatesButtonCell: TaskDetailLabelsButtonCell {
         }
     }
     
-
-    // MARK: handlers
-    @objc func handleTapActionButton(actionButton: UIButton) {
-        delegate?.didTapLabels2StatesCellCrossButton(cellIdentifier: Self.identifier)
-    }
-    
-}
-
-// MARK: delegate protocol
-protocol Labels2StatesButtonCellDelegate: AnyObject {
-    /// Была нажата кнопка "крестик" в ячейке
-    func didTapLabels2StatesCellCrossButton(cellIdentifier: String)
 }

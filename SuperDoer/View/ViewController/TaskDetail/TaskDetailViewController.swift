@@ -499,12 +499,6 @@ extension TaskDetailViewController: StarButtonDelegate {
     }
 }
 
-/// Делегат связанный с полем "Добавить в мой день"
-extension TaskDetailViewController: AddToMyDayButtonCellDelegate {
-    func didTapAddToMyDayCrossButton() {
-        viewModel.updateTaskField(inMyDay: false)
-    }
-}
 
 /// Делегат связанный с полем "Дата напоминания"
 extension TaskDetailViewController: NotificationsDisabledAlertControllerDelegate {
@@ -585,13 +579,17 @@ extension TaskDetailViewController: CustomDateSetterViewControllerDelegate {
 }
 
 /// Делегаты связанные с крестиками в ячейках данных задачи у полей:
+/// - "Добавить в мой день" [x]
 /// - "Дата напоминания" [x]
 /// - "Дата выполнения" [x]
 /// - "Период повтора" [x]
-extension TaskDetailViewController: Labels2StatesButtonCellDelegate {
-    func didTapLabels2StatesCellCrossButton(cellIdentifier: String) {
+extension TaskDetailViewController: TaskDetailBaseButtonCellDelegate {
+    func didTapTaskDetailCellActionButton(cellIdentifier: String) {
         
         switch cellIdentifier {
+        case AddToMyDayButtonCell.identifier:
+            viewModel.updateTaskField(inMyDay: false)
+            
         case ReminderDateButtonCell.identifier:
             viewModel.updateTaskField(reminderDateTime: nil)
             

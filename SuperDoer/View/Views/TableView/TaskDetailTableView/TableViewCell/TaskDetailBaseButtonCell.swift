@@ -28,6 +28,8 @@ class TaskDetailBaseButtonCell: UITableViewCell {
     }
     private lazy var bottomSeparator = UIView()
 
+    weak var delegate: TaskDetailBaseButtonCellDelegate?
+    
     
     // MARK: init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -42,6 +44,7 @@ class TaskDetailBaseButtonCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
     
     // MARK: setup methods
     func addSubviews() {
@@ -115,7 +118,11 @@ class TaskDetailBaseButtonCell: UITableViewCell {
     }
     
     func setupHandlers() {
-        
+        actionButton.addTarget(
+            self,
+            action: #selector(handleTapActionButton(actionButton:)),
+            for: .touchUpInside
+        )
     }
     
     func setupSelectedBackground() {
@@ -125,6 +132,15 @@ class TaskDetailBaseButtonCell: UITableViewCell {
         selectedBackgroundView = selectedBgView
     }
     
+    
+    // MARK: methods handlers
+    @objc func handleTapActionButton(actionButton: UIButton) {
+        delegate?.didTapTaskDetailCellActionButton(
+            cellIdentifier: Self.identifier
+        )
+    }
+    
+    
     // MARK: methods helpers
     func createActionButtonImage() -> UIImage? {
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 12, weight: .regular)
@@ -133,4 +149,11 @@ class TaskDetailBaseButtonCell: UITableViewCell {
             .withConfiguration(symbolConfig)
             .withRenderingMode(.alwaysTemplate)
     }
+}
+
+
+// MARK: delegate protocol
+protocol TaskDetailBaseButtonCellDelegate: AnyObject {
+    /// Была нажата кнопка "действия" в ячейке
+    func didTapTaskDetailCellActionButton(cellIdentifier: String)
 }

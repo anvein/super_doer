@@ -23,8 +23,6 @@ class AddToMyDayButtonCell: TaskDetailLabelsButtonCell {
         return true
     }
     
-    weak var delegate: AddToMyDayButtonCellDelegate?
-    
     
     // MARK: setup methods
     override func setupViews()
@@ -33,12 +31,6 @@ class AddToMyDayButtonCell: TaskDetailLabelsButtonCell {
         
         labelsStackView.spacing = 0
         configureForState(isOn)
-    }
-    
-    override func setupHandlers() {
-        super.setupHandlers()
-        
-        actionButton.addTarget(self, action: #selector(handleTapActionButton(actionButton:)), for: .touchUpInside)
     }
     
     func configureForState(_ isOn: State) {
@@ -67,14 +59,4 @@ class AddToMyDayButtonCell: TaskDetailLabelsButtonCell {
             .withRenderingMode(.alwaysTemplate)
     }
     
-    
-    // MARK: handlers
-    @objc func handleTapActionButton(actionButton: UIButton) {
-        delegate?.didTapAddToMyDayCrossButton()
-    }
-}
-
-// MARK: delegate protocol
-protocol AddToMyDayButtonCellDelegate: AnyObject {
-    func didTapAddToMyDayCrossButton()
 }
