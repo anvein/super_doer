@@ -1,11 +1,11 @@
 
 import Foundation
 
-/// Структура хранящая данные задачи в подходящем формате для заполения таблицы
-struct TaskDataCellValues {
+/// Структура содержащая ячейки ViewModel хранящие данные задачи для таблицы
+struct TaskDataCellViewModels {
     // TODO: добавить доступ через сабскрипт?)
     
-    var cellsValuesArray = [TaskDataCellValueProtocol]()
+    var viewModels = [TaskDataCellViewModelType]()
     
     init(_ task: Task) {
         fill(from: task)
@@ -13,17 +13,17 @@ struct TaskDataCellValues {
     
     /// Полностью обновляет все данные для таблицы на основании task
     mutating func fill(from task: Task) {
-        cellsValuesArray.removeAll()
+        viewModels.removeAll()
         
-        cellsValuesArray.append(AddSubTaskCellValue())
+        viewModels.append(AddSubTaskCellViewModel())
         // TODO: подзадачи
         
-        cellsValuesArray.append(AddToMyDayCellValue(inMyDay: task.inMyDay))
-        cellsValuesArray.append(ReminderDateCellValue(dateTime: task.reminderDateTime))
+        viewModels.append(AddToMyDayCellViewModel(inMyDay: task.inMyDay))
+        viewModels.append(ReminderDateCellViewModel(dateTime: task.reminderDateTime))
         
-        cellsValuesArray.append(DeadlineDateCellValue(date: task.deadlineDate))
-        cellsValuesArray.append(RepeatPeriodCellValue(period: task.repeatPeriod))
-        cellsValuesArray.append(AddFileCellValue())
+        viewModels.append(DeadlineDateCellViewModel(date: task.deadlineDate))
+        viewModels.append(RepeatPeriodCellViewModel(period: task.repeatPeriod))
+        viewModels.append(AddFileCellVeiwModel())
         
         
         for file in task.files ?? []  {
@@ -32,8 +32,8 @@ struct TaskDataCellValues {
                 continue
             }
             
-            cellsValuesArray.append(
-                FileCellValue(
+            viewModels.append(
+                FileCellViewModel(
                     id: taskFile.id!,
                     name: taskFile.fileName!,
                     fileExtension: taskFile.fileExtension!,
@@ -42,50 +42,50 @@ struct TaskDataCellValues {
             )
         }
         
-        cellsValuesArray.append(
-            DescriptionCellValue(contentAsHtml: task.taskDescription, dateUpdatedAt: task.descriptionUpdatedAt)
+        viewModels.append(
+            DescriptionCellViewModel(contentAsHtml: task.taskDescription, dateUpdatedAt: task.descriptionUpdatedAt)
         )
     }
     
     mutating func fillAddToMyDay(from task: Task) {
-        for (index, buttonValue) in cellsValuesArray.enumerated() {
-            if var addToMyDayCellValue = buttonValue as? AddToMyDayCellValue {
+        for (index, buttonValue) in viewModels.enumerated() {
+            if var addToMyDayCellValue = buttonValue as? AddToMyDayCellViewModel {
                 addToMyDayCellValue.inMyDay = task.inMyDay
 
-                cellsValuesArray[index] = addToMyDayCellValue
+                viewModels[index] = addToMyDayCellValue
                 break
             }
         }
     }
     
     mutating func fillDeadlineAt(from task: Task) {
-        for (index, buttonValue) in cellsValuesArray.enumerated() {
-            if var deadlineAtCellValue = buttonValue as? DeadlineDateCellValue {
+        for (index, buttonValue) in viewModels.enumerated() {
+            if var deadlineAtCellValue = buttonValue as? DeadlineDateCellViewModel {
                 deadlineAtCellValue.date = task.deadlineDate
 
-                cellsValuesArray[index] = deadlineAtCellValue
+                viewModels[index] = deadlineAtCellValue
                 break
             }
         }
     }
     
     mutating func fillReminderDateTime(from task: Task) {
-        for (index, buttonValue) in cellsValuesArray.enumerated() {
-            if var reminderDateTimeCellValue = buttonValue as? ReminderDateCellValue {
+        for (index, buttonValue) in viewModels.enumerated() {
+            if var reminderDateTimeCellValue = buttonValue as? ReminderDateCellViewModel {
                 reminderDateTimeCellValue.dateTime = task.reminderDateTime
 
-                cellsValuesArray[index] = reminderDateTimeCellValue
+                viewModels[index] = reminderDateTimeCellValue
                 break
             }
         }
     }
     
     mutating func fillRepeatPeriod(from task: Task) {
-        for (index, buttonValue) in cellsValuesArray.enumerated() {
-            if var repeatPeriodCellValue = buttonValue as? RepeatPeriodCellValue {
+        for (index, buttonValue) in viewModels.enumerated() {
+            if var repeatPeriodCellValue = buttonValue as? RepeatPeriodCellViewModel {
                 repeatPeriodCellValue.period = task.repeatPeriod
 
-                cellsValuesArray[index] = repeatPeriodCellValue
+                viewModels[index] = repeatPeriodCellValue
                 break
             }
         }
@@ -101,8 +101,8 @@ struct TaskDataCellValues {
         }
         let indexNewFile = safeIndexOfLastFile + 1
         
-        cellsValuesArray.insert(
-            FileCellValue(
+        viewModels.insert(
+            FileCellViewModel(
                 id: file.id!,
                 name: file.fileName!,
                 fileExtension: file.fileExtension!,
@@ -115,8 +115,8 @@ struct TaskDataCellValues {
     }
     
     mutating func fillDescription(from task: Task) {
-        for (index, buttonValue) in cellsValuesArray.enumerated() {
-            if var descriptionCellValue = buttonValue as? DescriptionCellValue {
+        for (index, buttonValue) in viewModels.enumerated() {
+            if var descriptionCellValue = buttonValue as? DescriptionCellViewModel {
                 // TODO: сконвертировать нормально хранимый string в NSAttributedString
                 if let safeContent = task.taskDescription {
                     descriptionCellValue.content = NSAttributedString(string: safeContent)
@@ -125,7 +125,7 @@ struct TaskDataCellValues {
                 }
                 descriptionCellValue.updatedAt = task.descriptionUpdatedAt
 
-                cellsValuesArray[index] = descriptionCellValue
+                viewModels[index] = descriptionCellValue
                 break
             }
         }
@@ -134,8 +134,8 @@ struct TaskDataCellValues {
     
     private func getIndexOfLastFileOrAddFileButton() -> Int? {
         var result: Int? = nil
-        for (index, cellValue) in cellsValuesArray.enumerated() {
-            if cellValue is AddFileCellValue || cellValue is FileCellValue {
+        for (index, cellValue) in viewModels.enumerated() {
+            if cellValue is AddFileCellVeiwModel || cellValue is FileCellViewModel {
                 result = index
             }
         }
@@ -150,49 +150,57 @@ typealias RowIndex = Int
 
 
 // MARK: TaskData classes
-protocol TaskDataCellValueProtocol {
+protocol TaskDataCellViewModelType {
     
 }
 
-struct AddToMyDayCellValue: TaskDataCellValueProtocol {
+struct AddToMyDayCellViewModel: TaskDataCellViewModelType {
     var inMyDay: Bool = false
 }
 
-struct SubTaskCellValue: TaskDataCellValueProtocol {
+struct SubTaskCellViewModel: TaskDataCellViewModelType {
     var isCompleted: Bool = false
     var title: String
 }
 
-struct AddSubTaskCellValue: TaskDataCellValueProtocol {
+struct AddSubTaskCellViewModel: TaskDataCellViewModelType {
     
 }
 
-struct ReminderDateCellValue: TaskDataCellValueProtocol {
+struct ReminderDateCellViewModel: TaskDataCellViewModelType {
     var dateTime: Date?
 }
 
-struct DeadlineDateCellValue: TaskDataCellValueProtocol {
+struct DeadlineDateCellViewModel: TaskDataCellViewModelType {
     var date: Date?
 }
 
-struct RepeatPeriodCellValue: TaskDataCellValueProtocol {
+struct RepeatPeriodCellViewModel: TaskDataCellViewModelType {
     // TODO: переделать тип
     var period: String?
 }
 
-struct AddFileCellValue: TaskDataCellValueProtocol {
+struct AddFileCellVeiwModel: TaskDataCellViewModelType {
     
 }
 
-struct FileCellValue: TaskDataCellValueProtocol {
+struct FileCellViewModel: TaskDataCellViewModelType, DeletableItem {
     var id: UUID
     var name: String
     var fileExtension: String
     var size: Int
+    
+    var titleForDelete: String {
+        return name
+    }
+    
+    var itemTypeName: ItemTypeName {
+        return (oneIP: "файл", oneVP: "файл", manyVP: "файлы")
+    }
 }
 
 
-struct DescriptionCellValue: TaskDataCellValueProtocol {
+struct DescriptionCellViewModel: TaskDataCellViewModelType {
     var content: NSAttributedString?
     var updatedAt: Date?
     

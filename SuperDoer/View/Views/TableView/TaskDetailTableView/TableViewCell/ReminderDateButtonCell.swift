@@ -13,7 +13,7 @@ class ReminderDateButtonCell: TaskDetailLabels2StatesButtonCell {
     }
     
     /// Управлять контентом и состоянием кнопки надо через этот метод
-    func fillFrom(_ cellValue: ReminderDateCellValue) {
+    func fillFrom(_ cellValue: ReminderDateCellViewModel) {
         if let date = cellValue.dateTime {
             let dateFormatter = DateFormatter()
             dateFormatter.locale = Locale(identifier: "ru_RU")

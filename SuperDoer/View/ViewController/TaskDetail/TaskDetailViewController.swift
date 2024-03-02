@@ -83,22 +83,8 @@ class TaskDetailViewController: UIViewController {
         navigationItem.setRightBarButton(nil, animated: true)
     }
     
-    @objc func pressedFileDeleteTouchUpInside(sender: UIButton) {
-        let cell = sender.superview?.superview
-        guard let fileButtonCell = cell as? FileButtonCell else {
-            return
-        }
-        
-        guard let indexPath = taskDataTableView.indexPath(for: fileButtonCell) else {
-            return
-        }
-        
-        presentDeleteFileAlertController(fileIndexPath: indexPath)
-    }
-    
     
     // MARK: other methods
-    
     private func presentSettingsTaskReminder() {
         // TODO: сделать проверку включены ли уведомления для приложения (+ вынести в VM + сервис)
         let isEnableNotifications = true
@@ -153,32 +139,24 @@ class TaskDetailViewController: UIViewController {
         present(navigationController, animated: true)
     }
     
-    private func presentDeleteFileAlertController(fileIndexPath indexPath: IndexPath) {
-        let fileDeleteAlert = FileDeleteAlertController(fileIndexPath: indexPath) { indexPath in
-            self.deleteFile(fileCellIndexPath: indexPath)
-        }
+    private func presentDeleteFileAlertController(fileCellIndexPath indexPath: IndexPath) {
+        let fileCellVM = viewModel.getFileCellViewModel(forIndexPath: indexPath)
+        guard let fileCellVM else { return }
         
-        present(fileDeleteAlert, animated: true)
-    }
-    
-    private func deleteFile(fileCellIndexPath indexPath: IndexPath) {
-//        let cellValue = taskDataCellsValues.cellsValuesArray[indexPath.row]
-//        if let fileCellValue = cellValue as? FileCellValue {
-//
-//            let taskFile = task.getFileBy(id: fileCellValue.id)
-//            if let safeTaskFile = taskFile {
-//                self.taskFileEm.delete(file: safeTaskFile)
-//            }
-//            
-//            taskDataCellsValues.cellsValuesArray.remove(at: indexPath.row)
-//            taskDataTableView.deleteRows(at: [indexPath], with: .fade)
-//        }
+        let deleteAlert = DeleteAlertController(
+            itemsIndexPath: [indexPath],
+            singleItem: fileCellVM) { indexPaths in
+            self.viewModel.deleteTaskFile(fileCellIndexPath: indexPath)
+        }
+        deleteAlert.itemTypeName = (oneIP: "файл", oneVP: "файл", manyVP: "файлы")
+        
+        present(deleteAlert, animated: true)
     }
     
     private func presentAddFileAlertController() {
-        let addFileAlertController = AddFileAlertController(controller: self)
-        
-        present(addFileAlertController, animated: true)
+        let alertController = AddFileSourceAlertController()
+        alertController.delegate = self
+        present(alertController, animated: true)
     }
     
     private func presentDescriptionController() {
@@ -288,57 +266,51 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
         let cell: UITableViewCell
 
         switch cellValue {
-        case _ as AddSubTaskCellValue:
+        case _ as AddSubTaskCellViewModel:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: AddSubtaskButtonCell.identifier)!
             if let addSubtaskButtonCell = cell as? AddSubtaskButtonCell {
                 addSubtaskButtonCell.subtaskTextField.delegate = self
             }
             
-        case let addToMyDayCellValue as AddToMyDayCellValue:
+        case let addToMyDayCellValue as AddToMyDayCellViewModel:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: AddToMyDayButtonCell.identifier)!
             if let addToMyDayButtonCell = cell as? AddToMyDayButtonCell {
                 addToMyDayButtonCell.isOn = addToMyDayCellValue.inMyDay
                 addToMyDayButtonCell.delegate = self
             }
         
-        case let reminderDateCellValue as ReminderDateCellValue:
+        case let reminderDateCellValue as ReminderDateCellViewModel:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: ReminderDateButtonCell.identifier)!
             if let reminderDateCell = cell as? ReminderDateButtonCell {
                 reminderDateCell.fillFrom(reminderDateCellValue)
                 reminderDateCell.delegate = self
             }
             
-        case let deadlineCellValue as DeadlineDateCellValue:
+        case let deadlineCellValue as DeadlineDateCellViewModel:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: DeadlineDateButtonCell.identifier)!
             if let deadlineCell = cell as? DeadlineDateButtonCell {
                 deadlineCell.fillFrom(deadlineCellValue)
                 deadlineCell.delegate = self
             }
             
-        case let repeatPeriodCellValue as RepeatPeriodCellValue:
+        case let repeatPeriodCellValue as RepeatPeriodCellViewModel:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: RepeatPeriodButtonCell.identifier)!
             if let repeatPeriodCell = cell as? RepeatPeriodButtonCell {
                 repeatPeriodCell.fillFrom(repeatPeriodCellValue)
                 repeatPeriodCell.delegate = self
             }
             
-        case _ as AddFileCellValue:
+        case _ as AddFileCellVeiwModel:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: AddFileButtonCell.identifier)!
         
-        case let fileCellValue as FileCellValue:
+        case let fileCellValue as FileCellViewModel:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: FileButtonCell.identifier)!
             if let fileButtonCell = cell as? FileButtonCell {
+                fileButtonCell.delegate = self
                 fileButtonCell.fillFrom(cellValue: fileCellValue)
-                
-                // TODO: переделать на делегата
-                fileButtonCell.actionButton.addTarget(
-                    self,
-                    action: #selector(pressedFileDeleteTouchUpInside(sender:)),
-                    for: .touchUpInside
-                )
             }
             
-        case let descriptionCellValue as DescriptionCellValue:
+        case let descriptionCellValue as DescriptionCellViewModel:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: DescriptionButtonCell.identifier)!
             if let descriptionButtonCell = cell as? DescriptionButtonCell {
                 descriptionButtonCell.delegate = self
@@ -396,16 +368,16 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: swipes for row
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let deleteAction = UIContextualAction(style: .destructive, title: nil) { deleteAction, view, completionHandler in
-            self.presentDeleteFileAlertController(fileIndexPath: indexPath)
+        let deleteAction = UIContextualAction(
+            style: .destructive,
+            title: "Удалить"
+        ) { deleteAction, view, completionHandler in
+            self.presentDeleteFileAlertController(fileCellIndexPath: indexPath)
             
             completionHandler(true)
         }
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 14, weight: .bold)
         deleteAction.image = UIImage(systemName: "trash", withConfiguration: symbolConfig)
-        
-        // TODO: сделать чтобы действие подкрашивалось серым до определенной степени свайпа, а потом становилось красным
-        // TODO: + чтобы если свайпнуто больше основной части, то чтобы сразу запускалось действие
         
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
@@ -413,9 +385,9 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: "edit" / delete row
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-//        if taskDataCellsValues.cellsValuesArray[indexPath.row] is FileCellValue {
-//            return true
-//        }
+        if viewModel.isFileCellViewModel(byIndexPath: indexPath) {
+            return true
+        }
         
         return false
     }
@@ -427,13 +399,6 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
         return false
     }
-
-//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-//        if editingStyle == .delete {
-//            buttonsArray.remove(at: indexPath.row)
-//            buttonsTableView.deleteRows(at: [indexPath], with: .fade)
-//        }
-//    }
 
 }
 
@@ -498,7 +463,6 @@ extension TaskDetailViewController: StarButtonDelegate {
 //        taskEm.updateField(isPriority: starButton.isOn, task: task)
     }
 }
-
 
 /// Делегат связанный с полем "Дата напоминания"
 extension TaskDetailViewController: NotificationsDisabledAlertControllerDelegate {
@@ -583,8 +547,9 @@ extension TaskDetailViewController: CustomDateSetterViewControllerDelegate {
 /// - "Дата напоминания" [x]
 /// - "Дата выполнения" [x]
 /// - "Период повтора" [x]
+/// - "Прикрепленный файл" [х] - удаление
 extension TaskDetailViewController: TaskDetailBaseButtonCellDelegate {
-    func didTapTaskDetailCellActionButton(cellIdentifier: String) {
+    func didTapTaskDetailCellActionButton(cellIdentifier: String, cell: UITableViewCell) {
         
         switch cellIdentifier {
         case AddToMyDayButtonCell.identifier:
@@ -599,6 +564,13 @@ extension TaskDetailViewController: TaskDetailBaseButtonCellDelegate {
         case RepeatPeriodButtonCell.identifier :
             viewModel.updateTaskField(repeatPeriod: nil)
     
+        case FileButtonCell.identifier :
+            let indexPath = taskDataTableView.indexPath(for: cell)
+            guard let indexPath else { return }
+            
+            presentDeleteFileAlertController(fileCellIndexPath: indexPath)
+            break
+            
         default :
             break
         }
@@ -625,51 +597,86 @@ extension TaskDetailViewController: DescriptionButtonCellDelegateProtocol {
     }
 }
 
-/// Делегат для взаимодействия с галереей (при загрузке файла)
-extension TaskDetailViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+/// Делегат для действий при выборе вариантов "откуда добавить файл"
+extension TaskDetailViewController: AddFileSourceAlertControllerDelegate {
+    func didChooseAddFileFromImageLibrary() {
+        // TODO: сделать нормальные проверки
+        guard UIImagePickerController.isSourceTypeAvailable(.photoLibrary) == true else {
+            print("❌ Нет доступа к галерее")
+            return
+        }
         
-//        guard let originalImage = info[.originalImage] as? UIImage else {
-//            picker.dismiss(animated: true)
-//            return
-//        }
-//        
-//        picker.dismiss(animated: true)
-//        
-//        let imgData = NSData(data: originalImage.jpegData(compressionQuality: 1)!)
-//        
-//        // TODO: вынести в EM
-//        let taskFile = taskFileEm.createWith(
-//            fileName: "Фото размером \(imgData.count) kb",
-//            fileExtension: "jpg",
-//            fileSize: imgData.count,
-//            task: task
-//        )
-//        taskFileEm.saveContext()
-//        
-//        let indexNewFile = taskDataCellsValues.appendFile(taskFile)
-//        taskDataTableView.insertRows(at: [IndexPath(row: indexNewFile, section: 0)], with: .fade)
+        let availableMediaTypes = UIImagePickerController.availableMediaTypes(for: .photoLibrary)
+        guard (availableMediaTypes?.count ?? 0) > 0 else {
+            print("❌ нет доступных форматов в галерее")
+            return
+        }
+        
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.delegate = self
+        imagePickerController.mediaTypes = availableMediaTypes ?? []
+        
+        present(imagePickerController, animated: true)
+    }
+    
+    func didChooseAddFileFromCamera() {
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) == true else {
+            print("❌ Нет доступа к камере")
+            return
+        }
+        
+        let availableMediaTypes = UIImagePickerController.availableMediaTypes(for: .camera)
+        guard (availableMediaTypes?.count ?? 0) > 0 else {
+            print("❌ нет доступных форматов у камеры")
+            return
+        }
+        
+        let imagePickerController = UIImagePickerController()
+        imagePickerController.sourceType = .camera
+        imagePickerController.delegate = self
+        imagePickerController.mediaTypes = availableMediaTypes ?? []
+        
+        present(imagePickerController, animated: true)
+    }
+    
+    func didChooseAddFileFromFiles() {
+        let documentPicker = UIDocumentPickerViewController(
+            forOpeningContentTypes: [.jpeg, .pdf, .text]
+        )
+        documentPicker.delegate = self
+        documentPicker.allowsMultipleSelection = false
+        
+        present(documentPicker, animated: true)
     }
 }
 
+/// Делегат для взаимодействия с галереей (при загрузке файла)
+extension TaskDetailViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(
+        _ picker: UIImagePickerController,
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
+    ) {
+        picker.dismiss(animated: true)
+        guard let originalImage = info[.originalImage] as? UIImage else {
+            return
+        }
+        
+        let imgData = NSData(data: originalImage.jpegData(compressionQuality: 1)!)
+        viewModel.createTaskFile(fromImageData: imgData)
+    }
+}
+
+/// Делегат для взаимодействия с браузером файлов (при загрузке файла)
 extension TaskDetailViewController: UIDocumentPickerDelegate {
-    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-//    
-//        for url in urls {
-//            let taskFile = taskFileEm.createWith(
-//                fileName: "Файл размером ??? kb",
-//                fileExtension: url.pathExtension,
-//                fileSize: 0,
-//                task: task
-//            )
-//            taskFileEm.saveContext()
-//            
-//            let indexNewFile = taskDataCellsValues.appendFile(taskFile)
-//            taskDataTableView.insertRows(at: [IndexPath(row: indexNewFile, section: 0)], with: .fade)
-//            
-//            break
-//        }
-//        
-//        controller.dismiss(animated: true)
+    func documentPicker(
+        _ controller: UIDocumentPickerViewController,
+        didPickDocumentsAt urls: [URL]
+    ) {
+        controller.dismiss(animated: true)
+        
+        for url in urls {
+            viewModel.createTaskFile(fromUrl: url)
+            break
+        }
     }
 }

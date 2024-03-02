@@ -2,8 +2,10 @@
 import Foundation
 
 protocol DeletableItem {
-    /// Название, которое должно выводиться при удалении
-    var title: String { get }
+    typealias ItemTypeName = (oneIP: String, oneVP: String, manyVP: String)
     
-    var itemTypeName: (one: String, many: String) { get }
+    /// Название, которое должно выводиться при удалении
+    var titleForDelete: String { get }
+    
+    var itemTypeName: ItemTypeName { get }
 }

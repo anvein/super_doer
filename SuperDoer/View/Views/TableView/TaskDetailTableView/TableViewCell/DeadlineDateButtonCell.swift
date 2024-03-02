@@ -12,7 +12,7 @@ class DeadlineDateButtonCell: TaskDetailLabels2StatesButtonCell {
         return "Добавить дату выполнения"
     }
     
-    func fillFrom(_ cellValue: DeadlineDateCellValue) {
+    func fillFrom(_ cellValue: DeadlineDateCellViewModel) {
         if let deadlineDate = cellValue.date {
             // TODO: Сделать формирование красивой даты (сегодня, завтра + не выводить текущий год)
             let stringDate = deadlineDate.formatWith(dateFormat: "EEEEEE, d MMMM y")

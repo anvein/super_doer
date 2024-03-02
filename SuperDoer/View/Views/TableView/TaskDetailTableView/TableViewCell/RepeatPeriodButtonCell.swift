@@ -16,7 +16,7 @@ class RepeatPeriodButtonCell: TaskDetailLabels2StatesButtonCell {
         return true
     }
     
-    func fillFrom(_ cellValue: RepeatPeriodCellValue) {
+    func fillFrom(_ cellValue: RepeatPeriodCellViewModel) {
         if let repeatePeriod = cellValue.period {
             let arrMiniText = ["вт, чт", nil]
             let forMiniText = arrMiniText.randomElement()!

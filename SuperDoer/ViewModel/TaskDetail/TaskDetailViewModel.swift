@@ -4,7 +4,9 @@ import Foundation
 /// ViewModel страницы открытой задачи (просмотр / редактирование)
 class TaskDetailViewModel {
     
+    // TODO: переделать на DI
     lazy var taskEm = TaskEntityManager()
+    lazy var taskFileEm = TaskFileEntityManager()
     
     // TODO: сделать private всё
     // инициализировать наблюдаемые поля при инициализации сущности
@@ -16,10 +18,10 @@ class TaskDetailViewModel {
     
     /// Объект-массив на основании которого формируется таблица с "кнопками" и данными задачи
     /// Прослойка между сущностью Task и данных для вывода задачи в виде таблицы
-    private var taskDataCellsValues: Box<TaskDataCellValues>
+    private var taskDataViewModels: Box<TaskDataCellViewModels>
     
     var countTaskDataCellsValues: Int {
-        return taskDataCellsValues.value.cellsValuesArray.count
+        return taskDataViewModels.value.viewModels.count
     }
     
     var taskTitle: Box<String?>
@@ -34,13 +36,13 @@ class TaskDetailViewModel {
         taskIsCompleted = Box(task.isCompleted)
         taskIsPriority = Box(task.isPriority)
         
-        taskDataCellsValues = Box(TaskDataCellValues(task))
+        taskDataViewModels = Box(TaskDataCellViewModels(task))
     }
     
     
     // MARK: children view models building
-    func getTaskDataCellValueFor(indexPath: IndexPath) -> TaskDataCellValueProtocol {
-        return taskDataCellsValues.value.cellsValuesArray[indexPath.row]
+    func getTaskDataCellValueFor(indexPath: IndexPath) -> TaskDataCellViewModelType {
+        return taskDataViewModels.value.viewModels[indexPath.row]
     }
     
     func getTaskDeadlineTableVariantsViewModel() -> TaskDeadlineTableVariantsViewModel {
@@ -63,6 +65,17 @@ class TaskDetailViewModel {
         return CustomTaskRepeatPeriodSetterViewModel(task: task)
     }
     
+    func getFileCellViewModel(forIndexPath indexPath: IndexPath) -> FileCellViewModel? {
+        let fileCellVM = taskDataViewModels.value.viewModels[indexPath.row]
+        guard let fileCellVM = fileCellVM as? FileCellViewModel else { return nil }
+        
+        return fileCellVM
+    }
+    
+    func isFileCellViewModel(byIndexPath indexPath: IndexPath) -> Bool {
+        return taskDataViewModels.value.viewModels[indexPath.row] is FileCellViewModel
+    }
+    
     func getTaskDescriptionEditorViewModel() -> TaskDescriptionEditorViewModel {
         return TaskDescriptionEditorViewModel(task: task)
     }
@@ -78,22 +91,22 @@ class TaskDetailViewModel {
     func updateTaskField(inMyDay: Bool) {
         taskEm.updateField(inMyDay: inMyDay, task: task)
         
-        taskDataCellsValues.value.fillAddToMyDay(from: task)
+        taskDataViewModels.value.fillAddToMyDay(from: task)
     }
     
     func updateTaskField(deadlineDate: Date?) {
         taskEm.updateField(deadlineDate: deadlineDate, task: task)
-        taskDataCellsValues.value.fillDeadlineAt(from: task)
+        taskDataViewModels.value.fillDeadlineAt(from: task)
     }
     
     func updateTaskField(reminderDateTime: Date?) {
         taskEm.updateField(reminderDateTime: reminderDateTime, task: task)
-        taskDataCellsValues.value.fillReminderDateTime(from: task)
+        taskDataViewModels.value.fillReminderDateTime(from: task)
     }
     
     func updateTaskField(repeatPeriod: String?) {
         taskEm.updateField(repeatPeriod: repeatPeriod, task: task)
-        taskDataCellsValues.value.fillRepeatPeriod(from: task)
+        taskDataViewModels.value.fillRepeatPeriod(from: task)
     }
     
     func switchValueTaskFieldInMyDay() {
@@ -108,13 +121,52 @@ class TaskDetailViewModel {
             descriptionUpdatedAt: Date(),
             task: task
         )
-        taskDataCellsValues.value.fillDescription(from: task)
+        taskDataViewModels.value.fillDescription(from: task)
     }
     
+    func createTaskFile(fromImageData imageData: NSData) {
+        let taskFile = taskFileEm.createWith(
+            fileName: "Фото размером \(imageData.count) kb",
+            fileExtension: "jpg",
+            fileSize: imageData.count,
+            task: task
+        )
+        
+        taskDataViewModels.value.appendFile(taskFile)
+    }
+    
+    func createTaskFile(fromUrl url: URL) {
+        let taskFile = taskFileEm.createWith(
+            fileName: "Файл размером ??? kb",
+            fileExtension: url.pathExtension,
+            fileSize: 0,
+            task: task
+        )
+        
+        taskDataViewModels.value.appendFile(taskFile)
+    }
+    
+    func deleteTaskFile(fileCellIndexPath indexPath: IndexPath) {
+        let cellValue = taskDataViewModels.value.viewModels[indexPath.row]
+        guard let fileCellValue = cellValue as? FileCellViewModel else {
+            // TODO: показать сообщение об ошибке (файл не получилось удалить)
+            return
+        }
+        
+        let taskFile = task.getFileBy(id: fileCellValue.id)
+        guard let taskFile else  {
+            // TODO: показать сообщение об ошибке (файл не получилось удалить)
+            return
+        }
+        
+        taskFileEm.delete(file: taskFile)
+        
+        taskDataViewModels.value.viewModels.remove(at: indexPath.row)
+    }
     
     // MARK: binding methods
-    func setupBindingTaskDataCellsValues(listener: @escaping (TaskDataCellValues) -> ()) {
-        taskDataCellsValues.bindAndUpdateValue(listener: listener)
+    func setupBindingTaskDataCellsValues(listener: @escaping (TaskDataCellViewModels) -> ()) {
+        taskDataViewModels.bindAndUpdateValue(listener: listener)
     }
     
     private func updateObservablePropertiesFrom(task: Task) {
@@ -130,7 +182,7 @@ class TaskDetailViewModel {
             taskIsPriority.value = task.isPriority
         }
         
-        taskDataCellsValues.value.fill(from: task)
+        taskDataViewModels.value.fill(from: task)
     }
     
 }

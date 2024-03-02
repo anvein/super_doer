@@ -50,7 +50,11 @@ class TaskSectionsListViewController: UIViewController {
         let deleteAlertController = DeleteAlertController(itemsIndexPath: sectionsIndexPaths, singleItem: nil) { [unowned self] _ in
             self.viewModel?.deleteSections(withIndexPaths: sectionsIndexPaths)
         } 
-        deleteAlertController.itemTypeName = DeleteAlertController.ItemTypeName(oneIP: "список", oneVP: "список", manyIP: "списки")
+        deleteAlertController.itemTypeName = DeletableItem.ItemTypeName(
+            oneIP: "список",
+            oneVP: "список",
+            manyVP: "списки"
+        )
         self.present(deleteAlertController, animated: true)
     }
     

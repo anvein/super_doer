@@ -136,7 +136,8 @@ class TaskDetailBaseButtonCell: UITableViewCell {
     // MARK: methods handlers
     @objc func handleTapActionButton(actionButton: UIButton) {
         delegate?.didTapTaskDetailCellActionButton(
-            cellIdentifier: Self.identifier
+            cellIdentifier: Self.identifier,
+            cell: self
         )
     }
     
@@ -155,5 +156,5 @@ class TaskDetailBaseButtonCell: UITableViewCell {
 // MARK: delegate protocol
 protocol TaskDetailBaseButtonCellDelegate: AnyObject {
     /// Была нажата кнопка "действия" в ячейке
-    func didTapTaskDetailCellActionButton(cellIdentifier: String)
+    func didTapTaskDetailCellActionButton(cellIdentifier: String, cell: UITableViewCell)
 }

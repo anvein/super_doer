@@ -9,12 +9,10 @@ public class Task: NSManagedObject {
     func getFileBy(id: UUID) -> TaskFile? {
         
         for file in files ?? [] {
-            guard let safeFile = file as? TaskFile else {
-                continue
-            }
+            guard let file = file as? TaskFile else { continue}
             
-            if safeFile.id?.uuidString == id.uuidString {
-                return safeFile
+            if file.id?.uuidString == id.uuidString {
+                return file
             }
         }
         

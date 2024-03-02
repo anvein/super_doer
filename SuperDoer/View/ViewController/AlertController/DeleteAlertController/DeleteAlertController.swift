@@ -3,15 +3,18 @@ import UIKit
 
 /// Алерт-контроллер "Удаление элемента"
 class DeleteAlertController: UIAlertController {
-    typealias ItemTypeName = (oneIP: String, oneVP: String, manyIP: String)
     
     /// Массив с IndexPath элементов, которые надо удалить
     private let itemsIndexPaths: [IndexPath]
-    private let singleItem: DeletableItem? // TODO: проработать получение названия элемента
+    private let singleItem: DeletableItem?
     
     /// oneIP - именительный падеж, ед.ч.
     /// oneVP - винительный падеж, ед. ч;
-    var itemTypeName: ItemTypeName = ItemTypeName(oneIP: "элемент", oneVP: "элемент", manyIP: "элементы")
+    var itemTypeName: DeletableItem.ItemTypeName = (
+        oneIP: "элемент",
+        oneVP: "элемент",
+        manyVP: "элементы"
+    )
     
     private let deleteHandler: (([IndexPath]) -> Void)
     
@@ -49,13 +52,13 @@ class DeleteAlertController: UIAlertController {
         var result: String
         if itemsIndexPaths.count == 1 {
             var resultItemTitle = ""
-            if let singleItemTitle = singleItem?.title {
-                resultItemTitle = "\"\(singleItemTitle))\" "
+            if let singleItemTitle = singleItem?.titleForDelete {
+                resultItemTitle = "\"\(singleItemTitle)\" "
             }
             
-            result = "\(itemTypeName.oneIP.firstLetterCapitalized) \(resultItemTitle)будет удалена без возможности восстановления"
+            result = "\(itemTypeName.oneIP.firstLetterCapitalized) \(resultItemTitle)будет удален(а) без возможности восстановления"
         } else {
-            result = "Вы действительно хотите удалить выбранные \(itemTypeName.manyIP)?"
+            result = "Вы действительно хотите удалить выбранные \(itemTypeName.manyVP)?"
         }
         
         return result
@@ -64,7 +67,7 @@ class DeleteAlertController: UIAlertController {
     private func buildActions() -> (deleteAction: UIAlertAction, cancelAction: UIAlertAction) {
         
         let deleteAction = UIAlertAction(
-            title: "Удалить \(itemsIndexPaths.count == 1 ? itemTypeName.oneVP : itemTypeName.manyIP)",
+            title: "Удалить \(itemsIndexPaths.count == 1 ? itemTypeName.oneVP : itemTypeName.manyVP)",
             style: .destructive,
             handler: { [unowned self] action in
                 self.deleteHandler(self.itemsIndexPaths)
