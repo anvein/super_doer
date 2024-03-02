@@ -13,9 +13,7 @@ class AddToMyDayButtonCell: TaskDetailLabelsButtonCell {
     /// false - inactive (off)
     var isOn: State = false {
         didSet {
-            guard isOn != oldValue else {
-                return
-            }
+            guard isOn != oldValue else { return }
             
             configureForState(isOn)
         }

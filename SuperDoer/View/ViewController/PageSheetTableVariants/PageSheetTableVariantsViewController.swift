@@ -4,14 +4,7 @@ import Foundation
 
 /// Контролер в виде PageSheet с таблицей  (для выбора вариантов из списка)
 class PageSheetTableVariantsViewController: UIViewController {
-    typealias DetentIdentifier = UISheetPresentationController.Detent.Identifier
-    typealias ControllerDetent = UISheetPresentationController.Detent
     typealias TaskFieldIdentifier = TaskDetailViewController.FieldNameIdentifier
-    
-    typealias DetentParams = (
-        detentIdentifier: DetentIdentifier,
-        detent: ControllerDetent
-    )
     
     private var viewModel: TableVariantsViewModelType
     
@@ -93,42 +86,37 @@ extension PageSheetTableVariantsViewController {
     }
     
     private func configureSheetPresentationController() {
-        if let sheet = sheetPresentationController {
-            sheet.presentedViewController.additionalSafeAreaInsets.top = 14
-            
-            let detentParams = buildDetentParams()
-            sheet.detents = [
-                detentParams.detent
-            ]
-            sheet.selectedDetentIdentifier = detentParams.detentIdentifier
+        guard let sheet = sheetPresentationController else { return }
+        let detent = buildDetent()
+        sheet.detents = [
+            detent
+        ]
+        sheet.animateChanges {
+//            sheet.presentedViewController.additionalSafeAreaInsets.top = 14
+            sheet.selectedDetentIdentifier = detent.identifier
         }
     }
     
-    private func buildDetentParams() -> DetentParams {
-        var detent: ControllerDetent
-        var detentIdentifier: DetentIdentifier
-        
+    private func buildDetent() -> UISheetPresentationController.Detent {
+        var detent: UISheetPresentationController.Detent
         switch self.identifier {
         case TaskFieldIdentifier.taskDeadline.rawValue:
             detent = .custom(identifier: .taskDeadlineVariants, resolver: { context in
                 return 280
             })
-            detentIdentifier = .taskDeadlineVariants
             
         case TaskFieldIdentifier.taskRepeatPeriod.rawValue:
             detent = .custom(identifier: .taskRepeatPeriodVariants, resolver: { context in
                 return 380
             })
-            detentIdentifier = .taskRepeatPeriodVariants
             
         default:
             detent = .custom(identifier: .defuiltVariantsController, resolver: { context in
                 return 280
             })
-            detentIdentifier = .defuiltVariantsController
         }
         
-        return (detent: detent, detentIdentifier: detentIdentifier)
+        return detent
     }
     
     private func setupNavigationBar() {

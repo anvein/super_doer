@@ -35,7 +35,7 @@ class CustomDateSetterViewController: UIViewController {
         return navBar
     }()
     
-    weak var delegate: PageSheetCustomDateViewControllerDelegate?
+    weak var delegate: CustomDateSetterViewControllerDelegate?
     
     /// Индентификатор для случая, чтобы различать из какого ViewController'а были вызваны методы делегата
     /// Например: из того, который устанавливает дату дедлайна задачи или который уст. дату и время напоминания
@@ -70,12 +70,7 @@ class CustomDateSetterViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        // TODO: анимировать изменение высоты контроллера
-        configureSheetPresentationController()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
+        updateDetent()
     }
     
     
@@ -110,6 +105,18 @@ class CustomDateSetterViewController: UIViewController {
     private func setupControls() {
         view.backgroundColor = InterfaceColors.white
     
+        // TODO: разобраться надо ли это делать?
+        if navigationController != nil {
+            modalPresentationStyle = .pageSheet
+        }
+        
+        // sheetPresentationController
+        if let sheet = sheetPresentationController {
+            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 15
+        }
+        
         setupDatePicker()
     }
     
@@ -149,21 +156,15 @@ class CustomDateSetterViewController: UIViewController {
         return deleteBarButton
     }
     
-    private func configureSheetPresentationController() {
-        // modalPresentationStyle = .pageSheet
-        // почему это не надо делать?
-        // это значение по умолчанию?
+    private func updateDetent() {
+        guard let sheet = sheetPresentationController else { return }
+        let detent = self.buildDetentForDatePickerMode(self.datePickerMode)
+        sheet.detents = [
+            detent
+        ]
         
-        if let sheet = sheetPresentationController {
-            sheet.detents = [
-                self.buildDetentForDatePickerMode(self.datePickerMode)
-            ]
-            
-            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
-            sheet.prefersGrabberVisible = true
-            sheet.presentedViewController.additionalSafeAreaInsets.top = 0
-            sheet.selectedDetentIdentifier = .pageSheetCustomDate
-        }
+        // TODO: не дает анимировать detent из-за DatePicket - почему?
+        sheet.selectedDetentIdentifier = detent.identifier
     }
     
     private func buildDetentForDatePickerMode(_ mode: SupportedDatePickerMode) -> UISheetPresentationController.Detent {
@@ -228,7 +229,7 @@ extension UISheetPresentationController.Detent.Identifier {
 
 
 // MARK: controller delegate protocol
-@objc protocol PageSheetCustomDateViewControllerDelegate: AnyObject {
+@objc protocol CustomDateSetterViewControllerDelegate: AnyObject {
     /// Была нажата кнопка "Готово" (установить) - выбрана дата
     /// - Parameters:
     ///   - newDate: Date - если нажата кнопка "Готово" (установить), nil - если нажата кнопка "Удалить" (очистить)

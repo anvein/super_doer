@@ -391,8 +391,6 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
         }
         
         tableView.deselectRow(at: indexPath, animated: false)
-
-        tableView.reloadData()
     }
     
     
@@ -429,7 +427,6 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
         return false
     }
-    
 
 //    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
 //        if editingStyle == .delete {
@@ -522,13 +519,6 @@ extension TaskDetailViewController: NotificationsDisabledAlertControllerDelegate
     }
 }
 
-/// Делегаты связанные с полем "Дата выполнения"
-extension TaskDetailViewController: DeadlineDateButtonCellDelegate {
-    func didTapTaskDeadlineCrossButton() {
-        viewModel.updateTaskField(deadlineDate: nil)
-    }
-}
-
 /// Делегаты связанные с полями: "Дата выполнения" (дедлайн), "Дата напоминания", "Период повтора"
 /// и контроллерами с вариантами значений и установкой кастомного значения
 extension TaskDetailViewController: PageSheetTableVariantsViewControllerDelegate {
@@ -561,6 +551,7 @@ extension TaskDetailViewController: PageSheetTableVariantsViewControllerDelegate
                 identifier: identifier
             )
             customRepeatPeriodSetterVC.delegate = self
+            customRepeatPeriodSetterVC.title = "Повторять каждые"
             
             navigationController?.pushViewController(customRepeatPeriodSetterVC, animated: true)
         }
@@ -575,7 +566,7 @@ extension TaskDetailViewController: PageSheetTableVariantsViewControllerDelegate
     }
 }
 
-extension TaskDetailViewController: PageSheetCustomDateViewControllerDelegate {
+extension TaskDetailViewController: CustomDateSetterViewControllerDelegate {
     func didChooseCustomDateReady(newDate: Date?, identifier: String) {
         if identifier == FieldNameIdentifier.taskDeadline.rawValue {
             viewModel.updateTaskField(deadlineDate: newDate)
@@ -593,17 +584,27 @@ extension TaskDetailViewController: PageSheetCustomDateViewControllerDelegate {
     }
 }
 
-/// Делегат связанный с полем "Дата напоминания"
-extension TaskDetailViewController: ReminderDateButtonCellDelegate {
-    func didTapReminderDateCrossButton() {
-        viewModel.updateTaskField(reminderDateTime: nil)
-    }
-}
-
-/// Делегаты связанные с полем "Период повтора" задачи
-extension TaskDetailViewController: RepeatPeriodButtonCellDelegate {
-    func didTapRepeatPeriodCrossButton() {
-        viewModel.updateTaskField(repeatPeriod: nil)
+/// Делегаты связанные с крестиками в ячейках данных задачи у полей:
+/// - "Дата напоминания" [x]
+/// - "Дата выполнения" [x]
+/// - "Период повтора" [x]
+extension TaskDetailViewController: Labels2StatesButtonCellDelegate {
+    func didTapLabels2StatesCellCrossButton(cellIdentifier: String) {
+        
+        switch cellIdentifier {
+        case ReminderDateButtonCell.identifier:
+            viewModel.updateTaskField(reminderDateTime: nil)
+            
+        case DeadlineDateButtonCell.identifier:
+            viewModel.updateTaskField(deadlineDate: nil)
+            
+        case RepeatPeriodButtonCell.identifier :
+            viewModel.updateTaskField(repeatPeriod: nil)
+    
+        default :
+            break
+        }
+        
     }
 }
 

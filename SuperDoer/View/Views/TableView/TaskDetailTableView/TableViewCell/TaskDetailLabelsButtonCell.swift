@@ -13,7 +13,7 @@ class TaskDetailLabelsButtonCell: TaskDetailBaseButtonCell {
     
     let labelsStackView = UIStackView()
     let mainTextLabel = UILabel()
-    let miniTextLabel = UILabel()
+    let additionalTextLabel = UILabel()
     
     
     // MARK: setup methods
@@ -24,7 +24,7 @@ class TaskDetailLabelsButtonCell: TaskDetailBaseButtonCell {
         contentView.addSubview(labelsStackView)
         
         labelsStackView.addArrangedSubview(mainTextLabel)
-        labelsStackView.addArrangedSubview(miniTextLabel)
+        labelsStackView.addArrangedSubview(additionalTextLabel)
     }
     
     override func setupViews()
@@ -43,8 +43,8 @@ class TaskDetailLabelsButtonCell: TaskDetailBaseButtonCell {
         mainTextLabel.numberOfLines = 1
         mainTextLabel.font = mainTextLabel.font.withSize(16)
         
-        miniTextLabel.numberOfLines = 1
-        miniTextLabel.font = miniTextLabel.font.withSize(14)
+        additionalTextLabel.numberOfLines = 1
+        additionalTextLabel.font = additionalTextLabel.font.withSize(14)
     }
     
     override func setupConstraints() {

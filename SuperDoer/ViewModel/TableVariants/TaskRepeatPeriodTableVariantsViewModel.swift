@@ -53,7 +53,7 @@ class TaskRepeatPeriodTableVariantsViewModel: TableVariantsViewModelType {
             TaskRepeatPeriodVariantCellViewModel(
                 imageSettings: DateVariantCellViewModel.ImageSettings(name: "clock.arrow.circlepath"),
                 title: "Каждый день",
-                period: "1D"
+                period: "1day"
             )
         )
         
@@ -62,7 +62,7 @@ class TaskRepeatPeriodTableVariantsViewModel: TableVariantsViewModelType {
             TaskRepeatPeriodVariantCellViewModel(
                 imageSettings: DateVariantCellViewModel.ImageSettings(name: "square.grid.3x1.below.line.grid.1x2.fill"),
                 title: "Каждую неделю (\(date.formatWith(dateFormat: "EEEEEE").lowercased()))",
-                period: "1W[wed]"
+                period: "1week[wed]"
             )
         )
         
@@ -70,7 +70,7 @@ class TaskRepeatPeriodTableVariantsViewModel: TableVariantsViewModelType {
             TaskRepeatPeriodVariantCellViewModel(
                 imageSettings: DateVariantCellViewModel.ImageSettings(name: "rectangle.stack.badge.person.crop"),
                 title: "Рабочие дни",
-                period: "1W[mon,tue,wed,thu,fri]"
+                period: "1week[mon,tue,wed,thu,fri]"
             )
         )
         
@@ -78,7 +78,7 @@ class TaskRepeatPeriodTableVariantsViewModel: TableVariantsViewModelType {
             TaskRepeatPeriodVariantCellViewModel(
                 imageSettings: DateVariantCellViewModel.ImageSettings(name: "square.grid.3x3.topleft.filled"),
                 title: "Каждый месяц",
-                period: "1M"
+                period: "1month"
             )
         )
         
@@ -86,7 +86,7 @@ class TaskRepeatPeriodTableVariantsViewModel: TableVariantsViewModelType {
             TaskRepeatPeriodVariantCellViewModel(
                 imageSettings: DateVariantCellViewModel.ImageSettings(name: "calendar.badge.clock"),
                 title: "Каждый год",
-                period: "1Y"
+                period: "1year"
             )
         )
         

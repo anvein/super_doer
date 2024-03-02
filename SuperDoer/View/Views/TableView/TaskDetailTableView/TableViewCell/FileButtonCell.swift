@@ -45,7 +45,7 @@ class FileButtonCell: TaskDetailLabelsButtonCell {
         
         labelsStackView.spacing = 0
         mainTextLabel.textColor = InterfaceColors.blackText
-        miniTextLabel.textColor = InterfaceColors.textGray
+        additionalTextLabel.textColor = InterfaceColors.textGray
         
 //        actionButton.addTarget(self, action: #selector(actionButtonTapHandle), for: .touchUpInside)
     }
@@ -78,7 +78,7 @@ class FileButtonCell: TaskDetailLabelsButtonCell {
         
         mainTextLabel.text = cellValue.name
         extensionLabel.text = cellValue.fileExtension.uppercased()
-        miniTextLabel.text = "\(cellValue.size) КБ"
+        additionalTextLabel.text = "\(cellValue.size) КБ"
     }
     
 //    // MARK: target-action handlers

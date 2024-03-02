@@ -40,8 +40,7 @@ class CustomTaskRepeatPeriodSetterViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        // TODO: анимировать изменение высоты контроллера
-        configureSheetPresentationController()
+        updateDetent()
     }
     
     
@@ -53,9 +52,9 @@ class CustomTaskRepeatPeriodSetterViewController: UIViewController {
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             pickerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            pickerView.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
-            pickerView.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
-            pickerView.heightAnchor.constraint(equalToConstant: 200),
+            pickerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            pickerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            pickerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
     }
     
@@ -68,45 +67,55 @@ class CustomTaskRepeatPeriodSetterViewController: UIViewController {
         readyBarButton.tintColor = InterfaceColors.textBlue
         navigationItem.rightBarButtonItem = readyBarButton
     
+        // sheetPresentationController
+        modalPresentationStyle = .pageSheet
+        if let sheet = sheetPresentationController {
+            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 15
+        }
+        
         setupPickerView()
     }
     
     private func setupPickerView() {
         pickerView.translatesAutoresizingMaskIntoConstraints = false
         pickerView.dataSource = self
-//        pickerView.datePickerMode = datePickerMode.asUIDatePickerMode
-//        pickerView.preferredDatePickerStyle = .inline
-//        pickerView.tintColor = InterfaceColors.textBlue
-//        pickerView.locale = .current
+        pickerView.delegate = self
     }
     
-    private func configureSheetPresentationController() {
-        // modalPresentationStyle = .pageSheet
-        // почему это не надо делать?
-        // это значение по умолчанию?
-        
-        if let sheet = sheetPresentationController {
-            sheet.detents = [
-                .custom(identifier: .pageSheetCustomTaskRepeatPeriod, resolver: { context in
-                    return 410
-                })
-            ]
-            
-            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
-            sheet.prefersGrabberVisible = true
-            sheet.presentedViewController.additionalSafeAreaInsets.top = 0
+    private func updateDetent() {
+        guard let sheet = sheetPresentationController else { return }
+
+        sheet.detents = [
+            .custom(identifier: .pageSheetCustomTaskRepeatPeriod, resolver: { context in
+                return 360
+            }),
+        ]
+        sheet.animateChanges {
             sheet.selectedDetentIdentifier = .pageSheetCustomTaskRepeatPeriod
         }
     }
     
     private func setupBindings() {
-        // TODO: сделать биндинг через делегата
+        viewModel.bindingDelegate = self
     }
     
     
     // MARK: action-handlers
     @objc private func tapButtonReady() {
-        delegate?.didChooseCustomTaskRepeatPeriodReady(newPeriod: "", identifier: identifier)
+        let amountRowVM = viewModel.getRowViewModel(
+            forRow: pickerView.selectedRow(inComponent: 0),
+            forComponent: 0
+        ) as! TaskRepeatPeriodAmountRowViewModel
+        
+        let typeRowVM = viewModel.getRowViewModel(
+            forRow: pickerView.selectedRow(inComponent: 1),
+            forComponent: 1
+        ) as! TaskRepeatPeriodTypeRowViewModel
+        let periodValue = "\(amountRowVM.value)\(typeRowVM.value.rawValue)"
+        
+        delegate?.didChooseCustomTaskRepeatPeriodReady(newPeriod: periodValue, identifier: identifier)
         dismiss(animated: true)
     }
 }
@@ -115,14 +124,47 @@ class CustomTaskRepeatPeriodSetterViewController: UIViewController {
 // MARK: date picker delegate and data source
 extension CustomTaskRepeatPeriodSetterViewController: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 2
+        return viewModel.getNumberOfComponents()
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return 10
+        return viewModel.getNumberOfRowsInComponent(componentIndex: component)
+    }
+        
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        let rowViewModel = viewModel.getRowViewModel(forRow: row, forComponent: component)
+
+        return rowViewModel?.visibleValue
+    }
+
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        if component == 1 {
+            let rowViewModel = viewModel.getRowViewModel(forRow: row, forComponent: component)
+            guard let rowViewModel = rowViewModel as? TaskRepeatPeriodTypeRowViewModel else { return }
+            if rowViewModel.value == .week {
+                viewModel.isShowDaysOfWeek = true
+            }
+        }
+    }
+}
+
+
+
+// MARK: delegate ViewModel update events
+extension CustomTaskRepeatPeriodSetterViewController: CustomTaskRepeatPeriodSetterViewModelBindingDelegate {
+    func didUdpateIsShowReadyButton(newValue isShow: Bool) {
+        navigationItem.rightBarButtonItem?.isHidden = !isShow
     }
     
+    func didUpdateIsShowDaysOfWeek(newValue isShow: Bool) {
+        // TODO: обновить видимость
+    }
     
+    func didUpdateRepeatPeriod(newValue repeatPeriod: String?) {
+        // TODO: обновить значение периода из repeatPeriod
+        pickerView.selectRow(1, inComponent: 0, animated: true)
+        pickerView.selectRow(2, inComponent: 1, animated: true)
+    }
 }
 
 
@@ -140,3 +182,4 @@ protocol CustomTaskRepeatPeriodSetterViewControllerDelegate: AnyObject {
     ///   - identifier: идентификатор открытого экземпляра контроллера (связан с полем, для которого он открыт)
     func didChooseCustomTaskRepeatPeriodReady(newPeriod: String?, identifier: String)
 }
+

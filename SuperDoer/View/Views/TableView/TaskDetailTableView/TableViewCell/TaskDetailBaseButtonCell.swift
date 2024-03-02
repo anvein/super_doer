@@ -37,8 +37,6 @@ class TaskDetailBaseButtonCell: UITableViewCell {
         setupViews()
         setupConstraints()
         setupHandlers()
-        
-        // TODO: переделать на конфирурируемые свойства showTopSeparator и showBottomSeparator
     }
     
     required init?(coder: NSCoder) {
