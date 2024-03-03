@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.80000000000000004" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3kJ-cd-vXA">
+                                <rect key="frame" x="166.33333333333334" y="773" width="60.333333333333343" height="22"/>
+                                <color key="tintColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <attributedString key="attributedText">
+                                    <fragment content="by ">
+                                        <attributes>
+                                            <color key="NSColor" red="0.33314168449999998" green="0.33314168449999998" blue="0.33314168449999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <font key="NSFont" metaFont="system" size="19"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content="N.Vi">
+                                        <attributes>
+                                            <color key="NSColor" red="0.00033459704719999999" green="0.43394273519999998" blue="0.86754423380000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <font key="NSFont" metaFont="system" size="19"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                </attributedString>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UaK-FB-MVM">
+                                <rect key="frame" x="76.666666666666686" y="347" width="240" height="128"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="5ub-z2-gq9">
+                                        <rect key="frame" x="15" y="32.333333333333314" width="64" height="64"/>
+                                        <color key="tintColor" red="0.0" green="0.43601501139999999" blue="0.86727559200000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="65.333333333333329" id="HJ7-kG-psT"/>
+                                            <constraint firstAttribute="width" constant="64" id="XGS-Di-PO7"/>
+                                        </constraints>
+                                        <edgeInsets key="layoutMargins" top="8" left="8" bottom="8" right="8"/>
+                                        <imageReference key="image" image="checkmark.circle" catalog="system" variableValue="0.0"/>
+                                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" weight="regular"/>
+                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hsf-iC-Bdf">
+                                        <rect key="frame" x="91" y="11.333333333333314" width="134" height="105.33333333333333"/>
+                                        <string key="text">Super
+Doer</string>
+                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="44"/>
+                                        <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstItem="5ub-z2-gq9" firstAttribute="centerY" secondItem="UaK-FB-MVM" secondAttribute="centerY" id="5EY-XG-OKr"/>
+                                    <constraint firstAttribute="height" constant="128" id="6wW-I7-XaY"/>
+                                    <constraint firstAttribute="width" constant="240" id="A0U-pY-tCE"/>
+                                    <constraint firstItem="5ub-z2-gq9" firstAttribute="leading" secondItem="UaK-FB-MVM" secondAttribute="leading" constant="15" id="TxA-v4-zvK"/>
+                                    <constraint firstItem="hsf-iC-Bdf" firstAttribute="leading" secondItem="5ub-z2-gq9" secondAttribute="trailing" constant="12" id="WBl-Kx-zvg"/>
+                                    <constraint firstAttribute="trailing" secondItem="hsf-iC-Bdf" secondAttribute="trailing" constant="15" id="YXq-9t-dgo"/>
+                                    <constraint firstItem="hsf-iC-Bdf" firstAttribute="centerY" secondItem="UaK-FB-MVM" secondAttribute="centerY" id="fQ0-5V-XLq"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="UaK-FB-MVM" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="288" id="EZL-lc-tfD"/>
+                            <constraint firstItem="3kJ-cd-vXA" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="KSu-Jp-pk2"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="UaK-FB-MVM" secondAttribute="bottom" constant="343" id="Lac-Il-SK9"/>
+                            <constraint firstItem="UaK-FB-MVM" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="qcz-JM-ekC"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="3kJ-cd-vXA" secondAttribute="bottom" constant="23" id="swK-Uf-Kmf"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="76C-K4-Vgk"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-457.25190839694653" y="242.95774647887325"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="checkmark.circle" catalog="system" width="128" height="123"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

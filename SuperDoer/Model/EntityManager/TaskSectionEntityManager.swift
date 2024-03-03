@@ -7,15 +7,21 @@ class TaskSectionEntityManager: EntityManager {
     /// Возвращает пользовательские списки задач
     /// Не удаленные (deletedAt = nil)
     /// Отсортированные по order = ASC + title = ASC
-    func getCustomSectionsWithOrder() -> [TaskSection] {
-        let fetchRequest: NSFetchRequest<TaskSection> = TaskSection.fetchRequest()
+    /// Параметр isActive влияет на isArchived
+    func getCustomSectionsWithOrder(isActive: Bool? = nil) -> [TaskSectionCustom] {
+        let fetchRequest: NSFetchRequest<TaskSectionCustom> = TaskSectionCustom.fetchRequest()
         
         let deletedAtPredicate = NSPredicate(format: "deletedAt == nil")
         fetchRequest.predicate = deletedAtPredicate
         
-        let sortByOrder = NSSortDescriptor(key: "order", ascending: true)
-        let sortByTitle = NSSortDescriptor(key: "title", ascending: true)
-        fetchRequest.sortDescriptors = [sortByOrder, sortByTitle]
+        if isActive == false {
+            let isActivePridicate = NSPredicate(format: "isArchived == 1")
+            fetchRequest.predicate = isActivePridicate
+        }
+        
+        let sortByOrder = NSSortDescriptor(key: "order", ascending: false)
+//        let sortByTitle = NSSortDescriptor(key: "title", ascending: true)
+        fetchRequest.sortDescriptors = [sortByOrder, /*sortByTitle*/]
         
         do {
             let sections = try getContext().fetch(fetchRequest)
@@ -26,8 +32,8 @@ class TaskSectionEntityManager: EntityManager {
     }
     
     // MARK: insert
-    func createCustomSectionWith(title: String, order: Int = 100, isCycled: Bool = false) -> TaskSection {
-        let section = TaskSection(context: getContext())
+    func createCustomSectionWith(title: String, order: Int = 100, isCycled: Bool = false) -> TaskSectionCustom {
+        let section = TaskSectionCustom(context: getContext())
         
         section.id = UUID()
         section.title = title
@@ -37,6 +43,34 @@ class TaskSectionEntityManager: EntityManager {
         saveContext()
         
         return section
+    }
+    
+    
+    // MARK: update
+    func updateCustomSectionField(title: String, section: TaskSectionCustom) {
+        section.title = title
+        saveContext()
+    }
+    
+    func updateCustomSectionField(isArchive: Bool, section: TaskSectionCustom) {
+        section.isArchived = isArchive
+        saveContext()
+    }
+    
+    
+    // MARK: delete
+    func deleteSection(_ section: TaskSectionCustom) {
+        getContext().delete(section)
+        saveContext()
+    }
+    
+    func deleteSections(_ sections: [TaskSectionCustom]) {
+        let context = getContext()
+        for section in sections {
+            context.delete(section)
+        }
+        
+        saveContext()
     }
     
 }

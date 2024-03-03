@@ -15,13 +15,13 @@ class TaskEntityManager: EntityManager {
         }
     }
     
-    func getTasks(for section: TaskSection?) -> [Task] {
+    func getTasks(for taskSection: TaskSectionCustom?) -> [Task] {
         let fetchRequest = Task.fetchRequest()
         
-        if let safeSection = section {
+        if let safeTaskSection = taskSection {
             // TODO: избавиться от force unwrapping
-            let sectionPredicate = NSPredicate(format: "section == %@", safeSection)
-            fetchRequest.predicate = sectionPredicate
+            let listPredicate = NSPredicate(format: "section == %@", safeTaskSection)
+            fetchRequest.predicate = listPredicate
         }
     
         do {
@@ -59,6 +59,16 @@ class TaskEntityManager: EntityManager {
         saveContext()
     }
     
+    func updateField(reminderDateTime: Date?, task: Task) {
+        task.reminderDateTime = reminderDateTime
+        saveContext()
+    }
+    
+    func updateField(repeatPeriod: String?, task: Task) {
+        task.repeatPeriod = repeatPeriod
+        saveContext()
+    }
+    
     func updateFields(taskDescription: String?, descriptionUpdatedAt: Date, task: Task) {
         task.taskDescription = taskDescription
         task.descriptionUpdatedAt = descriptionUpdatedAt
@@ -68,7 +78,7 @@ class TaskEntityManager: EntityManager {
     
     
     // MARK: insert
-    func createWith(title: String, section: TaskSection?) -> Task {
+    func createWith(title: String, section: TaskSectionCustom?) -> Task {
         let task = Task(context: getContext())
         task.id = UUID()
         task.title = title
