@@ -8,7 +8,7 @@ class TaskListInSectionViewModel: TaskListInSectionViewModelType {
     
     
     // MARK: data
-    private var tasks = [Task]() {
+    private var tasks = [CDTask]() {
         didSet {
             tasksUpdateBinding?()
         }
@@ -61,7 +61,7 @@ class TaskListInSectionViewModel: TaskListInSectionViewModelType {
     }
     
     func deleteTasks(tasksIndexPaths: [IndexPath]) {
-        var deleteTasksArray = [Task]()
+        var deleteTasksArray = [CDTask]()
         
         for taskIndexPath in tasksIndexPaths {
             deleteTasksArray.append(tasks[taskIndexPath.row])

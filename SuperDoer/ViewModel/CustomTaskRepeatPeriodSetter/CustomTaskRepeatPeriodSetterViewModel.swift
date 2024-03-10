@@ -9,7 +9,7 @@ class CustomTaskRepeatPeriodSetterViewModel {
     private static let amountIndex = "amount"
     private static let typeIndex = "type"
     
-    private var task: Task {
+    private var task: CDTask {
         didSet {
             repeatPeriod = task.repeatPeriod
             isShowDaysOfWeek = Self.computeNeedIsShowWeekDaysBy(repeatPeriod)
@@ -42,7 +42,7 @@ class CustomTaskRepeatPeriodSetterViewModel {
     
     
     // MARK: init
-    init(task: Task) {
+    init(task: CDTask) {
         self.task = task
         
         // TODO: когда в сущности будет правильный объект периода переделать заполнение self.repeatPeriod

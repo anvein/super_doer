@@ -9,12 +9,12 @@ struct TaskDataCellViewModels {
     
     var viewModels = [TaskDataCellViewModelType]()
     
-    init(_ task: Task) {
+    init(_ task: CDTask) {
         fill(from: task)
     }
     
     /// Полностью обновляет все данные для таблицы на основании task
-    mutating func fill(from task: Task) {
+    mutating func fill(from task: CDTask) {
         viewModels.removeAll()
         
         viewModels.append(AddSubTaskCellViewModel())
@@ -49,7 +49,7 @@ struct TaskDataCellViewModels {
         )
     }
     
-    mutating func fillAddToMyDay(from task: Task) -> RowIndex? {
+    mutating func fillAddToMyDay(from task: CDTask) -> RowIndex? {
         for (index, buttonValue) in viewModels.enumerated() {
             if var addToMyDayCellValue = buttonValue as? AddToMyDayCellViewModel {
                 addToMyDayCellValue.inMyDay = task.inMyDay
@@ -62,7 +62,7 @@ struct TaskDataCellViewModels {
         return nil
     }
     
-    mutating func fillDeadlineAt(from task: Task) -> RowIndex? {
+    mutating func fillDeadlineAt(from task: CDTask) -> RowIndex? {
         for (index, buttonValue) in viewModels.enumerated() {
             if var deadlineAtCellValue = buttonValue as? DeadlineDateCellViewModel {
                 deadlineAtCellValue.date = task.deadlineDate
@@ -75,7 +75,7 @@ struct TaskDataCellViewModels {
         return nil
     }
     
-    mutating func fillReminderDateTime(from task: Task) -> RowIndex? {
+    mutating func fillReminderDateTime(from task: CDTask) -> RowIndex? {
         for (index, buttonValue) in viewModels.enumerated() {
             if var reminderDateTimeCellValue = buttonValue as? ReminderDateCellViewModel {
                 reminderDateTimeCellValue.dateTime = task.reminderDateTime
@@ -88,7 +88,7 @@ struct TaskDataCellViewModels {
         return nil
     }
     
-    mutating func fillRepeatPeriod(from task: Task) -> RowIndex? {
+    mutating func fillRepeatPeriod(from task: CDTask) -> RowIndex? {
         for (index, buttonValue) in viewModels.enumerated() {
             if var repeatPeriodCellValue = buttonValue as? RepeatPeriodCellViewModel {
                 repeatPeriodCellValue.period = task.repeatPeriod
@@ -124,7 +124,7 @@ struct TaskDataCellViewModels {
         return indexNewFile
     }
     
-    mutating func fillDescription(from task: Task) -> RowIndex? {
+    mutating func fillDescription(from task: CDTask) -> RowIndex? {
         for (index, buttonValue) in viewModels.enumerated() {
             if var descriptionCellValue = buttonValue as? DescriptionCellViewModel {
                 // TODO: сконвертировать нормально хранимый string в NSAttributedString

@@ -3,7 +3,7 @@ import Foundation
 
 /// ViewModel для установки кастомной даты дедлайна (выполнения задачи)
 class TaskDeadlineCustomDateViewModel: CustomDateSetterViewModelType {
-    private var task: Task {
+    private var task: CDTask {
         didSet {
             date.value = task.deadlineDate
         }
@@ -18,7 +18,7 @@ class TaskDeadlineCustomDateViewModel: CustomDateSetterViewModelType {
         return Date()
     }
     
-    init(task: Task) {
+    init(task: CDTask) {
         self.task = task
         date = Box(task.deadlineDate)
     }

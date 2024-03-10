@@ -6,7 +6,7 @@ import Foundation
 class TaskDeadlineTableVariantsViewModel: TableVariantsViewModelType {
 
     // MARK: model
-    private var task: Task {
+    private var task: CDTask {
         didSet {
             let cellValues = TaskDeadlineTableVariantsViewModel.buildCellViewModels()
             variantCellViewModels = Box(cellValues)
@@ -25,7 +25,7 @@ class TaskDeadlineTableVariantsViewModel: TableVariantsViewModelType {
     
     
     // MARK: init
-    init(task: Task) {
+    init(task: CDTask) {
         self.task = task
         
         let cellViewModels = TaskDeadlineTableVariantsViewModel.buildCellViewModels()
@@ -37,7 +37,7 @@ class TaskDeadlineTableVariantsViewModel: TableVariantsViewModelType {
     }
     
     /// Обновляет выбранный VariantCellValue
-    private func refreshSelectionOfVariantCellViewModel(fromTask task: Task) {
+    private func refreshSelectionOfVariantCellViewModel(fromTask task: CDTask) {
         let selectedIndex = calculateIndexSelectedValue(
             variants: variantCellViewModels.value,
             task: task
@@ -48,7 +48,7 @@ class TaskDeadlineTableVariantsViewModel: TableVariantsViewModelType {
         }
     }
     
-    private func calculateIndexSelectedValue(variants: [BaseVariantCellViewModel], task: Task) -> Int? {
+    private func calculateIndexSelectedValue(variants: [BaseVariantCellViewModel], task: CDTask) -> Int? {
         guard let taskDeadlineDate = task.deadlineDate else {
             return nil
         }
@@ -74,7 +74,7 @@ class TaskDeadlineTableVariantsViewModel: TableVariantsViewModelType {
         return resultIndex
     }
     
-    private func refreshIsShowDeleteButton(fromTask task: Task) {
+    private func refreshIsShowDeleteButton(fromTask task: CDTask) {
         isShowDeleteButton.value = task.deadlineDate != nil
     }
     

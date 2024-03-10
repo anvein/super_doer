@@ -3,8 +3,8 @@ import Foundation
 import CoreData
 
 @objc(Task)
-public class Task: NSManagedObject {
-    static let entityName = "Task"
+public class CDTask: NSManagedObject {
+    static let entityName = "CDTask"
     
     func getFileBy(id: UUID) -> TaskFile? {
         

@@ -10,7 +10,7 @@ class TaskDetailViewModel {
     
     // TODO: сделать private всё
     // инициализировать наблюдаемые поля при инициализации сущности
-    private(set) var task: Task {
+    private(set) var task: CDTask {
         didSet {
             updateSimpleObservablePropertiesFrom(task)
             taskDataViewModels.fill(from: task)
@@ -31,7 +31,7 @@ class TaskDetailViewModel {
     
     weak var bindingDelegate: TaskDetailViewModelBindingDelegate?
     
-    init(task: Task) {
+    init(task: CDTask) {
         self.task = task
         
         taskTitle = Box(task.title)
@@ -200,7 +200,7 @@ class TaskDetailViewModel {
     }
     
     // MARK: binding methods
-    private func updateSimpleObservablePropertiesFrom(_ task: Task) {
+    private func updateSimpleObservablePropertiesFrom(_ task: CDTask) {
         if task.title != taskTitle.value {
             taskTitle.value = task.title
         }

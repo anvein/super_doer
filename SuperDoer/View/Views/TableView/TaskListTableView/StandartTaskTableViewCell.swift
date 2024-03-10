@@ -94,8 +94,18 @@ class StandartTaskTableViewCell: UITableViewCell {
                 safeTextLabel.leftAnchor.constraint(equalTo: isDoneButton.rightAnchor, constant: 16),
             ])
         }
-        
-        
-        
     }
+    
+//    override func willTransition(to state: UITableViewCell.StateMask) {
+//        super.willTransition(to: state)
+//        if state.contains(.showingDeleteConfirmation) {
+//            // Apply corner radius to delete button
+//            
+//            if let deleteButton = superview?.subviews.first(where: { String(describing: type(of: $0)) == "UISwipeActionPullView" }) {
+//                deleteButton.layer.cornerRadius = 10
+//                deleteButton.clipsToBounds = true
+//            }
+//        }
+//    }
+
 }

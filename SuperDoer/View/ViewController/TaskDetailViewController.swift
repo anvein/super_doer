@@ -87,9 +87,9 @@ class TaskDetailViewController: UIViewController {
     // MARK: coordinator methods
     private func presentSettingsTaskReminder() {
         // TODO: сделать проверку включены ли уведомления для приложения (+ вынести в VM + сервис)
-        let isEnableNotifications = true
+        let isEnableNotifications = false
         if !isEnableNotifications {
-            let notificationDisableAlert = NotificationDisabledAlertController()
+            let notificationDisableAlert = NotificationsDisabledAlertController()
             notificationDisableAlert.delegate = self
             
             present(notificationDisableAlert, animated: true)
@@ -468,9 +468,20 @@ extension TaskDetailViewController: StarButtonDelegate {
 /// Делегат связанный с полем "Дата напоминания"
 extension TaskDetailViewController: NotificationsDisabledAlertControllerDelegate {
     func didChoosenEnableNotifications() {
-        print("🎚️ Открыть настройки уведомлений")
         
-        presentTaskReminderCustomDateController()
+// строка с URL настроек уведомлений
+print(UIApplication.openNotificationSettingsURLString)
+        // TODO: реализовать настройки уведомлений
+        let url = URL(string: UIApplication.openNotificationSettingsURLString)
+        
+        guard let url else { return }
+        
+        Task {
+            await UIApplication.shared.open(url)
+            
+            presentTaskReminderCustomDateController()
+        }
+        
     }
     
     func didChoosenNotNowEnableNotification() {

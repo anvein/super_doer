@@ -6,7 +6,7 @@ import Foundation
 class TaskRepeatPeriodTableVariantsViewModel: TableVariantsViewModelType {
     
     // MARK: model
-    private var task: Task {
+    private var task: CDTask {
         didSet {
             let cellViewModels = TaskRepeatPeriodTableVariantsViewModel.buildCellViewModels()
             variantCellViewModels = Box(cellViewModels)
@@ -22,7 +22,7 @@ class TaskRepeatPeriodTableVariantsViewModel: TableVariantsViewModelType {
     
     var variantCellViewModels: Box<[BaseVariantCellViewModel]>
     
-    init(task: Task) {
+    init(task: CDTask) {
         self.task = task
         
         variantCellViewModels = Box(TaskRepeatPeriodTableVariantsViewModel.buildCellViewModels())
@@ -42,7 +42,7 @@ class TaskRepeatPeriodTableVariantsViewModel: TableVariantsViewModelType {
     }
     
     
-    private func refreshIsShowDeleteButton(fromTask task: Task) {
+    private func refreshIsShowDeleteButton(fromTask task: CDTask) {
         isShowDeleteButton.value = task.repeatPeriod != nil
     }
     
