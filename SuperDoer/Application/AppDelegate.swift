@@ -1,13 +1,34 @@
 
 import UIKit
 import CoreData
+import Swinject
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    // MARK: - Core Data stack
+    lazy var persistentContainer: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: "SuperDoer")
+        
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                // TODO: обработать ошибку нормально
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            } else {
+                print("DB url -", storeDescription.url?.absoluteString)
+            }
+        })
+        
+        return container
+    }()
     
+    
+    // MARK: life cycle
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        DIContainer.registerDependencies()
+        
         return true
     }
 
@@ -27,20 +48,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     
     
-    // MARK: - Core Data stack
-    lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "SuperDoer")
-        
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-            if let error = error as NSError? {
-                // TODO: обработать ошибку нормально
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            } else {
-                print("DB url -", storeDescription.url?.absoluteString)
-            }
-        })
-        
-        return container
-    }()
+    
 
 }
