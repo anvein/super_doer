@@ -3,7 +3,7 @@ import Foundation
 
 /// Ячейка "задачи" в таблице со списком задач
 class TaskInSectionTableViewCellViewModel: TaskInSectionTableViewCellViewModelType {
-    private var task: Task
+    private var task: CDTask
     
     var isCompleted: Bool {
         return task.isCompleted
@@ -26,7 +26,7 @@ class TaskInSectionTableViewCellViewModel: TaskInSectionTableViewCellViewModelTy
         return nil
     }
     
-    init(task: Task) {
+    init(task: CDTask) {
         self.task = task
     }
     

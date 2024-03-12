@@ -3,34 +3,35 @@ import Foundation
 
 class TaskListInSectionViewModel: TaskListInSectionViewModelType {
     
-    // TODO: переделать на DI-контейнер
-    private lazy var taskEm = TaskEntityManager()
+    // MARK: services
+    private var taskEm: TaskEntityManager
     
     
     // MARK: data
-    private var tasks = [Task]() {
+    private var tasks = [CDTask]() {
         didSet {
             tasksUpdateBinding?()
         }
     }
     
-    var tasksUpdateBinding: (() -> ())? // TODO: переделать на Box
+    var tasksUpdateBinding: (() -> ())? // TODO: переделать на Rx???
     
     // TODO: переделать на TaskSectionProtocol
     private var taskSection: TaskSectionCustom
-    
     
     var taskSectionTitle: String {
         return taskSection.title ?? ""
     }
     
-    init(taskSection: TaskSectionCustom) {
+    init(_ taskSection: TaskSectionCustom, taskEm: TaskEntityManager) {
+        self.taskEm = taskEm
+        
         self.taskSection = taskSection
         self.tasks = taskEm.getTasks(for: taskSection)
     }
     
     
-    
+    // MARK: get data for VC methods
     func getTasksCount() -> Int {
         return tasks.count
     }
@@ -44,9 +45,15 @@ class TaskListInSectionViewModel: TaskListInSectionViewModelType {
     func getTaskViewModel(forIndexPath indexPath: IndexPath) -> TaskDetailViewModel {
         let selectedTask = tasks[indexPath.row]
         
-        return TaskDetailViewModel(task: selectedTask)
+        return TaskDetailViewModel(
+            selectedTask,
+            taskEm: DIContainer.shared.resolve(TaskEntityManager.self)!,
+            taskFileEm: DIContainer.shared.resolve(TaskFileEntityManager.self)!
+        )
     }
     
+    
+    // MARK: model manipulation methods
     func createNewTaskInCurrentSectionWith(
         title: String,
         inMyDay: Bool,
@@ -61,7 +68,7 @@ class TaskListInSectionViewModel: TaskListInSectionViewModelType {
     }
     
     func deleteTasks(tasksIndexPaths: [IndexPath]) {
-        var deleteTasksArray = [Task]()
+        var deleteTasksArray = [CDTask]()
         
         for taskIndexPath in tasksIndexPaths {
             deleteTasksArray.append(tasks[taskIndexPath.row])

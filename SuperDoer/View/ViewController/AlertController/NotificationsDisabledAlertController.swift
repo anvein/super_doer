@@ -3,7 +3,7 @@ import UIKit
 
 /// Уведомление об отключенных уведомлениях
 /// с предложением их включить
-class NotificationDisabledAlertController: UIAlertController {
+class NotificationsDisabledAlertController: UIAlertController {
     
     weak var delegate: NotificationsDisabledAlertControllerDelegate?
     

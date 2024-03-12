@@ -3,23 +3,49 @@ import Foundation
 
 /// ViewModel страницы с таблицей списков (разделов)
 class TaskSectionListViewModel: TaskSectionListViewModelType {
-
-    private static var systemSectionsId = 1
+    typealias Sections = [[TaskSectionProtocol]]
+    
+    
+    // MARK: services
+    private var sectionEm: TaskSectionEntityManager
+    private var systemSectionsBuilder: SystemSectionsBuilder
+    
+    
+    // MARK: model
+    private static var systemSectionsId = 0
     private static var customSectionsId = 1
     
-    var sections: Box<[[TaskSectionProtocol]]> = Box([[]])
+    private lazy var sections: Box<Sections> = Box(buildSections())
     
     private var selectedSectionIndexPath: IndexPath?
     
-    // TODO: переделать на DI
-    lazy var taskSectionEm = TaskSectionEntityManager()
     
+    // MARK: init / setup
+    required init(
+        sectionEm: TaskSectionEntityManager,
+        systemSectionsBuilder: SystemSectionsBuilder
+    ) {
+        self.sectionEm = sectionEm
+        self.systemSectionsBuilder = systemSectionsBuilder
+    }
     
-    required init(sections: [[TaskSectionProtocol]]) {
-        self.sections.value = sections
+    private func buildSections() -> Sections {
+        var sections: [[TaskSectionProtocol]] = [[], []]
+        
+        sections[Self.systemSectionsId] = systemSectionsBuilder.buildSections()
+        sections[Self.customSectionsId] = sectionEm.getCustomSectionsWithOrder()
+        
+        return sections
     }
     
     
+    // MARK: binding methods
+    func bindAndUpdateSections(_ listener: @escaping ([[TaskSectionProtocol]]) -> Void) {
+        sections.bindAndUpdateValue(listener: listener)
+    }
+    
+    
+    // MARK: get data for VC functions
     func getCountOfTableSections() -> Int {
         return sections.value.count
     }
@@ -65,9 +91,10 @@ class TaskSectionListViewModel: TaskSectionListViewModelType {
         
         switch section {
         case let taskSectionCustom as TaskSectionCustom :
-            return TaskListInSectionViewModel(taskSection: taskSectionCustom)
-
-        case let _ as TaskSectionSystem:
+            let taskEm = DIContainer.shared.resolve(TaskEntityManager.self)!
+            return TaskListInSectionViewModel(taskSectionCustom, taskEm: taskEm)
+            
+        case _ as TaskSectionSystem:
             // TODO: создать тип для системного списка (там будут другие параметры, скорей всего)
             return nil
         default :
@@ -78,7 +105,7 @@ class TaskSectionListViewModel: TaskSectionListViewModelType {
     
     // MARK: model manipulate methods
     func createCustomTaskSectionWith(title: String) {
-        let section = taskSectionEm.createCustomSectionWith(title: title)
+        let section = sectionEm.createCustomSectionWith(title: title)
         sections.value[TaskSectionListViewModel.customSectionsId].insert(section, at: 0)
     }
     
@@ -96,7 +123,7 @@ class TaskSectionListViewModel: TaskSectionListViewModelType {
         }
         
         // TODO: проработать кейс, когда один из разделов не удалится
-        taskSectionEm.deleteSections(sectionsForDelete)
+        sectionEm.deleteSections(sectionsForDelete)
     }
     
     func archiveCustomSection(indexPath: IndexPath) {
@@ -106,7 +133,7 @@ class TaskSectionListViewModel: TaskSectionListViewModelType {
             return
         }
         
-        taskSectionEm.updateCustomSectionField(isArchive: true, section: customSection)
+        sectionEm.updateCustomSectionField(isArchive: true, section: customSection)
         sections.value[TaskSectionListViewModel.customSectionsId].remove(at: indexPath.item)
     }
     

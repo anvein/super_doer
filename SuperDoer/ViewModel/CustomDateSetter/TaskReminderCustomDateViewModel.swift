@@ -3,7 +3,7 @@ import Foundation
 
 /// ViewModel для установки кастомной даты напоминания у задачи
 class TaskReminderCustomDateViewModel: CustomDateSetterViewModelType {
-    private var task: Task {
+    private var task: CDTask {
         didSet {
             date.value = task.reminderDateTime
             refreshIsShowDeleteButton(fromTask: task)
@@ -19,7 +19,7 @@ class TaskReminderCustomDateViewModel: CustomDateSetterViewModelType {
         return Date().setComponents(hours: 9, minutes: 0, seconds: 0)
     }
     
-    init(task: Task) {
+    init(task: CDTask) {
         self.task = task
         date = Box(task.reminderDateTime)
         
@@ -27,7 +27,7 @@ class TaskReminderCustomDateViewModel: CustomDateSetterViewModelType {
         refreshIsShowDeleteButton(fromTask: task)
     }
     
-    private func refreshIsShowDeleteButton(fromTask task: Task) {
+    private func refreshIsShowDeleteButton(fromTask task: CDTask) {
         isShowDeleteButton.value = task.reminderDateTime != nil
     }
 

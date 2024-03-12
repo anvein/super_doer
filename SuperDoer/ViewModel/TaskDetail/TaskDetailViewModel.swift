@@ -4,19 +4,20 @@ import Foundation
 /// ViewModel страницы открытой задачи (просмотр / редактирование)
 class TaskDetailViewModel {
     
-    // TODO: переделать на DI
-    lazy var taskEm = TaskEntityManager()
-    lazy var taskFileEm = TaskFileEntityManager()
-    
-    // TODO: сделать private всё
-    // инициализировать наблюдаемые поля при инициализации сущности
-    private(set) var task: Task {
+    // MARK: model
+    private var task: CDTask {
         didSet {
             updateSimpleObservablePropertiesFrom(task)
             taskDataViewModels.fill(from: task)
         }
     }
     
+    // TODO: services
+    private var taskEm = TaskEntityManager()
+    private var taskFileEm = TaskFileEntityManager()
+    
+    
+    // MARK: properties for VC
     /// Объект-массив на основании которого формируется таблица с "кнопками" и данными задачи
     /// Прослойка между сущностью Task и данных для вывода задачи в виде таблицы
     private var taskDataViewModels: TaskDataCellViewModels
@@ -31,8 +32,16 @@ class TaskDetailViewModel {
     
     weak var bindingDelegate: TaskDetailViewModelBindingDelegate?
     
-    init(task: Task) {
+    
+    // MARK: init
+    init(
+        _ task: CDTask,
+        taskEm: TaskEntityManager,
+        taskFileEm: TaskFileEntityManager
+    ) {
         self.task = task
+        self.taskEm = taskEm
+        self.taskFileEm = taskFileEm
         
         taskTitle = Box(task.title)
         taskIsCompleted = Box(task.isCompleted)
@@ -199,8 +208,9 @@ class TaskDetailViewModel {
         bindingDelegate?.removeCells(withIndexPaths: [indexPath])
     }
     
+    
     // MARK: binding methods
-    private func updateSimpleObservablePropertiesFrom(_ task: Task) {
+    private func updateSimpleObservablePropertiesFrom(_ task: CDTask) {
         if task.title != taskTitle.value {
             taskTitle.value = task.title
         }

@@ -4,8 +4,8 @@ import CoreData
 
 class TaskEntityManager: EntityManager {
     // MARK: get
-    func getAllTasks() -> [Task] {
-        let fetchRequest = NSFetchRequest<Task>(entityName: Task.entityName)
+    func getAllTasks() -> [CDTask] {
+        let fetchRequest = NSFetchRequest<CDTask>(entityName: CDTask.entityName)
         
         do {
             let tasks = try getContext().fetch(fetchRequest)
@@ -15,8 +15,8 @@ class TaskEntityManager: EntityManager {
         }
     }
     
-    func getTasks(for taskSection: TaskSectionCustom?) -> [Task] {
-        let fetchRequest = Task.fetchRequest()
+    func getTasks(for taskSection: TaskSectionCustom?) -> [CDTask] {
+        let fetchRequest = CDTask.fetchRequest()
         
         if let safeTaskSection = taskSection {
             // TODO: избавиться от force unwrapping
@@ -34,42 +34,42 @@ class TaskEntityManager: EntityManager {
     
     
     // MARK: update
-    func updateField(title: String, task: Task) {
+    func updateField(title: String, task: CDTask) {
         task.title = title
         saveContext()
     }
     
-    func updateField(isCompleted: Bool, task: Task) {
+    func updateField(isCompleted: Bool, task: CDTask) {
         task.isCompleted = isCompleted
         saveContext()
     }
     
-    func updateField(isPriority: Bool, task: Task) {
+    func updateField(isPriority: Bool, task: CDTask) {
         task.isPriority = isPriority
         saveContext()
     }
     
-    func updateField(inMyDay: Bool, task: Task) {
+    func updateField(inMyDay: Bool, task: CDTask) {
         task.inMyDay = inMyDay
         saveContext()
     }
     
-    func updateField(deadlineDate: Date?, task: Task) {
+    func updateField(deadlineDate: Date?, task: CDTask) {
         task.deadlineDate = deadlineDate
         saveContext()
     }
     
-    func updateField(reminderDateTime: Date?, task: Task) {
+    func updateField(reminderDateTime: Date?, task: CDTask) {
         task.reminderDateTime = reminderDateTime
         saveContext()
     }
     
-    func updateField(repeatPeriod: String?, task: Task) {
+    func updateField(repeatPeriod: String?, task: CDTask) {
         task.repeatPeriod = repeatPeriod
         saveContext()
     }
     
-    func updateFields(taskDescription: String?, descriptionUpdatedAt: Date, task: Task) {
+    func updateFields(taskDescription: String?, descriptionUpdatedAt: Date, task: CDTask) {
         task.taskDescription = taskDescription
         task.descriptionUpdatedAt = descriptionUpdatedAt
         
@@ -78,8 +78,8 @@ class TaskEntityManager: EntityManager {
     
     
     // MARK: insert
-    func createWith(title: String, section: TaskSectionCustom?) -> Task {
-        let task = Task(context: getContext())
+    func createWith(title: String, section: TaskSectionCustom?) -> CDTask {
+        let task = CDTask(context: getContext())
         task.id = UUID()
         task.title = title
         task.section = section
@@ -91,7 +91,7 @@ class TaskEntityManager: EntityManager {
     
     
     // MARK: delete
-    func delete(tasks: [Task]) {
+    func delete(tasks: [CDTask]) {
         let context = getContext()
         for task in tasks {
             context.delete(task)

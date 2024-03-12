@@ -3,7 +3,7 @@ import Foundation
 
 class TaskDescriptionEditorViewModel: TextEditorViewModelType {
     
-    private var task: Task {
+    private var task: CDTask {
         didSet {
             text.value = NSMutableAttributedString()
         }
@@ -16,7 +16,7 @@ class TaskDescriptionEditorViewModel: TextEditorViewModelType {
     }
     var text: Box<NSMutableAttributedString?>
     
-    init(task: Task) {
+    init(task: CDTask) {
         self.task = task
         
         if let taskDescription = task.taskDescription {

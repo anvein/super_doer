@@ -4,7 +4,7 @@ import Foundation
 class TaskFileEntityManager: EntityManager {
     
     // MARK: insert
-    func createWith(fileName: String, fileExtension: String, fileSize: Int, task: Task) -> TaskFile {
+    func createWith(fileName: String, fileExtension: String, fileSize: Int, task: CDTask) -> TaskFile {
         let file = TaskFile(context: getContext())
         file.id = UUID()
         file.fileName = fileName

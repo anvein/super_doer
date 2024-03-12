@@ -31,7 +31,7 @@ class CheckboxButton: UIButton {
     // MARK: init
     init(width: Float = CheckboxButton.imageSize, height: Float = CheckboxButton.imageSize, isOnDefault: Bool = false) {
         super.init(frame: .zero)
-        
+        next
         setupButton(width: width, height: height, isOnDefault: isOnDefault)
         addWidthAndHeightConstraints(width: width, height: height)
     }

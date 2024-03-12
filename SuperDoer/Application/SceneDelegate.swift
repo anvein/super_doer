@@ -14,19 +14,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let window = UIWindow(windowScene: windowScene)
         
-        var lists: [[TaskSectionProtocol]] = [[],[]]
-        lists[0] = SystemListBuilder().buildLists()
-        lists[1] = TaskSectionEntityManager().getCustomSectionsWithOrder()
+        // TODO: может перенести это в VM и дать возможность менять sections
         
         
+        let taskSectionsVM = DIContainer.shared.resolve(TaskSectionListViewModel.self)
+        let taskListsVC = TaskSectionsListViewController()
+        taskListsVC.viewModel = taskSectionsVM
         
-        let taskListsViewModel = TaskSectionListViewModel(sections: lists)
-        let taskListsViewController = TaskSectionsListViewController()
-        taskListsViewController.viewModel = taskListsViewModel
-    
-        
-        
-        let navigationController = UINavigationController(rootViewController: taskListsViewController)
+        let navigationController = UINavigationController(rootViewController: taskListsVC)
         window.rootViewController = navigationController
     
         self.window = window

@@ -31,8 +31,6 @@
 		3630CB842B1B455100E65115 /* TaskSectionSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3630CB832B1B455100E65115 /* TaskSectionSystem.swift */; };
 		3630CB862B1B467400E65115 /* TaskSectionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3630CB852B1B467400E65115 /* TaskSectionProtocol.swift */; };
 		3642C0382A8CAEF00000A078 /* DescriptionButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3642C0372A8CAEF00000A078 /* DescriptionButtonCell.swift */; };
-		364533912B94A17E00375F9F /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 364533902B94A17E00375F9F /* Swinject */; };
-		364533932B94A17E00375F9F /* Swinject-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 364533922B94A17E00375F9F /* Swinject-Dynamic */; };
 		3645DD6F2B8DD8D8009CB533 /* TaskRepeatPeriodTableVariantsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3645DD6E2B8DD8D8009CB533 /* TaskRepeatPeriodTableVariantsViewModel.swift */; };
 		3645DD712B8DD981009CB533 /* DateVariantCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3645DD702B8DD981009CB533 /* DateVariantCellViewModel.swift */; };
 		3645DD732B8DD9A9009CB533 /* CustomVariantCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3645DD722B8DD9A9009CB533 /* CustomVariantCellViewModel.swift */; };
@@ -46,6 +44,7 @@
 		36626DA72B1CBFF200F17CE4 /* TaskSectionListTableViewCellViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36626DA62B1CBFF200F17CE4 /* TaskSectionListTableViewCellViewModelType.swift */; };
 		36626DA92B1CC16300F17CE4 /* TaskSectionSystemListTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36626DA82B1CC16300F17CE4 /* TaskSectionSystemListTableViewCellViewModel.swift */; };
 		3664663A2B124FCF00371DE3 /* TaskSectionsSeparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366466392B124FCF00371DE3 /* TaskSectionsSeparator.swift */; };
+		366571742B96139100B9C6F7 /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 366571732B96139100B9C6F7 /* Swinject */; };
 		366BC5C92A87820900D67230 /* TaskDetailBaseButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366BC5C82A87820900D67230 /* TaskDetailBaseButtonCell.swift */; };
 		366BC5CB2A87A56D00D67230 /* AddSubtaskButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366BC5CA2A87A56D00D67230 /* AddSubtaskButtonCell.swift */; };
 		366BC5CD2A891F9E00D67230 /* AddToMyDayButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366BC5CC2A891F9E00D67230 /* AddToMyDayButtonCell.swift */; };
@@ -58,6 +57,7 @@
 		366C8A172B8E363F00465963 /* CustomTaskRepeatPeriodSetterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366C8A162B8E363F00465963 /* CustomTaskRepeatPeriodSetterViewModel.swift */; };
 		366D73B22B8881FE00118262 /* TaskSectionListViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366D73B12B8881FE00118262 /* TaskSectionListViewModelType.swift */; };
 		36714F7A2A8FA74A001043C3 /* UIDynamicLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36714F792A8FA74A001043C3 /* UIDynamicLabel.swift */; };
+		3676D7682BA03E7100F695A1 /* DIContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3676D7672BA03E7100F695A1 /* DIContainer.swift */; };
 		367E36D52A96463E003E7C1D /* DeleteAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 367E36D42A96463D003E7C1D /* DeleteAlertController.swift */; };
 		367E36DA2A98A62C003E7C1D /* AddFileSourceAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 367E36D92A98A62C003E7C1D /* AddFileSourceAlertController.swift */; };
 		367F30532AA7505200545F60 /* VariantsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 367F30522AA7505200545F60 /* VariantsTableView.swift */; };
@@ -82,8 +82,8 @@
 		36CA12C12B8C6188005E1FCD /* TaskDeadlineCustomDateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CA12C02B8C6188005E1FCD /* TaskDeadlineCustomDateViewModel.swift */; };
 		36CA12C32B8C6212005E1FCD /* CustomDateSetterViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CA12C22B8C6212005E1FCD /* CustomDateSetterViewModelType.swift */; };
 		36CA12C72B8C95FF005E1FCD /* TaskReminderCustomDateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CA12C62B8C95FF005E1FCD /* TaskReminderCustomDateViewModel.swift */; };
-		36CBA1032A9202BC000C78FB /* NotificationDisabledAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CBA1022A9202BC000C78FB /* NotificationDisabledAlertController.swift */; };
-		36CD03F12B136FDD00C45298 /* SystemListBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CD03F02B136FDD00C45298 /* SystemListBuilder.swift */; };
+		36CBA1032A9202BC000C78FB /* NotificationsDisabledAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CBA1022A9202BC000C78FB /* NotificationsDisabledAlertController.swift */; };
+		36CD03F12B136FDD00C45298 /* SystemSectionsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CD03F02B136FDD00C45298 /* SystemSectionsBuilder.swift */; };
 		36CD03F32B13772C00C45298 /* TaskSectionsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CD03F22B13772C00C45298 /* TaskSectionsTableView.swift */; };
 		36CD03F52B13782A00C45298 /* TaskSectionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CD03F42B13782A00C45298 /* TaskSectionTableViewCell.swift */; };
 		36CD03F82B13A5E500C45298 /* CustomDateSetterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CD03F72B13A5E500C45298 /* CustomDateSetterViewController.swift */; };
@@ -97,6 +97,19 @@
 		36FCF92F2B89E581002B2CB8 /* TaskDeadlineTableVariantsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FCF92E2B89E581002B2CB8 /* TaskDeadlineTableVariantsViewModel.swift */; };
 		36FCF9322B8A0E21002B2CB8 /* BaseVariantCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FCF9312B8A0E20002B2CB8 /* BaseVariantCellViewModel.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		36B31FF52B94F1F700E82DC0 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		3600ACCB2AA0C3D70022506A /* UITaskTitleTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITaskTitleTextView.swift; sourceTree = "<group>"; };
@@ -148,6 +161,7 @@
 		366C8A162B8E363F00465963 /* CustomTaskRepeatPeriodSetterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTaskRepeatPeriodSetterViewModel.swift; sourceTree = "<group>"; };
 		366D73B12B8881FE00118262 /* TaskSectionListViewModelType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskSectionListViewModelType.swift; sourceTree = "<group>"; };
 		36714F792A8FA74A001043C3 /* UIDynamicLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDynamicLabel.swift; sourceTree = "<group>"; };
+		3676D7672BA03E7100F695A1 /* DIContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIContainer.swift; sourceTree = "<group>"; };
 		367E36D42A96463D003E7C1D /* DeleteAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAlertController.swift; sourceTree = "<group>"; };
 		367E36D92A98A62C003E7C1D /* AddFileSourceAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFileSourceAlertController.swift; sourceTree = "<group>"; };
 		367F30522AA7505200545F60 /* VariantsTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariantsTableView.swift; sourceTree = "<group>"; };
@@ -175,8 +189,8 @@
 		36CA12C02B8C6188005E1FCD /* TaskDeadlineCustomDateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDeadlineCustomDateViewModel.swift; sourceTree = "<group>"; };
 		36CA12C22B8C6212005E1FCD /* CustomDateSetterViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateSetterViewModelType.swift; sourceTree = "<group>"; };
 		36CA12C62B8C95FF005E1FCD /* TaskReminderCustomDateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskReminderCustomDateViewModel.swift; sourceTree = "<group>"; };
-		36CBA1022A9202BC000C78FB /* NotificationDisabledAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDisabledAlertController.swift; sourceTree = "<group>"; };
-		36CD03F02B136FDD00C45298 /* SystemListBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemListBuilder.swift; sourceTree = "<group>"; };
+		36CBA1022A9202BC000C78FB /* NotificationsDisabledAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsDisabledAlertController.swift; sourceTree = "<group>"; };
+		36CD03F02B136FDD00C45298 /* SystemSectionsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemSectionsBuilder.swift; sourceTree = "<group>"; };
 		36CD03F22B13772C00C45298 /* TaskSectionsTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSectionsTableView.swift; sourceTree = "<group>"; };
 		36CD03F42B13782A00C45298 /* TaskSectionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSectionTableViewCell.swift; sourceTree = "<group>"; };
 		36CD03F72B13A5E500C45298 /* CustomDateSetterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateSetterViewController.swift; sourceTree = "<group>"; };
@@ -196,8 +210,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				364533912B94A17E00375F9F /* Swinject in Frameworks */,
-				364533932B94A17E00375F9F /* Swinject-Dynamic in Frameworks */,
+				366571742B96139100B9C6F7 /* Swinject in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,6 +319,16 @@
 			path = RowViewModel;
 			sourceTree = "<group>";
 		};
+		365FABF12B99C2DD0075E038 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				36A0502C2A500A89006F61D4 /* LaunchScreen.storyboard */,
+				36A0502A2A500A89006F61D4 /* Assets.xcassets */,
+				36A0502F2A500A89006F61D4 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		36612C022B89BD4E00AFE168 /* TableViewCell */ = {
 			isa = PBXGroup;
 			children = (
@@ -334,6 +357,13 @@
 			path = TaskSectionsTableView;
 			sourceTree = "<group>";
 		};
+		366571712B96102C00B9C6F7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		366C8A152B8E35CB00465963 /* CustomTaskRepeatPeriodSetter */ = {
 			isa = PBXGroup;
 			children = (
@@ -349,6 +379,14 @@
 				36714F792A8FA74A001043C3 /* UIDynamicLabel.swift */,
 			);
 			path = UILabel;
+			sourceTree = "<group>";
+		};
+		3676D7662BA03E5C00F695A1 /* DependencyInjection */ = {
+			isa = PBXGroup;
+			children = (
+				3676D7672BA03E7100F695A1 /* DIContainer.swift */,
+			);
+			path = DependencyInjection;
 			sourceTree = "<group>";
 		};
 		367F30542AA751D100545F60 /* VariantsTableView */ = {
@@ -393,6 +431,7 @@
 				362D15002A86249000ADE1A8 /* .gitignore */,
 				36A0501D2A500A87006F61D4 /* SuperDoer */,
 				36A0501C2A500A87006F61D4 /* Products */,
+				366571712B96102C00B9C6F7 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -410,9 +449,11 @@
 				36A050352A50427B006F61D4 /* Application */,
 				36A64EDA2B1774EC00E586D4 /* Services */,
 				36CB90302B17D2CD00E897F4 /* View */,
+				36B80B472A6BA67E00E33F29 /* InterfaceColors.swift */,
 				36FCF92A2B89E31F002B2CB8 /* ViewModel */,
 				36A0503C2A504E51006F61D4 /* Model */,
 				36A050372A5042DB006F61D4 /* Supporting */,
+				365FABF12B99C2DD0075E038 /* Resources */,
 			);
 			path = SuperDoer;
 			sourceTree = "<group>";
@@ -445,9 +486,6 @@
 			isa = PBXGroup;
 			children = (
 				3600ACCD2AA0E3DC0022506A /* PerfectPixelScreen.swift */,
-				36A0502C2A500A89006F61D4 /* LaunchScreen.storyboard */,
-				36A0502A2A500A89006F61D4 /* Assets.xcassets */,
-				36A0502F2A500A89006F61D4 /* Info.plist */,
 			);
 			path = Supporting;
 			sourceTree = "<group>";
@@ -466,25 +504,10 @@
 		36A64EDA2B1774EC00E586D4 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				3676D7662BA03E5C00F695A1 /* DependencyInjection */,
 				361C9C732B8259BF0002155C /* DataBinding */,
-				36A64EDC2B17750B00E586D4 /* LocalStorage */,
-				36A64EDB2B1774FF00E586D4 /* Network */,
 			);
 			path = Services;
-			sourceTree = "<group>";
-		};
-		36A64EDB2B1774FF00E586D4 /* Network */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Network;
-			sourceTree = "<group>";
-		};
-		36A64EDC2B17750B00E586D4 /* LocalStorage */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = LocalStorage;
 			sourceTree = "<group>";
 		};
 		36A7B59E2B20AD7700F1E952 /* TaskListInSection */ = {
@@ -520,14 +543,6 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		36B80B462A6BA66400E33F29 /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				36B80B472A6BA67E00E33F29 /* InterfaceColors.swift */,
-			);
-			path = Services;
-			sourceTree = "<group>";
-		};
 		36CA12BF2B8C60DA005E1FCD /* CustomDateSetter */ = {
 			isa = PBXGroup;
 			children = (
@@ -552,7 +567,6 @@
 			children = (
 				36A050362A504289006F61D4 /* ViewController */,
 				36B80B442A6BA64600E33F29 /* Views */,
-				36B80B462A6BA66400E33F29 /* Services */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -561,7 +575,7 @@
 			isa = PBXGroup;
 			children = (
 				361D85A82B88A27400406A6B /* DeleteAlertController */,
-				36CBA1022A9202BC000C78FB /* NotificationDisabledAlertController.swift */,
+				36CBA1022A9202BC000C78FB /* NotificationsDisabledAlertController.swift */,
 				367E36D92A98A62C003E7C1D /* AddFileSourceAlertController.swift */,
 			);
 			path = AlertController;
@@ -570,7 +584,7 @@
 		36CD03EF2B136FC000C45298 /* Support */ = {
 			isa = PBXGroup;
 			children = (
-				36CD03F02B136FDD00C45298 /* SystemListBuilder.swift */,
+				36CD03F02B136FDD00C45298 /* SystemSectionsBuilder.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -685,6 +699,7 @@
 				36A050172A500A87006F61D4 /* Sources */,
 				36A050182A500A87006F61D4 /* Frameworks */,
 				36A050192A500A87006F61D4 /* Resources */,
+				36B31FF52B94F1F700E82DC0 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -692,8 +707,7 @@
 			);
 			name = SuperDoer;
 			packageProductDependencies = (
-				364533902B94A17E00375F9F /* Swinject */,
-				364533922B94A17E00375F9F /* Swinject-Dynamic */,
+				366571732B96139100B9C6F7 /* Swinject */,
 			);
 			productName = SuperDoer;
 			productReference = 36A0501B2A500A87006F61D4 /* SuperDoer.app */;
@@ -725,7 +739,7 @@
 			);
 			mainGroup = 36A050122A500A87006F61D4;
 			packageReferences = (
-				3645338F2B94A17E00375F9F /* XCRemoteSwiftPackageReference "Swinject" */,
+				366571722B96139100B9C6F7 /* XCRemoteSwiftPackageReference "Swinject" */,
 			);
 			productRefGroup = 36A0501C2A500A87006F61D4 /* Products */;
 			projectDirPath = "";
@@ -767,7 +781,7 @@
 				36F2B8232B8CD82F006AE5D7 /* TaskDescriptionEditorViewModel.swift in Sources */,
 				367E36D52A96463E003E7C1D /* DeleteAlertController.swift in Sources */,
 				362D15032A862C2700ADE1A8 /* TaskDetailTableView.swift in Sources */,
-				36CBA1032A9202BC000C78FB /* NotificationDisabledAlertController.swift in Sources */,
+				36CBA1032A9202BC000C78FB /* NotificationsDisabledAlertController.swift in Sources */,
 				3645DD732B8DD9A9009CB533 /* CustomVariantCellViewModel.swift in Sources */,
 				362568FF2B851AC400CFC5E4 /* CreateTaskBottomPanelView.swift in Sources */,
 				36CD03F32B13772C00C45298 /* TaskSectionsTableView.swift in Sources */,
@@ -776,6 +790,7 @@
 				366C8A172B8E363F00465963 /* CustomTaskRepeatPeriodSetterViewModel.swift in Sources */,
 				366C8A142B8E353600465963 /* CustomTaskRepeatPeriodSetterViewController.swift in Sources */,
 				3645DD6F2B8DD8D8009CB533 /* TaskRepeatPeriodTableVariantsViewModel.swift in Sources */,
+				3676D7682BA03E7100F695A1 /* DIContainer.swift in Sources */,
 				3600ACCC2AA0C3D70022506A /* UITaskTitleTextView.swift in Sources */,
 				366C8A122B8DE2D700465963 /* TaskRepeatPeriodVariantCellViewModel.swift in Sources */,
 				361C9C752B8259D40002155C /* Box.swift in Sources */,
@@ -806,7 +821,7 @@
 				36A0501F2A500A87006F61D4 /* AppDelegate.swift in Sources */,
 				366D73B22B8881FE00118262 /* TaskSectionListViewModelType.swift in Sources */,
 				36E917E02A7005C200E3C41A /* StarButton.swift in Sources */,
-				36CD03F12B136FDD00C45298 /* SystemListBuilder.swift in Sources */,
+				36CD03F12B136FDD00C45298 /* SystemSectionsBuilder.swift in Sources */,
 				364E31342A7BEB8C004544D5 /* TasksListTableView.swift in Sources */,
 				366BC5CD2A891F9E00D67230 /* AddToMyDayButtonCell.swift in Sources */,
 				3642C0382A8CAEF00000A078 /* DescriptionButtonCell.swift in Sources */,
@@ -981,7 +996,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 246CANGAHU;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SuperDoer/Supporting/Info.plist;
+				INFOPLIST_FILE = SuperDoer/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SuperDoer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Чтобы сделать фото или видео и прикрепить как файл к задаче";
@@ -1013,7 +1029,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 246CANGAHU;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SuperDoer/Supporting/Info.plist;
+				INFOPLIST_FILE = SuperDoer/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SuperDoer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Чтобы сделать фото или видео и прикрепить как файл к задаче";
@@ -1060,7 +1077,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		3645338F2B94A17E00375F9F /* XCRemoteSwiftPackageReference "Swinject" */ = {
+		366571722B96139100B9C6F7 /* XCRemoteSwiftPackageReference "Swinject" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Swinject/Swinject";
 			requirement = {
@@ -1071,15 +1088,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		364533902B94A17E00375F9F /* Swinject */ = {
+		366571732B96139100B9C6F7 /* Swinject */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 3645338F2B94A17E00375F9F /* XCRemoteSwiftPackageReference "Swinject" */;
+			package = 366571722B96139100B9C6F7 /* XCRemoteSwiftPackageReference "Swinject" */;
 			productName = Swinject;
-		};
-		364533922B94A17E00375F9F /* Swinject-Dynamic */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 3645338F2B94A17E00375F9F /* XCRemoteSwiftPackageReference "Swinject" */;
-			productName = "Swinject-Dynamic";
 		};
 /* End XCSwiftPackageProductDependency section */
 

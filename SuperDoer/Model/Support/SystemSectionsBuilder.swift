@@ -1,8 +1,8 @@
 
 import UIKit
 
-class SystemListBuilder {
-    func buildLists() -> [TaskSectionSystem] {
+class SystemSectionsBuilder {
+    func buildSections() -> [TaskSectionSystem] {
         // TODO: предусмотреть, чтобы в случае скрывания списков они не создавались (настройки брать в UserDefaults)
         
         var systemSections = [TaskSectionSystem]()

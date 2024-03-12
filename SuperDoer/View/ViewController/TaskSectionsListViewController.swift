@@ -25,15 +25,6 @@ class TaskSectionsListViewController: UIViewController {
         addSubviewsToMainView()
         setupConstraints()
         setupBinding()
-        
-        #if DEBUG
-            PixelPerfectScreen.getInstanceAndSetup(
-                baseView: view,
-                imageName: "screen4",
-                topAnchorConstant: 0,
-                controlsBottomAnchorConstant: -60
-            )
-        #endif
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -98,7 +89,7 @@ extension TaskSectionsListViewController {
     }
     
     private func setupBinding() {
-        viewModel?.sections.bindAndUpdateValue(listener: { [unowned self] sections in
+        viewModel?.bindAndUpdateSections({ [unowned self] sections in
             self.sectionsTableView.reloadData()
         })
     }
