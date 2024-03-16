@@ -9,13 +9,6 @@ class CustomTaskRepeatPeriodSetterViewModel {
     private static let amountIndex = "amount"
     private static let typeIndex = "type"
     
-    private var task: CDTask {
-        didSet {
-            repeatPeriod = task.repeatPeriod
-            isShowDaysOfWeek = Self.computeNeedIsShowWeekDaysBy(repeatPeriod)
-        }
-    }
-    
     weak var bindingDelegate: CustomTaskRepeatPeriodSetterViewModelBindingDelegate?
 
     
@@ -34,28 +27,28 @@ class CustomTaskRepeatPeriodSetterViewModel {
     // TODO: переделать на другой тип
     var repeatPeriod: String? {
         didSet {
+            isShowDaysOfWeek = Self.computeNeedIsShowWeekDaysBy(repeatPeriod)
             bindingDelegate?.didUpdateRepeatPeriod(newValue: repeatPeriod)
         }
     }
     
-    private var periodData: PeriodData
+    private var componentPeriodData: PeriodData
     
     
     // MARK: init
-    init(task: CDTask) {
-        self.task = task
-        
+    init(repeatPeriod: String?) {
         // TODO: когда в сущности будет правильный объект периода переделать заполнение self.repeatPeriod
-        repeatPeriod = task.repeatPeriod
+        self.repeatPeriod = repeatPeriod
+        
         isShowDaysOfWeek = Self.computeNeedIsShowWeekDaysBy(repeatPeriod)
         // TODO: реализовать функцию определения текущих значений
-        periodData = Self.buildPeriodData()
+        componentPeriodData = Self.buildPeriodData()
     }
     
     
     // MARK: methods for ViewController
     func getNumberOfComponents() -> Int {
-        return periodData.count
+        return componentPeriodData.count
     }
     
     func getComponentKey(byIndex index: Int) -> String {
@@ -71,12 +64,12 @@ class CustomTaskRepeatPeriodSetterViewModel {
     
     func getNumberOfRowsInComponent(componentIndex index: Int) -> Int {
         let componentKey = getComponentKey(byIndex: index)
-        return periodData[componentKey]?.count ?? 0
+        return componentPeriodData[componentKey]?.count ?? 0
     }
     
     func getRowViewModel(forRow row: Int, forComponent component: Int) -> TaskRepeatPeriodRowViewModelType? {
         let componentKey = getComponentKey(byIndex: component)
-        let componentRows = periodData[componentKey]
+        let componentRows = componentPeriodData[componentKey]
         
         guard let componentRows else { return nil }
         
@@ -86,9 +79,9 @@ class CustomTaskRepeatPeriodSetterViewModel {
     
     // MARK: private view model methods
     private static func computeNeedIsShowWeekDaysBy(_ repeatPeriod: String?) -> Bool {
-        guard let repeatPeriod else {
-            return false
-        }
+//        guard let repeatPeriod else {
+//            return false
+//        }
         
         // TODO: если тип периода week, то выводим кнопки с днями недели
         
@@ -120,6 +113,7 @@ class CustomTaskRepeatPeriodSetterViewModel {
 }
 
 
+// MARK: - CustomTaskRepeatPeriodSetterViewModelBindingDelegate
 /// Протокол с методами уведомляющими о том, что состояние полей ViewModel изменилось (для биндинга)
 protocol CustomTaskRepeatPeriodSetterViewModelBindingDelegate: AnyObject {
     func didUdpateIsShowReadyButton(newValue isShow: Bool)

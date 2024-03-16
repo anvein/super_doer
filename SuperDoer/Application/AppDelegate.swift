@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 // TODO: обработать ошибку нормально
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             } else {
-                print("DB url -", storeDescription.url?.absoluteString)
+                print("DB url - \(storeDescription.url?.absoluteString ?? "undefined")")
             }
         })
         

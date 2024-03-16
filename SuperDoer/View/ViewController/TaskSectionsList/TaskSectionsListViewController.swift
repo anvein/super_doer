@@ -1,16 +1,34 @@
 
 import UIKit
-import CoreData
 
 /// Экран списков (разделов)
 class TaskSectionsListViewController: UIViewController {
 
+    private var coordinator: TaskSectionsListViewControllerCoordinator
+    private var viewModel: TaskSectionListViewModelType
+    
+     
+    // MARK: controls
     private lazy var sectionsTableView = TaskSectionsTableView()
     
     private lazy var addSectionBottomPanelView = AddSectionBottomPanelView()
-    
-    var viewModel: TaskSectionListViewModelType?
 
+    
+    // MARK: init
+    init(
+        coordinator: TaskSectionsListViewControllerCoordinator,
+        viewModel: TaskSectionListViewModelType
+    ) {
+        self.coordinator = coordinator
+        self.viewModel = viewModel
+        
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     
     // MARK: life cycle
     override func viewDidLoad() {
@@ -35,11 +53,19 @@ class TaskSectionsListViewController: UIViewController {
 //        navigationController?.pushViewController(vc, animated: false)
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        if isMovingFromParent {
+            coordinator.closeTaskSectionsList()
+        }
+    }
+    
     
     // MARK: action-handlers
     @objc func presentDeleteAlertController(sectionsIndexPaths: [IndexPath]) {
         let deleteAlertController = DeleteAlertController(itemsIndexPath: sectionsIndexPaths, singleItem: nil) { [unowned self] _ in
-            self.viewModel?.deleteSections(withIndexPaths: sectionsIndexPaths)
+            self.viewModel.deleteSections(withIndexPaths: sectionsIndexPaths)
         } 
         deleteAlertController.itemTypeName = DeletableItem.ItemTypeName(
             oneIP: "список",
@@ -89,7 +115,7 @@ extension TaskSectionsListViewController {
     }
     
     private func setupBinding() {
-        viewModel?.bindAndUpdateSections({ [unowned self] sections in
+        viewModel.bindAndUpdateSections({ [unowned self] sections in
             self.sectionsTableView.reloadData()
         })
     }
@@ -100,24 +126,24 @@ extension TaskSectionsListViewController {
 extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return viewModel?.getCountOfTableSections() ?? 0
+        return viewModel.getCountOfTableSections()
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel?.getCountTaskSectionsInTableSection(withSectionId: section) ?? 0
+        return viewModel.getCountTaskSectionsInTableSection(withSectionId: section)
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: TaskSectionTableViewCell.identifier) as! TaskSectionTableViewCell
         
-        let sectionCellViewModel = viewModel?.getTaskSectionTableViewCellViewModel(forIndexPath: indexPath)
+        let sectionCellVM = viewModel.getTaskSectionTableViewCellViewModel(forIndexPath: indexPath)
         
-        switch sectionCellViewModel {
-        case let sectionCustomCellViewModel as TaskSectionCustomListTableViewCellViewModel :
-            cell.viewModel = sectionCustomCellViewModel
+        switch sectionCellVM {
+        case let sectionCustomCellVM as TaskSectionCustomListTableViewCellViewModel :
+            cell.viewModel = sectionCustomCellVM
             
-        case let sectionSystemCellViewModel as TaskSectionSystemListTableViewCellViewModel:
-            cell.viewModel = sectionSystemCellViewModel
+        case let sectionSystemCellVM as TaskSectionSystemListTableViewCellViewModel:
+            cell.viewModel = sectionSystemCellVM
             
         default:
             // TODO: залогировать ошибку
@@ -128,18 +154,14 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let viewModel = viewModel else { return }
-        
         viewModel.selectTaskSection(forIndexPath: indexPath) // TODO: нужен ли этот метод?
         
-        let taskListInSectionViewModel = viewModel.getTaskListInSectionViewModel(forIndexPath: indexPath)
-        guard let taskListInSectionViewModel else { return }
+        let taskListInSectionVM = viewModel.getTaskListInSectionViewModel(forIndexPath: indexPath)
+        guard let taskListInSectionVM else { return }
         
-        switch taskListInSectionViewModel {
-        case let taskListInSectionViewModel as TaskListInSectionViewModel :
-            let tasksInSectionVc = TaskListInSectionViewController(viewModel: taskListInSectionViewModel)
-            navigationController?.pushViewController(tasksInSectionVc, animated: true)
-            
+        switch taskListInSectionVM {
+        case let taskListInSectionVM as TaskListInSectionViewModel :
+            coordinator.selectTaskSection(viewModel: taskListInSectionVM)
             tableView.deselectRow(at: indexPath, animated: true)
             
         default:
@@ -169,7 +191,7 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
             .withConfiguration(symbolConfig)
         
         let archiveAction = UIContextualAction(style: .normal, title: "Архивировать") { [unowned self] _,_,completionHandler in
-            self.viewModel?.archiveCustomSection(indexPath: indexPath)
+            self.viewModel.archiveCustomSection(indexPath: indexPath)
             completionHandler(true)
         }
         archiveAction.image = UIImage(systemName: "archivebox")?
@@ -210,25 +232,14 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
 // MARK: add section bottom panel delegate
 extension TaskSectionsListViewController: AddSectionBottomPanelViewDelegate {
     func createSectionWith(title: String) {
-        viewModel?.createCustomTaskSectionWith(title: title)
+        viewModel.createCustomTaskSectionWith(title: title)
     }
 }
 
 
-@available(iOS 17, *)
-#Preview(traits: .defaultLayout, body: {
-//    var lists: [[TaskSectionProtocol]] = [[],[]]
-//    lists[0] = SystemListBuilder().buildLists()
-//    lists[1] = TaskSectionEntityManager().getCustomListsWithOrder()
-//    
-//    let taskListsViewModel = TaskSectionsListViewModel(sections: lists)
-//    let taskListsViewController = TaskSectionsListViewController()
-//    taskListsViewController.viewModel = taskListsViewModel
-//
-//    let navigationController = UINavigationController(rootViewController: taskListsViewController)
+// MARK: coordinator protocol
+protocol TaskSectionsListViewControllerCoordinator {
+    func selectTaskSection(viewModel: TaskListInSectionViewModel)
     
-    return TaskSectionsListViewController()
-})
-
-
-
+    func closeTaskSectionsList()
+}

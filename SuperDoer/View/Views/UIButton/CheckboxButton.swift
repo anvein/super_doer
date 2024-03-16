@@ -25,13 +25,17 @@ class CheckboxButton: UIButton {
         }
     }
     
-    var delegate: CheckboxButtonDelegate?
+    weak var delegate: CheckboxButtonDelegate?
     
     
     // MARK: init
-    init(width: Float = CheckboxButton.imageSize, height: Float = CheckboxButton.imageSize, isOnDefault: Bool = false) {
+    init(
+        width: Float = CheckboxButton.imageSize,
+        height: Float = CheckboxButton.imageSize,
+        isOnDefault: Bool = false
+    ) {
         super.init(frame: .zero)
-        next
+        
         setupButton(width: width, height: height, isOnDefault: isOnDefault)
         addWidthAndHeightConstraints(width: width, height: height)
     }
@@ -113,7 +117,7 @@ class CheckboxButton: UIButton {
 }
 
 
-protocol CheckboxButtonDelegate {
+protocol CheckboxButtonDelegate: AnyObject {
     func checkboxDidChangeValue(newValue: Bool)
 }
 

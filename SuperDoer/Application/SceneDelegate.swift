@@ -4,7 +4,7 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-//    lazy var homeViewController = TaskListViewController()
+    var appCoordinator: AppCoordinator?
     
     lazy var em = EntityManager()
     
@@ -12,20 +12,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
 
-        let window = UIWindow(windowScene: windowScene)
-        
-        // TODO: может перенести это в VM и дать возможность менять sections
-        
-        
-        let taskSectionsVM = DIContainer.shared.resolve(TaskSectionListViewModel.self)
-        let taskListsVC = TaskSectionsListViewController()
-        taskListsVC.viewModel = taskSectionsVM
-        
-        let navigationController = UINavigationController(rootViewController: taskListsVC)
-        window.rootViewController = navigationController
-    
-        self.window = window
-        window.makeKeyAndVisible()
+        window = UIWindow(windowScene: windowScene)
+        guard let window else { return }
+            
+        appCoordinator = AppCoordinator(window: window)
+        appCoordinator?.start()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

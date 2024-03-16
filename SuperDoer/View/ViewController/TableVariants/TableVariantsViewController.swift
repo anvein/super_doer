@@ -3,24 +3,36 @@ import UIKit
 import Foundation
 
 /// Контролер в виде PageSheet с таблицей  (для выбора вариантов из списка)
+/// Должен открываться всегда в рамках NavigationController
 class TableVariantsViewController: UIViewController {
-    typealias TaskFieldIdentifier = TaskDetailViewController.FieldNameIdentifier
     
+    /// Коды  в соответствии с которыми настраивается контроллер
+    enum SettingsCode {
+        case taskDeadlineVariants
+        case taskRepeatPeriodVariants
+    }
+    
+    private weak var coordinator: TableVariantsViewControllerCoordinator?
     private var viewModel: TableVariantsViewModelType
+    
+    private var settingsCode: SettingsCode
     
     // MARK: controls
     private lazy var variantsTableView = VariantsTableView()
     
-    weak var delegate: TableVariantsViewControllerDelegate?
-    /// Индентификатор для случая, чтобы различать из какого ViewController'а были вызваны методы делегата
-    /// Например: из того, который устанавливает дату дедлайна задачи или который устанавливает дату напоминания
-    var identifier: String
-    
     
     // MARK: init
-    init(viewModel: TableVariantsViewModelType, identifier: String) {
+    
+    /// - Parameters:
+    ///   - settingsCode: код в соответствии с которым настроится контроллер (detent и т.д.)
+    init(
+        viewModel: TableVariantsViewModelType,
+        coordinator: TableVariantsViewControllerCoordinator,
+        settingsCode: SettingsCode
+    ) {
         self.viewModel = viewModel
-        self.identifier = identifier
+        self.coordinator = coordinator
+        self.settingsCode = settingsCode
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -53,7 +65,7 @@ class TableVariantsViewController: UIViewController {
     }
     
     @objc private func tapButtonDelete() {
-        delegate?.didChooseDeleteVariantButton?(identifier: self.identifier)
+        coordinator?.didChooseDeleteVariantButton?()
         
         dismiss(animated: true)
     }
@@ -61,7 +73,7 @@ class TableVariantsViewController: UIViewController {
 }
 
 
-// MARK: setup methods
+// MARK: - setup methods
 extension TableVariantsViewController {
     
     private func setupControls() {
@@ -92,20 +104,19 @@ extension TableVariantsViewController {
             detent
         ]
         sheet.animateChanges {
-//            sheet.presentedViewController.additionalSafeAreaInsets.top = 14
             sheet.selectedDetentIdentifier = detent.identifier
         }
     }
     
     private func buildDetent() -> UISheetPresentationController.Detent {
         var detent: UISheetPresentationController.Detent
-        switch self.identifier {
-        case TaskFieldIdentifier.taskDeadline.rawValue:
+        switch self.settingsCode {
+        case .taskDeadlineVariants:
             detent = .custom(identifier: .taskDeadlineVariants, resolver: { context in
                 return 280
             })
             
-        case TaskFieldIdentifier.taskRepeatPeriod.rawValue:
+        case .taskRepeatPeriodVariants:
             detent = .custom(identifier: .taskRepeatPeriodVariants, resolver: { context in
                 return 380
             })
@@ -159,22 +170,22 @@ extension TableVariantsViewController {
     }
     
     private func setupBindings() {
-        viewModel.variantCellViewModels.bindAndUpdateValue { [unowned self] variants in
-            self.variantsTableView.reloadData()
+        viewModel.variantCellViewModels.bindAndUpdateValue { [weak self] variants in
+            self?.variantsTableView.reloadData()
         }
         
-        viewModel.isShowDeleteButton.bindAndUpdateValue { [unowned self] isShowDeleteButton in
-            self.navigationItem.leftBarButtonItem?.isHidden = !isShowDeleteButton
+        viewModel.isShowDeleteButton.bindAndUpdateValue { [weak self] isShowDeleteButton in
+            self?.navigationItem.leftBarButtonItem?.isHidden = !isShowDeleteButton
         }
         
-        viewModel.isShowReadyButton.bindAndUpdateValue { [unowned self] isShowReadyButton in
-            self.navigationItem.rightBarButtonItem?.isHidden = !isShowReadyButton
+        viewModel.isShowReadyButton.bindAndUpdateValue { [weak self] isShowReadyButton in
+            self?.navigationItem.rightBarButtonItem?.isHidden = !isShowReadyButton
         }
     }
 }
 
 
-// MARK: table delegate & datasource
+// MARK: - table delegate & datasource
 extension TableVariantsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.getCountVariants()
@@ -211,15 +222,17 @@ extension TableVariantsViewController: UITableViewDelegate, UITableViewDataSourc
         
         switch cellVM {
         case let deadlineVariantVM as DateVariantCellViewModel:
-            delegate?.didChooseDateVariant?(newDate: deadlineVariantVM.date, identifier: identifier)
+            coordinator?.didChooseDateVariant?(newDate: deadlineVariantVM.date)
             dismiss(animated: true)
             
         case let taskRepeatPeriodVariantVM as TaskRepeatPeriodVariantCellViewModel:
-            delegate?.didChooseTaskRepeatPeriodVariant?(newRepeatPeriod: taskRepeatPeriodVariantVM.period, identifier: identifier)
+            coordinator?.didChooseTaskRepeatPeriodVariant?(
+                newRepeatPeriod: taskRepeatPeriodVariantVM.period
+            )
             dismiss(animated: true)
             
         case _ as CustomVariantCellViewModel:
-            delegate?.didChooseCustomVariant?(navigationController: navigationController, identifier: identifier)
+            coordinator?.didChooseCustomVariant?()
         default:
             break
         }
@@ -229,41 +242,26 @@ extension TableVariantsViewController: UITableViewDelegate, UITableViewDataSourc
 }
 
 
-// MARK: controller delegate protocol
-@objc protocol TableVariantsViewControllerDelegate: AnyObject {
+// MARK: - controller coordinator protocol
+@objc protocol TableVariantsViewControllerCoordinator: AnyObject {
     /// Был выбран вариант с типом "дата" из таблицы или нажата кнопка "Удалить" (очистить)
     /// Вызывается перед закрытие контроллера
-    /// - Parameters:
-    ///   - newDate: Date - если выбран вариант из таблицы (со значением), nil - если нажата кнопка "Удалить",
-    ///   - identifier: идентификатор открытого экземпляра контроллера
-    ///    (связан с полем для заполнения которорого был открыть контроллер
-    @objc optional func didChooseDateVariant(newDate: Date?, identifier: String)
+    @objc optional func didChooseDateVariant(newDate: Date?)
     
-    // Был выбран вариант с типом "период повтора задачи" из таблицы или нажата кнопка "Удалить" (очистить)
+    /// Был выбран вариант с типом "период повтора задачи" из таблицы или нажата кнопка "Удалить" (очистить)
     /// Вызывается перед закрытие контроллера
-    /// - Parameters:
-    ///   - newRepeatPeriod: String - если выбран вариант из таблицы (со значением), nil - если нажата кнопка "Удалить",
-    ///   - identifier: идентификатор открытого экземпляра контроллера
-    ///    (связан с полем для заполнения которорого был открыть контроллер
-    @objc optional func didChooseTaskRepeatPeriodVariant(newRepeatPeriod: String?, identifier: String)
-    // TODO: переделать на нормальное значение
+    @objc optional func didChooseTaskRepeatPeriodVariant(newRepeatPeriod: String?)
+     // TODO: переделать на нормальное значение (а не String)
     
     /// Был выбран кастомный вариант в таблице
-    /// - Parameters:
-    ///   - navigationController: navigationController, в рамках которого открыт контроллер с вариантами
-    ///   - identifier: идентификатор открытого экземпляра контроллера
-    ///    (связан с полем для заполнения которорого был открыть контроллер вариантов
-    @objc optional func didChooseCustomVariant(navigationController: UINavigationController?, identifier: String)
+    @objc optional func didChooseCustomVariant()
     
     /// Была нажата кнопка "Удалить" (очистить)
-    /// - Parameters:
-    ///   - identifier: идентификатор открытого экземпляра контроллера
-    ///    (связан с полем для заполнения которорого был открыть контроллер вариантов
-    @objc optional func didChooseDeleteVariantButton(identifier: String)
+    @objc optional func didChooseDeleteVariantButton()
 }
 
 
-// MARK: detent identifier for controller
+// MARK: - detent identifier for controller
 typealias SheetDetentIdentifier = UISheetPresentationController.Detent.Identifier
 
 extension UISheetPresentationController.Detent.Identifier {

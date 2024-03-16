@@ -4,20 +4,26 @@ import UIKit
 /// Контроллер редактирования и форматирования "текста"
 class TextEditorViewController: UIViewController {
     
+    private weak var coordinator: TextEditorViewControllerCoordinator?
     private var viewModel: TextEditorViewModelType
     
+    
+    // MARK: controls
     private lazy var navigationBar = UINavigationBar()
     private lazy var textView = UITextView()
+    
     
     // MARK: toolbar controls
     private lazy var toolbar = UIToolbar()
     private lazy var boldBarButtonItem = UIBarButtonItem(title: "bold", style: .plain, target: nil, action: nil)
     
-    var dismissDelegate: TextEditorViewControllerDelegate?
-    
     
     // MARK: init
-    init(viewModel: TaskDescriptionEditorViewModel) {
+    init(
+        coordinator: TextEditorViewControllerCoordinator,
+        viewModel: TaskDescriptionEditorViewModel
+    ) {
+        self.coordinator = coordinator
         self.viewModel = viewModel
         
         super.init(nibName: nil, bundle: nil)
@@ -41,14 +47,31 @@ class TextEditorViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
-        dismissDelegate?.didDisappearTextEditorViewController(
+        coordinator?.didDisappearTextEditorViewController(
             text: textView.attributedText,
             isSuccess: true
         )
     }
     
     
-    // MARK: setup methods
+    // MARK: action-handlers
+    @objc private func readyEditTaskDescription() {
+        if textView.isFirstResponder {
+            textView.resignFirstResponder()
+        }
+        
+        dismiss(animated: true)
+    }
+    
+    @objc private func switchBoldText() {
+        
+    }
+    
+}
+
+
+// MARK: - setup and layout
+extension TextEditorViewController {
     private func setupControls() {
         setupViewOfController()
         setupNavigationBar()
@@ -73,7 +96,12 @@ class TextEditorViewController: UIViewController {
     
         title = "Заметка"
         navigationBar.topItem?.prompt = viewModel.title
-        navigationBar.topItem?.rightBarButtonItem = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(readyEditTaskDescription))
+        navigationBar.topItem?.rightBarButtonItem = UIBarButtonItem(
+            title: "Готово",
+            style: .done,
+            target: self,
+            action: #selector(readyEditTaskDescription)
+        )
     }
     
     private func setupTaskDescriptionTextView() {
@@ -122,30 +150,15 @@ class TextEditorViewController: UIViewController {
     }
     
     private func setupBindings() {
-        viewModel.text.bindAndUpdateValue { mutableAttrString in
-            self.textView.attributedText = mutableAttrString
-            self.textView.font = UIFont.systemFont(ofSize: 18)
+        viewModel.text.bindAndUpdateValue { [weak self] mutableAttrString in
+            self?.textView.attributedText = mutableAttrString
+            self?.textView.font = UIFont.systemFont(ofSize: 18)
         }
     }
-    
-    
-    // MARK: action-handlers
-    @objc private func readyEditTaskDescription() {
-        if textView.isFirstResponder {
-            textView.resignFirstResponder()
-        }
-        
-        dismiss(animated: true)
-    }
-    
-    @objc private func switchBoldText() {
-        
-    }
-    
 }
 
 
-// MARK: descriptionTextView delegate
+// MARK: - descriptionTextView delegate
 extension TextEditorViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         
@@ -160,7 +173,7 @@ extension TextEditorViewController: UITextViewDelegate {
 }
 
 
-// MARK: NavigationBar delegate
+// MARK: - NavigationBar delegate
 extension TextEditorViewController: UINavigationBarDelegate {
 //    func position(for bar: UIBarPositioning) -> UIBarPosition {
 //        return .topAttached
@@ -168,8 +181,11 @@ extension TextEditorViewController: UINavigationBarDelegate {
 }
 
 
-// MARK: dismiss protocol
-protocol TextEditorViewControllerDelegate {
+// MARK: - coordinator protocol for TextEditorViewController
+protocol TextEditorViewControllerCoordinator: AnyObject {
     /// Контроллер редактирования текста был закрыт
+    /// - Parameters:
+    ///   - text: текст, который был на момент закрытия контроллера в TextView
+    ///   - isSuccess: хз зачем этот параметр (в каком случае может быть isSuccess = false?)
     func didDisappearTextEditorViewController(text: NSAttributedString, isSuccess: Bool)
 }

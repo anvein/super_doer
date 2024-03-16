@@ -5,15 +5,23 @@ import UIKit
 /// с предложением их включить
 class NotificationsDisabledAlertController: UIAlertController {
     
-    weak var delegate: NotificationsDisabledAlertControllerDelegate?
+    private var coordinator: NotificationsDisabledAlertControllerCoordinator?
     
     
     // MARK: init
-    init(title: String? = nil, message: String? = nil) {
+    init(
+        coordinator: NotificationsDisabledAlertControllerCoordinator,
+        title: String? = nil,
+        message: String? = nil
+    ) {
         super.init(nibName: nil, bundle: nil)
-        
+        self.coordinator = coordinator
+    
         self.title = title ?? "Уведомления выключены"
-        self.message = message ?? "Нам нужно ваше разрешение для напоминаний.\nВключите уведомления в разделе \"Параметры\" > \"Уведомления\""
+        self.message = message ?? """
+                                  Нам нужно ваше разрешение для напоминаний.
+                                  Включите уведомления в разделе \"Параметры\" > \"Уведомления\"
+                                  """
     }
     
     required init?(coder: NSCoder) {
@@ -28,33 +36,50 @@ class NotificationsDisabledAlertController: UIAlertController {
         let actionEnableNotifications = UIAlertAction(
             title: "Включить уведомления",
             style: .default,
-            handler: { actionEnableNotifications in
-                self.delegate?.didChoosenEnableNotifications()
+            handler: { [weak self] _ in
+                self?.coordinator?.didChoosenEnableNotifications()
             }
         )
         
-        let actionNotNow = UIAlertAction(title: "Не сейчас", style: .destructive, handler: { action in
-            self.delegate?.didChoosenNotNowEnableNotification()
+        let actionNotNow = UIAlertAction(
+            title: "Не сейчас",
+            style: .destructive,
+            handler: { [weak self] _ in
+            self?.coordinator?.didChoosenNotNowEnableNotification()
         })
         
-        let actionCancel = UIAlertAction(title: "Отмена", style: .cancel)
+        let actionCancel = UIAlertAction(
+            title: "Отмена",
+            style: .cancel) { [weak self] _ in
+                self?.coordinator?.didChooseCancelNotificationsAlert()
+            }
         
         addAction(actionEnableNotifications)
         addAction(actionNotNow)
         addAction(actionCancel)
     }
     
-    
-    // MARK: other methods
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
 
+        if isMovingFromParent {
+            coordinator?.didCloseNotificationsAlert()
+        }
+    }
 }
 
 
 // MARK: delegate
-protocol NotificationsDisabledAlertControllerDelegate: AnyObject {
+protocol NotificationsDisabledAlertControllerCoordinator: AnyObject {
     /// Был выбран вариант "Включить уведомления" (в настройках)
     func didChoosenEnableNotifications()
     
     /// Был выбран вариант "Не сейчас" (включать уведомления в настройках)
     func didChoosenNotNowEnableNotification()
+    
+    /// Был выбран вариант "Отмена"
+    func didChooseCancelNotificationsAlert()
+    
+    // Алерт был закрыт без выбора действия
+    func didCloseNotificationsAlert()
 }

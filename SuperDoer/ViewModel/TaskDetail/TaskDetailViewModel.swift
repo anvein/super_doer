@@ -30,6 +30,11 @@ class TaskDetailViewModel {
     var taskIsCompleted: Box<Bool>
     var taskIsPriority: Box<Bool>
     
+    var isEnableNotifications: Bool {
+        // TODO: получить из сервиса, который вернет "включены ли уведомления"
+        return true
+    }
+    
     weak var bindingDelegate: TaskDetailViewModelBindingDelegate?
     
     
@@ -57,11 +62,7 @@ class TaskDetailViewModel {
     }
     
     func getTaskDeadlineTableVariantsViewModel() -> TaskDeadlineTableVariantsViewModel {
-        return TaskDeadlineTableVariantsViewModel(task: task)
-    }
-    
-    func getTaskDeadlineCustomDateSetterViewModel() -> TaskDeadlineCustomDateViewModel {
-        return TaskDeadlineCustomDateViewModel(task: task)
+        return TaskDeadlineTableVariantsViewModel(deadlineDate: task.deadlineDate)
     }
     
     func getTaskReminderCustomDateViewModel() -> TaskReminderCustomDateViewModel {
@@ -69,11 +70,7 @@ class TaskDetailViewModel {
     }
     
     func getTaskRepeatPeriodTableVariantsViewModel() -> TaskRepeatPeriodTableVariantsViewModel {
-        return TaskRepeatPeriodTableVariantsViewModel(task: task)
-    }
-    
-    func getCustomTaskRepeatPeriodSetterViewModel() -> CustomTaskRepeatPeriodSetterViewModel {
-        return CustomTaskRepeatPeriodSetterViewModel(task: task)
+        return TaskRepeatPeriodTableVariantsViewModel(repeatPeriod: task.repeatPeriod)
     }
     
     func getFileCellViewModel(forIndexPath indexPath: IndexPath) -> FileCellViewModel? {

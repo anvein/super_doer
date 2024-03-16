@@ -6,12 +6,12 @@ import Foundation
 class TaskDeadlineTableVariantsViewModel: TableVariantsViewModelType {
 
     // MARK: model
-    private var task: CDTask {
+    private var taskDeadlineDate: Date? {
         didSet {
             let cellValues = TaskDeadlineTableVariantsViewModel.buildCellViewModels()
             variantCellViewModels = Box(cellValues)
             
-            refreshSelectionOfVariantCellViewModel(fromTask: task)
+            refreshSelectionOfVariantCellViewModel(deadlineDate: taskDeadlineDate)
             variantCellViewModels.forceUpdate()
         }
     }
@@ -25,22 +25,20 @@ class TaskDeadlineTableVariantsViewModel: TableVariantsViewModelType {
     
     
     // MARK: init
-    init(task: CDTask) {
-        self.task = task
-        
+    init(deadlineDate: Date?) {
         let cellViewModels = TaskDeadlineTableVariantsViewModel.buildCellViewModels()
         variantCellViewModels = Box(cellViewModels)
         isShowDeleteButton = Box(false)
         
-        refreshSelectionOfVariantCellViewModel(fromTask: task)
-        refreshIsShowDeleteButton(fromTask: task)
+        refreshSelectionOfVariantCellViewModel(deadlineDate: deadlineDate)
+        refreshIsShowDeleteButton(fromTaskDeadlineDate: deadlineDate)
     }
     
     /// Обновляет выбранный VariantCellValue
-    private func refreshSelectionOfVariantCellViewModel(fromTask task: CDTask) {
+    private func refreshSelectionOfVariantCellViewModel(deadlineDate: Date?) {
         let selectedIndex = calculateIndexSelectedValue(
             variants: variantCellViewModels.value,
-            task: task
+            deadlineDate: deadlineDate
         )
         
         for (index, variant) in variantCellViewModels.value.enumerated() {
@@ -48,8 +46,8 @@ class TaskDeadlineTableVariantsViewModel: TableVariantsViewModelType {
         }
     }
     
-    private func calculateIndexSelectedValue(variants: [BaseVariantCellViewModel], task: CDTask) -> Int? {
-        guard let taskDeadlineDate = task.deadlineDate else {
+    private func calculateIndexSelectedValue(variants: [BaseVariantCellViewModel], deadlineDate: Date?) -> Int? {
+        guard let deadlineDate else {
             return nil
         }
         
@@ -59,7 +57,7 @@ class TaskDeadlineTableVariantsViewModel: TableVariantsViewModelType {
                 continue
             }
             
-            if variant.date.isEqualDate(date2: taskDeadlineDate) {
+            if variant.date.isEqualDate(date2: deadlineDate) {
                 resultIndex = index
                 break
             }
@@ -74,8 +72,8 @@ class TaskDeadlineTableVariantsViewModel: TableVariantsViewModelType {
         return resultIndex
     }
     
-    private func refreshIsShowDeleteButton(fromTask task: CDTask) {
-        isShowDeleteButton.value = task.deadlineDate != nil
+    private func refreshIsShowDeleteButton(fromTaskDeadlineDate deadlineDate: Date?) {
+        isShowDeleteButton.value = deadlineDate != nil
     }
     
     // TODO: переделать метод
@@ -133,6 +131,11 @@ class TaskDeadlineTableVariantsViewModel: TableVariantsViewModelType {
     
     func getVariantCellViewModel(forIndexPath indexPath: IndexPath) -> BaseVariantCellViewModel {
         return variantCellViewModels.value[indexPath.row]
+    }
+    
+    // MARK: create child viewModels
+    func getTaskDeadlineCustomDateSetterViewModel() -> TaskDeadlineDateCustomViewModel {
+        return TaskDeadlineDateCustomViewModel(taskDeadlineDate: taskDeadlineDate)
     }
     
 }

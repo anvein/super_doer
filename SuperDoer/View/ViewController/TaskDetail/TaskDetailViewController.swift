@@ -4,11 +4,9 @@ import UIKit
 /// Контроллер просмотра / редактирования задачи
 // MARK: MAIN
 class TaskDetailViewController: UIViewController {
-    enum FieldNameIdentifier: String {
-        case taskDeadline
-        case taskRepeatPeriod
-        case taskReminderDate
-    }
+    private var viewModel: TaskDetailViewModel
+    private weak var coordinator: TaskDetailViewControllerCoordinator?
+    
     
     // MARK: controls
     private lazy var taskDoneButton = CheckboxButton()
@@ -21,12 +19,12 @@ class TaskDetailViewController: UIViewController {
     private var textFieldEditing: UITextField?
     
     
-    // MARK: view model
-    private var viewModel: TaskDetailViewModel
-    
-    
     // MARK: init
-    init(viewModel: TaskDetailViewModel) {
+    init(
+        coordinator: TaskDetailViewControllerCoordinator,
+        viewModel: TaskDetailViewModel
+    ) {
+        self.coordinator = coordinator
         self.viewModel = viewModel
         
         super.init(nibName: nil, bundle: nil)
@@ -46,9 +44,18 @@ class TaskDetailViewController: UIViewController {
         setupConstraints()
         setupBindings()
         
-         //PixelPerfectScreen.getInstanceAndSetup(baseView: view)  // TODO: удалить временный код (perfect pixel screen)
+        // TODO: удалить временный код (perfect pixel screen)
+        //PixelPerfectScreen.getInstanceAndSetup(baseView: view)
     }
 
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        if isMovingFromParent {
+            coordinator?.closeTaskDetail()
+        }
+    }
+    
     
     // MARK: controller action-handlers
     @objc func showTaskTitleNavigationItemReady() {
@@ -79,66 +86,13 @@ class TaskDetailViewController: UIViewController {
     }
     
     @objc func pressedSubtaskAddNavigationItemReady() {
+        // TODO: переделать на endEdit
         textFieldEditing?.resignFirstResponder()
         navigationItem.setRightBarButton(nil, animated: true)
     }
     
     
     // MARK: coordinator methods
-    private func presentSettingsTaskReminder() {
-        // TODO: сделать проверку включены ли уведомления для приложения (+ вынести в VM + сервис)
-        let isEnableNotifications = false
-        if !isEnableNotifications {
-            let notificationDisableAlert = NotificationsDisabledAlertController()
-            notificationDisableAlert.delegate = self
-            
-            present(notificationDisableAlert, animated: true)
-        } else {
-            presentTaskReminderCustomDateController()
-        }
-    }
-    
-    private func presentTaskReminderCustomDateController() {
-        let vm = viewModel.getTaskReminderCustomDateViewModel()
-        let vc = CustomDateSetterViewController(
-            viewModel: vm,
-            identifier: FieldNameIdentifier.taskReminderDate.rawValue,
-            datePickerMode: .dateAndTime
-        )
-        vc.delegate = self
-        vc.title = "Напоминание"
-        
-        present(vc, animated: true)
-    }
-    
-    private func presentTaskDeadlineTableVariantsController() {
-        let vm = viewModel.getTaskDeadlineTableVariantsViewModel()
-        
-        let deadlineVariantsController = TableVariantsViewController(
-            viewModel: vm,
-            identifier: FieldNameIdentifier.taskDeadline.rawValue
-        )
-        deadlineVariantsController.delegate = self
-        deadlineVariantsController.title = "Срок"
-        let navigationController = UINavigationController(rootViewController: deadlineVariantsController)
-        
-        present(navigationController, animated: true)
-    }
-    
-    private func presentTaskRepeatPeriodTableVariantsController() {
-        let vm = viewModel.getTaskRepeatPeriodTableVariantsViewModel()
-        
-        let variantsController = TableVariantsViewController(
-            viewModel: vm,
-            identifier: FieldNameIdentifier.taskRepeatPeriod.rawValue
-        )
-        variantsController.delegate = self
-        variantsController.title = "Повтор"
-        let navigationController = UINavigationController(rootViewController: variantsController)
-        
-        present(navigationController, animated: true)
-    }
-    
     private func presentDeleteFileAlertController(fileCellIndexPath indexPath: IndexPath) {
         let fileCellVM = viewModel.getFileCellViewModel(forIndexPath: indexPath)
         guard let fileCellVM else { return }
@@ -153,22 +107,8 @@ class TaskDetailViewController: UIViewController {
         present(deleteAlert, animated: true)
     }
     
-    private func presentAddFileAlertController() {
-        let alertController = AddFileSourceAlertController()
-        alertController.delegate = self
-        present(alertController, animated: true)
-    }
     
-    private func presentDescriptionController() {
-        let vm = viewModel.getTaskDescriptionEditorViewModel()
-        let vc = TextEditorViewController(viewModel: vm)
-        vc.dismissDelegate = self
-        
-        present(vc, animated: true)
-    }
-    
-    
-    // MARK: other methods
+    // MARK: build / factory methods
     private func buildTableViewCellFor(_ cellViewModel: TaskDataCellViewModelType) -> UITableViewCell {
         let cell: UITableViewCell
         
@@ -235,7 +175,7 @@ class TaskDetailViewController: UIViewController {
 }
 
 /// Расширение для инкапсуляции настройки контролов и макета
-// MARK: SETUP LAYOUT
+// MARK: - setup / layout
 extension TaskDetailViewController {
     
     // MARK: add subviews & constraints
@@ -278,6 +218,7 @@ extension TaskDetailViewController {
         ])
     }
     
+    
     // MARK: setup controls methods
     private func setupControls() {
         // view of controller
@@ -315,7 +256,7 @@ extension TaskDetailViewController {
 }
 
 
-// MARK: table delegate and dataSource
+// MARK: - table delegate and dataSource
 extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.countTaskDataCellsValues
@@ -342,22 +283,22 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
             viewModel.switchValueTaskFieldInMyDay()
             
         case _ as ReminderDateButtonCell :
-            presentSettingsTaskReminder()
+            coordinator?.tapReminderDateCell()
             
         case _ as DeadlineDateButtonCell :
-            presentTaskDeadlineTableVariantsController()
+            coordinator?.tapDeadlineDateCell()
             
         case _ as RepeatPeriodButtonCell :
-            presentTaskRepeatPeriodTableVariantsController()
+            coordinator?.tapRepeatPeriodCell()
             
         case _ as AddFileButtonCell :
-            presentAddFileAlertController()
+            coordinator?.tapAddFileCell()
             
         case _ as FileButtonCell :
             print("💎 Открылся контроллер и показать содержимое файла")
             
         case _ as DescriptionButtonCell:
-            presentDescriptionController()
+            coordinator?.tapDecriptionCell()
             
         default :
             break
@@ -404,7 +345,7 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
 }
 
 
-// MARK: task title TextView delegate
+// MARK: - task title TextView delegate
 extension TaskDetailViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if (text == "\n") {
@@ -429,7 +370,7 @@ extension TaskDetailViewController: UITextViewDelegate {
 }
 
 
-// MARK: subtask TextField delegate
+// MARK: - subtask TextField delegate
 extension TaskDetailViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         // TODO: определять верный ли textField
@@ -450,7 +391,7 @@ extension TaskDetailViewController: UITextFieldDelegate {
 }
 
 
-// MARK: cell delegates, child controllers delegates
+// MARK: - cell delegates, child controllers delegates
 /// Протокол связанный с чекбоксом "Задача выполнена"
 extension TaskDetailViewController: CheckboxButtonDelegate {
     func checkboxDidChangeValue(newValue: Bool) {
@@ -465,95 +406,6 @@ extension TaskDetailViewController: StarButtonDelegate {
     }
 }
 
-/// Делегат связанный с полем "Дата напоминания"
-extension TaskDetailViewController: NotificationsDisabledAlertControllerDelegate {
-    func didChoosenEnableNotifications() {
-        
-// строка с URL настроек уведомлений
-print(UIApplication.openNotificationSettingsURLString)
-        // TODO: реализовать настройки уведомлений
-        let url = URL(string: UIApplication.openNotificationSettingsURLString)
-        
-        guard let url else { return }
-        
-        Task {
-            await UIApplication.shared.open(url)
-            
-            presentTaskReminderCustomDateController()
-        }
-        
-    }
-    
-    func didChoosenNotNowEnableNotification() {
-        presentTaskReminderCustomDateController()
-    }
-}
-
-/// Делегаты связанные с полями: "Дата выполнения" (дедлайн), "Дата напоминания", "Период повтора"
-/// и контроллерами с вариантами значений и установкой кастомного значения
-extension TaskDetailViewController: TableVariantsViewControllerDelegate {
-    func didChooseDateVariant(newDate: Date?, identifier: String) {
-        if identifier == FieldNameIdentifier.taskDeadline.rawValue {
-            viewModel.updateTaskField(deadlineDate: newDate)
-        }
-    }
-    
-    func didChooseTaskRepeatPeriodVariant(newRepeatPeriod: String?, identifier: String) {
-        if identifier == FieldNameIdentifier.taskRepeatPeriod.rawValue {
-            viewModel.updateTaskField(repeatPeriod: newRepeatPeriod)
-        }
-    }
-    
-    func didChooseCustomVariant(navigationController: UINavigationController?, identifier: String) {
-        if identifier == FieldNameIdentifier.taskDeadline.rawValue {
-            let customDateSetterVM = viewModel.getTaskDeadlineCustomDateSetterViewModel()
-            let customDateVC = CustomDateSetterViewController(
-                viewModel: customDateSetterVM,
-                identifier: identifier
-            )
-            customDateVC.delegate = self
-            
-            navigationController?.pushViewController(customDateVC, animated: true)
-        } else if identifier == FieldNameIdentifier.taskRepeatPeriod.rawValue {
-            let customRepeatPeriodSetterVM = viewModel.getCustomTaskRepeatPeriodSetterViewModel()
-            let customRepeatPeriodSetterVC = CustomTaskRepeatPeriodSetterViewController(
-                viewModel: customRepeatPeriodSetterVM,
-                identifier: identifier
-            )
-            customRepeatPeriodSetterVC.delegate = self
-            customRepeatPeriodSetterVC.title = "Повторять каждые"
-            
-            navigationController?.pushViewController(customRepeatPeriodSetterVC, animated: true)
-        }
-    }
-    
-    func didChooseDeleteVariantButton(identifier: String) {
-        if identifier == FieldNameIdentifier.taskDeadline.rawValue {
-            viewModel.updateTaskField(deadlineDate: nil)
-        } else if identifier == FieldNameIdentifier.taskRepeatPeriod.rawValue {
-            viewModel.updateTaskField(repeatPeriod: nil)
-        }
-    }
-}
-
-extension TaskDetailViewController: CustomDateSetterViewControllerDelegate {
-    func didChooseCustomDateReady(newDate: Date?, identifier: String) {
-        if identifier == FieldNameIdentifier.taskDeadline.rawValue {
-            viewModel.updateTaskField(deadlineDate: newDate)
-        } else if identifier == FieldNameIdentifier.taskReminderDate.rawValue {
-            viewModel.updateTaskField(reminderDateTime: newDate)
-        }
-    }
-    
-    func didChooseCustomDateDelete(identifier: String) {
-        if identifier == FieldNameIdentifier.taskDeadline.rawValue {
-            viewModel.updateTaskField(deadlineDate: nil)
-        } else if identifier == FieldNameIdentifier.taskReminderDate.rawValue {
-            viewModel.updateTaskField(reminderDateTime: nil)
-        }
-    }
-}
-
 /// Делегаты связанные с крестиками в ячейках данных задачи у полей:
 /// - "Добавить в мой день" [x]
 /// - "Дата напоминания" [x]
@@ -562,7 +414,6 @@ extension TaskDetailViewController: CustomDateSetterViewControllerDelegate {
 /// - "Прикрепленный файл" [х] - удаление
 extension TaskDetailViewController: TaskDetailBaseButtonCellDelegate {
     func didTapTaskDetailCellActionButton(cellIdentifier: String, cell: UITableViewCell) {
-        
         switch cellIdentifier {
         case AddToMyDayButtonCell.identifier:
             viewModel.updateTaskField(inMyDay: false)
@@ -590,115 +441,17 @@ extension TaskDetailViewController: TaskDetailBaseButtonCellDelegate {
     }
 }
 
-extension TaskDetailViewController: CustomTaskRepeatPeriodSetterViewControllerDelegate {
-    func didChooseCustomTaskRepeatPeriodReady(newPeriod: String?, identifier: String) {
-        viewModel.updateTaskField(repeatPeriod: newPeriod)
-    }
-}
-
 /// Делегаты связанные с полем "Описание"
-extension TaskDetailViewController: TextEditorViewControllerDelegate {
-    func didDisappearTextEditorViewController(text: NSAttributedString, isSuccess: Bool) {
-        viewModel.updateTaskField(taskDescription: text)
-    }
-}
-
 extension TaskDetailViewController: DescriptionButtonCellDelegateProtocol {
     func didTapTaskDescriptionOpenButton() {
-        presentDescriptionController()
-    }
-}
-
-/// Делегат для действий при выборе вариантов "откуда добавить файл"
-extension TaskDetailViewController: AddFileSourceAlertControllerDelegate {
-    func didChooseAddFileFromImageLibrary() {
-        // TODO: сделать нормальные проверки
-        guard UIImagePickerController.isSourceTypeAvailable(.photoLibrary) == true else {
-            print("❌ Нет доступа к галерее")
-            return
-        }
-        
-        let availableMediaTypes = UIImagePickerController.availableMediaTypes(for: .photoLibrary)
-        guard (availableMediaTypes?.count ?? 0) > 0 else {
-            print("❌ нет доступных форматов в галерее")
-            return
-        }
-        
-        let imagePickerController = UIImagePickerController()
-        imagePickerController.delegate = self
-        imagePickerController.mediaTypes = availableMediaTypes ?? []
-        
-        present(imagePickerController, animated: true)
-    }
-    
-    func didChooseAddFileFromCamera() {
-        guard UIImagePickerController.isSourceTypeAvailable(.camera) == true else {
-            print("❌ Нет доступа к камере")
-            return
-        }
-        
-        let availableMediaTypes = UIImagePickerController.availableMediaTypes(for: .camera)
-        guard (availableMediaTypes?.count ?? 0) > 0 else {
-            print("❌ нет доступных форматов у камеры")
-            return
-        }
-        
-        let imagePickerController = UIImagePickerController()
-        imagePickerController.sourceType = .camera
-        imagePickerController.delegate = self
-        imagePickerController.mediaTypes = availableMediaTypes ?? []
-        
-        present(imagePickerController, animated: true)
-    }
-    
-    func didChooseAddFileFromFiles() {
-        let documentPicker = UIDocumentPickerViewController(
-            forOpeningContentTypes: [.jpeg, .pdf, .text]
-        )
-        documentPicker.delegate = self
-        documentPicker.allowsMultipleSelection = false
-        
-        present(documentPicker, animated: true)
-    }
-}
-
-/// Делегат для взаимодействия с галереей (при загрузке файла)
-extension TaskDetailViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    func imagePickerController(
-        _ picker: UIImagePickerController,
-        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
-    ) {
-        picker.dismiss(animated: true)
-        guard let originalImage = info[.originalImage] as? UIImage else {
-            return
-        }
-        
-        let imgData = NSData(data: originalImage.jpegData(compressionQuality: 1)!)
-        viewModel.createTaskFile(fromImageData: imgData)
-    }
-}
-
-/// Делегат для взаимодействия с браузером файлов (при загрузке файла)
-extension TaskDetailViewController: UIDocumentPickerDelegate {
-    func documentPicker(
-        _ controller: UIDocumentPickerViewController,
-        didPickDocumentsAt urls: [URL]
-    ) {
-        controller.dismiss(animated: true)
-        
-        for url in urls {
-            viewModel.createTaskFile(fromUrl: url)
-            break
-        }
+        coordinator?.tapDecriptionCell()
     }
 }
 
 
-// MARK: binding with ViewModel delegate
+// MARK: - binding with ViewModel delegate
 extension TaskDetailViewController: TaskDetailViewModelBindingDelegate {
     func addCell(toIndexPath indexPath: IndexPath, cellViewModel: TaskDataCellViewModelType) {
-        let cell = buildTableViewCellFor(cellViewModel)
-        
         taskDataTableView.insertRows(at: [indexPath], with: .fade)
     }
     
@@ -745,4 +498,26 @@ extension TaskDetailViewController: TaskDetailViewModelBindingDelegate {
     func removeCells(withIndexPaths indexPaths: [IndexPath]) {
         taskDataTableView.deleteRows(at: indexPaths, with: .fade)
     }
+}
+
+
+// MARK: - coordinator protocol for TaskDetailViewController
+protocol TaskDetailViewControllerCoordinator: AnyObject {
+    /// Тап по ячейке с датой напоминания по задаче
+    func tapReminderDateCell()
+    
+    /// Тап по ячейке с датой дедлайна задачи
+    func tapDeadlineDateCell()
+    
+    /// Тап по ячейке с периодом повтора задачи
+    func tapRepeatPeriodCell()
+    
+    // Тап по ячейке с описанием задачи
+    func tapDecriptionCell()
+    
+    // Тап по ячейке "добавления файла"
+    func tapAddFileCell()
+    
+    /// Задача закрыта (ушли с экрана просмотра / редактирования задачи)
+    func closeTaskDetail()
 }

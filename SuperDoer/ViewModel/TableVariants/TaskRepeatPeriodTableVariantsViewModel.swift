@@ -5,12 +5,13 @@ import Foundation
 /// для поля "Период" у задачи
 class TaskRepeatPeriodTableVariantsViewModel: TableVariantsViewModelType {
     
-    // MARK: model
-    private var task: CDTask {
+    // MARK: model data
+    private var repeatPeriod: String? {
         didSet {
             let cellViewModels = TaskRepeatPeriodTableVariantsViewModel.buildCellViewModels()
             variantCellViewModels = Box(cellViewModels)
 
+            // TODO: когда переделаю на нормальное значение сделать определение выбранного
             //refreshSelectionOfVariantCellValue(fromTask: task)
             variantCellViewModels.forceUpdate()
         }
@@ -22,16 +23,16 @@ class TaskRepeatPeriodTableVariantsViewModel: TableVariantsViewModelType {
     
     var variantCellViewModels: Box<[BaseVariantCellViewModel]>
     
-    init(task: CDTask) {
-        self.task = task
+    init(repeatPeriod: String?) {
+        self.repeatPeriod = repeatPeriod
         
         variantCellViewModels = Box(TaskRepeatPeriodTableVariantsViewModel.buildCellViewModels())
         isShowDeleteButton = Box(false)
         
+        // TODO: когда переделаю на нормальное значение сделать определение выбранного
         //refreshSelectionOfVariantCellViewModel(fromTask: task)
-        refreshIsShowDeleteButton(fromTask: task)
+        refreshIsShowDeleteButton(byRepeatPeriod: repeatPeriod)
     }
-    
     
     func getCountVariants() -> Int {
         return variantCellViewModels.value.count
@@ -42,8 +43,8 @@ class TaskRepeatPeriodTableVariantsViewModel: TableVariantsViewModelType {
     }
     
     
-    private func refreshIsShowDeleteButton(fromTask task: CDTask) {
-        isShowDeleteButton.value = task.repeatPeriod != nil
+    private func refreshIsShowDeleteButton(byRepeatPeriod repeatPeriod: String?) {
+        isShowDeleteButton.value = repeatPeriod != nil
     }
     
     private static func buildCellViewModels() -> [BaseVariantCellViewModel] {
@@ -100,5 +101,10 @@ class TaskRepeatPeriodTableVariantsViewModel: TableVariantsViewModelType {
         return cellViewModels
     }
     
+    
+    // MARK: child view models building
+    func getCustomTaskRepeatPeriodSetterViewModel() -> CustomTaskRepeatPeriodSetterViewModel {
+        return CustomTaskRepeatPeriodSetterViewModel(repeatPeriod: repeatPeriod)
+    }
     
 }

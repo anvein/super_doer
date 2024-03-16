@@ -18,11 +18,15 @@ class StarButton: UIButton {
         }
     }
     
-    var delegate: StarButtonDelegate?
+    weak var delegate: StarButtonDelegate?
     
     
     // MARK: init
-    init(width: Float = StarButton.outerSize, height: Float = StarButton.outerSize, isOnDefault: Bool = false) {
+    init(
+        width: Float = StarButton.outerSize,
+        height: Float = StarButton.outerSize,
+        isOnDefault: Bool = false
+    ) {
         super.init(frame: .zero)
         
         setupButton(isOnDefault: isOnDefault)
@@ -100,6 +104,6 @@ class StarButton: UIButton {
     
 }
 
-protocol StarButtonDelegate {
+protocol StarButtonDelegate: AnyObject {
     func starButtonValueDidChange(newValue: Bool)
 }

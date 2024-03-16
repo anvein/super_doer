@@ -30,21 +30,32 @@
 		3630CB822B1B436D00E65115 /* TaskSectionCustom+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3630CB812B1B436D00E65115 /* TaskSectionCustom+CoreDataClass.swift */; };
 		3630CB842B1B455100E65115 /* TaskSectionSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3630CB832B1B455100E65115 /* TaskSectionSystem.swift */; };
 		3630CB862B1B467400E65115 /* TaskSectionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3630CB852B1B467400E65115 /* TaskSectionProtocol.swift */; };
+		3642379D2BA4A89F00E3AE76 /* TaskRepeatPeriodVariantsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3642379C2BA4A89F00E3AE76 /* TaskRepeatPeriodVariantsCoordinator.swift */; };
+		364237A02BA4B1C600E3AE76 /* TaskRepeatPeriodCusomCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3642379F2BA4B1C600E3AE76 /* TaskRepeatPeriodCusomCoordinator.swift */; };
 		3642C0382A8CAEF00000A078 /* DescriptionButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3642C0372A8CAEF00000A078 /* DescriptionButtonCell.swift */; };
 		3645DD6F2B8DD8D8009CB533 /* TaskRepeatPeriodTableVariantsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3645DD6E2B8DD8D8009CB533 /* TaskRepeatPeriodTableVariantsViewModel.swift */; };
 		3645DD712B8DD981009CB533 /* DateVariantCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3645DD702B8DD981009CB533 /* DateVariantCellViewModel.swift */; };
 		3645DD732B8DD9A9009CB533 /* CustomVariantCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3645DD722B8DD9A9009CB533 /* CustomVariantCellViewModel.swift */; };
+		364CEAD82BA33F340012D0BF /* TaskDeadlineDateVariantsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 364CEAD72BA33F340012D0BF /* TaskDeadlineDateVariantsCoordinator.swift */; };
+		364CEADB2BA34AFD0012D0BF /* TaskDeadlineDateCustomCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 364CEADA2BA34AFD0012D0BF /* TaskDeadlineDateCustomCoordinator.swift */; };
 		364E31312A7BC6DE004544D5 /* LargeTitleTableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 364E31302A7BC6DE004544D5 /* LargeTitleTableTextField.swift */; };
 		364E31342A7BEB8C004544D5 /* TasksListTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 364E31332A7BEB8C004544D5 /* TasksListTableView.swift */; };
 		364E7E892B91E63F00C7A2AC /* TaskRepeatPeriodRowViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 364E7E882B91E63F00C7A2AC /* TaskRepeatPeriodRowViewModelType.swift */; };
 		364E7E8B2B91E67A00C7A2AC /* TaskRepeatPeriodAmountRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 364E7E8A2B91E67A00C7A2AC /* TaskRepeatPeriodAmountRowViewModel.swift */; };
 		364E7E8D2B91E69A00C7A2AC /* TaskRepeatPeriodTypeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 364E7E8C2B91E69A00C7A2AC /* TaskRepeatPeriodTypeRowViewModel.swift */; };
+		36587FCD2BA5B2D300463296 /* TaskDescriptionEditorCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36587FCC2BA5B2D300463296 /* TaskDescriptionEditorCoordinator.swift */; };
+		36587FD22BA5DE7000463296 /* AddFileToTaskSourceAlertCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36587FD12BA5DE7000463296 /* AddFileToTaskSourceAlertCoordinator.swift */; };
+		36587FD42BA5FB5F00463296 /* AddFileToTaskFromLibraryCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36587FD32BA5FB5F00463296 /* AddFileToTaskFromLibraryCoordinator.swift */; };
+		36587FDD2BA614E900463296 /* AddFileToTaskFromFilesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36587FDC2BA614E900463296 /* AddFileToTaskFromFilesCoordinator.swift */; };
 		36612C012B88E9BD00AFE168 /* TaskSectionCustom+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36612C002B88E9BD00AFE168 /* TaskSectionCustom+CoreDataProperties.swift */; };
 		36626DA52B1CBB5700F17CE4 /* TaskSectionCustomListTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36626DA42B1CBB5700F17CE4 /* TaskSectionCustomListTableViewCellViewModel.swift */; };
 		36626DA72B1CBFF200F17CE4 /* TaskSectionListTableViewCellViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36626DA62B1CBFF200F17CE4 /* TaskSectionListTableViewCellViewModelType.swift */; };
 		36626DA92B1CC16300F17CE4 /* TaskSectionSystemListTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36626DA82B1CC16300F17CE4 /* TaskSectionSystemListTableViewCellViewModel.swift */; };
 		3664663A2B124FCF00371DE3 /* TaskSectionsSeparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366466392B124FCF00371DE3 /* TaskSectionsSeparator.swift */; };
 		366571742B96139100B9C6F7 /* Swinject in Frameworks */ = {isa = PBXBuildFile; productRef = 366571732B96139100B9C6F7 /* Swinject */; };
+		366708B22BA0A88200FC160F /* TaskListInSectionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366708B12BA0A88200FC160F /* TaskListInSectionCoordinator.swift */; };
+		366708B52BA0AFA000FC160F /* TaskDetailCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366708B42BA0ADB800FC160F /* TaskDetailCoordinator.swift */; };
+		366A97C92BA31B1800ADE7CC /* TaskReminderCustomDateCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366A97C82BA31B1800ADE7CC /* TaskReminderCustomDateCoordinator.swift */; };
 		366BC5C92A87820900D67230 /* TaskDetailBaseButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366BC5C82A87820900D67230 /* TaskDetailBaseButtonCell.swift */; };
 		366BC5CB2A87A56D00D67230 /* AddSubtaskButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366BC5CA2A87A56D00D67230 /* AddSubtaskButtonCell.swift */; };
 		366BC5CD2A891F9E00D67230 /* AddToMyDayButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 366BC5CC2A891F9E00D67230 /* AddToMyDayButtonCell.swift */; };
@@ -63,6 +74,7 @@
 		367F30532AA7505200545F60 /* VariantsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 367F30522AA7505200545F60 /* VariantsTableView.swift */; };
 		367F30562AA7522500545F60 /* VariantTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 367F30552AA7522500545F60 /* VariantTableViewCell.swift */; };
 		368FEC6A2A86B2E90001A5D3 /* StandartTaskTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 368FEC692A86B2E90001A5D3 /* StandartTaskTableViewCell.swift */; };
+		369DEB052BA2FD2900B6D93D /* NotificationsDisableAlertCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369DEB042BA2FD2900B6D93D /* NotificationsDisableAlertCoordinator.swift */; };
 		369E7A1F2B18FD4E00CBA138 /* TaskSectionListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369E7A1E2B18FD4E00CBA138 /* TaskSectionListViewModel.swift */; };
 		36A0501F2A500A87006F61D4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36A0501E2A500A87006F61D4 /* AppDelegate.swift */; };
 		36A050212A500A87006F61D4 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36A050202A500A87006F61D4 /* SceneDelegate.swift */; };
@@ -79,7 +91,7 @@
 		36B80B432A6BA4B600E33F29 /* CheckboxButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B80B422A6BA4B600E33F29 /* CheckboxButton.swift */; };
 		36B80B482A6BA67E00E33F29 /* InterfaceColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B80B472A6BA67E00E33F29 /* InterfaceColors.swift */; };
 		36B80B4A2A6BABED00E33F29 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B80B492A6BABED00E33F29 /* Extensions.swift */; };
-		36CA12C12B8C6188005E1FCD /* TaskDeadlineCustomDateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CA12C02B8C6188005E1FCD /* TaskDeadlineCustomDateViewModel.swift */; };
+		36CA12C12B8C6188005E1FCD /* TaskDeadlineDateCustomViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CA12C02B8C6188005E1FCD /* TaskDeadlineDateCustomViewModel.swift */; };
 		36CA12C32B8C6212005E1FCD /* CustomDateSetterViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CA12C22B8C6212005E1FCD /* CustomDateSetterViewModelType.swift */; };
 		36CA12C72B8C95FF005E1FCD /* TaskReminderCustomDateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CA12C62B8C95FF005E1FCD /* TaskReminderCustomDateViewModel.swift */; };
 		36CBA1032A9202BC000C78FB /* NotificationsDisabledAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CBA1022A9202BC000C78FB /* NotificationsDisabledAlertController.swift */; };
@@ -87,12 +99,17 @@
 		36CD03F32B13772C00C45298 /* TaskSectionsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CD03F22B13772C00C45298 /* TaskSectionsTableView.swift */; };
 		36CD03F52B13782A00C45298 /* TaskSectionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CD03F42B13782A00C45298 /* TaskSectionTableViewCell.swift */; };
 		36CD03F82B13A5E500C45298 /* CustomDateSetterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CD03F72B13A5E500C45298 /* CustomDateSetterViewController.swift */; };
+		36CF27782BA08ED300641752 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CF27772BA08ED300641752 /* AppCoordinator.swift */; };
+		36CF277A2BA08EE100641752 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CF27792BA08EE100641752 /* Coordinator.swift */; };
+		36CF277C2BA090CA00641752 /* BaseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CF277B2BA090CA00641752 /* BaseCoordinator.swift */; };
+		36CF277F2BA0921B00641752 /* TaskSectionListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CF277E2BA0921B00641752 /* TaskSectionListCoordinator.swift */; };
 		36D4E7B52B8104A2007EFCB9 /* AddSectionBottomPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D4E7B42B8104A2007EFCB9 /* AddSectionBottomPanelView.swift */; };
 		36E917E02A7005C200E3C41A /* StarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E917DF2A7005C200E3C41A /* StarButton.swift */; };
 		36EF18C02B9338E10066D583 /* TaskDetailLabels2StatesButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36EF18BF2B9338E10066D583 /* TaskDetailLabels2StatesButtonCell.swift */; };
 		36EF4D3A2A9E185900343393 /* TextEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36EF4D392A9E185900343393 /* TextEditorViewController.swift */; };
 		36F2B8212B8CD7FB006AE5D7 /* TextEditorViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F2B8202B8CD7FB006AE5D7 /* TextEditorViewModelType.swift */; };
 		36F2B8232B8CD82F006AE5D7 /* TaskDescriptionEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F2B8222B8CD82F006AE5D7 /* TaskDescriptionEditorViewModel.swift */; };
+		36FB6DBB2BA42AFF0062FA4D /* ContainerNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FB6DBA2BA42AFF0062FA4D /* ContainerNavigationController.swift */; };
 		36FCF92D2B89E401002B2CB8 /* TableVariantsViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FCF92C2B89E401002B2CB8 /* TableVariantsViewModelType.swift */; };
 		36FCF92F2B89E581002B2CB8 /* TaskDeadlineTableVariantsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FCF92E2B89E581002B2CB8 /* TaskDeadlineTableVariantsViewModel.swift */; };
 		36FCF9322B8A0E21002B2CB8 /* BaseVariantCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FCF9312B8A0E20002B2CB8 /* BaseVariantCellViewModel.swift */; };
@@ -135,20 +152,31 @@
 		3630CB812B1B436D00E65115 /* TaskSectionCustom+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TaskSectionCustom+CoreDataClass.swift"; sourceTree = "<group>"; };
 		3630CB832B1B455100E65115 /* TaskSectionSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSectionSystem.swift; sourceTree = "<group>"; };
 		3630CB852B1B467400E65115 /* TaskSectionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSectionProtocol.swift; sourceTree = "<group>"; };
+		3642379C2BA4A89F00E3AE76 /* TaskRepeatPeriodVariantsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepeatPeriodVariantsCoordinator.swift; sourceTree = "<group>"; };
+		3642379F2BA4B1C600E3AE76 /* TaskRepeatPeriodCusomCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepeatPeriodCusomCoordinator.swift; sourceTree = "<group>"; };
 		3642C0372A8CAEF00000A078 /* DescriptionButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DescriptionButtonCell.swift; sourceTree = "<group>"; };
 		3645DD6E2B8DD8D8009CB533 /* TaskRepeatPeriodTableVariantsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepeatPeriodTableVariantsViewModel.swift; sourceTree = "<group>"; };
 		3645DD702B8DD981009CB533 /* DateVariantCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateVariantCellViewModel.swift; sourceTree = "<group>"; };
 		3645DD722B8DD9A9009CB533 /* CustomVariantCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomVariantCellViewModel.swift; sourceTree = "<group>"; };
+		364CEAD72BA33F340012D0BF /* TaskDeadlineDateVariantsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDeadlineDateVariantsCoordinator.swift; sourceTree = "<group>"; };
+		364CEADA2BA34AFD0012D0BF /* TaskDeadlineDateCustomCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDeadlineDateCustomCoordinator.swift; sourceTree = "<group>"; };
 		364E31302A7BC6DE004544D5 /* LargeTitleTableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeTitleTableTextField.swift; sourceTree = "<group>"; };
 		364E31332A7BEB8C004544D5 /* TasksListTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TasksListTableView.swift; sourceTree = "<group>"; };
 		364E7E882B91E63F00C7A2AC /* TaskRepeatPeriodRowViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepeatPeriodRowViewModelType.swift; sourceTree = "<group>"; };
 		364E7E8A2B91E67A00C7A2AC /* TaskRepeatPeriodAmountRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepeatPeriodAmountRowViewModel.swift; sourceTree = "<group>"; };
 		364E7E8C2B91E69A00C7A2AC /* TaskRepeatPeriodTypeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepeatPeriodTypeRowViewModel.swift; sourceTree = "<group>"; };
+		36587FCC2BA5B2D300463296 /* TaskDescriptionEditorCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDescriptionEditorCoordinator.swift; sourceTree = "<group>"; };
+		36587FD12BA5DE7000463296 /* AddFileToTaskSourceAlertCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFileToTaskSourceAlertCoordinator.swift; sourceTree = "<group>"; };
+		36587FD32BA5FB5F00463296 /* AddFileToTaskFromLibraryCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFileToTaskFromLibraryCoordinator.swift; sourceTree = "<group>"; };
+		36587FDC2BA614E900463296 /* AddFileToTaskFromFilesCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFileToTaskFromFilesCoordinator.swift; sourceTree = "<group>"; };
 		36612C002B88E9BD00AFE168 /* TaskSectionCustom+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TaskSectionCustom+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		36626DA42B1CBB5700F17CE4 /* TaskSectionCustomListTableViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSectionCustomListTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		36626DA62B1CBFF200F17CE4 /* TaskSectionListTableViewCellViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSectionListTableViewCellViewModelType.swift; sourceTree = "<group>"; };
 		36626DA82B1CC16300F17CE4 /* TaskSectionSystemListTableViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSectionSystemListTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		366466392B124FCF00371DE3 /* TaskSectionsSeparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSectionsSeparator.swift; sourceTree = "<group>"; };
+		366708B12BA0A88200FC160F /* TaskListInSectionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListInSectionCoordinator.swift; sourceTree = "<group>"; };
+		366708B42BA0ADB800FC160F /* TaskDetailCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailCoordinator.swift; sourceTree = "<group>"; };
+		366A97C82BA31B1800ADE7CC /* TaskReminderCustomDateCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskReminderCustomDateCoordinator.swift; sourceTree = "<group>"; };
 		366BC5C82A87820900D67230 /* TaskDetailBaseButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailBaseButtonCell.swift; sourceTree = "<group>"; };
 		366BC5CA2A87A56D00D67230 /* AddSubtaskButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddSubtaskButtonCell.swift; sourceTree = "<group>"; };
 		366BC5CC2A891F9E00D67230 /* AddToMyDayButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddToMyDayButtonCell.swift; sourceTree = "<group>"; };
@@ -167,6 +195,7 @@
 		367F30522AA7505200545F60 /* VariantsTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariantsTableView.swift; sourceTree = "<group>"; };
 		367F30552AA7522500545F60 /* VariantTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariantTableViewCell.swift; sourceTree = "<group>"; };
 		368FEC692A86B2E90001A5D3 /* StandartTaskTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandartTaskTableViewCell.swift; sourceTree = "<group>"; };
+		369DEB042BA2FD2900B6D93D /* NotificationsDisableAlertCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsDisableAlertCoordinator.swift; sourceTree = "<group>"; };
 		369E7A1E2B18FD4E00CBA138 /* TaskSectionListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSectionListViewModel.swift; sourceTree = "<group>"; };
 		36A0501B2A500A87006F61D4 /* SuperDoer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SuperDoer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		36A0501E2A500A87006F61D4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -186,7 +215,7 @@
 		36B80B472A6BA67E00E33F29 /* InterfaceColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceColors.swift; sourceTree = "<group>"; };
 		36B80B492A6BABED00E33F29 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		36B80B4B2A6BC7BC00E33F29 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
-		36CA12C02B8C6188005E1FCD /* TaskDeadlineCustomDateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDeadlineCustomDateViewModel.swift; sourceTree = "<group>"; };
+		36CA12C02B8C6188005E1FCD /* TaskDeadlineDateCustomViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDeadlineDateCustomViewModel.swift; sourceTree = "<group>"; };
 		36CA12C22B8C6212005E1FCD /* CustomDateSetterViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateSetterViewModelType.swift; sourceTree = "<group>"; };
 		36CA12C62B8C95FF005E1FCD /* TaskReminderCustomDateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskReminderCustomDateViewModel.swift; sourceTree = "<group>"; };
 		36CBA1022A9202BC000C78FB /* NotificationsDisabledAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsDisabledAlertController.swift; sourceTree = "<group>"; };
@@ -194,12 +223,17 @@
 		36CD03F22B13772C00C45298 /* TaskSectionsTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSectionsTableView.swift; sourceTree = "<group>"; };
 		36CD03F42B13782A00C45298 /* TaskSectionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSectionTableViewCell.swift; sourceTree = "<group>"; };
 		36CD03F72B13A5E500C45298 /* CustomDateSetterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateSetterViewController.swift; sourceTree = "<group>"; };
+		36CF27772BA08ED300641752 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		36CF27792BA08EE100641752 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
+		36CF277B2BA090CA00641752 /* BaseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCoordinator.swift; sourceTree = "<group>"; };
+		36CF277E2BA0921B00641752 /* TaskSectionListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSectionListCoordinator.swift; sourceTree = "<group>"; };
 		36D4E7B42B8104A2007EFCB9 /* AddSectionBottomPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddSectionBottomPanelView.swift; sourceTree = "<group>"; };
 		36E917DF2A7005C200E3C41A /* StarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarButton.swift; sourceTree = "<group>"; };
 		36EF18BF2B9338E10066D583 /* TaskDetailLabels2StatesButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailLabels2StatesButtonCell.swift; sourceTree = "<group>"; };
 		36EF4D392A9E185900343393 /* TextEditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEditorViewController.swift; sourceTree = "<group>"; };
 		36F2B8202B8CD7FB006AE5D7 /* TextEditorViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEditorViewModelType.swift; sourceTree = "<group>"; };
 		36F2B8222B8CD82F006AE5D7 /* TaskDescriptionEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDescriptionEditorViewModel.swift; sourceTree = "<group>"; };
+		36FB6DBA2BA42AFF0062FA4D /* ContainerNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerNavigationController.swift; sourceTree = "<group>"; };
 		36FCF92C2B89E401002B2CB8 /* TableVariantsViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableVariantsViewModelType.swift; sourceTree = "<group>"; };
 		36FCF92E2B89E581002B2CB8 /* TaskDeadlineTableVariantsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDeadlineTableVariantsViewModel.swift; sourceTree = "<group>"; };
 		36FCF9312B8A0E20002B2CB8 /* BaseVariantCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseVariantCellViewModel.swift; sourceTree = "<group>"; };
@@ -290,6 +324,40 @@
 			path = TaskDetailTableView;
 			sourceTree = "<group>";
 		};
+		3642379B2BA4A87B00E3AE76 /* TaskRepeatPeriodVariants */ = {
+			isa = PBXGroup;
+			children = (
+				3642379C2BA4A89F00E3AE76 /* TaskRepeatPeriodVariantsCoordinator.swift */,
+				3642379E2BA4B16700E3AE76 /* TaskRepeatPeriodCustom */,
+			);
+			path = TaskRepeatPeriodVariants;
+			sourceTree = "<group>";
+		};
+		3642379E2BA4B16700E3AE76 /* TaskRepeatPeriodCustom */ = {
+			isa = PBXGroup;
+			children = (
+				3642379F2BA4B1C600E3AE76 /* TaskRepeatPeriodCusomCoordinator.swift */,
+			);
+			path = TaskRepeatPeriodCustom;
+			sourceTree = "<group>";
+		};
+		364CEAD62BA33F0E0012D0BF /* TaskDeadlineDateVariants */ = {
+			isa = PBXGroup;
+			children = (
+				364CEAD72BA33F340012D0BF /* TaskDeadlineDateVariantsCoordinator.swift */,
+				364CEAD92BA34A7C0012D0BF /* TaskDeadlineDateCustom */,
+			);
+			path = TaskDeadlineDateVariants;
+			sourceTree = "<group>";
+		};
+		364CEAD92BA34A7C0012D0BF /* TaskDeadlineDateCustom */ = {
+			isa = PBXGroup;
+			children = (
+				364CEADA2BA34AFD0012D0BF /* TaskDeadlineDateCustomCoordinator.swift */,
+			);
+			path = TaskDeadlineDateCustom;
+			sourceTree = "<group>";
+		};
 		364E312F2A7BC6B8004544D5 /* TextField */ = {
 			isa = PBXGroup;
 			children = (
@@ -317,6 +385,40 @@
 				364E7E8C2B91E69A00C7A2AC /* TaskRepeatPeriodTypeRowViewModel.swift */,
 			);
 			path = RowViewModel;
+			sourceTree = "<group>";
+		};
+		36587FC92BA5B18A00463296 /* TaskSectionsList */ = {
+			isa = PBXGroup;
+			children = (
+				36A050382A504E21006F61D4 /* TaskListInSectionViewController.swift */,
+				36A050222A500A87006F61D4 /* TaskSectionsListViewController.swift */,
+			);
+			path = TaskSectionsList;
+			sourceTree = "<group>";
+		};
+		36587FCA2BA5B19700463296 /* TaskListInSection */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = TaskListInSection;
+			sourceTree = "<group>";
+		};
+		36587FCB2BA5B1A500463296 /* TaskDetail */ = {
+			isa = PBXGroup;
+			children = (
+				36A0503A2A504E4B006F61D4 /* TaskDetailViewController.swift */,
+			);
+			path = TaskDetail;
+			sourceTree = "<group>";
+		};
+		36587FD02BA5DE2000463296 /* AddFileToTask */ = {
+			isa = PBXGroup;
+			children = (
+				36587FD12BA5DE7000463296 /* AddFileToTaskSourceAlertCoordinator.swift */,
+				36587FD32BA5FB5F00463296 /* AddFileToTaskFromLibraryCoordinator.swift */,
+				36587FDC2BA614E900463296 /* AddFileToTaskFromFilesCoordinator.swift */,
+			);
+			path = AddFileToTask;
 			sourceTree = "<group>";
 		};
 		365FABF12B99C2DD0075E038 /* Resources */ = {
@@ -364,6 +466,37 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		366708B02BA0A86A00FC160F /* TaskListInSection */ = {
+			isa = PBXGroup;
+			children = (
+				366708B12BA0A88200FC160F /* TaskListInSectionCoordinator.swift */,
+				366708B32BA0ADA700FC160F /* TaskDetail */,
+			);
+			path = TaskListInSection;
+			sourceTree = "<group>";
+		};
+		366708B32BA0ADA700FC160F /* TaskDetail */ = {
+			isa = PBXGroup;
+			children = (
+				366708B42BA0ADB800FC160F /* TaskDetailCoordinator.swift */,
+				369DEB032BA2FCFA00B6D93D /* NotificationsDisabledAlert */,
+				366A97C72BA31AE500ADE7CC /* TaskReminderCustomDate */,
+				364CEAD62BA33F0E0012D0BF /* TaskDeadlineDateVariants */,
+				3642379B2BA4A87B00E3AE76 /* TaskRepeatPeriodVariants */,
+				36587FD02BA5DE2000463296 /* AddFileToTask */,
+				369DEB022BA2FA5500B6D93D /* TaskDescriptionEditor */,
+			);
+			path = TaskDetail;
+			sourceTree = "<group>";
+		};
+		366A97C72BA31AE500ADE7CC /* TaskReminderCustomDate */ = {
+			isa = PBXGroup;
+			children = (
+				366A97C82BA31B1800ADE7CC /* TaskReminderCustomDateCoordinator.swift */,
+			);
+			path = TaskReminderCustomDate;
+			sourceTree = "<group>";
+		};
 		366C8A152B8E35CB00465963 /* CustomTaskRepeatPeriodSetter */ = {
 			isa = PBXGroup;
 			children = (
@@ -407,6 +540,22 @@
 			path = TaskListTableView;
 			sourceTree = "<group>";
 		};
+		369DEB022BA2FA5500B6D93D /* TaskDescriptionEditor */ = {
+			isa = PBXGroup;
+			children = (
+				36587FCC2BA5B2D300463296 /* TaskDescriptionEditorCoordinator.swift */,
+			);
+			path = TaskDescriptionEditor;
+			sourceTree = "<group>";
+		};
+		369DEB032BA2FCFA00B6D93D /* NotificationsDisabledAlert */ = {
+			isa = PBXGroup;
+			children = (
+				369DEB042BA2FD2900B6D93D /* NotificationsDisableAlertCoordinator.swift */,
+			);
+			path = NotificationsDisabledAlert;
+			sourceTree = "<group>";
+		};
 		369E7A1B2B18FC3000CBA138 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -447,11 +596,11 @@
 			isa = PBXGroup;
 			children = (
 				36A050352A50427B006F61D4 /* Application */,
-				36A64EDA2B1774EC00E586D4 /* Services */,
+				36CF27762BA0817500641752 /* Coordinator */,
 				36CB90302B17D2CD00E897F4 /* View */,
-				36B80B472A6BA67E00E33F29 /* InterfaceColors.swift */,
 				36FCF92A2B89E31F002B2CB8 /* ViewModel */,
 				36A0503C2A504E51006F61D4 /* Model */,
+				36A64EDA2B1774EC00E586D4 /* Services */,
 				36A050372A5042DB006F61D4 /* Supporting */,
 				365FABF12B99C2DD0075E038 /* Resources */,
 			);
@@ -471,11 +620,12 @@
 		36A050362A504289006F61D4 /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
-				36A050222A500A87006F61D4 /* TaskSectionsListViewController.swift */,
-				36A050382A504E21006F61D4 /* TaskListInSectionViewController.swift */,
-				36A0503A2A504E4B006F61D4 /* TaskDetailViewController.swift */,
-				36FCF9282B89DEB0002B2CB8 /* PageSheetTableVariants */,
-				36FCF9292B89DEE5002B2CB8 /* PageSheetCustomValueSetter */,
+				36587FC92BA5B18A00463296 /* TaskSectionsList */,
+				36587FCA2BA5B19700463296 /* TaskListInSection */,
+				36587FCB2BA5B1A500463296 /* TaskDetail */,
+				36FB6DB92BA42AC40062FA4D /* ContainerNavigationController */,
+				36FCF9282B89DEB0002B2CB8 /* TableVariants */,
+				36FCF9292B89DEE5002B2CB8 /* CustomValueSetter */,
 				36CBA1012A920291000C78FB /* AlertController */,
 				36F2B81E2B8CD79B006AE5D7 /* TextEditor */,
 			);
@@ -547,7 +697,7 @@
 			isa = PBXGroup;
 			children = (
 				36CA12C22B8C6212005E1FCD /* CustomDateSetterViewModelType.swift */,
-				36CA12C02B8C6188005E1FCD /* TaskDeadlineCustomDateViewModel.swift */,
+				36CA12C02B8C6188005E1FCD /* TaskDeadlineDateCustomViewModel.swift */,
 				36CA12C62B8C95FF005E1FCD /* TaskReminderCustomDateViewModel.swift */,
 			);
 			path = CustomDateSetter;
@@ -567,6 +717,7 @@
 			children = (
 				36A050362A504289006F61D4 /* ViewController */,
 				36B80B442A6BA64600E33F29 /* Views */,
+				36B80B472A6BA67E00E33F29 /* InterfaceColors.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -587,6 +738,26 @@
 				36CD03F02B136FDD00C45298 /* SystemSectionsBuilder.swift */,
 			);
 			path = Support;
+			sourceTree = "<group>";
+		};
+		36CF27762BA0817500641752 /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+				36CF27792BA08EE100641752 /* Coordinator.swift */,
+				36CF277B2BA090CA00641752 /* BaseCoordinator.swift */,
+				36CF27772BA08ED300641752 /* AppCoordinator.swift */,
+				36CF277D2BA091F400641752 /* TaskSectionList */,
+			);
+			path = Coordinator;
+			sourceTree = "<group>";
+		};
+		36CF277D2BA091F400641752 /* TaskSectionList */ = {
+			isa = PBXGroup;
+			children = (
+				36CF277E2BA0921B00641752 /* TaskSectionListCoordinator.swift */,
+				366708B02BA0A86A00FC160F /* TaskListInSection */,
+			);
+			path = TaskSectionList;
 			sourceTree = "<group>";
 		};
 		36D4E7B32B81047E007EFCB9 /* ComplexView */ = {
@@ -636,21 +807,29 @@
 			path = TextEditor;
 			sourceTree = "<group>";
 		};
-		36FCF9282B89DEB0002B2CB8 /* PageSheetTableVariants */ = {
+		36FB6DB92BA42AC40062FA4D /* ContainerNavigationController */ = {
+			isa = PBXGroup;
+			children = (
+				36FB6DBA2BA42AFF0062FA4D /* ContainerNavigationController.swift */,
+			);
+			path = ContainerNavigationController;
+			sourceTree = "<group>";
+		};
+		36FCF9282B89DEB0002B2CB8 /* TableVariants */ = {
 			isa = PBXGroup;
 			children = (
 				3600ACD22AA0F4C80022506A /* TableVariantsViewController.swift */,
 			);
-			path = PageSheetTableVariants;
+			path = TableVariants;
 			sourceTree = "<group>";
 		};
-		36FCF9292B89DEE5002B2CB8 /* PageSheetCustomValueSetter */ = {
+		36FCF9292B89DEE5002B2CB8 /* CustomValueSetter */ = {
 			isa = PBXGroup;
 			children = (
 				36CD03F72B13A5E500C45298 /* CustomDateSetterViewController.swift */,
 				366C8A132B8E353600465963 /* CustomTaskRepeatPeriodSetterViewController.swift */,
 			);
-			path = PageSheetCustomValueSetter;
+			path = CustomValueSetter;
 			sourceTree = "<group>";
 		};
 		36FCF92A2B89E31F002B2CB8 /* ViewModel */ = {
@@ -768,16 +947,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				36587FD42BA5FB5F00463296 /* AddFileToTaskFromLibraryCoordinator.swift in Sources */,
 				367F30532AA7505200545F60 /* VariantsTableView.swift in Sources */,
+				364CEADB2BA34AFD0012D0BF /* TaskDeadlineDateCustomCoordinator.swift in Sources */,
 				3600ACCE2AA0E3DC0022506A /* PerfectPixelScreen.swift in Sources */,
 				366BC5CF2A89264200D67230 /* ReminderDateButtonCell.swift in Sources */,
 				362568FC2B8519B300CFC5E4 /* AddSectionPanelTextField.swift in Sources */,
 				36A7B5A12B20ADCD00F1E952 /* TaskListInSectionViewModel.swift in Sources */,
+				3642379D2BA4A89F00E3AE76 /* TaskRepeatPeriodVariantsCoordinator.swift in Sources */,
 				36FCF92D2B89E401002B2CB8 /* TableVariantsViewModelType.swift in Sources */,
 				36A050392A504E21006F61D4 /* TaskListInSectionViewController.swift in Sources */,
 				3664663A2B124FCF00371DE3 /* TaskSectionsSeparator.swift in Sources */,
 				36A7B5A72B20B36400F1E952 /* TaskInSectionTableViewCellViewModelType.swift in Sources */,
+				364237A02BA4B1C600E3AE76 /* TaskRepeatPeriodCusomCoordinator.swift in Sources */,
 				3645DD712B8DD981009CB533 /* DateVariantCellViewModel.swift in Sources */,
+				36587FDD2BA614E900463296 /* AddFileToTaskFromFilesCoordinator.swift in Sources */,
 				36F2B8232B8CD82F006AE5D7 /* TaskDescriptionEditorViewModel.swift in Sources */,
 				367E36D52A96463E003E7C1D /* DeleteAlertController.swift in Sources */,
 				362D15032A862C2700ADE1A8 /* TaskDetailTableView.swift in Sources */,
@@ -790,15 +974,19 @@
 				366C8A172B8E363F00465963 /* CustomTaskRepeatPeriodSetterViewModel.swift in Sources */,
 				366C8A142B8E353600465963 /* CustomTaskRepeatPeriodSetterViewController.swift in Sources */,
 				3645DD6F2B8DD8D8009CB533 /* TaskRepeatPeriodTableVariantsViewModel.swift in Sources */,
+				366708B52BA0AFA000FC160F /* TaskDetailCoordinator.swift in Sources */,
+				36CF277F2BA0921B00641752 /* TaskSectionListCoordinator.swift in Sources */,
 				3676D7682BA03E7100F695A1 /* DIContainer.swift in Sources */,
 				3600ACCC2AA0C3D70022506A /* UITaskTitleTextView.swift in Sources */,
 				366C8A122B8DE2D700465963 /* TaskRepeatPeriodVariantCellViewModel.swift in Sources */,
 				361C9C752B8259D40002155C /* Box.swift in Sources */,
+				36FB6DBB2BA42AFF0062FA4D /* ContainerNavigationController.swift in Sources */,
 				3630CB862B1B467400E65115 /* TaskSectionProtocol.swift in Sources */,
 				3630CB822B1B436D00E65115 /* TaskSectionCustom+CoreDataClass.swift in Sources */,
 				368FEC6A2A86B2E90001A5D3 /* StandartTaskTableViewCell.swift in Sources */,
-				36CA12C12B8C6188005E1FCD /* TaskDeadlineCustomDateViewModel.swift in Sources */,
+				36CA12C12B8C6188005E1FCD /* TaskDeadlineDateCustomViewModel.swift in Sources */,
 				364E7E8B2B91E67A00C7A2AC /* TaskRepeatPeriodAmountRowViewModel.swift in Sources */,
+				36CF277C2BA090CA00641752 /* BaseCoordinator.swift in Sources */,
 				36B80B4A2A6BABED00E33F29 /* Extensions.swift in Sources */,
 				36CD03F82B13A5E500C45298 /* CustomDateSetterViewController.swift in Sources */,
 				360784842B0E1D1700ED7BD6 /* TaskFile+CoreDataClass.swift in Sources */,
@@ -808,6 +996,8 @@
 				36612C012B88E9BD00AFE168 /* TaskSectionCustom+CoreDataProperties.swift in Sources */,
 				36A050232A500A87006F61D4 /* TaskSectionsListViewController.swift in Sources */,
 				36626DA92B1CC16300F17CE4 /* TaskSectionSystemListTableViewCellViewModel.swift in Sources */,
+				369DEB052BA2FD2900B6D93D /* NotificationsDisableAlertCoordinator.swift in Sources */,
+				366708B22BA0A88200FC160F /* TaskListInSectionCoordinator.swift in Sources */,
 				3600ACD32AA0F4C80022506A /* TableVariantsViewController.swift in Sources */,
 				36A7B5A52B20B34300F1E952 /* TaskInSectionTableViewCellViewModel.swift in Sources */,
 				366BC5D52A8944A000D67230 /* AddFileButtonCell.swift in Sources */,
@@ -815,7 +1005,9 @@
 				360DCA752B08D368005BA4CC /* EntityManager.swift in Sources */,
 				364E7E892B91E63F00C7A2AC /* TaskRepeatPeriodRowViewModelType.swift in Sources */,
 				366BC5D32A89425100D67230 /* RepeatPeriodButtonCell.swift in Sources */,
+				36CF277A2BA08EE100641752 /* Coordinator.swift in Sources */,
 				367E36DA2A98A62C003E7C1D /* AddFileSourceAlertController.swift in Sources */,
+				36CF27782BA08ED300641752 /* AppCoordinator.swift in Sources */,
 				36FCF92F2B89E581002B2CB8 /* TaskDeadlineTableVariantsViewModel.swift in Sources */,
 				36D4E7B52B8104A2007EFCB9 /* AddSectionBottomPanelView.swift in Sources */,
 				36A0501F2A500A87006F61D4 /* AppDelegate.swift in Sources */,
@@ -825,13 +1017,17 @@
 				364E31342A7BEB8C004544D5 /* TasksListTableView.swift in Sources */,
 				366BC5CD2A891F9E00D67230 /* AddToMyDayButtonCell.swift in Sources */,
 				3642C0382A8CAEF00000A078 /* DescriptionButtonCell.swift in Sources */,
+				36587FD22BA5DE7000463296 /* AddFileToTaskSourceAlertCoordinator.swift in Sources */,
+				36587FCD2BA5B2D300463296 /* TaskDescriptionEditorCoordinator.swift in Sources */,
 				366BC5CB2A87A56D00D67230 /* AddSubtaskButtonCell.swift in Sources */,
 				36CA12C32B8C6212005E1FCD /* CustomDateSetterViewModelType.swift in Sources */,
 				367F30562AA7522500545F60 /* VariantTableViewCell.swift in Sources */,
+				364CEAD82BA33F340012D0BF /* TaskDeadlineDateVariantsCoordinator.swift in Sources */,
 				361C9C722B8255FB0002155C /* TaskDetailViewModel.swift in Sources */,
 				36A7B5A32B20AE2F00F1E952 /* TaskListInSectionViewModelType.swift in Sources */,
 				36A050212A500A87006F61D4 /* SceneDelegate.swift in Sources */,
 				36626DA72B1CBFF200F17CE4 /* TaskSectionListTableViewCellViewModelType.swift in Sources */,
+				366A97C92BA31B1800ADE7CC /* TaskReminderCustomDateCoordinator.swift in Sources */,
 				364E31312A7BC6DE004544D5 /* LargeTitleTableTextField.swift in Sources */,
 				362D15062A8632D700ADE1A8 /* TaskDetailLabelsButtonCell.swift in Sources */,
 				36B80B482A6BA67E00E33F29 /* InterfaceColors.swift in Sources */,
@@ -1014,6 +1210,9 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = nova.SuperDoer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1047,6 +1246,9 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = nova.SuperDoer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

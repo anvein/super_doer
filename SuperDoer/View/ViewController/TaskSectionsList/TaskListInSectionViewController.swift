@@ -4,18 +4,24 @@ import CoreData
 
 /// Контроллер списка задач в отдельном списке (разделе)
 class TaskListInSectionViewController: UIViewController {
-
+    
+    private var viewModel: TaskListInSectionViewModelType
+    private weak var coordinator: TaskListInSectionViewControllerCoordinator?
+    
+    
     // MARK: controls
     private lazy var tasksTable = TasksListTableView()
     private lazy var createTaskPanelView = CreateTaskBottomPanelView()
     
     private lazy var backgroundImageView = UIImageView(image: UIImage(named: "bgList"))
     
-    var viewModel: TaskListInSectionViewModelType
-    
     
     // MARK: init
-    init(viewModel: TaskListInSectionViewModelType) {
+    init(
+        coordinator: TaskListInSectionViewControllerCoordinator,
+        viewModel: TaskListInSectionViewModelType
+    ) {
+        self.coordinator = coordinator
         self.viewModel = viewModel
         
         super.init(nibName: nil, bundle: nil)
@@ -86,6 +92,14 @@ class TaskListInSectionViewController: UIViewController {
 //        let taskController = TaskDetailViewController(viewModel: selectedTaskViewModel)
 //        
 //        navigationController?.pushViewController(taskController, animated: true)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        if isMovingFromParent {
+            coordinator?.closeTaskListInSection()
+        }
     }
     
     
@@ -226,10 +240,8 @@ extension TaskListInSectionViewController: UITableViewDelegate, UITableViewDataS
     
     // MARK: select row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedTaskViewModel = viewModel.getTaskViewModel(forIndexPath: indexPath)
-        let taskController = TaskDetailViewController(viewModel: selectedTaskViewModel)
-        
-        navigationController?.pushViewController(taskController, animated: true)
+        let selectedTaskVM = viewModel.getTaskViewModel(forIndexPath: indexPath)
+        coordinator?.selectTask(viewModel: selectedTaskVM)
         
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -348,4 +360,12 @@ extension TaskListInSectionViewController: CreateTaskBottomPanelViewDelegate {
             )
         }
     }
+}
+
+
+// MARK: coordinator protocol
+protocol TaskListInSectionViewControllerCoordinator: AnyObject {
+    func selectTask(viewModel: TaskDetailViewModel)
+    
+    func closeTaskListInSection()
 }

@@ -5,19 +5,20 @@ import UIKit
 class CustomTaskRepeatPeriodSetterViewController: UIViewController {
 
     private var viewModel: CustomTaskRepeatPeriodSetterViewModel
+    private weak var coordinator: CustomTaskRepeatPeriodSetterViewControllerCoordinator?
     
+    
+    // MARK: controls
     private lazy var pickerView = UIPickerView()
     
-    weak var delegate: CustomTaskRepeatPeriodSetterViewControllerDelegate?
-    
-    /// Индентификатор для случая, чтобы различать из какого ViewController'а были вызваны методы делегата
-    var identifier: String
-    
-    
+
     // MARK: init
-    init(viewModel: CustomTaskRepeatPeriodSetterViewModel, identifier: String) {
+    init(
+        coordinator: CustomTaskRepeatPeriodSetterViewControllerCoordinator,
+        viewModel: CustomTaskRepeatPeriodSetterViewModel
+    ) {
+        self.coordinator = coordinator
         self.viewModel = viewModel
-        self.identifier = identifier
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -43,8 +44,38 @@ class CustomTaskRepeatPeriodSetterViewController: UIViewController {
         updateDetent()
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        if isMovingFromParent {
+            coordinator?.didGoBackCustomRepeatPeriodSetter()
+        }
+    }
     
-    // MARK: setup
+    
+    // MARK: action-handlers
+    @objc private func tapButtonReady() {
+        let amountRowVM = viewModel.getRowViewModel(
+            forRow: pickerView.selectedRow(inComponent: 0),
+            forComponent: 0
+        )
+        guard let amountRowVM = amountRowVM as? TaskRepeatPeriodAmountRowViewModel else { return }
+        
+        let typeRowVM = viewModel.getRowViewModel(
+            forRow: pickerView.selectedRow(inComponent: 1),
+            forComponent: 1
+        )
+        guard let typeRowVM = typeRowVM as? TaskRepeatPeriodTypeRowViewModel else { return }
+        
+        let periodValue = "\(amountRowVM.value)\(typeRowVM.value.rawValue)"
+        coordinator?.didChooseCustomTaskRepeatPeriodReady(newPeriod: periodValue)
+        dismiss(animated: true)
+    }
+}
+
+
+// MARK: - setup and layout
+extension CustomTaskRepeatPeriodSetterViewController {
     private func addControlsAsSubviews() {
         view.addSubview(pickerView)
     }
@@ -63,7 +94,12 @@ class CustomTaskRepeatPeriodSetterViewController: UIViewController {
         view.backgroundColor = InterfaceColors.white
         
         // readyBarButton
-        let readyBarButton = UIBarButtonItem(title: "Установить", style: .done, target: self, action: #selector(tapButtonReady))
+        let readyBarButton = UIBarButtonItem(
+            title: "Установить",
+            style: .done,
+            target: self,
+            action: #selector(tapButtonReady)
+        )
         readyBarButton.tintColor = InterfaceColors.textBlue
         navigationItem.rightBarButtonItem = readyBarButton
     
@@ -100,28 +136,10 @@ class CustomTaskRepeatPeriodSetterViewController: UIViewController {
     private func setupBindings() {
         viewModel.bindingDelegate = self
     }
-    
-    
-    // MARK: action-handlers
-    @objc private func tapButtonReady() {
-        let amountRowVM = viewModel.getRowViewModel(
-            forRow: pickerView.selectedRow(inComponent: 0),
-            forComponent: 0
-        ) as! TaskRepeatPeriodAmountRowViewModel
-        
-        let typeRowVM = viewModel.getRowViewModel(
-            forRow: pickerView.selectedRow(inComponent: 1),
-            forComponent: 1
-        ) as! TaskRepeatPeriodTypeRowViewModel
-        let periodValue = "\(amountRowVM.value)\(typeRowVM.value.rawValue)"
-        
-        delegate?.didChooseCustomTaskRepeatPeriodReady(newPeriod: periodValue, identifier: identifier)
-        dismiss(animated: true)
-    }
 }
 
 
-// MARK: date picker delegate and data source
+// - MARK: date picker delegate and data source
 extension CustomTaskRepeatPeriodSetterViewController: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return viewModel.getNumberOfComponents()
@@ -149,8 +167,7 @@ extension CustomTaskRepeatPeriodSetterViewController: UIPickerViewDataSource, UI
 }
 
 
-
-// MARK: delegate ViewModel update events
+// MARK: - delegate ViewModel update events
 extension CustomTaskRepeatPeriodSetterViewController: CustomTaskRepeatPeriodSetterViewModelBindingDelegate {
     func didUdpateIsShowReadyButton(newValue isShow: Bool) {
         navigationItem.rightBarButtonItem?.isHidden = !isShow
@@ -168,18 +185,18 @@ extension CustomTaskRepeatPeriodSetterViewController: CustomTaskRepeatPeriodSett
 }
 
 
-// MARK: detent identifier for ViewController
+// MARK: - detent identifier for controller
 extension UISheetPresentationController.Detent.Identifier {
     static let pageSheetCustomTaskRepeatPeriod: SheetDetentIdentifier = SheetDetentIdentifier("pageSheetCustomTaskRepeatPeriod")
 }
 
 
-// MARK: controller delegate protocol
-protocol CustomTaskRepeatPeriodSetterViewControllerDelegate: AnyObject {
+// MARK: - coordinator protocol for controller
+protocol CustomTaskRepeatPeriodSetterViewControllerCoordinator: AnyObject {
     /// Была нажата кнопка "Готово" (установить) - выбрана дата
-    /// - Parameters:
-    ///   - newPeriod: String - если нажата кнопка "Готово" (установить), nil - если нажата кнопка "Удалить" (очистить)
-    ///   - identifier: идентификатор открытого экземпляра контроллера (связан с полем, для которого он открыт)
-    func didChooseCustomTaskRepeatPeriodReady(newPeriod: String?, identifier: String)
+    func didChooseCustomTaskRepeatPeriodReady(newPeriod: String?)
+    
+    ///  Вызывается, после того, как из контроллера перешли назад (на предыдущий контроллер)
+    func didGoBackCustomRepeatPeriodSetter()
 }
 

@@ -5,7 +5,7 @@ import Foundation
 class TaskReminderCustomDateViewModel: CustomDateSetterViewModelType {
     private var task: CDTask {
         didSet {
-            date.value = task.reminderDateTime
+            deadlineDate.value = task.reminderDateTime
             refreshIsShowDeleteButton(fromTask: task)
         }
     }
@@ -13,7 +13,7 @@ class TaskReminderCustomDateViewModel: CustomDateSetterViewModelType {
     var isShowReadyButton: Box<Bool> = Box(true)
     var isShowDeleteButton: Box<Bool>
     
-    var date: Box<Date?>
+    var deadlineDate: Box<Date?>
     
     var defaultDate: Date {
         return Date().setComponents(hours: 9, minutes: 0, seconds: 0)
@@ -21,7 +21,7 @@ class TaskReminderCustomDateViewModel: CustomDateSetterViewModelType {
     
     init(task: CDTask) {
         self.task = task
-        date = Box(task.reminderDateTime)
+        deadlineDate = Box(task.reminderDateTime)
         
         isShowDeleteButton = Box(false)
         refreshIsShowDeleteButton(fromTask: task)
