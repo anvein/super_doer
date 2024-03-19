@@ -11,8 +11,8 @@ class DescriptionButtonCell: UITableViewCell {
     
     static let identifier = "DescriptionButtonCell"
     
-    let emptyHeight = 135
-    let maxHeight = 172
+    static let emptyHeight = 135
+    static let maxHeight = 172
     
     var state: State = .empty
     
@@ -116,8 +116,8 @@ class DescriptionButtonCell: UITableViewCell {
     
     private func setupConstraints() {
         // contentView
-        contentView.heightAnchor.constraint(equalToConstant: emptyHeight.cgFloat)
-            .isActive = true
+//        contentView.heightAnchor.constraint(equalToConstant: DescriptionButtonCell.emptyHeight.cgFloat)
+//            .isActive = true
         
         // mainTextLabel
         NSLayoutConstraint.activate([

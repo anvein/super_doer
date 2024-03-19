@@ -4,14 +4,20 @@ import UIKit
 final class TaskSectionListCoordinator: BaseCoordinator {
     
     private var navigation: UINavigationController
+    private var viewModel: TaskSectionListViewModel
     
-    init(parent: Coordinator, navigation: UINavigationController) {
+    init(
+        parent: Coordinator,
+        navigation: UINavigationController,
+        viewModel: TaskSectionListViewModel
+    ) {
         self.navigation = navigation
+        self.viewModel = viewModel
         super.init(parent: parent)
     }
     
     override func start() {
-        let taskSectionVM = DIContainer.shared.resolve(TaskSectionListViewModel.self)!
+        let taskSectionVM = viewModel
         let taskSectionListVC = TaskSectionsListViewController(
             coordinator: self,
             viewModel: taskSectionVM
@@ -19,9 +25,10 @@ final class TaskSectionListCoordinator: BaseCoordinator {
         
         navigation.pushViewController(taskSectionListVC, animated: false)
     }
-    
 }
 
+
+// MARK: - coordinator methods
 extension TaskSectionListCoordinator: TaskSectionsListViewControllerCoordinator {
     func selectTaskSection(viewModel: TaskListInSectionViewModel) {
         let coordinator = TaskListInSectionCoordinator(
@@ -33,7 +40,29 @@ extension TaskSectionListCoordinator: TaskSectionsListViewControllerCoordinator 
         coordinator.start()
     }
     
+    func startDeleteProcessSection(_ sectionVM: TaskSectionDeletableViewModel) {
+        let coordinator = DeleteItemCoordinator(
+            parent: self,
+            navigation: navigation,
+            viewModels: [sectionVM],
+            delegate: self
+        )
+        addChild(coordinator)
+        coordinator.start()
+    }
+    
     func closeTaskSectionsList() {
         parent?.removeChild(self)
+    }
+}
+
+
+// MARK: - DeleteItemCoordinatorDelegate
+extension TaskSectionListCoordinator: DeleteItemCoordinatorDelegate {
+    func didConfirmDeleteItems(_ items: [DeletableItemViewModelType]) {
+        guard let sectionVM = items.first as? TaskSectionDeletableViewModel else {
+            return
+        }
+        viewModel.deleteCustomSection(sectionViewModel: sectionVM)
     }
 }

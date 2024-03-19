@@ -4,7 +4,7 @@ import UIKit
 /// Экран списков (разделов)
 class TaskSectionsListViewController: UIViewController {
 
-    private var coordinator: TaskSectionsListViewControllerCoordinator
+    private weak var coordinator: TaskSectionsListViewControllerCoordinator?
     private var viewModel: TaskSectionListViewModelType
     
      
@@ -45,34 +45,22 @@ class TaskSectionsListViewController: UIViewController {
         setupBinding()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-      
-//        guard let vm = viewModel?.getTaskListInSectionViewModel(forIndexPath: IndexPath(row: 0, section: 1)) else { return }
-//        let vc = TaskListInSectionViewController(viewModel: vm)
-//        navigationController?.pushViewController(vc, animated: false)
-    }
-    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
         if isMovingFromParent {
-            coordinator.closeTaskSectionsList()
+            coordinator?.closeTaskSectionsList()
         }
     }
     
     
     // MARK: action-handlers
-    @objc func presentDeleteAlertController(sectionsIndexPaths: [IndexPath]) {
-        let deleteAlertController = DeleteAlertController(itemsIndexPath: sectionsIndexPaths, singleItem: nil) { [unowned self] _ in
-            self.viewModel.deleteSections(withIndexPaths: sectionsIndexPaths)
-        } 
-        deleteAlertController.itemTypeName = DeletableItem.ItemTypeName(
-            oneIP: "список",
-            oneVP: "список",
-            manyVP: "списки"
+    @objc func presentDeleteAlertController(sectionIndexPath: IndexPath) {
+        let sectionVM = self.viewModel.getDeletableSectionViewModelFor(
+            indexPath: sectionIndexPath
         )
-        self.present(deleteAlertController, animated: true)
+        guard let sectionVM else { return }
+        coordinator?.startDeleteProcessSection(sectionVM)
     }
     
 }
@@ -161,7 +149,7 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
         
         switch taskListInSectionVM {
         case let taskListInSectionVM as TaskListInSectionViewModel :
-            coordinator.selectTaskSection(viewModel: taskListInSectionVM)
+            coordinator?.selectTaskSection(viewModel: taskListInSectionVM)
             tableView.deselectRow(at: indexPath, animated: true)
             
         default:
@@ -182,7 +170,7 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
     // MARK: swipe actions
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") { [unowned self] _, _, completionHandler in
-            self.presentDeleteAlertController(sectionsIndexPaths: [indexPath])
+            self.presentDeleteAlertController(sectionIndexPath: indexPath)
             completionHandler(true)
         }
         
@@ -238,8 +226,10 @@ extension TaskSectionsListViewController: AddSectionBottomPanelViewDelegate {
 
 
 // MARK: coordinator protocol
-protocol TaskSectionsListViewControllerCoordinator {
+protocol TaskSectionsListViewControllerCoordinator: AnyObject {
     func selectTaskSection(viewModel: TaskListInSectionViewModel)
+    
+    func startDeleteProcessSection(_ section: TaskSectionDeletableViewModel)
     
     func closeTaskSectionsList()
 }

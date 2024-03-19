@@ -45,7 +45,10 @@ class TaskDetailViewController: UIViewController {
         setupBindings()
         
         // TODO: удалить временный код (perfect pixel screen)
-        //PixelPerfectScreen.getInstanceAndSetup(baseView: view)
+//        PixelPerfectScreen.getInstanceAndSetup(
+//            baseView: view,
+//            topAnchorConstant: 0
+//        )
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -93,18 +96,11 @@ class TaskDetailViewController: UIViewController {
     
     
     // MARK: coordinator methods
-    private func presentDeleteFileAlertController(fileCellIndexPath indexPath: IndexPath) {
-        let fileCellVM = viewModel.getFileCellViewModel(forIndexPath: indexPath)
-        guard let fileCellVM else { return }
+    private func startDeleteFileCoordinatorFor(_ fileCellIndexPath: IndexPath) {
+        let fileVM = viewModel.getFileDeletableViewModelFor(fileCellIndexPath)
+        guard let fileVM else { return }
         
-        let deleteAlert = DeleteAlertController(
-            itemsIndexPath: [indexPath],
-            singleItem: fileCellVM) { indexPaths in
-            self.viewModel.deleteTaskFile(fileCellIndexPath: indexPath)
-        }
-        deleteAlert.itemTypeName = (oneIP: "файл", oneVP: "файл", manyVP: "файлы")
-        
-        present(deleteAlert, animated: true)
+        coordinator?.startDeleteProcessFile(viewModel: fileVM)
     }
     
     
@@ -270,6 +266,41 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
         return buildTableViewCellFor(cellVM)
     }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let cellVM = viewModel.getTaskDataCellViewModelFor(indexPath: indexPath)
+       
+        switch cellVM {
+        case _ as AddSubTaskCellViewModel:
+            return AddSubtaskButtonCell.rowHeight.cgFloat
+
+        case _ as AddToMyDayCellViewModel:
+            return AddToMyDayButtonCell.rowHeight.cgFloat
+        
+        case _ as ReminderDateCellViewModel:
+            return ReminderDateButtonCell.rowHeight.cgFloat
+            
+        case _ as DeadlineDateCellViewModel:
+            return DeadlineDateButtonCell.rowHeight.cgFloat
+            
+        case _ as RepeatPeriodCellViewModel:
+            return RepeatPeriodButtonCell.rowHeight.cgFloat
+            
+        case _ as AddFileCellVeiwModel:
+            return AddFileButtonCell.rowHeight.cgFloat
+        
+        case _ as FileCellViewModel:
+            return FileButtonCell.rowHeight.cgFloat
+            
+        case let cellVM as DescriptionCellViewModel:
+            return cellVM.content == nil
+            ? DescriptionButtonCell.emptyHeight.cgFloat
+            : DescriptionButtonCell.maxHeight.cgFloat
+            
+        default :
+            return TaskDetailBaseButtonCell.rowHeight.cgFloat
+        }
+    }
+    
     
     // MARK: select row
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -313,8 +344,8 @@ extension TaskDetailViewController: UITableViewDelegate, UITableViewDataSource {
         let deleteAction = UIContextualAction(
             style: .destructive,
             title: "Удалить"
-        ) { deleteAction, view, completionHandler in
-            self.presentDeleteFileAlertController(fileCellIndexPath: indexPath)
+        ) { [weak self] _, _, completionHandler in
+            self?.startDeleteFileCoordinatorFor(indexPath)
             
             completionHandler(true)
         }
@@ -431,7 +462,7 @@ extension TaskDetailViewController: TaskDetailBaseButtonCellDelegate {
             let indexPath = taskDataTableView.indexPath(for: cell)
             guard let indexPath else { return }
             
-            presentDeleteFileAlertController(fileCellIndexPath: indexPath)
+            startDeleteFileCoordinatorFor(indexPath)
             break
             
         default :
@@ -518,6 +549,10 @@ protocol TaskDetailViewControllerCoordinator: AnyObject {
     // Тап по ячейке "добавления файла"
     func tapAddFileCell()
     
+    /// Пользователь начал "удалять задачу"
+    func startDeleteProcessFile(viewModel: TaskFileDeletableViewModel)
+    
     /// Задача закрыта (ушли с экрана просмотра / редактирования задачи)
     func closeTaskDetail()
+    
 }

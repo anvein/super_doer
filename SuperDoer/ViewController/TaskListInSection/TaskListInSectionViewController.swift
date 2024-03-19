@@ -62,14 +62,14 @@ class TaskListInSectionViewController: UIViewController {
             }
         }
         
-        #if DEBUG
-                PixelPerfectScreen.getInstanceAndSetup(
-                    baseView: view,
-                    imageName: "task_list_base",
-                    topAnchorConstant: 0,
-                    controlsBottomAnchorConstant: 20
-                )
-        #endif
+//        #if DEBUG
+//                PixelPerfectScreen.getInstanceAndSetup(
+//                    baseView: view,
+//                    imageName: "task_list_base",
+//                    topAnchorConstant: 0,
+//                    controlsBottomAnchorConstant: 20
+//                )
+//        #endif
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -83,15 +83,6 @@ class TaskListInSectionViewController: UIViewController {
         if tasksTable.numberOfRows(inSection: 0) > 0 {
             tasksTable.reloadData()
         }
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-        
-//        let selectedTaskViewModel = viewModel.getTaskViewModel(forIndexPath: IndexPath(row: 0, section: 0))
-//        let taskController = TaskDetailViewController(viewModel: selectedTaskViewModel)
-//        
-//        navigationController?.pushViewController(taskController, animated: true)
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -108,26 +99,11 @@ class TaskListInSectionViewController: UIViewController {
         tasksTable.isEditing = !tasksTable.isEditing
     }
     
-    private func presentDeleteTaskAlertController(tasksIndexPath: [IndexPath]) {
-        // TODO: переделать на ViewModel
-//        var deleteTask: Task? = nil
-//        if tasksIndexPath.count == 1 {
-//            deleteTask = viewModel.tasks[tasksIndexPath[0].row]
-//        }
-        
-        let deleteAlertController = DeleteAlertController(itemsIndexPath: tasksIndexPath, singleItem: nil) { _ in
-            self.deleteTasks(tasksIndexPaths: tasksIndexPath)
-        }
-        deleteAlertController.itemTypeName = DeletableItem.ItemTypeName(
-            oneIP: "задача",
-            oneVP: "задачу",
-            manyVP: "задачи"
+    private func presentDeleteTaskAlertController(taskIndexPaths: [IndexPath]) {
+        let viewModels = self.viewModel.getTaskDeletableViewModels(
+            forIndexPaths: taskIndexPaths
         )
-        self.present(deleteAlertController, animated: true)
-    }
-    
-    private func deleteTasks(tasksIndexPaths: [IndexPath]) {
-        viewModel.deleteTasks(tasksIndexPaths: tasksIndexPaths)
+        coordinator?.startDeleteProcessTasks(tasksViewModels: viewModels)
     }
     
 }
@@ -266,10 +242,11 @@ extension TaskListInSectionViewController: UITableViewDelegate, UITableViewDataS
             return nil
         }
         
-        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") { deleteAction, view, completionHandler in
-            self.presentDeleteTaskAlertController(tasksIndexPath: [indexPath])
-            
-//            cellContentView.addSubview(view)
+        let deleteAction = UIContextualAction(
+            style: .destructive,
+            title: "Удалить"
+        ) { [weak self] _, _, completionHandler in
+            self?.presentDeleteTaskAlertController(taskIndexPaths: [indexPath])
             completionHandler(false)
         }
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .bold)
@@ -363,9 +340,11 @@ extension TaskListInSectionViewController: CreateTaskBottomPanelViewDelegate {
 }
 
 
-// MARK: coordinator protocol
+// MARK: - coordinator protocol
 protocol TaskListInSectionViewControllerCoordinator: AnyObject {
     func selectTask(viewModel: TaskDetailViewModel)
+    
+    func startDeleteProcessTasks(tasksViewModels: [TaskDeletableViewModel])
     
     func closeTaskListInSection()
 }

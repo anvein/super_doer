@@ -2,10 +2,9 @@
 import Foundation
 
 class TaskListInSectionViewModel: TaskListInSectionViewModelType {
-    
+
     // MARK: services
     private var taskEm: TaskEntityManager
-    
     
     // MARK: data
     private var tasks = [CDTask]() {
@@ -23,6 +22,8 @@ class TaskListInSectionViewModel: TaskListInSectionViewModelType {
         return taskSection.title ?? ""
     }
     
+    
+    // MARK: init
     init(_ taskSection: TaskSectionCustom, taskEm: TaskEntityManager) {
         self.taskEm = taskEm
         
@@ -52,6 +53,19 @@ class TaskListInSectionViewModel: TaskListInSectionViewModelType {
         )
     }
     
+    func getTaskDeletableViewModels(forIndexPaths indexPaths: [IndexPath]) -> [TaskDeletableViewModel] {
+        var viewModels: [TaskDeletableViewModel] = []
+        for indexPath in indexPaths {
+            let viewModel = TaskDeletableViewModel.createFrom(
+                task: tasks[indexPath.row],
+                indexPath: indexPath
+            )
+            viewModels.append(viewModel)
+        }
+        
+        return viewModels
+    }
+    
     
     // MARK: model manipulation methods
     func createNewTaskInCurrentSectionWith(
@@ -67,12 +81,17 @@ class TaskListInSectionViewModel: TaskListInSectionViewModelType {
         tasks.insert(task, at: 0)
     }
     
-    func deleteTasks(tasksIndexPaths: [IndexPath]) {
+    func deleteTasks(taskViewModels: [DeletableItemViewModelType]) {
         var deleteTasksArray = [CDTask]()
         
-        for taskIndexPath in tasksIndexPaths {
-            deleteTasksArray.append(tasks[taskIndexPath.row])
-            tasks.remove(at: taskIndexPath.row)
+        for taskViewModel in taskViewModels {
+            guard let indexPath = taskViewModel.indexPath else {
+                // TODO: залогировать, что не указан indexPath
+                continue
+            }
+            
+            deleteTasksArray.append(tasks[indexPath.row])
+            tasks.remove(at: indexPath.row)
         }
         
         taskEm.delete(tasks: deleteTasksArray)

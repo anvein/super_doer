@@ -3,19 +3,19 @@ import Foundation
 
 /// ViewModel страницы с таблицей списков (разделов)
 class TaskSectionListViewModel: TaskSectionListViewModelType {
+    
     typealias Sections = [[TaskSectionProtocol]]
     
     
     // MARK: services
     private var sectionEm: TaskSectionEntityManager
-    private var systemSectionsBuilder: SystemSectionsBuilder
     
     
     // MARK: model
-    private static var systemSectionsId = 0
-    private static var customSectionsId = 1
+    static var systemSectionsId = 0
+    static var customSectionsId = 1
     
-    private lazy var sections: Box<Sections> = Box(buildSections())
+    private var sections: Box<Sections>
     
     private var selectedSectionIndexPath: IndexPath?
     
@@ -23,19 +23,10 @@ class TaskSectionListViewModel: TaskSectionListViewModelType {
     // MARK: init / setup
     required init(
         sectionEm: TaskSectionEntityManager,
-        systemSectionsBuilder: SystemSectionsBuilder
+        sections: Sections
     ) {
         self.sectionEm = sectionEm
-        self.systemSectionsBuilder = systemSectionsBuilder
-    }
-    
-    private func buildSections() -> Sections {
-        var sections: [[TaskSectionProtocol]] = [[], []]
-        
-        sections[Self.systemSectionsId] = systemSectionsBuilder.buildSections()
-        sections[Self.customSectionsId] = sectionEm.getCustomSectionsWithOrder()
-        
-        return sections
+        self.sections = Box(sections)
     }
     
     
@@ -84,7 +75,6 @@ class TaskSectionListViewModel: TaskSectionListViewModelType {
     
         return getTaskSectionTableViewCellViewModel(forIndexPath: selectedIndexPath)
     }
-    
    
     func getTaskListInSectionViewModel(forIndexPath indexPath: IndexPath) -> TaskListInSectionViewModelType? {
         let section = sections.value[indexPath.section][indexPath.row]
@@ -102,6 +92,17 @@ class TaskSectionListViewModel: TaskSectionListViewModelType {
         }
     }
     
+    func getDeletableSectionViewModelFor(indexPath: IndexPath) -> TaskSectionDeletableViewModel? {
+        let section = sections.value[indexPath.section][indexPath.row]
+        guard let customSection = section as? TaskSectionCustom else {
+            return nil
+        }
+        
+        return TaskSectionDeletableViewModel.createFrom(
+            section: customSection,
+            indexPath: indexPath
+        )
+    }
     
     // MARK: model manipulate methods
     func createCustomTaskSectionWith(title: String) {
@@ -109,21 +110,13 @@ class TaskSectionListViewModel: TaskSectionListViewModelType {
         sections.value[TaskSectionListViewModel.customSectionsId].insert(section, at: 0)
     }
     
-    func deleteSections(withIndexPaths indexPaths: [IndexPath]) {
-        var sectionsForDelete = [TaskSectionCustom]()
-        for indexPath in indexPaths {
-            let section = sections.value[TaskSectionListViewModel.customSectionsId][indexPath.row]
-            guard let customSection = section as? TaskSectionCustom else {
-                // TODO: залогировать, что сюда попал системный раздел (список)
-                return
-            }
-            
-            sectionsForDelete.append(customSection)
-            sections.value[TaskSectionListViewModel.customSectionsId].remove(at: indexPath.row)
-        }
+    func deleteCustomSection(sectionViewModel: TaskSectionDeletableViewModel) {
+        guard let indexPath = sectionViewModel.indexPath else { return }
+        let section = sections.value[TaskSectionListViewModel.customSectionsId][indexPath.row]
+        guard let customSection = section as? TaskSectionCustom else { return }
         
-        // TODO: проработать кейс, когда один из разделов не удалится
-        sectionEm.deleteSections(sectionsForDelete)
+        sectionEm.deleteSection(customSection)
+        sections.value[TaskSectionListViewModel.customSectionsId].remove(at: indexPath.row)
     }
     
     func archiveCustomSection(indexPath: IndexPath) {

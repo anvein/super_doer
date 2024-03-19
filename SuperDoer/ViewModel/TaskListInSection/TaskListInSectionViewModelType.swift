@@ -12,6 +12,8 @@ protocol TaskListInSectionViewModelType {
     
     func getTaskViewModel(forIndexPath indexPath: IndexPath) -> TaskDetailViewModel
     
+    func getTaskDeletableViewModels(forIndexPaths indexPaths: [IndexPath]) -> [TaskDeletableViewModel]
+    
     func createNewTaskInCurrentSectionWith(
         title: String,
         inMyDay: Bool,
@@ -20,7 +22,8 @@ protocol TaskListInSectionViewModelType {
         description: String?
     )
     
-    func deleteTasks(tasksIndexPaths: [IndexPath])
+    func deleteTasks(taskViewModels: [DeletableItemViewModelType])
     
     func moveTasksInCurrentList(fromPath: IndexPath, to toPath: IndexPath)
+    
 }

@@ -25,12 +25,25 @@ final class TaskListInSectionCoordinator: BaseCoordinator {
     
 }
 
+
+// MARK: - coordinator methods for controller
 extension TaskListInSectionCoordinator: TaskListInSectionViewControllerCoordinator {
     func selectTask(viewModel: TaskDetailViewModel) {
         let coordinator = TaskDetailCoordinator(
             parent: self,
             navigation: navigation,
             viewModel: viewModel
+        )
+        addChild(coordinator)
+        coordinator.start()
+    }
+    
+    func startDeleteProcessTasks(tasksViewModels: [TaskDeletableViewModel]) {
+        let coordinator = DeleteItemCoordinator(
+            parent: self,
+            navigation: navigation,
+            viewModels: tasksViewModels,
+            delegate: self
         )
         addChild(coordinator)
         coordinator.start()
@@ -43,3 +56,8 @@ extension TaskListInSectionCoordinator: TaskListInSectionViewControllerCoordinat
 
 
 
+extension TaskListInSectionCoordinator: DeleteItemCoordinatorDelegate {
+    func didConfirmDeleteItems(_ items: [DeletableItemViewModelType]) {
+        viewModel.deleteTasks(taskViewModels: items)
+    }
+}

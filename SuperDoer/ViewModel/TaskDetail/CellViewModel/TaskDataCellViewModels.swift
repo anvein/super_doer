@@ -196,7 +196,7 @@ struct AddFileCellVeiwModel: TaskDataCellViewModelType {
     
 }
 
-struct FileCellViewModel: TaskDataCellViewModelType, DeletableItem {
+struct FileCellViewModel: TaskDataCellViewModelType {
     var id: UUID
     var name: String
     var fileExtension: String
@@ -204,10 +204,6 @@ struct FileCellViewModel: TaskDataCellViewModelType, DeletableItem {
     
     var titleForDelete: String {
         return name
-    }
-    
-    var itemTypeName: ItemTypeName {
-        return (oneIP: "файл", oneVP: "файл", manyVP: "файлы")
     }
 }
 

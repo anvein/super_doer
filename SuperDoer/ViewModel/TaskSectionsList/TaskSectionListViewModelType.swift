@@ -14,11 +14,13 @@ protocol TaskSectionListViewModelType {
     
     func getTaskListInSectionViewModel(forIndexPath indexPath: IndexPath) -> TaskListInSectionViewModelType?
     
+    func getDeletableSectionViewModelFor(indexPath: IndexPath) -> TaskSectionDeletableViewModel?
+    
     func selectTaskSection(forIndexPath indexPath: IndexPath)
     
     func createCustomTaskSectionWith(title: String)
     
-    func deleteSections(withIndexPaths indexPaths:  [IndexPath])
+    func deleteCustomSection(sectionViewModel: TaskSectionDeletableViewModel)
     
     func archiveCustomSection(indexPath: IndexPath)
     

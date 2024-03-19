@@ -23,10 +23,20 @@ final class DIContainer {
             return TaskEntityManager()
         }).inObjectScope(.container)
         
-        Self.shared.register(TaskFileEntityManager.self, factory: { _ in
+        Self.shared.register(TaskFileEntityManager.self) { _ in
             return TaskFileEntityManager()
-        }).inObjectScope(.container)
+        }.inObjectScope(.container)
         
+        
+        // MARK: Coordinators        
+        Self.shared.register(AppCoordinator.self) { r, arg1 in
+            return AppCoordinator(
+                window: arg1,
+                sectionEm: r.resolve(TaskSectionEntityManager.self)!,
+                systemSectionsBuilder: r.resolve(SystemSectionsBuilder.self)!
+            )
+        }.inObjectScope(.container)
+    
         
         // MARK: ViewController
         
@@ -34,12 +44,7 @@ final class DIContainer {
         
         
         // MARK: ViewModel
-        Self.shared.register(TaskSectionListViewModel.self, factory: { r in
-            return TaskSectionListViewModel(
-                sectionEm: r.resolve(TaskSectionEntityManager.self)!,
-                systemSectionsBuilder: r.resolve(SystemSectionsBuilder.self)!
-            )
-        })
+        
     }
     
 }

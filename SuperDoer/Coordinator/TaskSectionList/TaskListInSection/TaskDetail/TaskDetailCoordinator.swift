@@ -130,6 +130,17 @@ final class TaskDetailCoordinator: BaseCoordinator {
         coordinator.start()
     }
     
+    private func startFileDeleteCoordinator(viewModel: TaskFileDeletableViewModel) {
+        let coordinator = DeleteItemCoordinator(
+            parent: self,
+            navigation: navigation,
+            viewModels: [viewModel],
+            delegate: self
+        )
+        addChild(coordinator)
+        coordinator.start()
+    }
+    
 }
 
 
@@ -154,6 +165,10 @@ extension TaskDetailCoordinator: TaskDetailViewControllerCoordinator {
     
     func tapAddFileCell() {
         startAddFileToTaskSourceAlertCoordinator()
+    }
+    
+    func startDeleteProcessFile(viewModel: TaskFileDeletableViewModel) {
+        startFileDeleteCoordinator(viewModel: viewModel)
     }
 
     func tapDecriptionCell() {
@@ -221,6 +236,17 @@ extension TaskDetailCoordinator: AddFileToTaskFromLibraryCoordinatorDelegate {
 extension TaskDetailCoordinator: AddFileToTaskFromFilesCoordinatorDelegate {
     func didFinishPickingFileFromLibrary(withUrl url: URL) {
         viewModel.createTaskFile(fromUrl: url)
+    }
+}
+
+extension TaskDetailCoordinator: DeleteItemCoordinatorDelegate {
+    func didConfirmDeleteItems(_ items: [DeletableItemViewModelType]) {
+        if let items = items as? [TaskFileDeletableViewModel] {
+            guard let item = items.first else { return }
+            viewModel.deleteTaskFile(fileDeletableVM: item)
+        } else {
+            // удаление задачи
+        }
     }
 }
 

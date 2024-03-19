@@ -7,7 +7,7 @@ class TaskDetailBaseButtonCell: UITableViewCell {
         return "TaskDetailBaseButtonCell"
     }
     
-    var rowHeight: Int {
+    class var rowHeight: Int {
         return 58
     }
 
@@ -83,11 +83,6 @@ class TaskDetailBaseButtonCell: UITableViewCell {
     }
     
     func setupConstraints() {
-        // contentView
-        NSLayoutConstraint.activate([
-            contentView.heightAnchor.constraint(equalToConstant: rowHeight.cgFloat),
-        ])
-        
         // actionButton
         NSLayoutConstraint.activate([
             actionButton.rightAnchor.constraint(equalTo: contentView.rightAnchor),

@@ -80,6 +80,16 @@ class TaskDetailViewModel {
         return fileCellVM
     }
     
+    func getFileDeletableViewModelFor(_ indexPath: IndexPath) -> TaskFileDeletableViewModel? {
+        let fileCellVM = taskDataViewModels.viewModels[indexPath.row]
+        guard let fileCellVM = fileCellVM as? FileCellViewModel else { return nil }
+        
+        return TaskFileDeletableViewModel.createFrom(
+            fileCellViewModel: fileCellVM,
+            indexPath: indexPath
+        )
+    }
+    
     func isFileCellViewModel(byIndexPath indexPath: IndexPath) -> Bool {
         return taskDataViewModels.viewModels[indexPath.row] is FileCellViewModel
     }
@@ -186,7 +196,12 @@ class TaskDetailViewModel {
         addBindedCell(withRowIndex: rowIndex)
     }
     
-    func deleteTaskFile(fileCellIndexPath indexPath: IndexPath) {
+    func deleteTaskFile(fileDeletableVM: TaskFileDeletableViewModel) {
+        guard let indexPath = fileDeletableVM.indexPath else {
+            // TODO: залогировать
+            return
+        }
+        
         let cellValue = taskDataViewModels.viewModels[indexPath.row]
         guard let fileCellValue = cellValue as? FileCellViewModel else {
             // TODO: показать сообщение об ошибке (файл не получилось удалить)

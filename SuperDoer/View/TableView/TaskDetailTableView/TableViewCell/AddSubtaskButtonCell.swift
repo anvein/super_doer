@@ -14,7 +14,7 @@ class AddSubtaskButtonCell: TaskDetailBaseButtonCell {
     }
     
     // MARK: properties for cell button
-    override var rowHeight: Int {
+    override class var rowHeight: Int {
         return 68
     }
     
