@@ -170,6 +170,7 @@
 		364E7E882B91E63F00C7A2AC /* TaskRepeatPeriodRowViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepeatPeriodRowViewModelType.swift; sourceTree = "<group>"; };
 		364E7E8A2B91E67A00C7A2AC /* TaskRepeatPeriodAmountRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepeatPeriodAmountRowViewModel.swift; sourceTree = "<group>"; };
 		364E7E8C2B91E69A00C7A2AC /* TaskRepeatPeriodTypeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepeatPeriodTypeRowViewModel.swift; sourceTree = "<group>"; };
+		36546CC42BAD6C5C00E98631 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		36587FCC2BA5B2D300463296 /* TaskDescriptionEditorCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDescriptionEditorCoordinator.swift; sourceTree = "<group>"; };
 		36587FD12BA5DE7000463296 /* AddFileToTaskSourceAlertCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFileToTaskSourceAlertCoordinator.swift; sourceTree = "<group>"; };
 		36587FD32BA5FB5F00463296 /* AddFileToTaskFromLibraryCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddFileToTaskFromLibraryCoordinator.swift; sourceTree = "<group>"; };
@@ -586,6 +587,7 @@
 		36A050122A500A87006F61D4 = {
 			isa = PBXGroup;
 			children = (
+				36546CC42BAD6C5C00E98631 /* README.md */,
 				362D15002A86249000ADE1A8 /* .gitignore */,
 				36A0501D2A500A87006F61D4 /* SuperDoer */,
 				36A0501C2A500A87006F61D4 /* Products */,
