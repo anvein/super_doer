@@ -26,6 +26,8 @@ class TaskDetailViewModel {
         return taskDataViewModels.viewModels.count
     }
     
+    
+    
     var taskTitle: Box<String?>
     var taskIsCompleted: Box<Bool>
     var taskIsPriority: Box<Bool>

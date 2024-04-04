@@ -1,5 +1,7 @@
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 /// Контроллер просмотра / редактирования задачи
 // MARK: MAIN
@@ -246,6 +248,8 @@ extension TaskDetailViewController {
         viewModel.taskIsPriority.bindAndUpdateValue { [unowned self] isPriority in
             isPriorityButton.isOn = isPriority
         }
+        
+//        taskTitleTextView.rx.text.orEmpty.bind(to: <#T##String...##String#>)
         
         viewModel.bindingDelegate = self
     }
