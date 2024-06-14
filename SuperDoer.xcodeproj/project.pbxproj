@@ -104,7 +104,9 @@
 		36CF277A2BA08EE100641752 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CF27792BA08EE100641752 /* Coordinator.swift */; };
 		36CF277C2BA090CA00641752 /* BaseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CF277B2BA090CA00641752 /* BaseCoordinator.swift */; };
 		36CF277F2BA0921B00641752 /* TaskSectionListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CF277E2BA0921B00641752 /* TaskSectionListCoordinator.swift */; };
+		36D0817D2BCC0DE40092E2D9 /* swiftgen.yml in Resources */ = {isa = PBXBuildFile; fileRef = 36D0817C2BCC0DE40092E2D9 /* swiftgen.yml */; };
 		36D4E7B52B8104A2007EFCB9 /* AddSectionBottomPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36D4E7B42B8104A2007EFCB9 /* AddSectionBottomPanelView.swift */; };
+		36E2FF492C1C45B000819296 /* SwiftLintFramework in Frameworks */ = {isa = PBXBuildFile; productRef = 36E2FF482C1C45B000819296 /* SwiftLintFramework */; };
 		36E917E02A7005C200E3C41A /* StarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E917DF2A7005C200E3C41A /* StarButton.swift */; };
 		36EF18C02B9338E10066D583 /* TaskDetailLabels2StatesButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36EF18BF2B9338E10066D583 /* TaskDetailLabels2StatesButtonCell.swift */; };
 		36EF4D3A2A9E185900343393 /* TextEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36EF4D392A9E185900343393 /* TextEditorViewController.swift */; };
@@ -234,6 +236,7 @@
 		36CF27792BA08EE100641752 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
 		36CF277B2BA090CA00641752 /* BaseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCoordinator.swift; sourceTree = "<group>"; };
 		36CF277E2BA0921B00641752 /* TaskSectionListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSectionListCoordinator.swift; sourceTree = "<group>"; };
+		36D0817C2BCC0DE40092E2D9 /* swiftgen.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = swiftgen.yml; sourceTree = SOURCE_ROOT; };
 		36D4E7B42B8104A2007EFCB9 /* AddSectionBottomPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddSectionBottomPanelView.swift; sourceTree = "<group>"; };
 		36E917DF2A7005C200E3C41A /* StarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarButton.swift; sourceTree = "<group>"; };
 		36EF18BF2B9338E10066D583 /* TaskDetailLabels2StatesButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailLabels2StatesButtonCell.swift; sourceTree = "<group>"; };
@@ -255,6 +258,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				36E2FF492C1C45B000819296 /* SwiftLintFramework in Frameworks */,
 				366571742B96139100B9C6F7 /* Swinject in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -434,6 +438,7 @@
 		365FABF12B99C2DD0075E038 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				36D0817C2BCC0DE40092E2D9 /* swiftgen.yml */,
 				36A0502C2A500A89006F61D4 /* LaunchScreen.storyboard */,
 				36A0502A2A500A89006F61D4 /* Assets.xcassets */,
 				36A0502F2A500A89006F61D4 /* Info.plist */,
@@ -920,6 +925,7 @@
 			name = SuperDoer;
 			packageProductDependencies = (
 				366571732B96139100B9C6F7 /* Swinject */,
+				36E2FF482C1C45B000819296 /* SwiftLintFramework */,
 			);
 			productName = SuperDoer;
 			productReference = 36A0501B2A500A87006F61D4 /* SuperDoer.app */;
@@ -952,6 +958,7 @@
 			mainGroup = 36A050122A500A87006F61D4;
 			packageReferences = (
 				366571722B96139100B9C6F7 /* XCRemoteSwiftPackageReference "Swinject" */,
+				36E2FF472C1C45B000819296 /* XCRemoteSwiftPackageReference "SwiftLint" */,
 			);
 			productRefGroup = 36A0501C2A500A87006F61D4 /* Products */;
 			projectDirPath = "";
@@ -970,6 +977,7 @@
 				36A0502E2A500A89006F61D4 /* LaunchScreen.storyboard in Resources */,
 				362D15012A86249000ADE1A8 /* .gitignore in Resources */,
 				36A0502B2A500A89006F61D4 /* Assets.xcassets in Resources */,
+				36D0817D2BCC0DE40092E2D9 /* swiftgen.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1325,6 +1333,14 @@
 				minimumVersion = 2.8.4;
 			};
 		};
+		36E2FF472C1C45B000819296 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/SwiftLint";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.55.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1332,6 +1348,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 366571722B96139100B9C6F7 /* XCRemoteSwiftPackageReference "Swinject" */;
 			productName = Swinject;
+		};
+		36E2FF482C1C45B000819296 /* SwiftLintFramework */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36E2FF472C1C45B000819296 /* XCRemoteSwiftPackageReference "SwiftLint" */;
+			productName = SwiftLintFramework;
 		};
 /* End XCSwiftPackageProductDependency section */
 
