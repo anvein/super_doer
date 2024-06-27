@@ -61,15 +61,15 @@ class TaskListInSectionViewController: UIViewController {
                 self.tasksTable.reloadData()
             }
         }
-        
-//        #if DEBUG
-//                PixelPerfectScreen.getInstanceAndSetup(
-//                    baseView: view,
-//                    imageName: "task_list_base",
-//                    topAnchorConstant: 0,
-//                    controlsBottomAnchorConstant: 20
-//                )
-//        #endif
+
+        PIXEL_PERFECT_screen.createAndSetupInstance(
+            baseView: self.view,
+            imageName: "PIXEL_PERFECT_task_list",
+            imageAttachSide: .top,
+            imageAttachSideOffset: 0,
+            controlsBottomSideOffset: 0,
+            imageHeightDivider: 3
+        )
     }
 
     override func viewWillAppear(_ animated: Bool) {

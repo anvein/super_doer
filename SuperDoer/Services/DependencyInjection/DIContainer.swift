@@ -1,5 +1,6 @@
 
 import Swinject
+import UserNotifications
 
 final class DIContainer {
     static let shared = Container()
@@ -9,12 +10,21 @@ final class DIContainer {
     /// Надо вызвать, чтобы зарегистрировались зависимости
     static func registerDependencies() {
         // MARK: Service
+
+        Self.shared.register(NotificationsService.self) { _ in
+            return NotificationsService(
+                notificationCenter: UNUserNotificationCenter.current()
+            )
+        }.inObjectScope(.container)
+
+
         Self.shared.register(SystemSectionsBuilder.self) { _ in
             return SystemSectionsBuilder()
         }.inObjectScope(.container)
         
         
         // MARK: - CoreData services
+
         Self.shared.register(TaskSectionEntityManager.self, factory: { _ in
             return TaskSectionEntityManager()
         }).inObjectScope(.container)
@@ -28,7 +38,8 @@ final class DIContainer {
         }.inObjectScope(.container)
         
         
-        // MARK: Coordinators        
+        // MARK: Coordinators     
+
         Self.shared.register(AppCoordinator.self) { r, arg1 in
             return AppCoordinator(
                 window: arg1,
