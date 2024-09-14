@@ -8,13 +8,11 @@ class TaskListInSectionViewController: UIViewController {
     private var viewModel: TaskListInSectionViewModelType
     private weak var coordinator: TaskListInSectionViewControllerCoordinator?
     
-    
     // MARK: controls
     private lazy var tasksTable = TasksListTableView()
     private lazy var createTaskPanelView = CreateTaskBottomPanelView()
     
     private lazy var backgroundImageView = UIImageView(image: UIImage(named: "bgList"))
-    
     
     // MARK: init
     init(
@@ -84,7 +82,19 @@ class TaskListInSectionViewController: UIViewController {
             tasksTable.reloadData()
         }
     }
-    
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        // TODO: код для разработки (удалить)
+        /////////////////////////////////////////////////////
+//        let vm = viewModel.getTaskViewModel(forIndexPath: IndexPath(row: 0, section: 0))
+//        if let vm = vm as? TaskDetailViewModel {
+//            coordinator?.selectTask(viewModel: vm)
+//        }
+        /////////////////////////////////////////////////////
+    }
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         

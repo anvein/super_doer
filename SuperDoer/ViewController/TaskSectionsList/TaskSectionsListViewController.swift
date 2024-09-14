@@ -43,8 +43,17 @@ class TaskSectionsListViewController: UIViewController {
         addSubviewsToMainView()
         setupConstraints()
         setupBinding()
+
+        PIXEL_PERFECT_screen.createAndSetupInstance(
+            baseView: self.view,
+            imageName: "PIXEL_PERFECT_home",
+            imageAttachSide: .top,
+            imageAttachSideOffset: 0,
+            controlsBottomSideOffset: 0,
+            imageHeightDivider: 3
+        )
     }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
@@ -53,7 +62,18 @@ class TaskSectionsListViewController: UIViewController {
         }
     }
     
-    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+
+        // TODO: код для разработки (удалить)
+        /////////////////////////////////////////////////////
+        let vm = viewModel.getTaskListInSectionViewModel(forIndexPath: IndexPath(row: 0, section: 1))
+        if let vm = vm as? TaskListInSectionViewModel {
+            coordinator?.selectTaskSection(viewModel: vm)
+        }
+        /////////////////////////////////////////////////////
+    }
+
     // MARK: action-handlers
     @objc func presentDeleteAlertController(sectionIndexPath: IndexPath) {
         let sectionVM = self.viewModel.getDeletableSectionViewModelFor(
@@ -65,8 +85,8 @@ class TaskSectionsListViewController: UIViewController {
     
 }
 
-
 // MARK: LAYOUT
+
 extension TaskSectionsListViewController {
     private func addSubviewsToMainView() {
         view.addSubview(sectionsTableView)

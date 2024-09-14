@@ -1,9 +1,6 @@
 
 import UIKit
 
-/// Вьюха с элементами для создания новой задачи включающая в себя:
-/// - textField - поле для ввода названия задачи (title)
-/// - readyCreateButton - кнопка для подтверждения создания задачи
 final class CreateTaskBottomPanelView: UIView {
     typealias PanelParams = (
         panelHeight: Float,

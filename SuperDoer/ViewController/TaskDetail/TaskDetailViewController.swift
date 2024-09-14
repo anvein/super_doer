@@ -43,12 +43,15 @@ class TaskDetailViewController: UIViewController {
         addSubviews()
         setupConstraints()
         setupBindings()
-        
-        // TODO: удалить временный код (perfect pixel screen)
-//        PixelPerfectScreen.getInstanceAndSetup(
-//            baseView: view,
-//            topAnchorConstant: 0
-//        )
+
+        PIXEL_PERFECT_screen.createAndSetupInstance(
+            baseView: self.view,
+            imageName: "PIXEL_PERFECT_detail1",
+            imageAttachSide: .top,
+            imageAttachSideOffset: 0,
+            controlsBottomSideOffset: 0,
+            imageHeightDivider: 3
+        )
     }
 
     override func viewDidDisappear(_ animated: Bool) {

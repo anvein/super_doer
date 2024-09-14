@@ -619,27 +619,27 @@
 		36A0501D2A500A87006F61D4 /* SuperDoer */ = {
 			isa = PBXGroup;
 			children = (
-				36A050352A50427B006F61D4 /* Application */,
+				36A050352A50427B006F61D4 /* AppDelegates */,
 				36CF27762BA0817500641752 /* Coordinator */,
 				36A050362A504289006F61D4 /* ViewController */,
 				36CB90302B17D2CD00E897F4 /* View */,
 				36FCF92A2B89E31F002B2CB8 /* ViewModel */,
 				36A0503C2A504E51006F61D4 /* Model */,
 				36A64EDA2B1774EC00E586D4 /* Services */,
-				36A050372A5042DB006F61D4 /* Supporting */,
 				365FABF12B99C2DD0075E038 /* Resources */,
+				3600ACCD2AA0E3DC0022506A /* PIXEL_PERFECT_screen.swift */,
 			);
 			path = SuperDoer;
 			sourceTree = "<group>";
 		};
-		36A050352A50427B006F61D4 /* Application */ = {
+		36A050352A50427B006F61D4 /* AppDelegates */ = {
 			isa = PBXGroup;
 			children = (
 				369E7A1B2B18FC3000CBA138 /* Extensions */,
 				36A0501E2A500A87006F61D4 /* AppDelegate.swift */,
 				36A050202A500A87006F61D4 /* SceneDelegate.swift */,
 			);
-			path = Application;
+			path = AppDelegates;
 			sourceTree = "<group>";
 		};
 		36A050362A504289006F61D4 /* ViewController */ = {
@@ -655,14 +655,6 @@
 				36F2B81E2B8CD79B006AE5D7 /* TextEditor */,
 			);
 			path = ViewController;
-			sourceTree = "<group>";
-		};
-		36A050372A5042DB006F61D4 /* Supporting */ = {
-			isa = PBXGroup;
-			children = (
-				3600ACCD2AA0E3DC0022506A /* PIXEL_PERFECT_screen.swift */,
-			);
-			path = Supporting;
 			sourceTree = "<group>";
 		};
 		36A0503C2A504E51006F61D4 /* Model */ = {
