@@ -120,11 +120,6 @@ extension TableVariantsViewController {
             detent = .custom(identifier: .taskRepeatPeriodVariants, resolver: { context in
                 return 380
             })
-            
-        default:
-            detent = .custom(identifier: .defuiltVariantsController, resolver: { context in
-                return 280
-            })
         }
         
         return detent

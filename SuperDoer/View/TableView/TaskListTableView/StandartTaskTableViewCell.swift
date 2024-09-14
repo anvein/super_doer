@@ -1,14 +1,17 @@
 
 import UIKit
 
-/// Ячейка "задачи" в таблице с задачами
 class StandartTaskTableViewCell: UITableViewCell {
     class var identifier: String {
         return "StandartTaskTableViewCell"
     }
     
+    // MARK: - Subviews
+
     lazy var isDoneButton = CheckboxButton(width: 24, height: 24)
     
+    // MARK: - Init
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
      
@@ -16,12 +19,13 @@ class StandartTaskTableViewCell: UITableViewCell {
         setupCell()
         setupConstraints()
     }
-    
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    // MARK: - Lifecycle
+
     override func layoutSubviews() {
         super.layoutSubviews()
         
@@ -30,6 +34,8 @@ class StandartTaskTableViewCell: UITableViewCell {
         backgroundView?.frame = contentView.frame
     }
     
+    // MARK: - State
+
     private func setupCell() {
         backgroundColor = nil
         

@@ -47,10 +47,8 @@ class TaskDetailViewController: UIViewController {
         PIXEL_PERFECT_screen.createAndSetupInstance(
             baseView: self.view,
             imageName: "PIXEL_PERFECT_detail1",
-            imageAttachSide: .top,
-            imageAttachSideOffset: 0,
             controlsBottomSideOffset: 0,
-            imageHeightDivider: 3
+            imageScaleFactor: 3
         )
     }
 
