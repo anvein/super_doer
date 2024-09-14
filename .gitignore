@@ -11,7 +11,7 @@ build/
 
 ### Xcode ###
 ## User settings
-xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/*
 
 ### Xcode Patch ###
 *.xcodeproj/*
