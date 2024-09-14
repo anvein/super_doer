@@ -26,7 +26,7 @@ final class AppCoordinator: BaseCoordinator {
     }
     
     override func start() {
-        configWindow()
+        configureWindow()
         
         let viewModel = TaskSectionListViewModel(
             sectionEm: sectionEm,
@@ -42,7 +42,7 @@ final class AppCoordinator: BaseCoordinator {
         taskSectionListCoordinator.start()
     }
     
-    private func configWindow() {
+    private func configureWindow() {
         window.rootViewController = navigation
         window.makeKeyAndVisible()
     }

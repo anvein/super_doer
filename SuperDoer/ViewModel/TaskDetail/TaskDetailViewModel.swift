@@ -31,6 +31,7 @@ class TaskDetailViewModel {
     var taskIsPriority: Box<Bool>
     
     var isEnableNotifications: Bool {
+        
         // TODO: получить из сервиса, который вернет "включены ли уведомления"
         return true
     }

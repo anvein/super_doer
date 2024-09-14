@@ -8,13 +8,11 @@ class TaskListInSectionViewController: UIViewController {
     private var viewModel: TaskListInSectionViewModelType
     private weak var coordinator: TaskListInSectionViewControllerCoordinator?
     
-    
     // MARK: controls
     private lazy var tasksTable = TasksListTableView()
     private lazy var createTaskPanelView = CreateTaskBottomPanelView()
     
     private lazy var backgroundImageView = UIImageView(image: UIImage(named: "bgList"))
-    
     
     // MARK: init
     init(
@@ -61,15 +59,15 @@ class TaskListInSectionViewController: UIViewController {
                 self.tasksTable.reloadData()
             }
         }
-        
-//        #if DEBUG
-//                PixelPerfectScreen.getInstanceAndSetup(
-//                    baseView: view,
-//                    imageName: "task_list_base",
-//                    topAnchorConstant: 0,
-//                    controlsBottomAnchorConstant: 20
-//                )
-//        #endif
+
+        PIXEL_PERFECT_screen.createAndSetupInstance(
+            baseView: self.view,
+            imageName: "PIXEL_PERFECT_task_list",
+            imageAttachSide: .top,
+            imageAttachSideOffset: 0,
+            controlsBottomSideOffset: 0,
+            imageHeightDivider: 3
+        )
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -84,7 +82,19 @@ class TaskListInSectionViewController: UIViewController {
             tasksTable.reloadData()
         }
     }
-    
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        // TODO: код для разработки (удалить)
+        /////////////////////////////////////////////////////
+//        let vm = viewModel.getTaskViewModel(forIndexPath: IndexPath(row: 0, section: 0))
+//        if let vm = vm as? TaskDetailViewModel {
+//            coordinator?.selectTask(viewModel: vm)
+//        }
+        /////////////////////////////////////////////////////
+    }
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
