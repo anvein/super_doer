@@ -2,9 +2,9 @@
 import Foundation
 
 /// Ячейка "задачи" в таблице со списком задач
-class TaskInSectionTableViewCellViewModel: TaskInSectionTableViewCellViewModelType {
-    private var task: CDTask
-    
+class TaskTableViewCellViewModel: TaskTableViewCellViewModelType {
+    private var task: TaskListItem
+
     var isCompleted: Bool {
         return task.isCompleted
     }
@@ -14,11 +14,12 @@ class TaskInSectionTableViewCellViewModel: TaskInSectionTableViewCellViewModelTy
     }
     
     var title: String {
-        return task.title ?? "-undefined-"
+        return task.title
     }
     
     var sectionTitle: String? {
-        return task.section?.title
+        return ""
+//        return task.section?.title
     }
     
     var deadlineDate: Date? {
@@ -26,7 +27,7 @@ class TaskInSectionTableViewCellViewModel: TaskInSectionTableViewCellViewModelTy
         return nil
     }
     
-    init(task: CDTask) {
+    init(task: TaskListItem) {
         self.task = task
     }
     

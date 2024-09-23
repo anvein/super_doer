@@ -3,12 +3,12 @@ import UIKit
 
 final class TaskListInSectionCoordinator: BaseCoordinator {
     private var navigation: UINavigationController
-    private var viewModel: TasksListInSectionViewModel
+    private var viewModel: TasksListViewModel
     
     init(
         parent: Coordinator,
         navigation: UINavigationController,
-        viewModel: TasksListInSectionViewModel
+        viewModel: TasksListViewModel
     ) {
         self.navigation = navigation
         self.viewModel = viewModel
@@ -16,7 +16,7 @@ final class TaskListInSectionCoordinator: BaseCoordinator {
     }
     
     override func start() {
-        let vc = TasksListInSectionViewController(
+        let vc = TasksListViewController(
             coordinator: self,
             viewModel: viewModel
         )
@@ -27,7 +27,7 @@ final class TaskListInSectionCoordinator: BaseCoordinator {
 
 
 // MARK: - coordinator methods for controller
-extension TaskListInSectionCoordinator: TaskListInSectionViewControllerCoordinator {
+extension TaskListInSectionCoordinator: TaskListViewControllerCoordinator {
     func selectTask(viewModel: TaskDetailViewModel) {
         let coordinator = TaskDetailCoordinator(
             parent: self,

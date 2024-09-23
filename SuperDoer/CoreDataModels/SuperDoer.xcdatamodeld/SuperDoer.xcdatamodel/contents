@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22522" systemVersion="22G513" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22758" systemVersion="23F79" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
     <entity name="CDTask" representedClassName=".CDTask" syncable="YES" codeGenerationType="category">
+        <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="deadlineDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="descriptionText" optional="YES" attributeType="String"/>
         <attribute name="descriptionUpdatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="inMyDay" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
@@ -9,7 +11,6 @@
         <attribute name="isPriority" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="reminderDateTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="repeatPeriod" optional="YES" attributeType="String"/>
-        <attribute name="taskDescription" optional="YES" attributeType="String"/>
         <attribute name="title" attributeType="String" maxValueString="100" spotlightIndexingEnabled="YES"/>
         <relationship name="files" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="TaskFile" inverseName="task" inverseEntity="TaskFile"/>
         <relationship name="section" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TaskSectionCustom" inverseName="tasks" inverseEntity="TaskSectionCustom"/>

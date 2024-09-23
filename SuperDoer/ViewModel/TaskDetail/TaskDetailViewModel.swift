@@ -13,7 +13,7 @@ class TaskDetailViewModel {
     }
     
     // TODO: services
-    private var taskEm = TaskEntityManager()
+    private var taskEm = TaskCoreDataManager()
     private var taskFileEm = TaskFileEntityManager()
     
     
@@ -42,7 +42,7 @@ class TaskDetailViewModel {
     // MARK: init
     init(
         _ task: CDTask,
-        taskEm: TaskEntityManager,
+        taskEm: TaskCoreDataManager,
         taskFileEm: TaskFileEntityManager
     ) {
         self.task = task
@@ -160,10 +160,10 @@ class TaskDetailViewModel {
         updateBindedCell(withRowIndex: rowIndex)
     }
     
-    func updateTaskField(taskDescription: NSAttributedString?) {
+    func updateTaskField(descriptionText: NSAttributedString?) {
         // TODO: конвертировать из NSAttributedString в хранимый string
         taskEm.updateFields(
-            taskDescription: taskDescription?.string,
+            descriptionText: descriptionText?.string,
             descriptionUpdatedAt: Date(),
             task: task
         )

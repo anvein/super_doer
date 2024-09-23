@@ -2,7 +2,15 @@
 import Foundation
 import CoreData
 
-class TaskSectionEntityManager: EntityManager {
+class TaskSectionEntityManager {
+    private let coreDataStack: CoreDataStack
+
+    // MARK: - Init
+
+    init(coreDataStack: CoreDataStack = .shared) {
+        self.coreDataStack = coreDataStack
+    }
+
     // MARK: select
     /// Возвращает пользовательские списки задач
     /// Не удаленные (deletedAt = nil)
@@ -24,7 +32,7 @@ class TaskSectionEntityManager: EntityManager {
         fetchRequest.sortDescriptors = [sortByOrder, /*sortByTitle*/]
         
         do {
-            let sections = try getContext().fetch(fetchRequest)
+            let sections = try coreDataStack.context.fetch(fetchRequest)
             return sections
         } catch let error as NSError {
             fatalError("get custom sections error - \(error)")
@@ -33,15 +41,15 @@ class TaskSectionEntityManager: EntityManager {
     
     // MARK: insert
     func createCustomSectionWith(title: String, order: Int = 100, isCycled: Bool = false) -> TaskSectionCustom {
-        let section = TaskSectionCustom(context: getContext())
+        let section = TaskSectionCustom(context: coreDataStack.context)
         
         section.id = UUID()
         section.title = title
         section.order = Int32(order)
         section.isCycledList = isCycled
         
-        saveContext()
-        
+        coreDataStack.saveContext()
+
         return section
     }
     
@@ -49,28 +57,28 @@ class TaskSectionEntityManager: EntityManager {
     // MARK: update
     func updateCustomSectionField(title: String, section: TaskSectionCustom) {
         section.title = title
-        saveContext()
+        coreDataStack.saveContext()
     }
     
     func updateCustomSectionField(isArchive: Bool, section: TaskSectionCustom) {
         section.isArchived = isArchive
-        saveContext()
+        coreDataStack.saveContext()
     }
     
     
     // MARK: delete
     func deleteSection(_ section: TaskSectionCustom) {
-        getContext().delete(section)
-        saveContext()
+        coreDataStack.context.delete(section)
+        coreDataStack.saveContext()
     }
     
     func deleteSections(_ sections: [TaskSectionCustom]) {
-        let context = getContext()
+        let context = coreDataStack.context
         for section in sections {
             context.delete(section)
         }
         
-        saveContext()
+        coreDataStack.saveContext()
     }
     
 }

@@ -3,23 +3,23 @@ import UIKit
 import SnapKit
 
 /// Контроллер списка задач в отдельном списке (разделе)
-class TasksListInSectionViewController: UIViewController {
-    
-    private var viewModel: TasksListInSectionViewModelType
-    private weak var coordinator: TaskListInSectionViewControllerCoordinator?
+class TasksListViewController: UIViewController {
+
+    private var viewModel: TasksListViewModelType
+    private weak var coordinator: TaskListViewControllerCoordinator?
     
     // MARK: - Subviews
 
-    private lazy var customView: TaskListInSectionVCView = {
+    private lazy var customView: TaskListVCView = {
         $0.delegate = self
         return $0
-    }(TaskListInSectionVCView(viewModel: viewModel))
+    }(TaskListVCView(viewModel: viewModel))
 
     // MARK: - Init
 
     init(
-        coordinator: TaskListInSectionViewControllerCoordinator,
-        viewModel: TasksListInSectionViewModelType
+        coordinator: TaskListViewControllerCoordinator,
+        viewModel: TasksListViewModelType
     ) {
         self.coordinator = coordinator
         self.viewModel = viewModel
@@ -41,6 +41,7 @@ class TasksListInSectionViewController: UIViewController {
         super.viewDidLoad()
 
         setupNavigationBar()
+        viewModel.viewDidLoad()
 
         PIXEL_PERFECT_screen.createAndSetupInstance(
             baseView: self.view,
@@ -54,10 +55,7 @@ class TasksListInSectionViewController: UIViewController {
         super.viewWillAppear(animated)
         
         navigationController?.navigationBar.tintColor = InterfaceColors.white
-        navigationController?.navigationBar.largeTitleTextAttributes = [
-            .foregroundColor: InterfaceColors.white
-        ]
-        
+
         if customView.tasksTableView.numberOfRows(inSection: 0) > 0 {
             customView.tasksTableView.reloadData()
         }
@@ -78,45 +76,68 @@ class TasksListInSectionViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
+        customView.endEditing(true)
+
         if isMovingFromParent {
             coordinator?.closeTaskListInSection()
         }
     }
     
-    // MARK: - Actions handlers
-
-    @objc func didTapEditTableButton() {
-        customView.tasksTableView.isEditing.toggle()
-    }
-    
 }
 
-private extension TasksListInSectionViewController {
+private extension TasksListViewController {
 
     // MARK: setup controls
 
     func setupNavigationBar() {
         self.title = viewModel.taskSectionTitle
 
-        //        navigationController?.navigationBar.prefersLargeTitles = true
-        navigationItem.largeTitleDisplayMode = .always
-        //        navigationController?.navigationBar.scrollEdgeAppearance = .
+        guard let navigationBar = navigationController?.navigationBar else { return }
 
-        //        navigationController?.navigationBar.topItem?.rightBarButtonItem
-        let editItem = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(didTapEditTableButton))
-        navigationItem.rightBarButtonItems = [editItem]
+        navigationBar.tintColor = .white
+        navigationBar.titleTextAttributes = [
+            .foregroundColor: UIColor.clear,
+        ]
+
+        navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationBar.shadowImage = UIImage()
+        navigationBar.isTranslucent = true
+        navigationBar.backgroundColor = .clear
+
+
+//        navigationItem.titleView?.tintColor = .white
+//        //        navigationController?.navigationBar.prefersLargeTitles = true
+//        navigationItem.largeTitleDisplayMode = .always
+//        //        navigationController?.navigationBar.scrollEdgeAppearance = .
+//
+//        //        navigationController?.navigationBar.topItem?.rightBarButtonItem
+//        let editItem = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(didTapEditTableButton))
+//        navigationItem.rightBarButtonItems = [editItem]
 
         //        navigationController?.navigationBar.setBackgroundImage(UIImage(named: "bgList"), for: UIBarMetrics.compact)
         //        navigationController?.navigationBar.isOpaque = true
     }
 }
 
-extension TasksListInSectionViewController: TaskListInSectionVCViewDelegate {
-    func taskListInSectionVCViewDidSelectTask(viewModel: TaskDetailViewModel) {
+extension TasksListViewController: TaskListVCViewDelegate {
+    func taskListVCViewNavigationTitleDidChange(isVisible: Bool) {
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        let titleColor: UIColor = isVisible ? .white : .clear
+
+        UIView.transition(
+            with: navigationBar,
+            duration: 0.15,
+            options: [.transitionCrossDissolve]
+        ) { [navigationBar] in
+            navigationBar.titleTextAttributes = [.foregroundColor: titleColor]
+        }
+    }
+    
+    func taskListVCViewDidSelectTask(viewModel: TaskDetailViewModel) {
         coordinator?.selectTask(viewModel: viewModel)
     }
     
-    func taskListInSectionVCViewDidSelectDeleteTask(tasksIndexPaths: [IndexPath]) {
+    func taskListVCViewDidSelectDeleteTask(tasksIndexPaths: [IndexPath]) {
         let viewModels = viewModel.getTaskDeletableViewModels(forIndexPaths: tasksIndexPaths)
         coordinator?.startDeleteProcessTasks(tasksViewModels: viewModels)
     }

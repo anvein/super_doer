@@ -252,6 +252,6 @@ extension TaskDetailCoordinator: DeleteItemCoordinatorDelegate {
 
 extension TaskDetailCoordinator: TaskDescriptionEditorCoordinatorDelegate {
     func didChooseTaskDescription(text: NSAttributedString) {
-        viewModel.updateTaskField(taskDescription: text)
+        viewModel.updateTaskField(descriptionText: text)
     }
 }

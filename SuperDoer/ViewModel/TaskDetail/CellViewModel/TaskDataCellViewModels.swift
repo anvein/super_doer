@@ -45,7 +45,7 @@ struct TaskDataCellViewModels {
         }
         
         viewModels.append(
-            DescriptionCellViewModel(contentAsHtml: task.taskDescription, dateUpdatedAt: task.descriptionUpdatedAt)
+            DescriptionCellViewModel(contentAsHtml: task.descriptionText, dateUpdatedAt: task.descriptionUpdatedAt)
         )
     }
     
@@ -128,7 +128,7 @@ struct TaskDataCellViewModels {
         for (index, buttonValue) in viewModels.enumerated() {
             if var descriptionCellValue = buttonValue as? DescriptionCellViewModel {
                 // TODO: сконвертировать нормально хранимый string в NSAttributedString
-                if let safeContent = task.taskDescription {
+                if let safeContent = task.descriptionText {
                     descriptionCellValue.content = NSAttributedString(string: safeContent)
                 } else {
                     descriptionCellValue.content = nil

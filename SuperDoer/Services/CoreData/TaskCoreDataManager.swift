@@ -1,14 +1,23 @@
 
-import UIKit
 import CoreData
 
-class TaskEntityManager: EntityManager {
-    // MARK: get
+class TaskCoreDataManager {
+
+    private let coreDataStack: CoreDataStack
+
+    // MARK: - Init
+
+    init(coreDataStack: CoreDataStack = .shared) {
+        self.coreDataStack = coreDataStack
+    }
+
+    // MARK: - Get
+
     func getAllTasks() -> [CDTask] {
         let fetchRequest = NSFetchRequest<CDTask>(entityName: CDTask.entityName)
         
         do {
-            let tasks = try getContext().fetch(fetchRequest)
+            let tasks = try coreDataStack.context.fetch(fetchRequest)
             return tasks
         } catch let error as NSError {
             fatalError("getAllTasks error - \(error)")
@@ -25,79 +34,88 @@ class TaskEntityManager: EntityManager {
         }
     
         do {
-            let tasks = try getContext().fetch(fetchRequest)
+            let tasks = try coreDataStack.context.fetch(fetchRequest)
             return tasks
         } catch let error as NSError {
             fatalError("getTasks for custom section error - \(error)")
         }
     }
+
     
-    
-    // MARK: update
+    // MARK: - Update
+
     func updateField(title: String, task: CDTask) {
         task.title = title
-        saveContext()
+        coreDataStack.saveContext()
     }
     
     func updateField(isCompleted: Bool, task: CDTask) {
         task.isCompleted = isCompleted
-        saveContext()
+        coreDataStack.saveContext()
     }
     
     func updateField(isPriority: Bool, task: CDTask) {
         task.isPriority = isPriority
-        saveContext()
+        coreDataStack.saveContext()
     }
     
     func updateField(inMyDay: Bool, task: CDTask) {
         task.inMyDay = inMyDay
-        saveContext()
+        coreDataStack.saveContext()
     }
     
     func updateField(deadlineDate: Date?, task: CDTask) {
         task.deadlineDate = deadlineDate
-        saveContext()
+        coreDataStack.saveContext()
     }
     
     func updateField(reminderDateTime: Date?, task: CDTask) {
         task.reminderDateTime = reminderDateTime
-        saveContext()
+        coreDataStack.saveContext()
     }
     
     func updateField(repeatPeriod: String?, task: CDTask) {
         task.repeatPeriod = repeatPeriod
-        saveContext()
+        coreDataStack.saveContext()
     }
     
-    func updateFields(taskDescription: String?, descriptionUpdatedAt: Date, task: CDTask) {
-        task.taskDescription = taskDescription
+    func updateFields(descriptionText: String?, descriptionUpdatedAt: Date, task: CDTask) {
+        task.descriptionText = descriptionText
         task.descriptionUpdatedAt = descriptionUpdatedAt
         
-        saveContext()
+        coreDataStack.saveContext()
     }
     
     
-    // MARK: insert
-    func createWith(title: String, section: TaskSectionCustom?) -> CDTask {
-        let task = CDTask(context: getContext())
+    // MARK: - Insert
+
+    @discardableResult
+    func createWith(title: String, section: TaskSectionCustom? = nil) -> CDTask {
+        let task = CDTask(context: coreDataStack.context)
         task.id = UUID()
         task.title = title
         task.section = section
-        
-        saveContext()
-        
+        task.createdAt = Date()
+
+        coreDataStack.saveContext()
+
         return task
     }
     
     
-    // MARK: delete
+    // MARK: - Delete
+
     func delete(tasks: [CDTask]) {
-        let context = getContext()
         for task in tasks {
-            context.delete(task)
+            coreDataStack.context.delete(task)
         }
 
-        saveContext()
+        coreDataStack.saveContext()
     }
-    
+
+    func delete(task: CDTask) {
+        coreDataStack.context.delete(task)
+        coreDataStack.saveContext()
+    }
+
 }

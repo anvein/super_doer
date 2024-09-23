@@ -1,14 +1,16 @@
 
 import Foundation
 
-protocol TasksListInSectionViewModelType {
+protocol TasksListViewModelType {
     
     var taskSectionTitle: String { get }
-    
-    
-    func getTasksCount() -> Int
-    
-    func getTaskInSectionTableViewCellViewModel(forIndexPath indexPath: IndexPath) -> TaskInSectionTableViewCellViewModelType
+
+    func viewDidLoad()
+
+    func getSectionsCount() -> Int
+    func getTasksCountIn(section: Int) -> Int
+
+    func getTaskTableViewCellViewModel(forIndexPath indexPath: IndexPath) -> TaskTableViewCellViewModelType
     
     func getTaskDetailViewModel(forIndexPath indexPath: IndexPath) -> TaskDetailViewModel?
     
@@ -21,7 +23,9 @@ protocol TasksListInSectionViewModelType {
         deadlineAt: Date?,
         description: String?
     )
-    
+
+    func switchTaskFieldIsCompletedWith(indexPath: IndexPath)
+
     func deleteTasks(taskViewModels: [DeletableItemViewModelType])
     
     func moveTasksInCurrentList(fromPath: IndexPath, to toPath: IndexPath)

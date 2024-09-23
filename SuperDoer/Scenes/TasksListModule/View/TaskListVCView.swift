@@ -2,30 +2,32 @@
 import UIKit
 import SnapKit
 
-final class TaskListInSectionVCView: UIView {
+final class TaskListVCView: UIView {
 
-    private var viewModel: TasksListInSectionViewModelType
+    private var viewModel: TasksListViewModelType
 
-    weak var delegate: TaskListInSectionVCViewDelegate?
+    weak var delegate: TaskListVCViewDelegate?
 
     // MARK: - Subviews
 
-    lazy var tasksTableView: TasksListTableView = {
-        $0.clipsToBounds = false
+    lazy var tasksTableView: UITableView = {
+        $0.clipsToBounds = true
         $0.layer.zPosition = 1
         $0.backgroundColor = nil
         $0.scrollsToTop = true
         $0.separatorStyle = .none
         $0.estimatedRowHeight = UITableView.automaticDimension
         $0.rowHeight = UITableView.automaticDimension
+        $0.dragInteractionEnabled = true
+        $0.tableHeaderView = buildTasksTableHeaderView()
+
         $0.register(StandartTaskTableViewCell.self, forCellReuseIdentifier: StandartTaskTableViewCell.identifier)
         $0.delegate = self
         $0.dataSource = self
         $0.dragDelegate = self
         $0.dropDelegate = self
-        $0.dragInteractionEnabled = true
         return $0
-    }(TasksListTableView())
+    }(UITableView(frame: .zero, style: .grouped))
 
     private lazy var taskCreatePanel: TaskCreateBottomPanel = {
         $0.textFieldPlaceholder = "Создать задачу"
@@ -47,9 +49,19 @@ final class TaskListInSectionVCView: UIView {
     private var panelTopPaddingConstraint: Constraint?
     private var panelHorizontalPaddingsConstraint: Constraint?
 
+    // MARK: - State
+
+    private var isShowNavigationTitle: Bool = true {
+        willSet {
+            guard isShowNavigationTitle != newValue else { return }
+            delegate?.taskListVCViewNavigationTitleDidChange(isVisible: newValue)
+            setTableHeaderVisible(!newValue)
+        }
+    }
+
     // MARK: - Init
 
-    init(viewModel: TasksListInSectionViewModelType) {
+    init(viewModel: TasksListViewModelType) {
         self.viewModel = viewModel
         super.init(frame: UIWindow.current?.bounds ?? .zero)
 
@@ -63,7 +75,7 @@ final class TaskListInSectionVCView: UIView {
     
 }
 
-private extension TaskListInSectionVCView {
+private extension TaskListVCView {
 
     // MARK: - Setup
 
@@ -94,17 +106,78 @@ private extension TaskListInSectionVCView {
     }
 
     func setupBindings() {
-        if let viewModel = viewModel as? TasksListInSectionViewModel {
-            viewModel.tasksUpdateBinding = { [weak self] in
-                // TODO: реализовать красивое удаление/перемещение/добавление задач из таблицы
-                // tasksTable.deleteRows(at: tasksIndexPaths, with: .fade)
-                // tasksTable.moveRow(at: sourceIndexPath, to: destinationIndexPath)
-                self?.tasksTableView.reloadData()
-            }
+        guard let viewModel = viewModel as? TasksListViewModel else { return }
+        viewModel.tasksUpdateBinding = { [weak self] in
+            // TODO: реализовать красивое удаление/перемещение/добавление задач из таблицы
+            // tasksTable.deleteRows(at: tasksIndexPaths, with: .fade)
+            // tasksTable.moveRow(at: sourceIndexPath, to: destinationIndexPath)
+            self?.tasksTableView.reloadData()
+        }
+
+        viewModel.onTasksListUpdate = { [weak self] updateType in
+            self?.updateTasksTableFor(updateType: updateType)
+        }
+
+    }
+
+    func updateTasksTableFor(updateType: TasksListUpdateType) {
+        switch updateType {
+        case .beginUpdates:
+            tasksTableView.beginUpdates()
+        case .endUpdates:
+            tasksTableView.endUpdates()
+        case .insertTask(let indexPath):
+            tasksTableView.insertRows(at: [indexPath], with: .automatic)
+        case .deleteTask(let indexPath):
+            tasksTableView.deleteRows(at: [indexPath], with: .automatic)
+        case .updateTask(let indexPath):
+            tasksTableView.reloadRows(at: [indexPath], with: .automatic)
+        case .moveTask(let fromIndexPath, let toIndexPath):
+            tasksTableView.moveRow(at: fromIndexPath, to: toIndexPath)
+
+        case .insertSection(let sectionId):
+            tasksTableView.insertSections(
+                .init(integer: sectionId),
+                with: .automatic
+            )
+        case .deleteSection(let sectionId):
+            tasksTableView.deleteSections(
+                .init(integer: sectionId),
+                with: .automatic
+            )
         }
     }
 
+    func buildTasksTableHeaderView() -> UILabel {
+        let headerLabel = UILabel()
+        headerLabel.text = viewModel.taskSectionTitle
+        headerLabel.textColor = .white
+        headerLabel.font = .systemFont(ofSize: 32, weight: .bold)
+        headerLabel.sizeToFit()
+        headerLabel.frame = .init(
+            origin: .zero,
+            size: .init(
+                width: headerLabel.frame.width,
+                height: headerLabel.frame.height + 10
+            )
+        )
+
+        return headerLabel
+    }
+
     // MARK: - Update view
+
+    func setTableHeaderVisible(_ visible: Bool) {
+        guard let tableHeader = tasksTableView.tableHeaderView else { return }
+
+        UIView.transition(
+            with: tableHeader,
+            duration: visible ? 0.2 : 0.1,
+            options: [.transitionCrossDissolve]
+        ) { [tableHeader] in
+            tableHeader.alpha = visible ? 1 : 0
+        }
+    }
 
     func updatePanelForState(_ newState: TaskCreateBottomPanel.State) {
         panelHeightConstraint?.update(offset: newState.panelHeight)
@@ -120,19 +193,25 @@ private extension TaskListInSectionVCView {
 
 // MARK: - UITableViewDataSource
 
-extension TaskListInSectionVCView: UITableViewDataSource {
+extension TaskListVCView: UITableViewDataSource {
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return viewModel.getSectionsCount()
+    }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.getTasksCount()
+        return viewModel.getTasksCountIn(section: section)
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: StandartTaskTableViewCell.identifier) as! StandartTaskTableViewCell
-        let taskCellViewModel = viewModel.getTaskInSectionTableViewCellViewModel(forIndexPath: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: StandartTaskTableViewCell.identifier) as? StandartTaskTableViewCell ?? .init()
+
+        let taskCellViewModel = viewModel.getTaskTableViewCellViewModel(forIndexPath: indexPath)
 
         cell.textLabel?.text = taskCellViewModel.title
         cell.detailTextLabel?.text = taskCellViewModel.sectionTitle
         cell.isDoneButton.isOn = taskCellViewModel.isCompleted
+        cell.delegate = self
 
         return cell
     }
@@ -140,13 +219,13 @@ extension TaskListInSectionVCView: UITableViewDataSource {
 
 // MARK: UITableViewDelegate
 
-extension TaskListInSectionVCView: UITableViewDelegate {
+extension TaskListVCView: UITableViewDelegate {
 
     // MARK: Select row
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let selectedTaskVM = viewModel.getTaskDetailViewModel(forIndexPath: indexPath) else { return }
-        delegate?.taskListInSectionVCViewDidSelectTask(viewModel: selectedTaskVM)
+        delegate?.taskListVCViewDidSelectTask(viewModel: selectedTaskVM)
 
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -172,7 +251,7 @@ extension TaskListInSectionVCView: UITableViewDelegate {
             style: .destructive,
             title: "Удалить"
         ) { [weak self] _, _, completionHandler in
-            self?.delegate?.taskListInSectionVCViewDidSelectDeleteTask(tasksIndexPaths: [indexPath])
+            self?.delegate?.taskListVCViewDidSelectDeleteTask(tasksIndexPaths: [indexPath])
             completionHandler(false)
         }
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .bold)
@@ -230,29 +309,11 @@ extension TaskListInSectionVCView: UITableViewDelegate {
         return true
     }
 
-
-    // для реализации кастомного скрытия largeTitle при прокрутке
-//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-////        if viewController.tasksTable.contentOffset.y <= 0 {
-////            viewController.navigationItem.largeTitleDisplayMode = .always
-////        } else {
-////            viewController.navigationItem.largeTitleDisplayMode = .never
-////        }
-////
-////        viewController.navigationController?.navigationBar.setNeedsLayout()
-////        viewController.view.setNeedsLayout()
-////
-////        UIView.animate(withDuration: 0.25, animations: {
-////            self.viewController.navigationController?.navigationBar.layoutIfNeeded()
-////            self.viewController.view.layoutIfNeeded()
-////        })
-//    }
-
 }
 
 // MARK: - UITableViewDragDelegate
 
-extension TaskListInSectionVCView: UITableViewDragDelegate {
+extension TaskListVCView: UITableViewDragDelegate {
     func tableView(_ tableView: UITableView, dragSessionIsRestrictedToDraggingApplication session: UIDragSession) -> Bool {
         true
     }
@@ -281,10 +342,10 @@ extension TaskListInSectionVCView: UITableViewDragDelegate {
 
 // MARK: - UITableViewDropDelegate
 
-extension TaskListInSectionVCView: UITableViewDropDelegate {
+extension TaskListVCView: UITableViewDropDelegate {
     func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
-        if let item = session.items.first,
-           let fromIndexPath = item.localObject as? IndexPath,
+        if //let item = session.items.first,
+//           let fromIndexPath = item.localObject as? IndexPath,
            let toIndexPath = destinationIndexPath,
            toIndexPath.row <= tableView.numberOfRows(inSection: 0) {
 //            updateCellsAppearanceAfterMovement(from: fromIndexPath, to: toIndexPath)
@@ -312,9 +373,25 @@ extension TaskListInSectionVCView: UITableViewDropDelegate {
     }
 }
 
+// MARK: - UIScrollViewDelegate
+
+extension TaskListVCView: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offset = scrollView.contentOffset.y
+
+        let headerHeight = (tasksTableView.tableHeaderView?.bounds.height ?? 0) / 3
+
+        if offset >= headerHeight && !isShowNavigationTitle {
+            isShowNavigationTitle = true
+        } else if offset < headerHeight && isShowNavigationTitle {
+            isShowNavigationTitle = false
+        }
+    }
+}
+
 // MARK: - CreateTaskBottomPanelDelegate
 
-extension TaskListInSectionVCView: TaskCreateBottomPanelDelegate {
+extension TaskListVCView: TaskCreateBottomPanelDelegate {
     func taskCreateBottomPanelDidTapCreateButton(title: String, inMyDay: Bool, reminderDateTime: Date?, deadlineAt: Date?, description: String?) {
         let title = title.trimmingCharacters(in: .whitespaces)
         if !title.isEmpty {
@@ -332,4 +409,12 @@ extension TaskListInSectionVCView: TaskCreateBottomPanelDelegate {
         updatePanelForState(newState)
     }
 
+}
+// MARK: - StandartTaskTableViewCellDelegate
+
+extension TaskListVCView: StandartTaskTableViewCellDelegate {
+    func standartTaskCellDidTapIsDoneButton(indexPath: IndexPath) {
+        viewModel.switchTaskFieldIsCompletedWith(indexPath: indexPath)
+    }
+    
 }

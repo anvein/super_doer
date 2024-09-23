@@ -2,14 +2,20 @@
 import UIKit
 
 class StandartTaskTableViewCell: UITableViewCell {
+
+    weak var delegate: StandartTaskTableViewCellDelegate?
+
     class var identifier: String {
         return "StandartTaskTableViewCell"
     }
-    
+
     // MARK: - Subviews
 
-    lazy var isDoneButton = CheckboxButton(width: 24, height: 24)
-    
+    lazy var isDoneButton = {
+        $0.addTarget(self, action: #selector(didTapIsDoneButton), for: .touchUpInside)
+        return $0
+    }(CheckboxButton(width: 24, height: 24))
+
     // MARK: - Init
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -113,5 +119,14 @@ class StandartTaskTableViewCell: UITableViewCell {
 //            }
 //        }
 //    }
+
+    // MARK: - Actions handlers
+
+    @objc func didTapIsDoneButton() {
+        guard let tableView = self.superview as? UITableView,
+              let indexPath = tableView.indexPath(for: self) else { return }
+
+        delegate?.standartTaskCellDidTapIsDoneButton(indexPath: indexPath)
+    }
 
 }

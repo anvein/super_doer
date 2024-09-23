@@ -2,7 +2,7 @@
 import Foundation
 
 /// Протокол для TableViewCell в таблице со списком задач
-protocol TaskInSectionTableViewCellViewModelType {
+protocol TaskTableViewCellViewModelType {
     var isCompleted: Bool { get }
     var isPriority: Bool { get }
     var title: String { get }

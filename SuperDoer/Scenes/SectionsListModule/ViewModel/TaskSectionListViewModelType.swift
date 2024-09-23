@@ -12,7 +12,7 @@ protocol TaskSectionListViewModelType {
     
     func getTaskSectionTableViewCellViewModel(forIndexPath indexPath: IndexPath) -> SectionListTableViewCellViewModelType?
     
-    func getTaskListInSectionViewModel(forIndexPath indexPath: IndexPath) -> TasksListInSectionViewModelType?
+    func getTaskListViewModel(forIndexPath indexPath: IndexPath) -> TasksListViewModelType?
     
     func getDeletableSectionViewModelFor(indexPath: IndexPath) -> TaskSectionDeletableViewModel?
     

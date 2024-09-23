@@ -65,8 +65,8 @@ class TaskSectionsListViewController: UIViewController {
 
         // TODO: код для разработки (удалить)
         /////////////////////////////////////////////////////
-        let vm = viewModel.getTaskListInSectionViewModel(forIndexPath: IndexPath(row: 0, section: 1))
-        if let vm = vm as? TasksListInSectionViewModel {
+        let vm = viewModel.getTaskListViewModel(forIndexPath: IndexPath(row: 0, section: 1))
+        if let vm = vm as? TasksListViewModel {
             coordinator?.selectTaskSection(viewModel: vm)
         }
         /////////////////////////////////////////////////////
@@ -162,11 +162,11 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         viewModel.selectTaskSection(forIndexPath: indexPath) // TODO: нужен ли этот метод?
         
-        let taskListInSectionVM = viewModel.getTaskListInSectionViewModel(forIndexPath: indexPath)
+        let taskListInSectionVM = viewModel.getTaskListViewModel(forIndexPath: indexPath)
         guard let taskListInSectionVM else { return }
         
         switch taskListInSectionVM {
-        case let taskListInSectionVM as TasksListInSectionViewModel :
+        case let taskListInSectionVM as TasksListViewModel :
             coordinator?.selectTaskSection(viewModel: taskListInSectionVM)
             tableView.deselectRow(at: indexPath, animated: true)
             
@@ -245,7 +245,7 @@ extension TaskSectionsListViewController: AddSectionBottomPanelViewDelegate {
 
 // MARK: coordinator protocol
 protocol TaskSectionsListViewControllerCoordinator: AnyObject {
-    func selectTaskSection(viewModel: TasksListInSectionViewModel)
+    func selectTaskSection(viewModel: TasksListViewModel)
     
     func startDeleteProcessSection(_ section: TaskSectionDeletableViewModel)
     

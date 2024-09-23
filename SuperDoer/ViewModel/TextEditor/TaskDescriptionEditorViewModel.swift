@@ -19,7 +19,7 @@ class TaskDescriptionEditorViewModel: TextEditorViewModelType {
     init(task: CDTask) {
         self.task = task
         
-        if let taskDescription = task.taskDescription {
+        if let taskDescription = task.descriptionText {
             text = Box(NSMutableAttributedString(string: taskDescription))
         } else {
             text = Box(nil)

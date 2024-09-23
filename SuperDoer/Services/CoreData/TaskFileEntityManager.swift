@@ -1,25 +1,33 @@
 
 import Foundation
 
-class TaskFileEntityManager: EntityManager {
+class TaskFileEntityManager {
     
+    private let coreDataStack: CoreDataStack
+
+    // MARK: - Init
+
+    init(coreDataStack: CoreDataStack = .shared) {
+        self.coreDataStack = coreDataStack
+    }
+
     // MARK: insert
     func createWith(fileName: String, fileExtension: String, fileSize: Int, task: CDTask) -> TaskFile {
-        let file = TaskFile(context: getContext())
+        let file = TaskFile(context: coreDataStack.context)
         file.id = UUID()
         file.fileName = fileName
         file.fileExtension = fileExtension
         file.fileSize = Int32(fileSize)
         file.task = task
         
-        saveContext()
-        
+        coreDataStack.saveContext()
+
         return file
     }
     
     // MARK: delete
     func delete(file: TaskFile) {
-        getContext().delete(file)
-        saveContext()
+        coreDataStack.context.delete(file)
+        coreDataStack.saveContext()
     }
 }

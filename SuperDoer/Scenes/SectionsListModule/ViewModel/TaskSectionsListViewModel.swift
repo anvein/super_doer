@@ -2,24 +2,24 @@
 import Foundation
 
 /// ViewModel страницы с таблицей списков (разделов)
-class TaskSectionsListViewModel: TaskSectionListViewModelType {
-    
+class TaskSectionsListViewModel {
+
     typealias Sections = [[TaskSectionProtocol]]
-    
-    
+
+
     // MARK: services
     private var sectionEm: TaskSectionEntityManager
-    
-    
+
+
     // MARK: model
     static var systemSectionsId = 0
     static var customSectionsId = 1
-    
+
     private var sections: Box<Sections>
-    
+
     private var selectedSectionIndexPath: IndexPath?
-    
-    
+
+
     // MARK: init / setup
     required init(
         sectionEm: TaskSectionEntityManager,
@@ -28,8 +28,12 @@ class TaskSectionsListViewModel: TaskSectionListViewModelType {
         self.sectionEm = sectionEm
         self.sections = Box(sections)
     }
-    
-    
+}
+
+// MARK: - TaskSectionListViewModelType
+
+extension TaskSectionsListViewModel: TaskSectionListViewModelType {
+
     // MARK: binding methods
     func bindAndUpdateSections(_ listener: @escaping ([[TaskSectionProtocol]]) -> Void) {
         sections.bindAndUpdateValue(listener: listener)
@@ -76,14 +80,17 @@ class TaskSectionsListViewModel: TaskSectionListViewModelType {
         return getTaskSectionTableViewCellViewModel(forIndexPath: selectedIndexPath)
     }
    
-    func getTaskListInSectionViewModel(forIndexPath indexPath: IndexPath) -> TasksListInSectionViewModelType? {
+    func getTaskListViewModel(forIndexPath indexPath: IndexPath) -> TasksListViewModelType? {
         let section = sections.value[indexPath.section][indexPath.row]
         
         switch section {
         case let taskSectionCustom as TaskSectionCustom :
-            let taskEm = DIContainer.shared.resolve(TaskEntityManager.self)!
-            return TasksListInSectionViewModel(taskSectionCustom, taskEm: taskEm)
-            
+            let taskCDManager = DIContainer.shared.resolve(TaskCoreDataManager.self)!
+            return TasksListViewModel(
+                model: TaskListModel(taskCDManager: taskCDManager),
+                taskSection: taskSectionCustom
+            )
+
         case _ as TaskSectionSystem:
             // TODO: создать тип для системного списка (там будут другие параметры, скорей всего)
             return nil
@@ -131,3 +138,4 @@ class TaskSectionsListViewModel: TaskSectionListViewModelType {
     }
     
 }
+
