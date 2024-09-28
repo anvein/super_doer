@@ -2,6 +2,14 @@
 import UIKit
 
 extension UIView {
+    var cornerRadius: CGFloat {
+        get { layer.cornerRadius }
+        set {
+            layer.cornerRadius = newValue
+            layer.masksToBounds = newValue > 0
+        }
+    }
+
     func addSubviews(_ views: UIView...) {
         views.forEach {
             addSubview($0)

@@ -56,8 +56,8 @@ class TasksListViewController: UIViewController {
         
         navigationController?.navigationBar.tintColor = InterfaceColors.white
 
-        if customView.tasksTableView.numberOfRows(inSection: 0) > 0 {
-            customView.tasksTableView.reloadData()
+        if customView.hasTasksInTable {
+            customView.reloadTableData()
         }
     }
 

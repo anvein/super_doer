@@ -1,0 +1,76 @@
+
+import UIKit
+
+final class CheckboxButton: UIButton {
+
+    // MARK: - State
+
+    override var isHighlighted: Bool {
+        didSet {
+            Self.animate(withDuration: 0.15, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction]) {
+                self.transform = self.isHighlighted ? .init(scaleX: 0.85, y: 0.85) : .identity
+            }
+        }
+    }
+    
+    var isOn: Bool = false {
+        didSet {
+            guard oldValue != isOn else { return }
+            setAppearanceForState(isOn)
+        }
+    }
+
+    // MARK: - Init
+
+    init() {
+        super.init(frame: .zero)
+        
+        setupButton()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Lifecycle
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        cornerRadius = bounds.width / 2
+    }
+
+    
+    // MARK: - Setup
+
+    private func setupButton() {
+        layer.borderWidth = 2
+
+        // TODO - переделать на конфигурацию
+        imageEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
+        setAppearanceForState(isOn)
+    }
+    
+    private func setAppearanceForState(_ isOn: Bool) {
+        if isOn {
+            layer.borderColor = InterfaceColors.completedCheckboxBg.cgColor
+            layer.backgroundColor = InterfaceColors.completedCheckboxBg.cgColor
+
+            let image: UIImage = .checkmark3.withTintColor(.white, renderingMode: .alwaysOriginal)
+            setImage(image, for: .normal)
+        } else {
+            layer.borderColor = InterfaceColors.controlsGray.cgColor
+            layer.backgroundColor = InterfaceColors.unCompletedCheckboxBg.cgColor
+
+            setImage(nil, for: .normal)
+        }
+    }
+    
+}
+
+// MARK: - Preview
+
+@available(iOS 17, *)
+#Preview {
+    CheckboxButton()
+}

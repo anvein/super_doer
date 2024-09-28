@@ -31,7 +31,7 @@ final class TaskSectionListCoordinator: BaseCoordinator {
 // MARK: - coordinator methods
 extension TaskSectionListCoordinator: TaskSectionsListViewControllerCoordinator {
     func selectTaskSection(viewModel: TasksListViewModel) {
-        let coordinator = TaskListInSectionCoordinator(
+        let coordinator = TasksListCoordinator(
             parent: self,
             navigation: navigation,
             viewModel: viewModel

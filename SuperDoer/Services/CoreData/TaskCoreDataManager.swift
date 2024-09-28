@@ -13,6 +13,17 @@ class TaskCoreDataManager {
 
     // MARK: - Get
 
+    func getTaskBy(id: UUID) -> CDTask? {
+        let fetchRequest = CDTask.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "\(CDTask.idKey) == %@", id.uuidString)
+
+        do {
+            return try coreDataStack.context.fetch(fetchRequest).first
+        } catch let error as NSError {
+            fatalError("getTaskBy id error - \(error)")
+        }
+    }
+
     func getAllTasks() -> [CDTask] {
         let fetchRequest = NSFetchRequest<CDTask>(entityName: CDTask.entityName)
         
@@ -28,14 +39,12 @@ class TaskCoreDataManager {
         let fetchRequest = CDTask.fetchRequest()
         
         if let safeTaskSection = taskSection {
-            // TODO: избавиться от force unwrapping
             let listPredicate = NSPredicate(format: "section == %@", safeTaskSection)
             fetchRequest.predicate = listPredicate
         }
     
         do {
-            let tasks = try coreDataStack.context.fetch(fetchRequest)
-            return tasks
+            return try coreDataStack.context.fetch(fetchRequest)
         } catch let error as NSError {
             fatalError("getTasks for custom section error - \(error)")
         }

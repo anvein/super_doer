@@ -8,11 +8,16 @@ final class TaskListVCView: UIView {
 
     weak var delegate: TaskListVCViewDelegate?
 
+    // MARK: - Views Accessors
+
+    var hasTasksInTable: Bool {
+        return tasksTableView.numberOfRows(inSection: 0) > 0 || tasksTableView.numberOfSections > 0
+    }
+
     // MARK: - Subviews
 
-    lazy var tasksTableView: UITableView = {
-        $0.clipsToBounds = true
-        $0.layer.zPosition = 1
+    private lazy var tasksTableView: UITableView = {
+        $0.clipsToBounds = false
         $0.backgroundColor = nil
         $0.scrollsToTop = true
         $0.separatorStyle = .none
@@ -21,13 +26,19 @@ final class TaskListVCView: UIView {
         $0.dragInteractionEnabled = true
         $0.tableHeaderView = buildTasksTableHeaderView()
 
-        $0.register(StandartTaskTableViewCell.self, forCellReuseIdentifier: StandartTaskTableViewCell.identifier)
+        $0.register(StandartTaskTableViewCell.self, forCellReuseIdentifier: StandartTaskTableViewCell.className)
         $0.delegate = self
         $0.dataSource = self
         $0.dragDelegate = self
         $0.dropDelegate = self
         return $0
     }(UITableView(frame: .zero, style: .grouped))
+
+    private let tableContainerView: UIView = {
+        $0.clipsToBounds = true
+        $0.layer.zPosition = 1
+        return $0
+    }(UIView())
 
     private lazy var taskCreatePanel: TaskCreateBottomPanel = {
         $0.textFieldPlaceholder = "Создать задачу"
@@ -72,7 +83,13 @@ final class TaskListVCView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    // MARK: - Update view
+
+    func reloadTableData() {
+        tasksTableView.reloadData()
+    }
+
 }
 
 private extension TaskListVCView {
@@ -81,17 +98,23 @@ private extension TaskListVCView {
 
     func setupSubviewsLayout() {
         addSubviews(
-            tasksTableView,
+            tableContainerView,
             backgroundImageView,
             taskCreatePanel
         )
+        tableContainerView.addSubview(tasksTableView)
 
         backgroundImageView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
 
-        tasksTableView.snp.makeConstraints {
+        tableContainerView.snp.makeConstraints {
             $0.top.equalTo(safeAreaLayoutGuide)
+            $0.horizontalEdges.equalToSuperview()
+        }
+
+        tasksTableView.snp.makeConstraints {
+            $0.verticalEdges.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(8)
         }
 
@@ -107,12 +130,7 @@ private extension TaskListVCView {
 
     func setupBindings() {
         guard let viewModel = viewModel as? TasksListViewModel else { return }
-        viewModel.tasksUpdateBinding = { [weak self] in
-            // TODO: реализовать красивое удаление/перемещение/добавление задач из таблицы
-            // tasksTable.deleteRows(at: tasksIndexPaths, with: .fade)
-            // tasksTable.moveRow(at: sourceIndexPath, to: destinationIndexPath)
-            self?.tasksTableView.reloadData()
-        }
+
 
         viewModel.onTasksListUpdate = { [weak self] updateType in
             self?.updateTasksTableFor(updateType: updateType)
@@ -124,15 +142,22 @@ private extension TaskListVCView {
         switch updateType {
         case .beginUpdates:
             tasksTableView.beginUpdates()
+
         case .endUpdates:
             tasksTableView.endUpdates()
+
         case .insertTask(let indexPath):
             tasksTableView.insertRows(at: [indexPath], with: .automatic)
+
         case .deleteTask(let indexPath):
             tasksTableView.deleteRows(at: [indexPath], with: .automatic)
+
         case .updateTask(let indexPath):
             tasksTableView.reloadRows(at: [indexPath], with: .automatic)
-        case .moveTask(let fromIndexPath, let toIndexPath):
+
+        case .moveTask(let fromIndexPath, let toIndexPath, let taskCellVM):
+            guard let cell = tasksTableView.cellForRow(at: fromIndexPath) as? StandartTaskTableViewCell else { return }
+            cell.fillFrom(viewModel: taskCellVM)
             tasksTableView.moveRow(at: fromIndexPath, to: toIndexPath)
 
         case .insertSection(let sectionId):
@@ -140,6 +165,7 @@ private extension TaskListVCView {
                 .init(integer: sectionId),
                 with: .automatic
             )
+
         case .deleteSection(let sectionId):
             tasksTableView.deleteSections(
                 .init(integer: sectionId),
@@ -204,20 +230,21 @@ extension TaskListVCView: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: StandartTaskTableViewCell.identifier) as? StandartTaskTableViewCell ?? .init()
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: StandartTaskTableViewCell.className
+        ) as? StandartTaskTableViewCell else { return .init() }
 
-        let taskCellViewModel = viewModel.getTaskTableViewCellViewModel(forIndexPath: indexPath)
-
-        cell.textLabel?.text = taskCellViewModel.title
-        cell.detailTextLabel?.text = taskCellViewModel.sectionTitle
-        cell.isDoneButton.isOn = taskCellViewModel.isCompleted
+        let cellVM = viewModel.getTaskTableViewCellViewModel(forIndexPath: indexPath)
+        
+        cell.fillFrom(viewModel: cellVM)
+        cell.isLast = tableView.numberOfRows(inSection: indexPath.section) == indexPath.row + 1
         cell.delegate = self
 
         return cell
     }
 }
 
-// MARK: UITableViewDelegate
+// MARK: - UITableViewDelegate
 
 extension TaskListVCView: UITableViewDelegate {
 
@@ -275,8 +302,6 @@ extension TaskListVCView: UITableViewDelegate {
         return UISwipeActionsConfiguration(actions: [action])
     }
 
-
-
     // MARK: delete row
 
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
@@ -299,7 +324,7 @@ extension TaskListVCView: UITableViewDelegate {
     }
 
 
-    // MARK: move row
+    // MARK: Move row
 
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         viewModel.moveTasksInCurrentList(fromPath: sourceIndexPath, to: destinationIndexPath)
@@ -309,22 +334,34 @@ extension TaskListVCView: UITableViewDelegate {
         return true
     }
 
+    // MARK: Highlight rows
+
+    func tableView(_ tableView: UITableView, didUnhighlightRowAt indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath) as? HighlightableCell
+        cell?.setCellHighlighted(false)
+    }
+
+    func tableView(_ tableView: UITableView, didHighlightRowAt indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath) as? HighlightableCell
+        cell?.setCellHighlighted(true)
+    }
 }
 
 // MARK: - UITableViewDragDelegate
 
 extension TaskListVCView: UITableViewDragDelegate {
-    func tableView(_ tableView: UITableView, dragSessionIsRestrictedToDraggingApplication session: UIDragSession) -> Bool {
-        true
+    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        let dragItem = UIDragItem(itemProvider: .init())
+        dragItem.localObject = indexPath
+        return [dragItem]
     }
 
-    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
-        let item = UIDragItem(itemProvider: .init())
-        item.localObject = indexPath
-        return [item]
+    func tableView(_ tableView: UITableView, dragSessionIsRestrictedToDraggingApplication session: UIDragSession) -> Bool {
+        return true
     }
 
     func tableView(_ tableView: UITableView, dragPreviewParametersForRowAt indexPath: IndexPath) -> UIDragPreviewParameters? {
+        print("dragPreviewParametersForRowAt")
         guard let cell = tableView.cellForRow(at: indexPath) else { return nil }
 
         let preview = UIDragPreviewParameters()
@@ -343,12 +380,24 @@ extension TaskListVCView: UITableViewDragDelegate {
 // MARK: - UITableViewDropDelegate
 
 extension TaskListVCView: UITableViewDropDelegate {
-    func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
-        if //let item = session.items.first,
-//           let fromIndexPath = item.localObject as? IndexPath,
+    func tableView(_ tableView: UITableView, dropSessionDidEnter session: any UIDropSession) {
+        print("⚡️dropSessionDidEnter")
+    }
+
+    func tableView(_ tableView: UITableView, dropSessionDidExit session: any UIDropSession) {
+        print("❌dropSessionDidExit")
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        dropSessionDidUpdate session: UIDropSession,
+        withDestinationIndexPath destinationIndexPath: IndexPath?
+    ) -> UITableViewDropProposal {
+        if let item = session.items.first,
+           let fromIndexPath = item.localObject as? IndexPath,
            let toIndexPath = destinationIndexPath,
+           fromIndexPath.section == toIndexPath.section,
            toIndexPath.row <= tableView.numberOfRows(inSection: 0) {
-//            updateCellsAppearanceAfterMovement(from: fromIndexPath, to: toIndexPath)
             return .init(operation: .move, intent: .insertAtDestinationIndexPath)
         } else {
             return .init(operation: .cancel)
@@ -356,6 +405,8 @@ extension TaskListVCView: UITableViewDropDelegate {
     }
 
     func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
+
+
     }
 
     func tableView(_ tableView: UITableView, dropSessionDidEnd session: UIDropSession) {

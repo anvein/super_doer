@@ -30,14 +30,14 @@ final class TaskListModel: NSObject {
 
         let fetchRequest: NSFetchRequest<CDTask> = CDTask.fetchRequest()
         fetchRequest.sortDescriptors = [
-            .init(key: "isCompleted", ascending: true),
-            .init(key: "createdAt", ascending: false),
+            .init(key: CDTask.isCompletedKey, ascending: true),
+            .init(key: CDTask.createdAtKey, ascending: false),
         ]
 
         fetchedResultsController = NSFetchedResultsController(
             fetchRequest: fetchRequest,
             managedObjectContext: coreDataStack.context,
-            sectionNameKeyPath: "isCompleted",
+            sectionNameKeyPath: CDTask.isCompletedKey,
             cacheName: nil
         )
 
@@ -138,24 +138,23 @@ extension TaskListModel: NSFetchedResultsControllerDelegate {
             if let indexPath {
                 delegate?.taskListModelTaskDidUpdate(
                     in: indexPath,
-                    taskItem: TaskListItem(title: "", isCompleted: false, isPriority: false)
+                    taskItem: TaskListItem(
+                        title: "",
+                        isCompleted: false,
+                        isPriority: false,
+                        isInMyDay: false
+                    )
                 )
             }
 
-
-//            if let indexPath {
-//                let cdTask = getCDTask(at: indexPath)
-//                let taskModel = TaskModel(cdTask: cdTask)
-//                delegate?.taskListModelTaskDidUpdate(in: indexPath, taskModel: taskModel)
-//            }
         case .move:
-            if let indexPath, let newIndexPath/*,*/
-               /*let cdTask = anObject as? CDTask*/ {
-//                let taskModel = TaskModel(cdTask: cdTask)
+            if let indexPath, let newIndexPath,
+               let cdTask = anObject as? CDTask {
+               let taskItem = TaskListItem(cdTask: cdTask)
                 delegate?.taskListModelTaskDidMove(
                     fromIndexPath: indexPath,
                     toIndexPath: newIndexPath,
-                    taskItem: TaskListItem(title: "", isCompleted: false, isPriority: false)
+                    taskItem: taskItem
                 )
             }
 

@@ -7,15 +7,10 @@ class TasksListViewModel: TasksListViewModelType {
 
     private let model: TaskListModel
 
-    private var tasks = [CDTask]() {
-        didSet {
-            tasksUpdateBinding?()
-        }
-    }
+//    private var tasks = [CDTask]()
 
     var tasksUpdateBinding: (() -> ())? // TODO: переделать на Rx???
     var onTasksListUpdate: ((TasksListUpdateType) -> Void)?
-
 
     // TODO: переделать на TaskSectionProtocol
     private var taskSection: TaskSectionCustom
@@ -55,31 +50,28 @@ class TasksListViewModel: TasksListViewModelType {
     }
     
     func getTaskDetailViewModel(forIndexPath indexPath: IndexPath) -> TaskDetailViewModel? {
-//        let task = model.getTask(for: indexPath)
-//
-//        return TaskDetailViewModel(
-//            selectedTask,
-//            taskEm: DIContainer.shared.resolve(TaskCoreDataManager.self)!,
-//            taskFileEm: DIContainer.shared.resolve(TaskFileEntityManager.self)!
-//        )
-        return nil
+        let selectedTask = model.getTask(for: indexPath)
+        guard let taskId = selectedTask.id else { return nil }
+
+        return TaskDetailViewModel(
+            taskId,
+            taskEm: DIContainer.shared.resolve(TaskCoreDataManager.self)!,
+            taskFileEm: DIContainer.shared.resolve(TaskFileEntityManager.self)!
+        )
     }
     
     func getTaskDeletableViewModels(forIndexPaths indexPaths: [IndexPath]) -> [TaskDeletableViewModel] {
-
-
-//        var viewModels: [TaskDeletableViewModel] = []
-//        for indexPath in indexPaths {
-//            let viewModel = TaskDeletableViewModel.createFrom(
-//                task: tasks[indexPath.row],
-//                indexPath: indexPath
-//            )
-//            viewModels.append(viewModel)
-//        }
-//        
-        return []
+        var viewModels: [TaskDeletableViewModel] = []
+        for indexPath in indexPaths {
+            let viewModel = TaskDeletableViewModel(
+                task: model.getTask(for: indexPath),
+                indexPath: indexPath
+            )
+            viewModels.append(viewModel)
+        }
+        
+        return viewModels
     }
-    
     
     // MARK: model manipulation methods
     func createNewTaskInCurrentSectionWith(
@@ -106,9 +98,9 @@ class TasksListViewModel: TasksListViewModelType {
     
     func moveTasksInCurrentList(fromPath: IndexPath, to toPath: IndexPath) {
         
-        let moveElement = tasks[fromPath.row]
-        tasks[fromPath.row] = tasks[toPath.row]
-        tasks[toPath.row] = moveElement
+//        let moveElement = tasks[fromPath.row]
+//        tasks[fromPath.row] = tasks[toPath.row]
+//        tasks[toPath.row] = moveElement
  
         // TODO: реализовать перемещение в CoreData
     }
@@ -118,7 +110,6 @@ class TasksListViewModel: TasksListViewModelType {
     func switchTaskFieldIsCompletedWith(indexPath: IndexPath) {
         model.updateAndSwitchIsCompletedFieldWith(indexPath: indexPath)
     }
-
 
 }
 
@@ -143,7 +134,11 @@ extension TasksListViewModel: TaskListModelDelegate {
     }
     
     func taskListModelTaskDidMove(fromIndexPath: IndexPath, toIndexPath: IndexPath, taskItem: TaskListItem) {
-        onTasksListUpdate?(.moveTask(fromIndexPath, toIndexPath))
+        onTasksListUpdate?(.moveTask(
+            fromIndexPath,
+            toIndexPath,
+            TaskTableViewCellViewModel(task: taskItem)
+        ))
     }
     
     func taskListModelTaskDidDelete(indexPath: IndexPath) {

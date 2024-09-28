@@ -1,9 +1,15 @@
 
 import Foundation
 
-/// Ячейка "задачи" в таблице со списком задач
 class TaskTableViewCellViewModel: TaskTableViewCellViewModelType {
+
     private var task: TaskListItem
+
+    // MARK: - Services
+
+    private let taskAttributesFormatter: TaskCellAttributesFormatterService
+
+    // MARK: -
 
     var isCompleted: Bool {
         return task.isCompleted
@@ -16,19 +22,19 @@ class TaskTableViewCellViewModel: TaskTableViewCellViewModelType {
     var title: String {
         return task.title
     }
-    
-    var sectionTitle: String? {
-        return ""
-//        return task.section?.title
+
+    var attributes: NSAttributedString? {
+        return taskAttributesFormatter.formatTaskAttributesForCellInList(from: task)
     }
-    
-    var deadlineDate: Date? {
-        // TODO: отформатировать тут?
-        return nil
-    }
-    
-    init(task: TaskListItem) {
+
+    // MARK: - Init
+
+    init(
+        task: TaskListItem,
+        taskAttributesFormatter: TaskCellAttributesFormatterService = .init()
+    ) {
         self.task = task
+        self.taskAttributesFormatter = taskAttributesFormatter
     }
-    
+
 }
