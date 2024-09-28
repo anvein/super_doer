@@ -83,6 +83,12 @@ final class TaskListModel: NSObject {
         taskCDManager.updateField(isCompleted: newValue, task: cdTask)
     }
 
+    func updateAndSwitchIsPriorityFieldWith(indexPath: IndexPath) {
+        let cdTask = getCDTask(at: indexPath)
+        let newValue = !cdTask.isPriority
+        taskCDManager.updateField(isPriority: newValue, task: cdTask)
+    }
+
     func deleteTasksWith(indexPaths: [IndexPath]) {
         var cdTasks = [CDTask]()
         for indexPath in indexPaths {
@@ -135,16 +141,10 @@ extension TaskListModel: NSFetchedResultsControllerDelegate {
                 delegate?.taskListModelTaskDidDelete(indexPath: indexPath)
             }
         case .update:
-            if let indexPath {
-                delegate?.taskListModelTaskDidUpdate(
-                    in: indexPath,
-                    taskItem: TaskListItem(
-                        title: "",
-                        isCompleted: false,
-                        isPriority: false,
-                        isInMyDay: false
-                    )
-                )
+            if let indexPath,
+               let cdTask = anObject as? CDTask{
+                let taskItem = TaskListItem(cdTask: cdTask)
+                delegate?.taskListModelTaskDidUpdate(in: indexPath, taskItem: taskItem)
             }
 
         case .move:

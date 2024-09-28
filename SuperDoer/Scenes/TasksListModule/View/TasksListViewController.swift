@@ -10,10 +10,10 @@ class TasksListViewController: UIViewController {
     
     // MARK: - Subviews
 
-    private lazy var customView: TaskListVCView = {
+    private lazy var customView: TasksListVCView = {
         $0.delegate = self
         return $0
-    }(TaskListVCView(viewModel: viewModel))
+    }(TasksListVCView(viewModel: viewModel))
 
     // MARK: - Init
 
@@ -119,8 +119,8 @@ private extension TasksListViewController {
     }
 }
 
-extension TasksListViewController: TaskListVCViewDelegate {
-    func taskListVCViewNavigationTitleDidChange(isVisible: Bool) {
+extension TasksListViewController: TasksListVCViewDelegate {
+    func tasksListVCViewNavigationTitleDidChange(isVisible: Bool) {
         guard let navigationBar = navigationController?.navigationBar else { return }
         let titleColor: UIColor = isVisible ? .white : .clear
 
@@ -133,11 +133,11 @@ extension TasksListViewController: TaskListVCViewDelegate {
         }
     }
     
-    func taskListVCViewDidSelectTask(viewModel: TaskDetailViewModel) {
+    func tasksListVCViewDidSelectTask(viewModel: TaskDetailViewModel) {
         coordinator?.selectTask(viewModel: viewModel)
     }
     
-    func taskListVCViewDidSelectDeleteTask(tasksIndexPaths: [IndexPath]) {
+    func tasksListVCViewDidSelectDeleteTask(tasksIndexPaths: [IndexPath]) {
         let viewModels = viewModel.getTaskDeletableViewModels(forIndexPaths: tasksIndexPaths)
         coordinator?.startDeleteProcessTasks(tasksViewModels: viewModels)
     }

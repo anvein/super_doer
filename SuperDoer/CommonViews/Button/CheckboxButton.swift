@@ -24,10 +24,10 @@ final class CheckboxButton: UIButton {
 
     init() {
         super.init(frame: .zero)
-        
-        setupButton()
+
+        setup()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -36,22 +36,25 @@ final class CheckboxButton: UIButton {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-
         cornerRadius = bounds.width / 2
     }
 
-    
+}
+
+private extension CheckboxButton {
     // MARK: - Setup
 
-    private func setupButton() {
+    func setup() {
         layer.borderWidth = 2
 
         // TODO - переделать на конфигурацию
         imageEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
         setAppearanceForState(isOn)
     }
-    
-    private func setAppearanceForState(_ isOn: Bool) {
+
+    // MARK: - Update view
+
+    func setAppearanceForState(_ isOn: Bool) {
         if isOn {
             layer.borderColor = InterfaceColors.completedCheckboxBg.cgColor
             layer.backgroundColor = InterfaceColors.completedCheckboxBg.cgColor
@@ -65,7 +68,6 @@ final class CheckboxButton: UIButton {
             setImage(nil, for: .normal)
         }
     }
-    
 }
 
 // MARK: - Preview

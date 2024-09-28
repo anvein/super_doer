@@ -2,11 +2,11 @@
 import UIKit
 import SnapKit
 
-final class TaskListVCView: UIView {
+final class TasksListVCView: UIView {
 
     private var viewModel: TasksListViewModelType
 
-    weak var delegate: TaskListVCViewDelegate?
+    weak var delegate: TasksListVCViewDelegate?
 
     // MARK: - Views Accessors
 
@@ -65,7 +65,7 @@ final class TaskListVCView: UIView {
     private var isShowNavigationTitle: Bool = true {
         willSet {
             guard isShowNavigationTitle != newValue else { return }
-            delegate?.taskListVCViewNavigationTitleDidChange(isVisible: newValue)
+            delegate?.tasksListVCViewNavigationTitleDidChange(isVisible: newValue)
             setTableHeaderVisible(!newValue)
         }
     }
@@ -92,7 +92,7 @@ final class TaskListVCView: UIView {
 
 }
 
-private extension TaskListVCView {
+private extension TasksListVCView {
 
     // MARK: - Setup
 
@@ -131,11 +131,9 @@ private extension TaskListVCView {
     func setupBindings() {
         guard let viewModel = viewModel as? TasksListViewModel else { return }
 
-
         viewModel.onTasksListUpdate = { [weak self] updateType in
             self?.updateTasksTableFor(updateType: updateType)
         }
-
     }
 
     func updateTasksTableFor(updateType: TasksListUpdateType) {
@@ -152,8 +150,9 @@ private extension TaskListVCView {
         case .deleteTask(let indexPath):
             tasksTableView.deleteRows(at: [indexPath], with: .automatic)
 
-        case .updateTask(let indexPath):
-            tasksTableView.reloadRows(at: [indexPath], with: .automatic)
+        case .updateTask(let indexPath, let taskCellVM):
+            guard let cell = tasksTableView.cellForRow(at: indexPath) as? StandartTaskTableViewCell else { return }
+            cell.fillFrom(viewModel: taskCellVM)
 
         case .moveTask(let fromIndexPath, let toIndexPath, let taskCellVM):
             guard let cell = tasksTableView.cellForRow(at: fromIndexPath) as? StandartTaskTableViewCell else { return }
@@ -219,7 +218,7 @@ private extension TaskListVCView {
 
 // MARK: - UITableViewDataSource
 
-extension TaskListVCView: UITableViewDataSource {
+extension TasksListVCView: UITableViewDataSource {
 
     func numberOfSections(in tableView: UITableView) -> Int {
         return viewModel.getSectionsCount()
@@ -246,24 +245,16 @@ extension TaskListVCView: UITableViewDataSource {
 
 // MARK: - UITableViewDelegate
 
-extension TaskListVCView: UITableViewDelegate {
+extension TasksListVCView: UITableViewDelegate {
 
     // MARK: Select row
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let selectedTaskVM = viewModel.getTaskDetailViewModel(forIndexPath: indexPath) else { return }
-        delegate?.taskListVCViewDidSelectTask(viewModel: selectedTaskVM)
+        delegate?.tasksListVCViewDidSelectTask(viewModel: selectedTaskVM)
 
         tableView.deselectRow(at: indexPath, animated: true)
     }
-
-//    // MARK: Rows appearance
-//
-//    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-////        cell.backgroundColor = .systemPink
-////        cell.backgroundView?.backgroundColor = .systemGreen
-//    }
-
 
     // MARK: Swipes actions
 
@@ -278,7 +269,7 @@ extension TaskListVCView: UITableViewDelegate {
             style: .destructive,
             title: "Удалить"
         ) { [weak self] _, _, completionHandler in
-            self?.delegate?.taskListVCViewDidSelectDeleteTask(tasksIndexPaths: [indexPath])
+            self?.delegate?.tasksListVCViewDidSelectDeleteTask(tasksIndexPaths: [indexPath])
             completionHandler(false)
         }
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .bold)
@@ -349,7 +340,7 @@ extension TaskListVCView: UITableViewDelegate {
 
 // MARK: - UITableViewDragDelegate
 
-extension TaskListVCView: UITableViewDragDelegate {
+extension TasksListVCView: UITableViewDragDelegate {
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
         let dragItem = UIDragItem(itemProvider: .init())
         dragItem.localObject = indexPath
@@ -361,7 +352,6 @@ extension TaskListVCView: UITableViewDragDelegate {
     }
 
     func tableView(_ tableView: UITableView, dragPreviewParametersForRowAt indexPath: IndexPath) -> UIDragPreviewParameters? {
-        print("dragPreviewParametersForRowAt")
         guard let cell = tableView.cellForRow(at: indexPath) else { return nil }
 
         let preview = UIDragPreviewParameters()
@@ -379,13 +369,11 @@ extension TaskListVCView: UITableViewDragDelegate {
 
 // MARK: - UITableViewDropDelegate
 
-extension TaskListVCView: UITableViewDropDelegate {
+extension TasksListVCView: UITableViewDropDelegate {
     func tableView(_ tableView: UITableView, dropSessionDidEnter session: any UIDropSession) {
-        print("⚡️dropSessionDidEnter")
     }
 
     func tableView(_ tableView: UITableView, dropSessionDidExit session: any UIDropSession) {
-        print("❌dropSessionDidExit")
     }
 
     func tableView(
@@ -426,7 +414,7 @@ extension TaskListVCView: UITableViewDropDelegate {
 
 // MARK: - UIScrollViewDelegate
 
-extension TaskListVCView: UIScrollViewDelegate {
+extension TasksListVCView: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offset = scrollView.contentOffset.y
 
@@ -442,7 +430,7 @@ extension TaskListVCView: UIScrollViewDelegate {
 
 // MARK: - CreateTaskBottomPanelDelegate
 
-extension TaskListVCView: TaskCreateBottomPanelDelegate {
+extension TasksListVCView: TaskCreateBottomPanelDelegate {
     func taskCreateBottomPanelDidTapCreateButton(title: String, inMyDay: Bool, reminderDateTime: Date?, deadlineAt: Date?, description: String?) {
         let title = title.trimmingCharacters(in: .whitespaces)
         if !title.isEmpty {
@@ -463,9 +451,14 @@ extension TaskListVCView: TaskCreateBottomPanelDelegate {
 }
 // MARK: - StandartTaskTableViewCellDelegate
 
-extension TaskListVCView: StandartTaskTableViewCellDelegate {
+extension TasksListVCView: StandartTaskTableViewCellDelegate {
+
     func standartTaskCellDidTapIsDoneButton(indexPath: IndexPath) {
         viewModel.switchTaskFieldIsCompletedWith(indexPath: indexPath)
     }
-    
+
+    func standartTaskCellDidTapIsPriorityButton(indexPath: IndexPath) {
+        viewModel.switchTaskFieldIsPriorityWith(indexPath: indexPath)
+    }
+
 }

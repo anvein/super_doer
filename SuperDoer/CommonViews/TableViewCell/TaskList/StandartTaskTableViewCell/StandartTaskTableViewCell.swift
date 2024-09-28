@@ -21,7 +21,7 @@ class StandartTaskTableViewCell: UITableViewCell {
 
     private let rowsStackView: UIStackView = {
         $0.axis = .vertical
-        $0.spacing = 2
+        $0.spacing = 3
         return $0
     }(UIStackView())
 
@@ -38,6 +38,11 @@ class StandartTaskTableViewCell: UITableViewCell {
         $0.numberOfLines = 2
         return $0
     }(UILabel())
+
+    private lazy var isPriorityButton: StarButton = {
+        $0.addTarget(self, action: #selector(didTapIsPriorityButton), for: .touchUpInside)
+        return $0
+    }(StarButton())
 
     // MARK: - Constraints
 
@@ -83,6 +88,7 @@ class StandartTaskTableViewCell: UITableViewCell {
     func fillFrom(viewModel: TaskTableViewCellViewModelType) {
         taskTitleLabel.text = viewModel.title
         isDoneButton.isOn = viewModel.isCompleted
+        isPriorityButton.isOn = viewModel.isPriority
 
         attributesLabel.attributedText = viewModel.attributes
         attributesLabel.isHidden = viewModel.attributes == nil
@@ -95,7 +101,7 @@ private extension StandartTaskTableViewCell {
 
     private func setup() {
         contentView.addSubview(contentContainerView)
-        contentContainerView.addSubviews(isDoneButton, rowsStackView)
+        contentContainerView.addSubviews(isDoneButton, rowsStackView, isPriorityButton)
         rowsStackView.addArrangedSubview(taskTitleLabel)
         rowsStackView.addArrangedSubview(attributesLabel)
 
@@ -118,16 +124,24 @@ private extension StandartTaskTableViewCell {
 
         isDoneButton.snp.makeConstraints {
             $0.size.equalTo(24)
+            $0.leading.equalToSuperview().inset(16)
             $0.top.greaterThanOrEqualToSuperview().inset(14)
             $0.bottom.lessThanOrEqualToSuperview().inset(14)
-            $0.leading.equalToSuperview().inset(16)
             $0.centerY.equalToSuperview()
         }
 
         rowsStackView.snp.makeConstraints {
             $0.verticalEdges.equalToSuperview().inset(12).priority(.medium)
             $0.leading.equalTo(isDoneButton.snp.trailing).offset(16)
+        }
+
+        isPriorityButton.snp.makeConstraints {
+            $0.size.equalTo(24)
+            $0.leading.equalTo(rowsStackView.snp.trailing).offset(10)
             $0.trailing.equalToSuperview().inset(16)
+            $0.top.greaterThanOrEqualToSuperview().inset(14)
+            $0.bottom.lessThanOrEqualToSuperview().inset(14)
+            $0.centerY.equalToSuperview()
         }
     }
 
@@ -138,6 +152,13 @@ private extension StandartTaskTableViewCell {
               let indexPath = tableView.indexPath(for: self) else { return }
 
         delegate?.standartTaskCellDidTapIsDoneButton(indexPath: indexPath)
+    }
+
+    @objc func didTapIsPriorityButton() {
+        guard let tableView = self.superview as? UITableView,
+              let indexPath = tableView.indexPath(for: self) else { return }
+
+        delegate?.standartTaskCellDidTapIsPriorityButton(indexPath: indexPath)
     }
 
 }

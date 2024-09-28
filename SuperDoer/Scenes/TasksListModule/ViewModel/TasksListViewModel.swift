@@ -111,6 +111,10 @@ class TasksListViewModel: TasksListViewModelType {
         model.updateAndSwitchIsCompletedFieldWith(indexPath: indexPath)
     }
 
+    func switchTaskFieldIsPriorityWith(indexPath: IndexPath) {
+        model.updateAndSwitchIsPriorityFieldWith(indexPath: indexPath)
+    }
+
 }
 
 // MARK: - TaskListModelDelegate
@@ -130,7 +134,10 @@ extension TasksListViewModel: TaskListModelDelegate {
     }
     
     func taskListModelTaskDidUpdate(in indexPath: IndexPath, taskItem: TaskListItem) {
-        onTasksListUpdate?(.updateTask(indexPath))
+        onTasksListUpdate?(.updateTask(
+            indexPath,
+            TaskTableViewCellViewModel(task: taskItem)
+        ))
     }
     
     func taskListModelTaskDidMove(fromIndexPath: IndexPath, toIndexPath: IndexPath, taskItem: TaskListItem) {

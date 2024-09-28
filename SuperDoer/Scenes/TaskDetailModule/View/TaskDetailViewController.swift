@@ -23,7 +23,10 @@ class TaskDetailViewController: UIViewController {
         return $0
     }(UITextView())
     
-    private lazy var isPriorityButton: StarButton = .init()
+    private lazy var isPriorityButton: StarButton = {
+        $0.addTarget(self, action: #selector(didTapTaskIsPriorityButton(sender:)), for: .touchUpInside)
+        return $0
+    }(StarButton())
 
     private lazy var taskDataTableView: TaskDetailTableView = .init()
 
@@ -77,6 +80,10 @@ class TaskDetailViewController: UIViewController {
 
     @objc func didTapTaskDoneButton(sender: CheckboxButton) {
         viewModel.updateTaskField(isCompleted: !sender.isOn)
+    }
+
+    @objc func didTapTaskIsPriorityButton(sender: CheckboxButton) {
+        viewModel.updateTaskField(isPriority: !sender.isOn)
     }
 
     @objc func showTaskTitleNavigationItemReady() {
@@ -196,58 +203,26 @@ private extension TaskDetailViewController {
         taskDoneButton.snp.makeConstraints {
             $0.size.equalTo(26)
             $0.top.equalTo(taskTitleTextView.snp.top).offset(9)
-            $0.left.equalToSuperview().inset(19)
+            $0.leading.equalToSuperview().inset(19)
         }
 
         taskTitleTextView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(18)
-            $0.left.equalTo(taskDoneButton.snp.right).offset(14)
-            $0.right.equalTo(isPriorityButton.snp.left).offset(-5)
+            $0.leading.equalTo(taskDoneButton.snp.trailing).offset(14)
+            $0.trailing.equalTo(isPriorityButton.snp.leading).offset(-5)
             $0.height.greaterThanOrEqualTo(45)
         }
 
-        // isPriorityButton
         isPriorityButton.snp.makeConstraints {
-            $0.centerX.equalTo(view.safeAreaLayoutGuide.snp.right).offset(-27)
+            $0.size.equalTo(30)
+            $0.centerX.equalTo(view.snp.trailing).offset(-27)
             $0.centerY.equalTo(taskTitleTextView.snp.top).offset(21)
         }
 
-        // taskDataTableView
         taskDataTableView.snp.makeConstraints {
             $0.top.equalTo(taskTitleTextView.snp.bottom)
-            $0.left.right.equalTo(view)
-            $0.bottom.equalTo(view)
+            $0.horizontalEdges.bottom.equalToSuperview()
         }
-
-
-//        // taskDoneButton
-//        NSLayoutConstraint.activate([
-//            taskDoneButton.topAnchor.constraint(equalTo: taskTitleTextView.topAnchor, constant: 9),
-//            taskDoneButton.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 19),
-//        ])
-//        
-//        // taskTitleTextView
-//        NSLayoutConstraint.activate([
-//            taskTitleTextView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 18),
-//            taskTitleTextView.leftAnchor.constraint(equalTo: taskDoneButton.rightAnchor, constant: 14),
-//            taskTitleTextView.rightAnchor.constraint(equalTo: isPriorityButton.leftAnchor, constant: -5),
-//            taskTitleTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 45)
-//        ])
-//        
-//        // isPriorityButton
-//        NSLayoutConstraint.activate([
-//            isPriorityButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -27),
-//            isPriorityButton.centerYAnchor.constraint(equalTo: taskTitleTextView.topAnchor, constant: 21),
-//        ])
-//        
-//        // taskDataTableView
-//        NSLayoutConstraint.activate([
-//            taskDataTableView.topAnchor.constraint(equalTo: taskTitleTextView.bottomAnchor),
-//            taskDataTableView.leftAnchor.constraint(equalTo: view.leftAnchor),
-//            taskDataTableView.rightAnchor.constraint(equalTo: view.rightAnchor),
-//            taskDataTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-//            taskDataTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-//        ])
     }
 
     func setupView() {
@@ -262,8 +237,6 @@ private extension TaskDetailViewController {
         
         // taskTitleTextView, taskDoneButton, isPriorityButton
         taskTitleTextView.delegate = self
-//        taskDoneButton.delegate = self
-        isPriorityButton.delegate = self
         
         // taskDataTableView
         taskDataTableView.dataSource = self
@@ -460,13 +433,6 @@ extension TaskDetailViewController: UITextFieldDelegate {
 
 
 // MARK: - cell delegates, child controllers delegates
-
-/// Протокол связанный с полем "Приоритет"
-extension TaskDetailViewController: StarButtonDelegate {
-    func starButtonValueDidChange(newValue: Bool) {
-        viewModel.updateTaskField(isPriority: newValue)
-    }
-}
 
 /// Делегаты связанные с крестиками в ячейках данных задачи у полей:
 /// - "Добавить в мой день" [x]
