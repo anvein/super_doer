@@ -16,8 +16,8 @@ class TaskSectionEntityManager {
     /// Не удаленные (deletedAt = nil)
     /// Отсортированные по order = ASC + title = ASC
     /// Параметр isActive влияет на isArchived
-    func getCustomSectionsWithOrder(isActive: Bool? = nil) -> [TaskSectionCustom] {
-        let fetchRequest: NSFetchRequest<TaskSectionCustom> = TaskSectionCustom.fetchRequest()
+    func getCustomSectionsWithOrder(isActive: Bool? = nil) -> [CDTaskSectionCustom] {
+        let fetchRequest: NSFetchRequest<CDTaskSectionCustom> = CDTaskSectionCustom.fetchRequest()
         
         let deletedAtPredicate = NSPredicate(format: "deletedAt == nil")
         fetchRequest.predicate = deletedAtPredicate
@@ -40,8 +40,8 @@ class TaskSectionEntityManager {
     }
     
     // MARK: insert
-    func createCustomSectionWith(title: String, order: Int = 100, isCycled: Bool = false) -> TaskSectionCustom {
-        let section = TaskSectionCustom(context: coreDataStack.context)
+    func createCustomSectionWith(title: String, order: Int = 100, isCycled: Bool = false) -> CDTaskSectionCustom {
+        let section = CDTaskSectionCustom(context: coreDataStack.context)
         
         section.id = UUID()
         section.title = title
@@ -55,24 +55,24 @@ class TaskSectionEntityManager {
     
     
     // MARK: update
-    func updateCustomSectionField(title: String, section: TaskSectionCustom) {
+    func updateCustomSectionField(title: String, section: CDTaskSectionCustom) {
         section.title = title
         coreDataStack.saveContext()
     }
     
-    func updateCustomSectionField(isArchive: Bool, section: TaskSectionCustom) {
+    func updateCustomSectionField(isArchive: Bool, section: CDTaskSectionCustom) {
         section.isArchived = isArchive
         coreDataStack.saveContext()
     }
     
     
     // MARK: delete
-    func deleteSection(_ section: TaskSectionCustom) {
+    func deleteSection(_ section: CDTaskSectionCustom) {
         coreDataStack.context.delete(section)
         coreDataStack.saveContext()
     }
     
-    func deleteSections(_ sections: [TaskSectionCustom]) {
+    func deleteSections(_ sections: [CDTaskSectionCustom]) {
         let context = coreDataStack.context
         for section in sections {
             context.delete(section)

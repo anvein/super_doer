@@ -5,7 +5,7 @@ import Foundation
 /// ViewModel для ячейки таблицы с касмтомным списком
 class SectionCustomListTableViewCellViewModel: SectionListTableViewCellViewModelType {
     
-    private var section: TaskSectionCustom
+    private var section: CDTaskSectionCustom
     
     var title: String? {
         return section.title
@@ -15,7 +15,7 @@ class SectionCustomListTableViewCellViewModel: SectionListTableViewCellViewModel
         return String(section.tasksCount)
     }
     
-    init(section: TaskSectionCustom) {
+    init(section: CDTaskSectionCustom) {
         self.section = section
     }
     

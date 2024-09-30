@@ -76,8 +76,8 @@ class TaskDetailLabels2StatesButtonCell: TaskDetailLabelsButtonCell {
             actionButton.isHidden = true
             labelsStackView.spacing = 0
             
-            mainTextLabel.textColor = InterfaceColors.textGray
-            leftImageView.tintColor = InterfaceColors.textGray
+            mainTextLabel.textColor = .Text.gray
+            leftImageView.tintColor = .Text.gray
         case .defined :
             actionButton.isHidden = false
             if let value, value.isFullFilled() {
@@ -86,9 +86,9 @@ class TaskDetailLabels2StatesButtonCell: TaskDetailLabelsButtonCell {
                 labelsStackView.spacing = 0
             }
             
-            mainTextLabel.textColor = InterfaceColors.textBlue
-            additionalTextLabel.textColor = InterfaceColors.textBlue
-            leftImageView.tintColor = InterfaceColors.textBlue
+            mainTextLabel.textColor = .Text.blue
+            additionalTextLabel.textColor = .Text.blue
+            leftImageView.tintColor = .Text.blue
         }
     }
     

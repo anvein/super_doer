@@ -26,6 +26,7 @@ protocol TasksListViewModelType {
 
     func switchTaskFieldIsCompletedWith(indexPath: IndexPath)
     func switchTaskFieldIsPriorityWith(indexPath: IndexPath)
+    func switchTaskFieldInMyDayWith(indexPath: IndexPath)
 
     func deleteTasks(taskViewModels: [DeletableItemViewModelType])
     

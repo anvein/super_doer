@@ -11,6 +11,10 @@ class TaskTableViewCellViewModel: TaskTableViewCellViewModelType {
 
     // MARK: -
 
+    var isInMyDay: Bool {
+        return task.isInMyDay
+    }
+
     var isCompleted: Bool {
         return task.isCompleted
     }

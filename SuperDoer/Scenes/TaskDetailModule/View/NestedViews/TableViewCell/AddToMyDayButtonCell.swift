@@ -38,14 +38,14 @@ class AddToMyDayButtonCell: TaskDetailLabelsButtonCell {
         
         if isOn {
             mainTextLabel.text = "Добавлено в \"Мой день\""
-            mainTextLabel.textColor = InterfaceColors.textBlue
+            mainTextLabel.textColor = .Text.blue
             
-            leftImageView.tintColor = InterfaceColors.textBlue
+            leftImageView.tintColor = .Text.blue
         } else {
             mainTextLabel.text = "Добавить в \"Мой день\""
-            mainTextLabel.textColor = InterfaceColors.textGray
+            mainTextLabel.textColor = .Text.gray
             
-            leftImageView.tintColor = InterfaceColors.textGray
+            leftImageView.tintColor = .Text.gray
         }
     }
     

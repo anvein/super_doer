@@ -33,19 +33,19 @@ class FileButtonCell: TaskDetailLabelsButtonCell {
         
         extensionLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        leftImageView.backgroundColor = InterfaceColors.textBlue
+        leftImageView.backgroundColor = .Text.blue
         leftImageView.layer.cornerRadius = 2
         leftImageView.clipsToBounds = true
         
-        extensionLabel.textColor = InterfaceColors.white
+        extensionLabel.textColor = .Common.white
         extensionLabel.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
         extensionLabel.textAlignment = .center
         extensionLabel.numberOfLines = 1
         extensionLabel.lineBreakMode = .byTruncatingTail
         
         labelsStackView.spacing = 0
-        mainTextLabel.textColor = InterfaceColors.blackText
-        additionalTextLabel.textColor = InterfaceColors.textGray
+        mainTextLabel.textColor = .Text.black
+        additionalTextLabel.textColor = .Text.gray
         
 //        actionButton.addTarget(self, action: #selector(actionButtonTapHandle), for: .touchUpInside)
     }

@@ -69,16 +69,16 @@ class TaskDetailBaseButtonCell: UITableViewCell {
         // setup content subviews
         actionButton.translatesAutoresizingMaskIntoConstraints = false
         actionButton.setImage(createActionButtonImage(), for: .normal)
-        actionButton.tintColor = InterfaceColors.textGray
+        actionButton.tintColor = .Text.gray
         
         if showTopSeparator {
             topSeparator.translatesAutoresizingMaskIntoConstraints = false
-            topSeparator.backgroundColor = InterfaceColors.TaskViewButtonCell.separator
+            topSeparator.backgroundColor = .Common.lightGraySeparator
         }
         
         if showBottomSeparator {
             bottomSeparator.translatesAutoresizingMaskIntoConstraints = false
-            bottomSeparator.backgroundColor = InterfaceColors.TaskViewButtonCell.separator
+            bottomSeparator.backgroundColor = .Common.lightGraySeparator
         }
     }
     
@@ -123,7 +123,7 @@ class TaskDetailBaseButtonCell: UITableViewCell {
     func setupSelectedBackground() {
         let selectedBgView = UIView()
         
-        selectedBgView.backgroundColor = InterfaceColors.controlsLightBlueBg
+        selectedBgView.backgroundColor = .Common.lightBlueBg
         selectedBackgroundView = selectedBgView
     }
     

@@ -61,7 +61,7 @@ class AddSubtaskButtonCell: TaskDetailBaseButtonCell {
         
         subtaskTextField.translatesAutoresizingMaskIntoConstraints = false
         subtaskTextField.placeholder = "Новая подзадача"
-        subtaskTextField.textColor = InterfaceColors.blackText
+        subtaskTextField.textColor = .Text.black
         subtaskTextField.returnKeyType = .done
         
         actionButton.isHidden = true
@@ -99,13 +99,13 @@ class AddSubtaskButtonCell: TaskDetailBaseButtonCell {
     
     func configureCellForState(_ isEdited: State) {
         if isEdited {
-            setSubtaskFieldPlaceholderStyle(color: InterfaceColors.textGray)
-            leftImageView.tintColor = InterfaceColors.textGray
+            setSubtaskFieldPlaceholderStyle(color: .Text.gray)
+            leftImageView.tintColor = .Text.gray
             
             leftImageView.image = circleImage
         } else {
-            setSubtaskFieldPlaceholderStyle(color: InterfaceColors.textBlue)
-            leftImageView.tintColor = InterfaceColors.textBlue
+            setSubtaskFieldPlaceholderStyle(color: .Text.blue)
+            leftImageView.tintColor = .Text.blue
             
             leftImageView.image = plusImage
         }
@@ -141,7 +141,7 @@ class AddSubtaskButtonCell: TaskDetailBaseButtonCell {
     
         return UIImage(systemName: "plus")?
             .withConfiguration(symbolConfig)
-            .withTintColor(InterfaceColors.textBlue, renderingMode: .alwaysOriginal)
+            .withTintColor(.Text.blue, renderingMode: .alwaysOriginal)
     }
     
     private static func createCircleImage() -> UIImage? {

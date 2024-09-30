@@ -40,6 +40,8 @@ class StandartTaskTableViewCell: UITableViewCell {
     }(UILabel())
 
     private lazy var isPriorityButton: StarButton = {
+        $0.isOnColor = .Common.blueGray
+        $0.isOffColor = .Common.blueGray
         $0.addTarget(self, action: #selector(didTapIsPriorityButton), for: .touchUpInside)
         return $0
     }(StarButton())
@@ -73,25 +75,30 @@ class StandartTaskTableViewCell: UITableViewCell {
 
     // MARK: - Lifecycle
 
-    internal override func willTransition(to state: UITableViewCell.StateMask) {
-        // MARK: - Допилить
+    override func willTransition(to state: UITableViewCell.StateMask) {
         super.willTransition(to: state)
-        if state.contains(.showingDeleteConfirmation) {
-            if let deleteButton = superview?.subviews.first(where: { String(describing: type(of: $0)) == "UISwipeActionPullView" }) {
-                deleteButton.cornerRadius = 8
-            }
-        }
+        setCornerRadiusForSwipeButtons(state: state)
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
     }
 
     // MARK: - Update view
 
     func fillFrom(viewModel: TaskTableViewCellViewModelType) {
         taskTitleLabel.text = viewModel.title
+        taskTitleLabel.setStrikedStyle(viewModel.isCompleted)
+        taskTitleLabel.textColor = viewModel.isCompleted ? .Text.gray : .Text.black
+
         isDoneButton.isOn = viewModel.isCompleted
         isPriorityButton.isOn = viewModel.isPriority
 
         attributesLabel.attributedText = viewModel.attributes
         attributesLabel.isHidden = viewModel.attributes == nil
+
+        reloadInputViews()
     }
 
 }
@@ -108,12 +115,6 @@ private extension StandartTaskTableViewCell {
         backgroundColor = nil
         backgroundView = UIView()
         selectedBackgroundView = UIView()
-
-//        contentContainerView.layer.shadowColor = UIColor.lightGray.cgColor
-//        contentContainerView.layer.shadowOffset = CGSize(width: 5, height: 5)
-//        contentContainerView.layer.shadowOpacity = 1
-//        contentContainerView.layer.shadowRadius = 10
-//        contentContainerView.clipsToBounds = false
     }
 
     private func setupConstraints() {
@@ -131,7 +132,7 @@ private extension StandartTaskTableViewCell {
         }
 
         rowsStackView.snp.makeConstraints {
-            $0.verticalEdges.equalToSuperview().inset(12).priority(.medium)
+            $0.verticalEdges.equalToSuperview().inset(11).priority(.medium)
             $0.leading.equalTo(isDoneButton.snp.trailing).offset(16)
         }
 
@@ -142,6 +143,30 @@ private extension StandartTaskTableViewCell {
             $0.top.greaterThanOrEqualToSuperview().inset(14)
             $0.bottom.lessThanOrEqualToSuperview().inset(14)
             $0.centerY.equalToSuperview()
+        }
+    }
+
+    // MARK: - Update view
+
+    func setCornerRadiusForSwipeButtons(state: UITableViewCell.StateMask) {
+        // допилить, баги:
+        // - если у одной ячейки открыты swipe actions, то при открытии другой кнопки не скругляются
+        // - если при закрытии действий willTransition() не отработала, то кнопки не скругляются
+        // особенность: willTransition() срабатывает с задержкой после того, как действия закрыты
+
+        guard state.contains(.showingDeleteConfirmation) else { return }
+
+        let swipeActionPullView = superview?.subviews.first(where: {
+            return String(describing: type(of: $0)) == "UISwipeActionPullView"
+        })
+
+        if let swipeActionPullView {
+            swipeActionPullView.cornerRadius = 8
+            swipeActionPullView.subviews.forEach({
+                if String(describing: type(of: $0)) == "UISwipeActionStandardButton" {
+                    $0.cornerRadius = 8
+                }
+            })
         }
     }
 

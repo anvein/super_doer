@@ -34,7 +34,7 @@ extension TaskCreateBottomPanel {
             case .editable:
                 leftImageView.tintColor = .TaskCreateBottomPanel.isDoneButtonBorder
                 placeholderAttributes = [
-                    .foregroundColor: InterfaceColors.textGray
+                    .foregroundColor: UIColor.Text.gray
                 ]
             }
         }
@@ -47,7 +47,7 @@ private extension TaskCreateBottomPanel.TextField {
 
     func setupControl() {
         font = .systemFont(ofSize: 17)
-        textColor = InterfaceColors.blackText
+        textColor = .Text.black
 
         let imageInsets: UIEdgeInsets = .init(top: 0, left: 8, bottom: 0, right: 16)
         setImageViewToLeftView(imageView: leftImageView, insets: imageInsets)

@@ -130,8 +130,6 @@ private extension TaskCreateBottomPanel {
         currentState = cstate
     }
 
-    // MARK: - Actions handlers
-
     @objc func didTapReadyButton() {
         if let text = textField.text, text.count != 0 {
             delegate?.taskCreateBottomPanelDidTapCreateButton(
@@ -147,17 +145,15 @@ private extension TaskCreateBottomPanel {
         textField.resignFirstResponder()
     }
 
-
     // MARK: - Helpers
 
-    private func buildCheckmarkImage() -> UIImage? {
-        let image = UIImage.init(
-            systemName: "checkmark",
-            withConfiguration: UIImage.SymbolConfiguration(weight: .medium)
-        )?.withTintColor(
-            .white,
-            renderingMode: .alwaysOriginal
-        )
+    func buildCheckmarkImage() -> UIImage {
+        let symbolConfig = UIImage.SymbolConfiguration(weight: .medium)
+        let image = UIImage.SfSymbol.checkmark.withConfiguration(symbolConfig)
+            .withTintColor(
+                .Common.white,
+                renderingMode: .alwaysOriginal
+            )
 
         return image
     }

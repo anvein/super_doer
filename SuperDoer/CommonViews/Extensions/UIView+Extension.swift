@@ -2,6 +2,9 @@
 import UIKit
 
 extension UIView {
+
+    // MARK: - Layer properties
+
     var cornerRadius: CGFloat {
         get { layer.cornerRadius }
         set {
@@ -9,6 +12,18 @@ extension UIView {
             layer.masksToBounds = newValue > 0
         }
     }
+
+    var borderColor: UIColor {
+        get { UIColor(cgColor: layer.borderColor ?? UIColor.clear.cgColor) }
+        set { layer.borderColor = newValue.cgColor }
+    }
+
+    var borderWidth: CGFloat {
+        get { layer.borderWidth }
+        set { layer.borderWidth = newValue }
+    }
+
+    // MARK: - Helpers
 
     func addSubviews(_ views: UIView...) {
         views.forEach {

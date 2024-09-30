@@ -17,8 +17,8 @@ class TaskDetailViewController: UIViewController {
         $0.isScrollEnabled = false
         $0.returnKeyType = .done
 
-        $0.backgroundColor = InterfaceColors.white
-        $0.textColor = InterfaceColors.blackText
+        $0.backgroundColor = .Common.white
+        $0.textColor = .Text.black
         $0.font = UIFont.systemFont(ofSize: 22, weight: .medium)
         return $0
     }(UITextView())
@@ -82,7 +82,7 @@ class TaskDetailViewController: UIViewController {
         viewModel.updateTaskField(isCompleted: !sender.isOn)
     }
 
-    @objc func didTapTaskIsPriorityButton(sender: CheckboxButton) {
+    @objc func didTapTaskIsPriorityButton(sender: StarButton) {
         viewModel.updateTaskField(isPriority: !sender.isOn)
     }
 
@@ -229,11 +229,11 @@ private extension TaskDetailViewController {
         view.addSubviews(taskDoneButton, taskTitleTextView, isPriorityButton, taskDataTableView)
 
         // view of controller
-        view.backgroundColor = InterfaceColors.white
+        view.backgroundColor = .Common.white
         
         // navigationItem
         navigationItem.largeTitleDisplayMode = .never
-        navigationController?.navigationBar.tintColor = InterfaceColors.textBlue
+        navigationController?.navigationBar.tintColor = .Text.blue
         
         // taskTitleTextView, taskDoneButton, isPriorityButton
         taskTitleTextView.delegate = self

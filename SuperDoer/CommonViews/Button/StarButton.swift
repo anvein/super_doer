@@ -3,6 +3,11 @@ import UIKit
 
 final class StarButton: UIButton {
 
+    // MARK: - Settings
+
+    var isOnColor: UIColor = .Common.blue
+    var isOffColor: UIColor = .Common.darkGrayApp
+
     // MARK: - State
 
     override var isHighlighted: Bool {
@@ -47,9 +52,9 @@ private extension StarButton {
     private func setAppearanceForState(_ isOn: Bool) {
         let starImage: UIImage
         if isOn {
-            starImage = UIImage.SfSymbol.starFill.withTintColor(.Common.blue,renderingMode: .alwaysOriginal)
+            starImage = .SfSymbol.starFill.withTintColor(isOnColor, renderingMode: .alwaysOriginal)
         } else {
-            starImage = UIImage.SfSymbol.star.withTintColor(.Common.darkGrayApp, renderingMode: .alwaysOriginal)
+            starImage = .SfSymbol.star.withTintColor(isOffColor, renderingMode: .alwaysOriginal)
         }
 
         setImage(starImage, for: .normal)

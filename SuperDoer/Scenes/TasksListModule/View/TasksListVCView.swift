@@ -8,6 +8,10 @@ final class TasksListVCView: UIView {
 
     weak var delegate: TasksListVCViewDelegate?
 
+    // MARK: - Services
+
+    private let symbolCreator: SymbolCreatorService
+
     // MARK: - Views Accessors
 
     var hasTasksInTable: Bool {
@@ -17,6 +21,7 @@ final class TasksListVCView: UIView {
     // MARK: - Subviews
 
     private lazy var tasksTableView: UITableView = {
+        $0.verticalScrollIndicatorInsets.right = -9
         $0.clipsToBounds = false
         $0.backgroundColor = nil
         $0.scrollsToTop = true
@@ -72,7 +77,11 @@ final class TasksListVCView: UIView {
 
     // MARK: - Init
 
-    init(viewModel: TasksListViewModelType) {
+    init(
+        viewModel: TasksListViewModelType,
+        symbolCreator: SymbolCreatorService = .init()
+    ) {
+        self.symbolCreator = symbolCreator
         self.viewModel = viewModel
         super.init(frame: UIWindow.current?.bounds ?? .zero)
 
@@ -162,13 +171,13 @@ private extension TasksListVCView {
         case .insertSection(let sectionId):
             tasksTableView.insertSections(
                 .init(integer: sectionId),
-                with: .automatic
+                with: .middle
             )
 
         case .deleteSection(let sectionId):
             tasksTableView.deleteSections(
                 .init(integer: sectionId),
-                with: .automatic
+                with: .middle
             )
         }
     }
@@ -275,22 +284,37 @@ extension TasksListVCView: UITableViewDelegate {
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .bold)
         deleteAction.image = UIImage(systemName: "trash", withConfiguration: symbolConfig)
 
-
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 
-    // добавление действий при свайпах
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let action = UIContextualAction(
-            style: .normal,
-            title: "☀️") { action, view, completionHandler in
-                print("☀️ add to my day")
+        var actions: [UIContextualAction] = []
 
-                completionHandler(true)
-            }
-        action.backgroundColor = .systemOrange
+        let cellVM = viewModel.getTaskTableViewCellViewModel(forIndexPath: indexPath)
+        var symbolImage: UIImage? = nil
+        if cellVM.isInMyDay {
+            symbolImage = symbolCreator.combineSymbols(symbolName1: "sun.max", symbolName2: "line.diagonal", pointSize: 15, weight1: .bold)
+            symbolImage = symbolImage?.withTintColor(.white, renderingMode: .alwaysOriginal)
+        } else {
+            let symbolConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .bold)
+            symbolImage = UIImage(systemName: "sun.max")?.withConfiguration(symbolConfig)
+        }
 
-        return UISwipeActionsConfiguration(actions: [action])
+        if let symbolImage {
+            let action = UIContextualAction(
+                style: .normal,
+                title: "Мой день"
+            ) { [viewModel] _, _, completionHandler in
+                    viewModel.switchTaskFieldInMyDayWith(indexPath: indexPath)
+                    completionHandler(true)
+                }
+            action.backgroundColor = .systemOrange
+            action.image = symbolImage
+
+            actions.append(action)
+        }
+
+        return UISwipeActionsConfiguration(actions: actions)
     }
 
     // MARK: delete row

@@ -21,10 +21,11 @@ class TaskDetailTableView: UITableView {
     
     private func setup() {
         translatesAutoresizingMaskIntoConstraints = false
-    
+
         estimatedSectionFooterHeight = 30
         sectionFooterHeight = 30
-         
+
+        delaysContentTouches = false
         sectionHeaderTopPadding = 0
         
         separatorStyle = .none

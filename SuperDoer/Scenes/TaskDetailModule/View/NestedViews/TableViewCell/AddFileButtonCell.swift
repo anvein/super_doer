@@ -23,8 +23,8 @@ class AddFileButtonCell: TaskDetailLabelsButtonCell {
         
         labelsStackView.spacing = 0
         
-        mainTextLabel.textColor = InterfaceColors.textGray
-        leftImageView.tintColor = InterfaceColors.textGray
+        mainTextLabel.textColor = .Text.gray
+        leftImageView.tintColor = .Text.gray
     }
     
     // MARK: methods helpers

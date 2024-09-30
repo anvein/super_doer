@@ -65,10 +65,10 @@ class TaskSectionsListViewController: UIViewController {
 
         // TODO: код для разработки (удалить)
         /////////////////////////////////////////////////////
-        let vm = viewModel.getTaskListViewModel(forIndexPath: IndexPath(row: 0, section: 1))
-        if let vm = vm as? TasksListViewModel {
-            coordinator?.selectTaskSection(viewModel: vm)
-        }
+//        let vm = viewModel.getTaskListViewModel(forIndexPath: IndexPath(row: 0, section: 1))
+//        if let vm = vm as? TasksListViewModel {
+//            coordinator?.selectTaskSection(viewModel: vm)
+//        }
         /////////////////////////////////////////////////////
     }
 
@@ -202,7 +202,7 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
         }
         archiveAction.image = UIImage(systemName: "archivebox")?
             .withConfiguration(symbolConfig)
-        archiveAction.backgroundColor = InterfaceColors.TableCell.orangeSwipeAction
+        archiveAction.backgroundColor = .TaskCell.orangeSwipeAction
         
         return UISwipeActionsConfiguration(actions: [deleteAction, archiveAction])
     }
@@ -214,7 +214,7 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         if section == 0 {
-            return TaskSectionsSeparator(frame: .zero)
+            return TaskSectionsSeparator()
         } else {
             return UIView()
         }

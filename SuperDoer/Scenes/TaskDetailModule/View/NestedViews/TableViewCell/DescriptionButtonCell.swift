@@ -63,8 +63,8 @@ class DescriptionButtonCell: UITableViewCell {
         backgroundView = UIView()
         
         selectedBackgroundView = UIView()
-        selectedBackgroundView?.backgroundColor = InterfaceColors.controlsLightBlueBg
-        
+        selectedBackgroundView?.backgroundColor = .Common.lightBlueBg
+
         // setup content views
         mainTextLabel.translatesAutoresizingMaskIntoConstraints = false
         mainTextLabel.font = mainTextLabel.font.withSize(16)
@@ -74,17 +74,17 @@ class DescriptionButtonCell: UITableViewCell {
         infoLabel.translatesAutoresizingMaskIntoConstraints = false
         infoLabel.numberOfLines = 1
         infoLabel.font = infoLabel.font.withSize(14)
-        infoLabel.textColor = InterfaceColors.textGray
+        infoLabel.textColor = .Text.gray
         
         openButton.translatesAutoresizingMaskIntoConstraints = false
         openButton.titleLabel?.font = openButton.titleLabel?.font.withSize(14)
-        openButton.setTitleColor(InterfaceColors.textBlue, for: .normal)
-        openButton.setTitleColor(InterfaceColors.blackText, for: .selected)
+        openButton.setTitleColor(.Text.blue, for: .normal)
+        openButton.setTitleColor(.Text.black, for: .selected)
         openButton.setTitle("Открыть", for: .normal)
         openButton.addTarget(self, action: #selector(pressOpenButton), for: .touchUpInside)
         
         bottomSeparator.translatesAutoresizingMaskIntoConstraints = false
-        bottomSeparator.backgroundColor = InterfaceColors.TaskViewButtonCell.separator
+        bottomSeparator.backgroundColor = .Common.lightGraySeparator
         
         configureCellForState(state)
     }
@@ -93,7 +93,7 @@ class DescriptionButtonCell: UITableViewCell {
         switch state {
         case .empty:
             mainTextLabel.text = "Добавить заметку"
-            mainTextLabel.textColor = InterfaceColors.textGray
+            mainTextLabel.textColor = .Text.gray
             mainTextLabel.font = UIFont.systemFont(ofSize: 16)
             
             infoLabel.text = nil
@@ -106,7 +106,7 @@ class DescriptionButtonCell: UITableViewCell {
             infoLabel.isHidden = false
             infoLabel.text = "Обновлено: несколько секунд назад"
             
-            mainTextLabel.textColor = InterfaceColors.blackText
+            mainTextLabel.textColor = .Text.black
             mainTextLabel.font = UIFont.systemFont(ofSize: 16)
             
             openButton.isHidden = false

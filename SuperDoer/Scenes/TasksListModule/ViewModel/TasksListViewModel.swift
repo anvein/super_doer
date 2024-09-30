@@ -13,7 +13,7 @@ class TasksListViewModel: TasksListViewModelType {
     var onTasksListUpdate: ((TasksListUpdateType) -> Void)?
 
     // TODO: переделать на TaskSectionProtocol
-    private var taskSection: TaskSectionCustom
+    private var taskSection: CDTaskSectionCustom
 
     var taskSectionTitle: String {
         return taskSection.title ?? ""
@@ -21,7 +21,7 @@ class TasksListViewModel: TasksListViewModelType {
 
     // MARK: - Init
 
-    init(model: TaskListModel, taskSection: TaskSectionCustom) {
+    init(model: TaskListModel, taskSection: CDTaskSectionCustom) {
         self.model = model
         self.taskSection = taskSection
 
@@ -113,6 +113,10 @@ class TasksListViewModel: TasksListViewModelType {
 
     func switchTaskFieldIsPriorityWith(indexPath: IndexPath) {
         model.updateAndSwitchIsPriorityFieldWith(indexPath: indexPath)
+    }
+
+    func switchTaskFieldInMyDayWith(indexPath: IndexPath) {
+        model.switchAndUpdateInMyDayFieldWith(indexPath: indexPath)
     }
 
 }

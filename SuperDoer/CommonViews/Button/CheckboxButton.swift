@@ -45,7 +45,7 @@ private extension CheckboxButton {
     // MARK: - Setup
 
     func setup() {
-        layer.borderWidth = 2
+        borderWidth = 2
 
         // TODO - переделать на конфигурацию
         imageEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
@@ -56,14 +56,14 @@ private extension CheckboxButton {
 
     func setAppearanceForState(_ isOn: Bool) {
         if isOn {
-            layer.borderColor = InterfaceColors.completedCheckboxBg.cgColor
-            layer.backgroundColor = InterfaceColors.completedCheckboxBg.cgColor
+            borderColor = .IsCompletedCheckbox.completedBg
+            layer.backgroundColor = UIColor.IsCompletedCheckbox.completedBg.cgColor
 
-            let image: UIImage = .checkmark3.withTintColor(.white, renderingMode: .alwaysOriginal)
+            let image: UIImage = .Common.taskIsDoneCheckmark.withTintColor(.white, renderingMode: .alwaysOriginal)
             setImage(image, for: .normal)
         } else {
-            layer.borderColor = InterfaceColors.controlsGray.cgColor
-            layer.backgroundColor = InterfaceColors.unCompletedCheckboxBg.cgColor
+            borderColor = .Common.darkGrayApp
+            layer.backgroundColor = UIColor.IsCompletedCheckbox.uncompletedBg.cgColor
 
             setImage(nil, for: .normal)
         }

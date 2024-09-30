@@ -57,7 +57,7 @@ extension TaskSectionsListViewModel: TaskSectionListViewModelType {
         let section = sections.value[indexPath.section][indexPath.row]
         
         switch section {
-        case let taskSectionCustom as TaskSectionCustom :
+        case let taskSectionCustom as CDTaskSectionCustom :
             return SectionCustomListTableViewCellViewModel(section: taskSectionCustom)
         
         case let taskSectionSystem as TaskSectionSystem:
@@ -84,10 +84,11 @@ extension TaskSectionsListViewModel: TaskSectionListViewModelType {
         let section = sections.value[indexPath.section][indexPath.row]
         
         switch section {
-        case let taskSectionCustom as TaskSectionCustom :
+        case let taskSectionCustom as CDTaskSectionCustom :
             let taskCDManager = DIContainer.shared.resolve(TaskCoreDataManager.self)!
             return TasksListViewModel(
                 model: TaskListModel(
+                    taskSection: section,
                     taskCDManager: taskCDManager
                 ),
                 taskSection: taskSectionCustom
@@ -103,7 +104,7 @@ extension TaskSectionsListViewModel: TaskSectionListViewModelType {
     
     func getDeletableSectionViewModelFor(indexPath: IndexPath) -> TaskSectionDeletableViewModel? {
         let section = sections.value[indexPath.section][indexPath.row]
-        guard let customSection = section as? TaskSectionCustom else {
+        guard let customSection = section as? CDTaskSectionCustom else {
             return nil
         }
         
@@ -122,7 +123,7 @@ extension TaskSectionsListViewModel: TaskSectionListViewModelType {
     func deleteCustomSection(sectionViewModel: TaskSectionDeletableViewModel) {
         guard let indexPath = sectionViewModel.indexPath else { return }
         let section = sections.value[TaskSectionsListViewModel.customSectionsId][indexPath.row]
-        guard let customSection = section as? TaskSectionCustom else { return }
+        guard let customSection = section as? CDTaskSectionCustom else { return }
         
         sectionEm.deleteSection(customSection)
         sections.value[TaskSectionsListViewModel.customSectionsId].remove(at: indexPath.row)
@@ -130,7 +131,7 @@ extension TaskSectionsListViewModel: TaskSectionListViewModelType {
     
     func archiveCustomSection(indexPath: IndexPath) {
         let section = sections.value[TaskSectionsListViewModel.customSectionsId][indexPath.row]
-        guard let customSection = section as? TaskSectionCustom else {
+        guard let customSection = section as? CDTaskSectionCustom else {
             // TODO: залогировать, что сюда попал системный раздел (список)
             return
         }

@@ -54,7 +54,7 @@ class TasksListViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        navigationController?.navigationBar.tintColor = InterfaceColors.white
+        navigationController?.navigationBar.tintColor = .Common.white
 
         if customView.hasTasksInTable {
             customView.reloadTableData()

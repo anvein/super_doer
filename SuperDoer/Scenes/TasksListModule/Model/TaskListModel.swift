@@ -13,6 +13,7 @@ final class TaskListModel: NSObject {
 
     // MARK: - State
 
+    private(set) var taskSection: TaskSectionProtocol?
     private(set) var selectedTaskIndexPath: IndexPath?
 
     // MARK: -
@@ -22,9 +23,11 @@ final class TaskListModel: NSObject {
     // MARK: - Init
 
     init(
+        taskSection: TaskSectionProtocol?,
         taskCDManager: TaskCoreDataManager,
         coreDataStack: CoreDataStack = .shared
     ) {
+        self.taskSection = taskSection
         self.taskCDManager = taskCDManager
         self.coreDataStack = coreDataStack
 
@@ -33,6 +36,8 @@ final class TaskListModel: NSObject {
             .init(key: CDTask.isCompletedKey, ascending: true),
             .init(key: CDTask.createdAtKey, ascending: false),
         ]
+
+        fetchRequest.predicate = Self.buildFilterBySectionPredicate(taskSection: taskSection)
 
         fetchedResultsController = NSFetchedResultsController(
             fetchRequest: fetchRequest,
@@ -89,6 +94,12 @@ final class TaskListModel: NSObject {
         taskCDManager.updateField(isPriority: newValue, task: cdTask)
     }
 
+    func switchAndUpdateInMyDayFieldWith(indexPath: IndexPath) {
+        let cdTask = getCDTask(at: indexPath)
+        let newValue = !cdTask.inMyDay
+        taskCDManager.updateField(inMyDay: newValue, task: cdTask)
+    }
+
     func deleteTasksWith(indexPaths: [IndexPath]) {
         var cdTasks = [CDTask]()
         for indexPath in indexPaths {
@@ -98,7 +109,7 @@ final class TaskListModel: NSObject {
         taskCDManager.delete(tasks: cdTasks)
     }
 
-    func createTaskWith(title: String, section: TaskSectionCustom) {
+    func createTaskWith(title: String, section: CDTaskSectionCustom) {
         taskCDManager.createWith(title: title, section: section)
     }
 
@@ -115,6 +126,16 @@ final class TaskListModel: NSObject {
 private extension TaskListModel {
     func getCDTask(at indexPath: IndexPath) -> CDTask {
         return fetchedResultsController.object(at: indexPath)
+    }
+
+    static func buildFilterBySectionPredicate(taskSection: TaskSectionProtocol?) -> NSPredicate? {
+        if let cdCustomSection = taskSection as? CDTaskSectionCustom {
+            return NSPredicate(format: "section == %@", cdCustomSection)
+        } else if let systemSection = taskSection as? TaskSectionSystem {
+            return nil
+        }
+
+        return nil
     }
 }
 
