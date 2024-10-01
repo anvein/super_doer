@@ -10,10 +10,7 @@ class TaskDetailLabels2StatesButtonCell: TaskDetailLabelsButtonCell {
     var defaultAdditionalText: String? {
         return nil
     }
-    
-    class override var identifier: String {
-        return "TaskDetailLabelsStatesButtonCell"
-    }
+
     
     enum State: String {
         case empty
@@ -61,9 +58,9 @@ class TaskDetailLabels2StatesButtonCell: TaskDetailLabelsButtonCell {
     
     
     // MARK: setup methods
-    override func setupViews()
+    override func setupSubviews()
     {
-        super.setupViews()
+        super.setupSubviews()
         
         configureForState(state)
     }

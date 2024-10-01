@@ -66,7 +66,7 @@ class TasksListViewController: UIViewController {
 
         // TODO: код для разработки (удалить)
         /////////////////////////////////////////////////////
-//        let vm = viewModel.getTaskViewModel(forIndexPath: IndexPath(row: 0, section: 0))
+//        let vm = viewModel.getTaskDetailViewModel(forIndexPath: IndexPath(row: 0, section: 0))
 //        if let vm = vm as? TaskDetailViewModel {
 //            coordinator?.selectTask(viewModel: vm)
 //        }

@@ -5,18 +5,14 @@ import UIKit
 /// Кнопка-ячейка "Добавить файл в задачу"
 class AddFileButtonCell: TaskDetailLabelsButtonCell {
     
-    class override var identifier: String {
-        return "AddFileButtonCell"
-    }
-    
     override var showBottomSeparator: Bool {
         return true
     }
     
     // MARK: setup methods
-    override func setupViews()
+    override func setupSubviews()
     {
-        super.setupViews()
+        super.setupSubviews()
         
         actionButton.isHidden = true
         mainTextLabel.text = "Добавить файл"

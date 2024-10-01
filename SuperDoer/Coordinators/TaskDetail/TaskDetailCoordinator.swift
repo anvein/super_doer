@@ -143,11 +143,10 @@ final class TaskDetailCoordinator: BaseCoordinator {
     
 }
 
+// MARK: - TaskDetailVCCoordinatorDelegate
+extension TaskDetailCoordinator: TaskDetailVCCoordinatorDelegate {
 
-// MARK: coordinator protocol for TaskDetailViewController
-extension TaskDetailCoordinator: TaskDetailViewControllerCoordinator {
-
-    func tapReminderDateCell() {
+    func taskDetailVCDidTapReminderDateCell() {
         if !viewModel.isEnableNotifications {
             startNotificationsDisableAlertCoordinator()
         } else {
@@ -155,27 +154,27 @@ extension TaskDetailCoordinator: TaskDetailViewControllerCoordinator {
         }
     }
     
-    func tapDeadlineDateCell() {
+    func taskDetailVCDidTapDeadlineDateCell() {
         startTaskDeadlineDateVariantsCoordinator()
     }
     
-    func tapRepeatPeriodCell() {
+    func taskDetailVCDidTapRepeatPeriodCell() {
         startTaskRepeatPeriodVariantsCoordinator()
     }
     
-    func tapAddFileCell() {
+    func taskDetailVCDidTapDecriptionCell() {
         startAddFileToTaskSourceAlertCoordinator()
     }
-    
-    func startDeleteProcessFile(viewModel: TaskFileDeletableViewModel) {
+
+    func taskDetailVCDidTapAddFileCell() {
+        startTaskDescriptionEditorCoordinator()
+    }
+
+    func taskDetailVCStartDeleteProcessFile(viewModel: TaskFileDeletableViewModel) {
         startFileDeleteCoordinator(viewModel: viewModel)
     }
 
-    func tapDecriptionCell() {
-        startTaskDescriptionEditorCoordinator()
-    }
-    
-    func closeTaskDetail() {
+    func taskDetailVCDidCloseTaskDetail() {
         parent?.removeChild(self)
     }
 }

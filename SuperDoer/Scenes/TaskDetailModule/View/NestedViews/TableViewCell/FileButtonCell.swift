@@ -4,10 +4,6 @@ import UIKit
 /// Кнопка-ячейка "Прикрепленный файл" (к задаче)
 class FileButtonCell: TaskDetailLabelsButtonCell {
     
-    override class var identifier: String {
-        return "FileButtonCell"
-    }
-    
     override class var rowHeight: Int {
         return 70
     }
@@ -27,9 +23,9 @@ class FileButtonCell: TaskDetailLabelsButtonCell {
         leftImageView.addSubview(extensionLabel)
     }
     
-    override func setupViews()
+    override func setupSubviews()
     {
-        super.setupViews()
+        super.setupSubviews()
         
         extensionLabel.translatesAutoresizingMaskIntoConstraints = false
         

@@ -1,48 +1,36 @@
 
-
 import UIKit
 
-/// Таблица с кнопками для страницы просмотра / редактирования задачи
-class TaskDetailTableView: UITableView {
-    
-    convenience init() {
-        self.init(frame: .zero, style: .plain)
-    }
-    
-    override init(frame: CGRect, style: UITableView.Style) {
-        super.init(frame: frame, style: style)
-        
+final class TaskDetailTableView: UITableView {
+
+    // MARK: - Init
+    init() {
+        super.init(frame: .zero, style: .plain)
         setup()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    // MARK: - Setup
+
     private func setup() {
-        translatesAutoresizingMaskIntoConstraints = false
-
-        estimatedSectionFooterHeight = 30
-        sectionFooterHeight = 30
-
         delaysContentTouches = false
         sectionHeaderTopPadding = 0
         
         separatorStyle = .none
-        
         backgroundColor = nil
         
-        register(AddSubtaskButtonCell.self, forCellReuseIdentifier: AddSubtaskButtonCell.identifier)
-        
-        register(AddToMyDayButtonCell.self, forCellReuseIdentifier: AddToMyDayButtonCell.identifier)
-        register(ReminderDateButtonCell.self, forCellReuseIdentifier: ReminderDateButtonCell.identifier)
-        register(DeadlineDateButtonCell.self, forCellReuseIdentifier: DeadlineDateButtonCell.identifier)
-        register(RepeatPeriodButtonCell.self, forCellReuseIdentifier: RepeatPeriodButtonCell.identifier)
-        register(AddFileButtonCell.self, forCellReuseIdentifier: AddFileButtonCell.identifier)
-        register(FileButtonCell.self, forCellReuseIdentifier: FileButtonCell.identifier)
-        register(DescriptionButtonCell.self, forCellReuseIdentifier: DescriptionButtonCell.identifier)
-        
-        register(TaskDetailLabelsButtonCell.self, forCellReuseIdentifier: TaskDetailLabelsButtonCell.identifier)
+        register(TaskDetailAddSubtaskCell.self, forCellReuseIdentifier: TaskDetailAddSubtaskCell.className)
+        register(TaskDetailAddToMyDayCell.self, forCellReuseIdentifier: TaskDetailAddToMyDayCell.className)
+        register(ReminderDateButtonCell.self, forCellReuseIdentifier: ReminderDateButtonCell.className)
+        register(DeadlineDateButtonCell.self, forCellReuseIdentifier: DeadlineDateButtonCell.className)
+        register(RepeatPeriodButtonCell.self, forCellReuseIdentifier: RepeatPeriodButtonCell.className)
+        register(AddFileButtonCell.self, forCellReuseIdentifier: AddFileButtonCell.className)
+        register(FileButtonCell.self, forCellReuseIdentifier: FileButtonCell.className)
+        register(DescriptionButtonCell.self, forCellReuseIdentifier: DescriptionButtonCell.className)
+        register(TaskDetailLabelsButtonCell.self, forCellReuseIdentifier: TaskDetailLabelsButtonCell.className)
     }
     
 }

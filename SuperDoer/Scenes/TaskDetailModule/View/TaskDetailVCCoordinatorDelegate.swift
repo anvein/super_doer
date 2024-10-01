@@ -1,24 +1,24 @@
 
 protocol TaskDetailVCCoordinatorDelegate: AnyObject {
     /// Тап по ячейке с датой напоминания по задаче
-    func tapReminderDateCell()
+    func taskDetailVCDidTapReminderDateCell()
 
     /// Тап по ячейке с датой дедлайна задачи
-    func tapDeadlineDateCell()
+    func taskDetailVCDidTapDeadlineDateCell()
 
     /// Тап по ячейке с периодом повтора задачи
-    func tapRepeatPeriodCell()
+    func taskDetailVCDidTapRepeatPeriodCell()
 
     // Тап по ячейке с описанием задачи
-    func tapDecriptionCell()
+    func taskDetailVCDidTapDecriptionCell()
 
     // Тап по ячейке "добавления файла"
-    func tapAddFileCell()
+    func taskDetailVCDidTapAddFileCell()
 
     /// Пользователь начал "удалять задачу"
-    func startDeleteProcessFile(viewModel: TaskFileDeletableViewModel)
+    func taskDetailVCStartDeleteProcessFile(viewModel: TaskFileDeletableViewModel)
 
     /// Задача закрыта (ушли с экрана просмотра / редактирования задачи)
-    func closeTaskDetail()
+    func taskDetailVCDidCloseTaskDetail()
 
 }

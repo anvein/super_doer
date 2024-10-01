@@ -7,8 +7,8 @@ final class CheckboxButton: UIButton {
 
     override var isHighlighted: Bool {
         didSet {
-            Self.animate(withDuration: 0.15, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction]) {
-                self.transform = self.isHighlighted ? .init(scaleX: 0.85, y: 0.85) : .identity
+            Self.animate(withDuration: 0.07, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction]) {
+                self.transform = self.isHighlighted ? .init(scaleX: 0.9, y: 0.9) : .identity
             }
         }
     }

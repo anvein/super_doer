@@ -4,10 +4,6 @@ import UIKit
 /// Кнопка-ячейка "Срок выполнения задачи"
 class DeadlineDateButtonCell: TaskDetailLabels2StatesButtonCell {
     
-    class override var identifier: String {
-        return "DeadlineDateButtonCell"
-    }
-    
     override var defaultMainText: String {
         return "Добавить дату выполнения"
     }

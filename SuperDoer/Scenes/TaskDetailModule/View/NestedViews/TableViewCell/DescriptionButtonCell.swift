@@ -2,14 +2,12 @@
 import UIKit
 
 /// Кнопка-ячейка для "Описания задачи"
-class DescriptionButtonCell: UITableViewCell {
+final class DescriptionButtonCell: UITableViewCell {
     
     enum State {
         case empty
         case textFilled
     }
-    
-    static let identifier = "DescriptionButtonCell"
     
     static let emptyHeight = 135
     static let maxHeight = 172
@@ -194,7 +192,8 @@ class DescriptionButtonCell: UITableViewCell {
     
 }
 
-// MARK: delegate protocol
+// MARK: - DescriptionButtonCellDelegateProtocol
+
 protocol DescriptionButtonCellDelegateProtocol: AnyObject {
     func didTapTaskDescriptionOpenButton()
 }

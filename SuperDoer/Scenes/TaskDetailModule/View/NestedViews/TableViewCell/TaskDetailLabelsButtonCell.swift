@@ -3,20 +3,17 @@
 import UIKit
 
 /// Ячейка для кнопки с лэйблами
-class TaskDetailLabelsButtonCell: TaskDetailBaseButtonCell {
-    
-    class override var identifier: String {
-        return "TaskDetailWithLabelsButtonCell"
-    }
-    
+class TaskDetailLabelsButtonCell: TaskDetailBaseCell {
+
+    // MARK: - Subviews
+
     let leftImageView = UIImageView()
-    
     let labelsStackView = UIStackView()
     let mainTextLabel = UILabel()
     let additionalTextLabel = UILabel()
-    
-    
-    // MARK: setup methods
+
+    // MARK: - Setup
+
     override func addSubviews() {
         super.addSubviews()
     
@@ -27,20 +24,17 @@ class TaskDetailLabelsButtonCell: TaskDetailBaseButtonCell {
         labelsStackView.addArrangedSubview(additionalTextLabel)
     }
     
-    override func setupViews()
-    {
-        super.setupViews()
-        
-        leftImageView.translatesAutoresizingMaskIntoConstraints = false
-        leftImageView.image = createLeftButtonImage()
-        leftImageView.tintAdjustmentMode = .normal
+    override func setupSubviews() {
+        super.setupSubviews()
 
-        labelsStackView.translatesAutoresizingMaskIntoConstraints = false
         labelsStackView.axis = .vertical
         labelsStackView.alignment = .leading
         labelsStackView.distribution = .equalCentering
         labelsStackView.spacing = 0
-        
+
+        leftImageView.image = createLeftButtonImage()
+        leftImageView.tintAdjustmentMode = .normal
+
         mainTextLabel.numberOfLines = 1
         mainTextLabel.font = mainTextLabel.font.withSize(16)
         
@@ -50,22 +44,23 @@ class TaskDetailLabelsButtonCell: TaskDetailBaseButtonCell {
     
     override func setupConstraints() {
         super.setupConstraints()
-        
-        // leftImageView
-        NSLayoutConstraint.activate([
-            leftImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            leftImageView.centerXAnchor.constraint(equalTo: contentView.leftAnchor, constant: 32)
-        ])
-        
-        // labelsStackView
-        NSLayoutConstraint.activate([
-            labelsStackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            labelsStackView.leftAnchor.constraint(equalTo: leftImageView.centerXAnchor, constant: 32),
-            labelsStackView.rightAnchor.constraint(equalTo: actionButton.centerXAnchor, constant: -32),
-        ])
+
+        leftImageView.snp.makeConstraints {
+            $0.size.equalTo(23)
+            $0.centerY.equalTo(contentView)
+            $0.centerX.equalTo(contentView.snp.leading).offset(32)
+        }
+
+        labelsStackView.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.leading.equalTo(leftImageView.snp.centerX).offset(32)
+            $0.right.equalTo(actionButton.snp.centerX).offset(-32)
+        }
     }
-    
-    // MARK: methods helpers
+
+    // MARK: - Helpers
+
+    /// Override if needed
     func createLeftButtonImage() -> UIImage? {
         return nil
     }
