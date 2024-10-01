@@ -104,7 +104,7 @@ extension CustomDateSetterViewController {
     }
     
     private func setupControls() {
-        view.backgroundColor = InterfaceColors.white
+        view.backgroundColor = .Common.white
     
         // sheetPresentationController
         if let sheet = sheetPresentationController {
@@ -120,7 +120,7 @@ extension CustomDateSetterViewController {
         datePicker.translatesAutoresizingMaskIntoConstraints = false
         datePicker.datePickerMode = datePickerMode.asUIDatePickerMode
         datePicker.preferredDatePickerStyle = .inline
-        datePicker.tintColor = InterfaceColors.textBlue
+        datePicker.tintColor = .Text.blue
         datePicker.locale = .current
     }
     
@@ -142,7 +142,7 @@ extension CustomDateSetterViewController {
             target: self,
             action: #selector(tapButtonReady)
         )
-        readyBarButton.tintColor = InterfaceColors.textBlue
+        readyBarButton.tintColor = .Text.blue
         
         return readyBarButton
     }
@@ -154,8 +154,8 @@ extension CustomDateSetterViewController {
             target: self,
             action: #selector(tapButtonDelete)
         )
-        deleteBarButton.tintColor = InterfaceColors.textRed
-        
+        deleteBarButton.tintColor = .Text.red
+
         return deleteBarButton
     }
     

@@ -11,9 +11,9 @@ class TaskDeletableViewModel: BaseDeletableItemViewModel {
         )
     }
     
-    static func createFrom(task: CDTask, indexPath: IndexPath) -> TaskDeletableViewModel {
-        return TaskDeletableViewModel(
-            title: task.title ?? "",
+    init(task: TaskListItem, indexPath: IndexPath) {
+        super.init(
+            title: task.title,
             indexPath: indexPath
         )
     }

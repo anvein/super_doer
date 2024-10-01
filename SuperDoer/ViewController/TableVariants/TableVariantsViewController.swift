@@ -84,7 +84,7 @@ extension TableVariantsViewController {
     }
     
     private func setupController() {
-        view.backgroundColor = InterfaceColors.white
+        view.backgroundColor = .Common.white
         // TODO: заголовок (title) в ночном режиме не виден (он белый)
         
         modalPresentationStyle = .pageSheet
@@ -120,11 +120,6 @@ extension TableVariantsViewController {
             detent = .custom(identifier: .taskRepeatPeriodVariants, resolver: { context in
                 return 380
             })
-            
-        default:
-            detent = .custom(identifier: .defuiltVariantsController, resolver: { context in
-                return 280
-            })
         }
         
         return detent
@@ -133,20 +128,20 @@ extension TableVariantsViewController {
     private func setupNavigationBar() {
         // deleteBarButton
         let deleteBarButton = UIBarButtonItem(title: "Удалить", style: .done, target: self, action: #selector(tapButtonDelete))
-        deleteBarButton.tintColor = InterfaceColors.textRed
+        deleteBarButton.tintColor = .Text.red
         navigationItem.leftBarButtonItem = deleteBarButton
         
         // readyBarButton
         let readyBarButton = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(tapButtonReady))
-        readyBarButton.tintColor = InterfaceColors.textBlue
+        readyBarButton.tintColor = .Text.blue
         navigationItem.rightBarButtonItem = readyBarButton
         
         // navigationBar
         if let naviBar = navigationController?.navigationBar {
-            naviBar.standardAppearance.backgroundColor = InterfaceColors.white
+            naviBar.standardAppearance.backgroundColor = .Common.white
             naviBar.titleTextAttributes = [
                 .font: UIFont.systemFont(ofSize: 18, weight: .semibold),
-                .foregroundColor: InterfaceColors.blackText
+                .foregroundColor: UIColor.Text.black
             ]
         }
     }

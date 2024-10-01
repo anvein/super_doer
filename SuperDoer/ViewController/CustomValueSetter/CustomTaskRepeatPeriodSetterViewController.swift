@@ -91,7 +91,7 @@ extension CustomTaskRepeatPeriodSetterViewController {
     
     private func setupControls() {
         // self view
-        view.backgroundColor = InterfaceColors.white
+        view.backgroundColor = .Common.white
         
         // readyBarButton
         let readyBarButton = UIBarButtonItem(
@@ -100,7 +100,7 @@ extension CustomTaskRepeatPeriodSetterViewController {
             target: self,
             action: #selector(tapButtonReady)
         )
-        readyBarButton.tintColor = InterfaceColors.textBlue
+        readyBarButton.tintColor = .Text.blue
         navigationItem.rightBarButtonItem = readyBarButton
     
         // sheetPresentationController

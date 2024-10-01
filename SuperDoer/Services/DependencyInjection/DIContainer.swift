@@ -29,8 +29,8 @@ final class DIContainer {
             return TaskSectionEntityManager()
         }).inObjectScope(.container)
         
-        Self.shared.register(TaskEntityManager.self, factory: { _ in
-            return TaskEntityManager()
+        Self.shared.register(TaskCoreDataManager.self, factory: { _ in
+            return TaskCoreDataManager()
         }).inObjectScope(.container)
         
         Self.shared.register(TaskFileEntityManager.self) { _ in
@@ -55,7 +55,15 @@ final class DIContainer {
         
         
         // MARK: ViewModel
-        
+     
+        // MARK: - Models
+
+        Self.shared.register(TaskListModel.self) { r, arg1 in
+            return TaskListModel(
+                taskSection: arg1,
+                taskCDManager: r.resolve(TaskCoreDataManager.self)!
+            )
+        }.inObjectScope(.container)
     }
     
 }

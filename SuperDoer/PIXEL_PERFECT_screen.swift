@@ -3,15 +3,30 @@ import Foundation
 
 class PIXEL_PERFECT_screen {
 
+    // MARK: - Services
+
+    private lazy var userDefaults: UserDefaults? = .init(suiteName: "com.nova.pixelperfect")
+
     // MARK: - Settings
 
     private var imageName: String
 
-    /// К какой стороне крепить изображение
-    private var imageAttachSide: PPImageAttachVerticalSide
+    /// Какой Scale у изображения относительно логического разрешения экрана
+    private var imageScaleFactor: Float
 
-    /// Отступ для изображения от выбранного imageAnchorSide (.topAnchor / .bottomAnchor)
-    private var imageAttachSideOffsetConstant: Float
+    // MARK: - Constraints
+
+    private var screenTopConstraint: NSLayoutConstraint?
+    private var screenLeadingConstraint: NSLayoutConstraint?
+    private var screenWidthConstraint: NSLayoutConstraint?
+
+    private var controlsBottomConstraint: NSLayoutConstraint?
+
+    // MARK: - State
+
+    private var isVisibleImage = false
+    private var isVisibleLinesSpacings = false
+    private var isVisibleSliders = true
 
     /// Отступ для контролов от bottomAnchor
     private var controlsBottomAnchorConstant: Float {
@@ -19,24 +34,6 @@ class PIXEL_PERFECT_screen {
             controlsBottomConstraint?.constant = CGFloat(controlsBottomAnchorConstant)
         }
     }
-
-    /// Какой Scale у изображения
-    /// (на сколько делить по высоте картинку для выставления размера)
-    private var imageHeightDivider: Float
-
-    // MARK: - Constraints
-
-    private var screenRightConstraint: NSLayoutConstraint?
-
-    private var controlsBottomConstraint: NSLayoutConstraint?
-
-    // MARK: - State
-
-    private var isVisibleImage = false
-
-    private var isVisibleLinesSpacings = false
-
-    private var isVisibleSliders = true
 
     // MARK: - Subviews
 
@@ -54,7 +51,7 @@ class PIXEL_PERFECT_screen {
         $0.layer.zPosition = PPZPosition.control.asCgFloat
         $0.backgroundColor = .systemBlue
         $0.tintColor = .white
-        $0.layer.cornerRadius = 15
+        $0.layer.cornerRadius = PPConstants.menuButtonSize / 2
         $0.setImage(UIImage(systemName: "plus"), for: .normal)
         $0.showsMenuAsPrimaryAction = true
         $0.menu = buildActionsMenu()
@@ -71,7 +68,7 @@ class PIXEL_PERFECT_screen {
 
     private lazy var screenImageView: UIImageView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
-        $0.tag = PPTagView.screenImageView
+        $0.tag = PPConstants.screenImageViewTag
         $0.isUserInteractionEnabled = true
         $0.layer.zPosition = PPZPosition.image.asCgFloat
 
@@ -91,7 +88,7 @@ class PIXEL_PERFECT_screen {
     /// Настройки слайдеров для следующего инстанса PIXEL_PERFECT_screen
     private static var slidersConfigsForNext: [PPSliderConfig] = []
 
-    /// Свойство для хранения посленднего значения последнего измененного слайдера
+    /// Свойство для временного хранения посленднего значения последнего измененного слайдера
     private var lastSliderValue: Float = 0
 
     // MARK: - Init
@@ -99,17 +96,13 @@ class PIXEL_PERFECT_screen {
     private init(
         baseView: UIView,
         imageName: String,
-        imageAttachSide: PPImageAttachVerticalSide,
-        imageAttachSideOffset: Float,
         controlsBottomSideOffset: Float,
-        imageHeightDivider: Float
+        imageScaleFactor: Float
     ) {
         self.baseView = baseView
         self.imageName = imageName
-        self.imageAttachSide = imageAttachSide
-        self.imageAttachSideOffsetConstant = imageAttachSideOffset
         self.controlsBottomAnchorConstant = controlsBottomSideOffset
-        self.imageHeightDivider = imageHeightDivider
+        self.imageScaleFactor = imageScaleFactor
 
         setupMain()
     }
@@ -124,18 +117,14 @@ class PIXEL_PERFECT_screen {
     static func createAndSetupInstance(
         baseView: UIView,
         imageName: String = "PIXEL_PERFECT_image",
-        imageAttachSide: PPImageAttachVerticalSide = .top,
-        imageAttachSideOffset: Float = 0,
         controlsBottomSideOffset: Float = 0,
-        imageHeightDivider: Float = 3
+        imageScaleFactor: Float = 3
     ) -> PIXEL_PERFECT_screen {
         let instance = PIXEL_PERFECT_screen(
             baseView: baseView,
             imageName: imageName,
-            imageAttachSide: imageAttachSide,
-            imageAttachSideOffset: imageAttachSideOffset,
             controlsBottomSideOffset: controlsBottomSideOffset,
-            imageHeightDivider: imageHeightDivider
+            imageScaleFactor: imageScaleFactor
         )
         PIXEL_PERFECT_screen.slidersConfigsForNext = []
         PIXEL_PERFECT_screen.instances[imageName] = instance
@@ -189,7 +178,7 @@ private extension PIXEL_PERFECT_screen {
         }
 
         screenImageView.addGestureRecognizer(
-            UIPanGestureRecognizer(target: self, action: #selector(imageSwipeForChangeAlphaHandler(_:)))
+            UIPanGestureRecognizer(target: self, action: #selector(imagePanGestureHandler(_:)))
         )
 
         // screenIsVisibleSwitch
@@ -203,7 +192,7 @@ private extension PIXEL_PERFECT_screen {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(updateMenuForActionsMenuButton),
-            name: PPNotifications.actionsMenuActionSelected,
+            name: PPNotifications.actionsMenuStateUpdated,
             object: nil
         )
     }
@@ -219,7 +208,7 @@ private extension PIXEL_PERFECT_screen {
 
         let switchBottomConstraint = isVisibleScreenSwitch.bottomAnchor.constraint(
             equalTo: baseView.safeAreaLayoutGuide.bottomAnchor,
-            constant: CGFloat(controlsBottomAnchorConstant)
+            constant: CGFloat(PPConstants.defaultControlsBottomPadding)
         )
 
         NSLayoutConstraint.activate([
@@ -234,32 +223,9 @@ private extension PIXEL_PERFECT_screen {
         NSLayoutConstraint.activate([
             actionsMenuButton.leadingAnchor.constraint(equalTo: isVisibleScreenSwitch.leadingAnchor),
             actionsMenuButton.bottomAnchor.constraint(equalTo: isVisibleScreenSwitch.topAnchor, constant: -10),
-            actionsMenuButton.heightAnchor.constraint(equalToConstant: 30),
-            actionsMenuButton.widthAnchor.constraint(equalToConstant: 30),
+            actionsMenuButton.heightAnchor.constraint(equalToConstant: PPConstants.menuButtonSize),
+            actionsMenuButton.widthAnchor.constraint(equalToConstant: PPConstants.menuButtonSize),
         ])
-
-//        // slider's
-//        var prevSlider: UISlider?
-//        sliders.forEach { slider in
-//            baseView.addSubview(slider)
-//
-//            let lastAddedSliderBottomConstraint: NSLayoutConstraint
-//            if let prevSlider = prevSlider {
-//                lastAddedSliderBottomConstraint = slider.bottomAnchor.constraint(equalTo: prevSlider.topAnchor)
-//            } else {
-//                lastAddedSliderBottomConstraint = slider.bottomAnchor.constraint(
-//                    equalTo: isVisibleScreenSwitch.bottomAnchor
-//                )
-//            }
-//
-//            NSLayoutConstraint.activate([
-//                slider.leftAnchor.constraint(equalTo: isVisibleScreenSwitch.rightAnchor, constant: 20),
-//                slider.rightAnchor.constraint(equalTo: baseView.safeAreaLayoutGuide.rightAnchor, constant: -20),
-//                lastAddedSliderBottomConstraint
-//            ])
-//
-//           prevSlider = slider
-//        }
     }
 
     // MARK: - Update view
@@ -275,7 +241,7 @@ private extension PIXEL_PERFECT_screen {
             return
         }
 
-        let imageView = baseView.viewWithTag(777)
+        let imageView = baseView.viewWithTag(PPConstants.screenImageViewTag)
         if imageView == nil {
             baseView.addSubview(screenImageView)
 
@@ -299,33 +265,42 @@ private extension PIXEL_PERFECT_screen {
                 baseView.bringSubviewToFront(lineSpacing)
             }
 
-            let rightConstraint = screenImageView.rightAnchor.constraint(equalTo: baseView.rightAnchor)
-            screenRightConstraint = rightConstraint
+            // screenImageView
+            let imageTopOffset = getImageTopOffsetValueFromUD()
+            let topAnchorConstraint = screenImageView.topAnchor.constraint(
+                equalTo: baseView.topAnchor,
+                constant: CGFloat(imageTopOffset)
+            )
+            self.screenTopConstraint = topAnchorConstraint
 
-            let topOrBottomAnchorConstraint: NSLayoutConstraint
-            if imageAttachSide == .top {
-                topOrBottomAnchorConstraint = screenImageView.topAnchor.constraint(
-                    equalTo: baseView.topAnchor,
-                    constant: CGFloat(imageAttachSideOffsetConstant)
-                )
-            } else {
-                topOrBottomAnchorConstraint = screenImageView.bottomAnchor.constraint(
-                    equalTo: baseView.bottomAnchor,
-                    constant: CGFloat(imageAttachSideOffsetConstant)
-                )
-            }
+            let imageLeadingOffset = getImageLeadingOffsetValueFromUD()
+            let leadingAnchorConstraint = screenImageView.leadingAnchor.constraint(
+                equalTo: baseView.leadingAnchor,
+                constant: CGFloat(imageLeadingOffset)
+            )
+            self.screenLeadingConstraint = leadingAnchorConstraint
+
+            let imageWidthConstraint = screenImageView.widthAnchor.constraint(
+                equalToConstant:  screenImage.size.width / CGFloat(imageScaleFactor)
+            )
+            self.screenWidthConstraint = imageWidthConstraint
 
             NSLayoutConstraint.activate([
-                topOrBottomAnchorConstraint,
-                screenImageView.leftAnchor.constraint(equalTo: baseView.leftAnchor),
-                rightConstraint,
-                screenImageView.heightAnchor.constraint(equalToConstant: screenImage.size.height / CGFloat(imageHeightDivider))
+                topAnchorConstraint,
+                leadingAnchorConstraint,
+                imageWidthConstraint,
+                screenImageView.heightAnchor.constraint(
+                    equalToConstant: screenImage.size.height / CGFloat(imageScaleFactor)
+                ),
             ])
         }
 
+        let imageRealWidth = screenImage.size.width / CGFloat(imageScaleFactor)
+        screenWidthConstraint?.constant = isViewScreen ? imageRealWidth : 0
+
         screenImageView.alpha = isViewScreen ? 1 : screenImageView.alpha
         screenImageView.isHidden = !isViewScreen
-        screenImageView.layer.zPosition = 99998
+        screenImageView.layer.zPosition = PPZPosition.image.asCgFloat
     }
 
     // MARK: - Sliders functions
@@ -364,6 +339,11 @@ private extension PIXEL_PERFECT_screen {
         ])
 
         slider.addTarget(self, action: #selector(sliderDoubleTap(slider:)), for: .touchDownRepeat)
+        slider.addTarget(
+            self,
+            action: #selector(sliderDidEndChangeValue(slider:)),
+            for: [.touchUpInside, .touchUpOutside]
+        )
 
         slider.addAction(UIAction(handler: { [weak self] action in
             guard let slider = action.sender as? PPSlider else { return }
@@ -376,12 +356,14 @@ private extension PIXEL_PERFECT_screen {
     }
 
     func buildSliderFromConfig(_ config: PPSliderConfig) -> PPSlider {
-        let slider = PPSlider()
+        let slider = PPSlider(config: config)
         slider.title = config.title
 
-        slider.minimumValue = config.minValue
-        slider.maximumValue = config.maxValue
-        slider.value = config.initialValue
+        let values = calculateValuesForSlider(config: config)
+
+        slider.minimumValue = values.min
+        slider.maximumValue = values.max
+        slider.value = values.current
 
         return slider
     }
@@ -716,25 +698,84 @@ private extension PIXEL_PERFECT_screen {
         lastSliderValue = newValue
     }
 
+    @objc func sliderDidEndChangeValue(slider: PPSlider) {
+        let newValue = round(slider.value)
+        saveSliderCurrentValueToUD(sliderConfig: slider.config, value: newValue)
+
+        let sliderValues = calculateValuesForSlider(
+            config: slider.config,
+            currentValue: newValue,
+            slider: slider
+        )
+        slider.minimumValue = sliderValues.min
+        slider.maximumValue = sliderValues.max
+    }
+
     @objc func sliderDoubleTap(slider: PPSlider) {
         slider.isHidden = !slider.isHidden
     }
 
-    @objc func imageSwipeForChangeAlphaHandler(_ sender: UIPanGestureRecognizer) {
-        guard let superview = sender.view?.superview else { return }
+    @objc func imagePanGestureHandler(_ sender: UIPanGestureRecognizer) {
+        guard let senderView = sender.view,
+              let superview = senderView.superview else { return }
 
-        let translationPoint = sender.translation(in: superview)
-        let translationPointY = CGFloat(translationPoint.y)
+        let location = sender.location(in: senderView)
 
-        if translationPointY < 0 {
-            let newValue = screenImageView.alpha + (abs(translationPointY) / 200)
-            screenImageView.alpha = newValue >= 1 ? 1 : newValue
-        } else if translationPointY > 0 {
-            let newValue = screenImageView.alpha - (abs(translationPointY) / 200)
-            screenImageView.alpha = newValue <= 0 ? 0.05 : newValue
+        if location.y < senderView.bounds.height  / 4 {
+            changeImageLeftOffset(superview, sender)
+        } else if location.x > senderView.bounds.width / 3 {
+            changeImageAlpha(superview, sender)
+        } else {
+            changeImageTopOffset(superview, sender)
         }
 
-        sender.setTranslation(CGPoint.zero, in: superview)
+        func changeImageAlpha(_ superView: UIView, _ sender: UIPanGestureRecognizer) {
+            let translationPoint = sender.translation(in: superView)
+            let translationPointY = CGFloat(translationPoint.y)
+
+            var newValue: CGFloat = 0
+            if translationPointY < 0 {
+                newValue = screenImageView.alpha + (abs(translationPointY) / 200)
+                screenImageView.alpha = newValue >= 1 ? 1 : newValue
+            } else if translationPointY > 0 {
+                newValue = screenImageView.alpha - (abs(translationPointY) / 200)
+                screenImageView.alpha = newValue <= 0 ? 0.05 : newValue
+            }
+
+            sender.setTranslation(CGPoint.zero, in: superView)
+        }
+
+        func changeImageTopOffset(_ superView: UIView, _ sender: UIPanGestureRecognizer) {
+            guard let currentTopOffset = screenTopConstraint?.constant else { return }
+
+            let translationPoint = sender.translation(in: superView)
+            let translationPointY = Int(translationPoint.y)
+
+            if translationPointY != 0 {
+                screenTopConstraint?.constant = currentTopOffset + CGFloat(translationPointY)
+                sender.setTranslation(CGPoint.zero, in: superView)
+            }
+
+            if sender.state == .ended || sender.state == .cancelled {
+                postNotificationMenuStateDidUpdated()
+            }
+        }
+
+        func changeImageLeftOffset(_ superView: UIView, _ sender: UIPanGestureRecognizer) {
+            guard let currentLeadingOffset = screenLeadingConstraint?.constant else { return }
+
+            let translationPoint = sender.translation(in: superView)
+            let translationPointX = Int(translationPoint.x)
+
+            if translationPointX != 0 {
+                screenLeadingConstraint?.constant = currentLeadingOffset + CGFloat(translationPointX)
+                sender.setTranslation(CGPoint.zero, in: superView)
+            }
+
+            if sender.state == .ended || sender.state == .cancelled {
+                postNotificationMenuStateDidUpdated()
+            }
+        }
     }
 
     @objc func updateMenuForActionsMenuButton() {
@@ -778,7 +819,126 @@ private extension PIXEL_PERFECT_screen {
         }
     }
 
-    // MARK: - Helpers common
+    func saveCurrentTopOffsetMenuActionHandler() {
+        let currentOffset = self.screenTopConstraint?.constant
+
+        if let currentOffset {
+            self.saveImageTopOffsetValueToUD(Int(currentOffset))
+            self.updateMenuForActionsMenuButton()
+            Self.printMessage(prefix: "✅➕", "Image top offset saved (\(currentOffset))")
+        } else {
+            Self.printError("Image top offset don't saved")
+        }
+    }
+
+    func saveCurrentLeadingOffsetMenuActionHandler() {
+        let currentOffset = self.screenLeadingConstraint?.constant
+
+        if let currentOffset {
+            self.saveImageLeadingOffsetValueToUD(Int(currentOffset))
+            self.updateMenuForActionsMenuButton()
+            Self.printMessage(prefix: "✅➕", "Image leading offset saved (\(currentOffset))")
+        } else {
+            Self.printError("Image leading offset don't saved")
+        }
+    }
+
+    func deleteCurrentTopOffsetMenuActionHandler() {
+        self.removeImageTopOffsetValueFromUD()
+        self.screenTopConstraint?.constant = 0
+        self.updateMenuForActionsMenuButton()
+
+        Self.printMessage(prefix: "✅🗑️", "Image top offset deleted")
+    }
+
+    func deleteCurrentLeadingOffsetMenuActionHandler() {
+        self.removeImageLeadingOffsetValueFromUD()
+        self.screenLeadingConstraint?.constant = 0
+        self.updateMenuForActionsMenuButton()
+
+        Self.printMessage(prefix: "✅🗑️", "Image leading offset deleted")
+    }
+
+    // MARK: - Helper UserDefaults
+
+    func saveImageTopOffsetValueToUD(_ value: Int) {
+        userDefaults?.setValue(
+            value,
+            forKey: getImageTopOffsetUDKey()
+        )
+    }
+
+    func removeImageTopOffsetValueFromUD() {
+        userDefaults?.removeObject(forKey: getImageTopOffsetUDKey())
+    }
+
+    func getImageTopOffsetValueFromUD() -> Int {
+        return userDefaults?.integer(forKey: getImageTopOffsetUDKey()) ?? 0
+    }
+
+    func getImageTopOffsetUDKey() -> String {
+        return "\(imageName)_\(PPConstants.imageTopOffsetKeyUD)"
+    }
+
+    func saveImageLeadingOffsetValueToUD(_ value: Int) {
+        userDefaults?.setValue(
+            value,
+            forKey: getImageLeadingOffsetUDKey()
+        )
+    }
+
+    func removeImageLeadingOffsetValueFromUD() {
+        userDefaults?.removeObject(forKey: getImageLeadingOffsetUDKey())
+    }
+
+    func getImageLeadingOffsetValueFromUD() -> Int {
+        return userDefaults?.integer(forKey: getImageLeadingOffsetUDKey()) ?? 0
+    }
+
+    func getImageLeadingOffsetUDKey() -> String {
+        return "\(imageName)_\(PPConstants.imageLeadingOffsetKeyUD)"
+    }
+
+    func saveSliderCurrentValueToUD(sliderConfig: PPSliderConfig, value: Float) {
+        guard let sliderTitle = sliderConfig.title else { return }
+        let sliderUDCurrentValueKey = buildSliderCurrentValueUDKey(sliderTitle: sliderTitle)
+
+        userDefaults?.setValue(value, forKey: sliderUDCurrentValueKey)
+    }
+
+    func getSliderCurrentValueFromUD(sliderConfig: PPSliderConfig) -> Float? {
+        guard let sliderTitle = sliderConfig.title else { return nil }
+        let sliderUDCurrentValueKey = buildSliderCurrentValueUDKey(sliderTitle: sliderTitle)
+
+        let value = userDefaults?.float(forKey: sliderUDCurrentValueKey)
+
+        return (value != 0 && value != nil) ? value : nil
+    }
+
+    func buildSliderCurrentValueUDKey(sliderTitle: String) -> String {
+        let validTitleForKey = makeValidUserDefaultsKey(from: sliderTitle)
+
+        return "\(imageName)_\(PPConstants.sliderCurrentValueKeyUD)_\(validTitleForKey)"
+    }
+
+    func makeValidUserDefaultsKey(from string: String) -> String {
+        let allowedCharacters = CharacterSet.alphanumerics.union(.init(charactersIn: "-._"))
+        let filteredString = string.unicodeScalars.map { allowedCharacters.contains($0) ? Character($0) : "_" }
+
+        return String(filteredString)
+    }
+
+    // MARK: - Helpers printing
+
+    static func printError(_ text: String) {
+        Self.printMessage(prefix: "❌ ❌ ❌", text)
+    }
+
+    static func printMessage(prefix: String, _ text: String) {
+        print("\(prefix) PIXEL PERFECT SCREEN: \(text)")
+    }
+
+    // MARK: - Helpers for Menu button
 
     func buildActionsMenu() -> UIMenu {
         let addHorizontalLineItem = UIAction(
@@ -797,15 +957,17 @@ private extension PIXEL_PERFECT_screen {
 
         // submenuLinesSpacings
 
+        var submenuItemsLinesSpacings: [UIAction] = []
+
         let showHideLinesSpacings = UIAction(
             title: "Show Line spacings",
             image: UIImage(systemName: "arrow.up.and.down.text.horizontal"),
             state: isVisibleLinesSpacings ? .on : .off
         ) { [weak self] (_) in
             self?.isVisibleLinesSpacingMenuItemSelected()
-            self?.postNotificationDidSelectActionsMenuElement()
+            self?.postNotificationMenuStateDidUpdated()
         }
-        var submenuItemsLinesSpacings = [showHideLinesSpacings]
+        submenuItemsLinesSpacings.append(showHideLinesSpacings)
 
         if isVisibleLinesSpacings {
             let rebuildLinesSpacings = UIAction(
@@ -823,6 +985,62 @@ private extension PIXEL_PERFECT_screen {
             children: submenuItemsLinesSpacings
         )
 
+        // submenuImageTopOffset
+
+        var submenuImageTopOffsetChildren: [UIAction] = []
+
+        let deleteImageTopOffset = UIAction(
+            title: "Delete top offset",
+            image: UIImage(systemName: "delete.right"),
+            attributes: [.destructive]
+        ) { [weak self] (_) in
+            self?.deleteCurrentTopOffsetMenuActionHandler()
+        }
+        submenuImageTopOffsetChildren.append(deleteImageTopOffset)
+
+        let imageTopOffsetAsString = getCurrentImageTopOffsetAsString()
+        let saveImageTopOffset = UIAction(
+            title: "Save top offset \(imageTopOffsetAsString)",
+            image: UIImage(systemName: "dock.arrow.down.rectangle")
+        ) { [weak self] (_) in
+            self?.saveCurrentTopOffsetMenuActionHandler()
+        }
+        submenuImageTopOffsetChildren.append(saveImageTopOffset)
+
+        let submenuImageTopOffset = UIMenu(
+            title: "",
+            options: .displayInline,
+            children: submenuImageTopOffsetChildren
+        )
+
+        // submenuImageLeadingOffset
+
+        var submenuImageLeadingOffsetChildren: [UIAction] = []
+
+        let deleteImageLeadingOffset = UIAction(
+            title: "Delete leading offset",
+            image: UIImage(systemName: "delete.right"),
+            attributes: [.destructive]
+        ) { [weak self] (_) in
+            self?.deleteCurrentLeadingOffsetMenuActionHandler()
+        }
+        submenuImageLeadingOffsetChildren.append(deleteImageLeadingOffset)
+
+        let imageLeadingOffsetAsString = getCurrentImageLeadingOffsetAsString()
+        let saveImageLeadingOffset = UIAction(
+            title: "Save leading offset \(imageLeadingOffsetAsString)",
+            image: UIImage(systemName: "rectangle.righthalf.inset.filled.arrow.right")
+        ) { [weak self] (_) in
+            self?.saveCurrentLeadingOffsetMenuActionHandler()
+        }
+        submenuImageLeadingOffsetChildren.append(saveImageLeadingOffset)
+
+        let submenuImageLeadingOffset = UIMenu(
+            title: "",
+            options: .displayInline,
+            children: submenuImageLeadingOffsetChildren
+        )
+
         // submenuOthers
 
         let isVisibleSlidersAction = UIAction(
@@ -831,7 +1049,7 @@ private extension PIXEL_PERFECT_screen {
             state: isVisibleSliders ? .on : .off
         ) { [weak self] (_) in
             self?.isVisibleSlidersItemSelected()
-            self?.postNotificationDidSelectActionsMenuElement()
+            self?.postNotificationMenuStateDidUpdated()
         }
 
         let submenuOthers = UIMenu(
@@ -842,13 +1060,40 @@ private extension PIXEL_PERFECT_screen {
 
         return UIMenu(
             title: "",
-            children: [addHorizontalLineItem, addVerticalLineItem, submenuLinesSpacings, submenuOthers]
+            children: [
+                addHorizontalLineItem,
+                addVerticalLineItem,
+                submenuLinesSpacings,
+                submenuImageLeadingOffset,
+                submenuImageTopOffset,
+                submenuOthers,
+            ]
         )
+
+        // indirect functions
+
+        func getCurrentImageTopOffsetAsString() -> String {
+            if let imageTopOffset = screenTopConstraint?.constant {
+                return String(Int(imageTopOffset))
+            } else {
+                return "??"
+            }
+        }
+
+        func getCurrentImageLeadingOffsetAsString() -> String {
+            if let imageLeadingOffset = screenLeadingConstraint?.constant {
+                return String(Int(imageLeadingOffset))
+            } else {
+                return "??"
+            }
+        }
     }
 
-    func postNotificationDidSelectActionsMenuElement() {
+    // MARK: - Other helpers
+
+    func postNotificationMenuStateDidUpdated() {
         NotificationCenter.default.post(
-            name: PPNotifications.actionsMenuActionSelected,
+            name: PPNotifications.actionsMenuStateUpdated,
             object: nil,
             userInfo: nil
         )
@@ -860,15 +1105,36 @@ private extension PIXEL_PERFECT_screen {
         )
     }
 
-    // MARK: - Helpers printing
+    func calculateValuesForSlider(
+        config: PPSliderConfig,
+        currentValue: Float? = nil,
+        slider: PPSlider? = nil
+    ) -> (min: Float, max: Float, current: Float) {
+        let currentValue = currentValue ?? getSliderCurrentValueFromUD(sliderConfig: config)
+        var minValue = slider?.minimumValue ?? config.minValue
+        var maxValue = slider?.maximumValue ?? config.maxValue
 
-    static func printError(_ text: String) {
-        Self.printMessage(prefix: "❌ ❌ ❌", text)
+        let total = maxValue - minValue
+        let percent10 = total * 0.1
+        let percent25 = total * 0.25
+
+        if let currentValue {
+            if currentValue <= minValue + percent10 {
+                minValue = min(currentValue, minValue) - percent25
+            }
+
+            if currentValue >= maxValue - percent10 {
+                maxValue = max(currentValue, maxValue) + percent25
+            }
+        }
+
+        return (
+            min: minValue,
+            max: maxValue,
+            current: currentValue ?? config.initialValue
+        )
     }
 
-    static func printMessage(prefix: String, _ text: String) {
-        print("\(prefix) PIXEL PERFECT SCREEN: \(text)")
-    }
 }
 
 // MARK: - PPSlider
@@ -887,8 +1153,11 @@ extension PIXEL_PERFECT_screen {
             }
         }
 
+        private(set) var config: PPSliderConfig
+
         private lazy var label: UILabel = {
             $0.translatesAutoresizingMaskIntoConstraints = false
+            $0.isUserInteractionEnabled = false
             $0.textColor = .white
             $0.shadowColor = .black
             $0.shadowOffset = .init(width: -1, height: 1)
@@ -898,8 +1167,9 @@ extension PIXEL_PERFECT_screen {
             return $0
         }(UILabel())
 
-        convenience init() {
-            self.init(frame: .zero)
+        init(config: PPSliderConfig) {
+            self.config = config
+            super.init(frame: .zero)
 
             layer.zPosition = PPZPosition.control.asCgFloat
             translatesAutoresizingMaskIntoConstraints = false
@@ -909,6 +1179,10 @@ extension PIXEL_PERFECT_screen {
                 label.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: 10),
                 label.bottomAnchor.constraint(equalTo: self.centerYAnchor, constant: 5)
             ])
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
         }
     }
 }
@@ -1345,7 +1619,7 @@ extension PIXEL_PERFECT_screen {
         }
 
         func updateSpacingByAboveAndBelowLinesOrBottom() {
-            guard let aboveLineTopAnchorConstant = aboveLine?.topAnchorLineConstraint?.constant else { 
+            guard let aboveLineTopAnchorConstant = aboveLine?.topAnchorLineConstraint?.constant else {
                 return
             }
 
@@ -1498,13 +1772,19 @@ extension PIXEL_PERFECT_screen {
         }
     }
 
-    enum PPImageAttachVerticalSide {
-        case top
-        case bottom
+    fileprivate struct PPNotifications {
+        static let actionsMenuStateUpdated: Notification.Name = .init("actionsMenuStateUpdated")
     }
 
-    fileprivate struct PPNotifications {
-        static let actionsMenuActionSelected: Notification.Name = .init("actionsMenuActionSelected")
+    fileprivate struct PPConstants {
+        static let imageTopOffsetKeyUD = "imageTopOffset"
+        static let imageLeadingOffsetKeyUD = "imageLeadingOffset"
+        static let sliderCurrentValueKeyUD = "sliderCurrentValue"
+
+        static let screenImageViewTag: Int = 7777
+
+        static let defaultControlsBottomPadding: CGFloat = 0
+        static let menuButtonSize: CGFloat = 30
     }
 
     fileprivate enum PPZPosition: Int {
@@ -1516,13 +1796,9 @@ extension PIXEL_PERFECT_screen {
         }
     }
 
-    fileprivate struct PPTagView {
-        static let screenImageView: Int = 7777
-    }
-
     fileprivate struct PPColorRandomizer {
         static func getColorForLine() -> UIColor {
-            let colors: [UIColor] = [.red, .orange, .purple, .blue]
+            let colors: [UIColor] = [.blue]
             return colors.randomElement() ?? .red
         }
     }

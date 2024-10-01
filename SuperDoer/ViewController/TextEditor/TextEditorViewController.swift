@@ -80,18 +80,18 @@ extension TextEditorViewController {
     }
     
     private func setupViewOfController() {
-        view.backgroundColor = InterfaceColors.white
+        view.backgroundColor = .Common.white
     }
     
     private func setupNavigationBar() {
         navigationBar.translatesAutoresizingMaskIntoConstraints = false
         navigationBar.delegate = self
         
-        navigationBar.backgroundColor = InterfaceColors.white
+        navigationBar.backgroundColor = .Common.white
         navigationBar.isTranslucent = false
         navigationBar.layer.borderWidth = 0.5
-        navigationBar.layer.borderColor = InterfaceColors.TaskDescriptionController.navBarSeparator.cgColor
-        
+        navigationBar.layer.borderColor = UIColor.TaskDescription.navBarSeparator.cgColor
+
         navigationBar.pushItem(navigationItem, animated: false)
     
         title = "Заметка"
@@ -107,8 +107,8 @@ extension TextEditorViewController {
     private func setupTaskDescriptionTextView() {
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.delegate = self
-        textView.backgroundColor = InterfaceColors.white
-        textView.textColor = InterfaceColors.blackText
+        textView.backgroundColor = .Common.white
+        textView.textColor = .Text.black
     }
     
     private func setupToolbar() {
@@ -120,7 +120,7 @@ extension TextEditorViewController {
         
         
 //        boldBarButtonItem.image = UIImage(systemName: "bold")
-//        boldBarButtonItem.tintColor = InterfaceColors.textGray
+//        boldBarButtonItem.tintColor = .Text.gray
 //
 //        toolbar.setItems([boldBarButtonItem], animated: false)
         
