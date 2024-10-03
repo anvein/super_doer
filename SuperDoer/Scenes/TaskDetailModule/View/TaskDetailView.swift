@@ -1,36 +1,34 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 final class TaskDetailView: UIView {
 
     private let viewModel: TaskDetailViewModel
 
+    private let disposeBag: DisposeBag = .init()
+
     // MARK: - Subviews
 
     private var topControlsContainerView: UIView = .init()
 
-    private lazy var taskDoneButton: CheckboxButton = {
-        $0.addTarget(self, action: #selector(didTapTaskDoneButton(sender:)), for: .touchUpInside)
-        return $0
-    }(CheckboxButton())
+    private let isCompletedTaskButton = CheckboxButton()
 
-    lazy var taskTitleTextView: UITextView = {
+    lazy var titleTextView: UITextView = {
         $0.isScrollEnabled = false
         $0.returnKeyType = .done
 
         $0.backgroundColor = .Common.white
         $0.textColor = .Text.black
-        $0.font = UIFont.systemFont(ofSize: 22, weight: .medium)
+        $0.font = .systemFont(ofSize: 22, weight: .medium)
 
         $0.delegate = self
         return $0
     }(UITextView())
 
-    private lazy var isPriorityButton: StarButton = {
-        $0.addTarget(self, action: #selector(didTapTaskIsPriorityButton(sender:)), for: .touchUpInside)
-        return $0
-    }(StarButton())
+    private lazy var isPriorityButton = StarButton()
 
     private lazy var taskDataTableView: TaskDetailTableView =  {
         $0.dataSource = self
@@ -51,7 +49,7 @@ final class TaskDetailView: UIView {
         super.init(frame: .zero)
         setup()
         setupSubvies()
-        setupBindingsToViewModel()
+        setupBindings()
     }
     
     required init?(coder: NSCoder) {
@@ -69,22 +67,22 @@ private extension TaskDetailView {
 
     func setupSubvies() {
         addSubviews(topControlsContainerView, taskDataTableView)
-        topControlsContainerView.addSubviews(taskDoneButton, taskTitleTextView, isPriorityButton)
+        topControlsContainerView.addSubviews(isCompletedTaskButton, titleTextView, isPriorityButton)
 
         topControlsContainerView.snp.makeConstraints {
             $0.top.equalTo(self.safeAreaLayoutGuide).offset(18)
             $0.horizontalEdges.equalToSuperview()
         }
 
-        taskDoneButton.snp.makeConstraints {
+        isCompletedTaskButton.snp.makeConstraints {
             $0.size.equalTo(26)
             $0.top.equalToSuperview().inset(9)
             $0.leading.equalToSuperview().inset(19)
         }
 
-        taskTitleTextView.snp.makeConstraints {
+        titleTextView.snp.makeConstraints {
             $0.verticalEdges.equalToSuperview()
-            $0.leading.equalTo(taskDoneButton.snp.trailing).offset(14)
+            $0.leading.equalTo(isCompletedTaskButton.snp.trailing).offset(14)
             $0.trailing.equalTo(isPriorityButton.snp.leading).offset(-5)
             $0.height.greaterThanOrEqualTo(45)
         }
@@ -101,30 +99,50 @@ private extension TaskDetailView {
         }
     }
 
-    func setupBindingsToViewModel() {
-        viewModel.taskTitleObservable.bindAndUpdateValue { [unowned self] title in
-            taskTitleTextView.text = title
-        }
+    func setupBindings() {
+        // VM -> V
+        viewModel.titleDriver
+            .drive(onNext: { [titleTextView] text in
+                guard titleTextView.text != text else { return }
+                titleTextView.text = text
+            })
+            .disposed(by: disposeBag)
 
-        viewModel.taskIsCompletedObservable.bindAndUpdateValue { [unowned self] isCompleted in
-            taskDoneButton.isOn = isCompleted
-        }
+        viewModel.isCompletedDriver
+            .drive(onNext: { [isCompletedTaskButton] isCompleted in
+                guard isCompleted != isCompletedTaskButton.isOn else { return }
+                isCompletedTaskButton.isOn = isCompleted
+            })
+            .disposed(by: disposeBag)
 
-        viewModel.taskIsPriorityObservable.bindAndUpdateValue { [unowned self] isPriority in
-            isPriorityButton.isOn = isPriority
-        }
+        viewModel.isPriorityDriver
+            .drive { [isPriorityButton] isPriority in
+                guard isPriority != isPriorityButton.isOn else { return }
+                isPriorityButton.isOn = isPriority
+            }
+            .disposed(by: disposeBag)
+
+        // V -> VM
+        titleTextView.rx.didEndEditing
+            .withLatestFrom(titleTextView.rx.text.orEmpty)
+            .subscribe(onNext: { [viewModel] text in
+                viewModel.updateTaskField(title: text)
+            })
+            .disposed(by: disposeBag)
+
+        isCompletedTaskButton.rx.tap
+            .subscribe(onNext: { [viewModel, isCompletedTaskButton] in
+                viewModel.updateTaskField(isCompleted: !isCompletedTaskButton.isOn)
+            })
+            .disposed(by: disposeBag)
+
+        isPriorityButton.rx.tap
+            .subscribe(onNext: { [viewModel, isPriorityButton] in
+                viewModel.updateTaskField(isPriority: !isPriorityButton.isOn)
+            })
+            .disposed(by: disposeBag)
 
         viewModel.bindingDelegate = self
-    }
-
-    // MARK: - Actions handlers
-
-    @objc func didTapTaskDoneButton(sender: CheckboxButton) {
-        viewModel.updateTaskField(isCompleted: !sender.isOn)
-    }
-
-    @objc func didTapTaskIsPriorityButton(sender: StarButton) {
-        viewModel.updateTaskField(isPriority: !sender.isOn)
     }
 
     // MARK: - Helpers
@@ -198,7 +216,7 @@ private extension TaskDetailView {
 
 extension TaskDetailView: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.countTaskDataCellsValues
+        return viewModel.countTaskDataCells
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -340,10 +358,6 @@ extension TaskDetailView: UITextViewDelegate {
 
     func textViewDidBeginEditing(_ textView: UITextView) {
 //        showTaskTitleNavigationItemReady()
-    }
-
-    func textViewDidEndEditing(_ textView: UITextView) {
-        viewModel.updateTaskField(title: textView.text)
     }
 
     // TODO: заменять перевод строки на пробел когда заканчивается редактирование названия

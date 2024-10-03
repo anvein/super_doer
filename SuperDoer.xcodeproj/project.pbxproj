@@ -22,6 +22,7 @@
 		361DD8FC2B08DE5C009A0AEE /* Task+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361DD8FA2B08DE5C009A0AEE /* Task+CoreDataClass.swift */; };
 		361F20D12B11EB4600CD4A90 /* TaskSectionEntityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361F20D02B11EB4600CD4A90 /* TaskSectionEntityManager.swift */; };
 		3621BD962CAEFF23000F3C17 /* UIBoxObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3621BD952CAEFF1D000F3C17 /* UIBoxObservable.swift */; };
+		3621BE552CAF2258000F3C17 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 3621BE542CAF2258000F3C17 /* RxRelay */; };
 		362568FC2B8519B300CFC5E4 /* AddSectionPanelTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362568FB2B8519B300CFC5E4 /* AddSectionPanelTextField.swift */; };
 		362AA8BA2B0F69EF0042A17C /* TaskFileEntityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362AA8B92B0F69EF0042A17C /* TaskFileEntityManager.swift */; };
 		362BFA0D2CAAA63B00E7D846 /* TaskDetailVCCoordinatorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362BFA0C2CAAA62D00E7D846 /* TaskDetailVCCoordinatorDelegate.swift */; };
@@ -308,6 +309,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3621BE552CAF2258000F3C17 /* RxRelay in Frameworks */,
 				36A312AD2CAAF6270019DDBA /* RxCocoa in Frameworks */,
 				366571742B96139100B9C6F7 /* Swinject in Frameworks */,
 				36A312AF2CAAF6270019DDBA /* RxSwift in Frameworks */,
@@ -1060,6 +1062,7 @@
 				36A580C92C95C77900CD7655 /* SnapKit */,
 				36A312AC2CAAF6270019DDBA /* RxCocoa */,
 				36A312AE2CAAF6270019DDBA /* RxSwift */,
+				3621BE542CAF2258000F3C17 /* RxRelay */,
 			);
 			productName = SuperDoer;
 			productReference = 36A0501B2A500A87006F61D4 /* SuperDoer.app */;
@@ -1513,6 +1516,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		3621BE542CAF2258000F3C17 /* RxRelay */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36A312AB2CAAF6270019DDBA /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxRelay;
+		};
 		366571732B96139100B9C6F7 /* Swinject */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 366571722B96139100B9C6F7 /* XCRemoteSwiftPackageReference "Swinject" */;

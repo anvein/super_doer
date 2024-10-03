@@ -1,16 +1,19 @@
 
 import Foundation
+import RxCocoa
+import RxRelay
 
 class TaskDetailViewModel {
 
     // TODO: - Services
 
-    private var taskEm = TaskCoreDataManager()
-    private var taskFileEm = TaskFileEntityManager()
+    private let taskEm: TaskCoreDataManager
+    private let taskFileEm: TaskFileEntityManager
 
     weak var bindingDelegate: TaskDetailViewModelBindingDelegate?
 
-    // MARK: model
+    // MARK: - Model
+
     private var task: CDTask {
         didSet {
             updateSimpleObservablePropertiesFrom(task)
@@ -23,13 +26,11 @@ class TaskDetailViewModel {
     /// Прослойка между сущностью Task и данных для вывода задачи в виде таблицы
     private var taskDataViewModels: TaskDetailDataCellViewModels
     
-    var countTaskDataCellsValues: Int {
-        return taskDataViewModels.viewModels.count
-    }
-    
-    private var taskTitle: UIBox<String?>
-    private var taskIsCompleted: UIBox<Bool>
-    private var taskIsPriority: UIBox<Bool>
+    var countTaskDataCells: Int {  taskDataViewModels.viewModels.count }
+
+    private let titleRelay = BehaviorRelay<String>(value: "")
+    private let isCompletedRelay = BehaviorRelay<Bool>(value: false)
+    private let isPriorityRelay = BehaviorRelay<Bool>(value: false)
 
     var isEnableNotifications: Bool {
         // TODO: получить из сервиса, который вернет "включены ли уведомления"
@@ -38,9 +39,9 @@ class TaskDetailViewModel {
 
     // MARK: - Observable
 
-    var taskTitleObservable: UIBoxObservable<String?> { taskTitle.asObservable() }
-    var taskIsCompletedObservable: UIBoxObservable<Bool> { taskIsCompleted.asObservable()}
-    var taskIsPriorityObservable: UIBoxObservable<Bool> { taskIsPriority.asObservable()}
+    var titleDriver: Driver<String> { titleRelay.asDriver() }
+    var isCompletedDriver: Driver<Bool> { isCompletedRelay.asDriver() }
+    var isPriorityDriver: Driver<Bool> { isPriorityRelay.asDriver()}
 
     // MARK: - Init
 
@@ -53,10 +54,11 @@ class TaskDetailViewModel {
         self.taskFileEm = taskFileEm
 
         task = taskEm.getTaskBy(id: taskId)! // TODO: переделать это
-        taskTitle = UIBox(task.title)
-        taskIsCompleted = UIBox(task.isCompleted)
-        taskIsPriority = UIBox(task.isPriority)
-        
+
+        titleRelay.accept(task.titlePrepared)
+        isCompletedRelay.accept(task.isCompleted)
+        isPriorityRelay.accept(task.isPriority)
+//
         taskDataViewModels = TaskDetailDataCellViewModels(task)
     }
     
@@ -107,19 +109,16 @@ class TaskDetailViewModel {
     // MARK: model manipulations
     func updateTaskField(title: String) {
         taskEm.updateField(title: title, task: task)
-        
         updateSimpleObservablePropertiesFrom(task)
     }
     
     func updateTaskField(isCompleted: Bool) {
         taskEm.updateField(isCompleted: isCompleted, task: task)
-        
         updateSimpleObservablePropertiesFrom(task)
     }
     
     func updateTaskField(isPriority: Bool) {
         taskEm.updateField(isPriority: isPriority, task: task)
-        
         updateSimpleObservablePropertiesFrom(task)
     }
 
@@ -227,17 +226,18 @@ class TaskDetailViewModel {
     
     
     // MARK: binding methods
+
     private func updateSimpleObservablePropertiesFrom(_ task: CDTask) {
-        if task.title != taskTitle.value {
-            taskTitle.value = task.title
+        if task.title != titleRelay.value {
+            titleRelay.accept(task.titlePrepared)
         }
         
-        if task.isCompleted != taskIsCompleted.value {
-            taskIsCompleted.value = task.isCompleted
+        if task.isCompleted != isCompletedRelay.value {
+            isCompletedRelay.accept(task.isCompleted)
         }
         
-        if task.isPriority != taskIsPriority.value {
-            taskIsPriority.value = task.isPriority
+        if task.isPriority != isPriorityRelay.value {
+            isPriorityRelay.accept(task.isPriority)
         }
     }
     

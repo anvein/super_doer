@@ -70,7 +70,7 @@ class TaskDetailViewController: UIViewController {
     
     @objc func pressedTaskTitleNavigationItemReady() {
         navigationItem.setRightBarButton(nil, animated: true)
-        customView.taskTitleTextView.resignFirstResponder()
+        customView.titleTextView.resignFirstResponder()
     }
     
     @objc func showSubtaskAddNavigationItemReady() {
