@@ -9,7 +9,7 @@ class TaskDeadlineTableVariantsViewModel: TableVariantsViewModelType {
     private var taskDeadlineDate: Date? {
         didSet {
             let cellValues = TaskDeadlineTableVariantsViewModel.buildCellViewModels()
-            variantCellViewModels = Box(cellValues)
+            variantCellViewModels = UIBox(cellValues)
             
             refreshSelectionOfVariantCellViewModel(deadlineDate: taskDeadlineDate)
             variantCellViewModels.forceUpdate()
@@ -17,18 +17,27 @@ class TaskDeadlineTableVariantsViewModel: TableVariantsViewModelType {
     }
     
     
-    // MARK: state
-    var isShowReadyButton: Box<Bool> = Box(true)
-    var isShowDeleteButton: Box<Bool>
+    // MARK: - State
+
+    var isShowReadyButton: UIBox<Bool> = UIBox(true)
+    var isShowDeleteButton: UIBox<Bool>
     
-    var variantCellViewModels: Box<[BaseVariantCellViewModel]>
-    
-    
-    // MARK: init
+    var variantCellViewModels: UIBox<[BaseVariantCellViewModel]>
+
+    // MARK: - Observable
+
+    var isShowReadyButtonObservable: UIBoxObservable<Bool> { isShowReadyButton.asObservable() }
+    var isShowDeleteButtonObservable: UIBoxObservable<Bool> { isShowDeleteButton.asObservable() }
+    var variantCellViewModelsObservable: UIBoxObservable<[BaseVariantCellViewModel]> {
+        return variantCellViewModels.asObservable()
+    }
+
+    // MARK: - Init
+
     init(deadlineDate: Date?) {
         let cellViewModels = TaskDeadlineTableVariantsViewModel.buildCellViewModels()
-        variantCellViewModels = Box(cellViewModels)
-        isShowDeleteButton = Box(false)
+        variantCellViewModels = UIBox(cellViewModels)
+        isShowDeleteButton = UIBox(false)
         
         refreshSelectionOfVariantCellViewModel(deadlineDate: deadlineDate)
         refreshIsShowDeleteButton(fromTaskDeadlineDate: deadlineDate)

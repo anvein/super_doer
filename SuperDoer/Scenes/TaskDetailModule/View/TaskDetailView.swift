@@ -102,15 +102,15 @@ private extension TaskDetailView {
     }
 
     func setupBindingsToViewModel() {
-        viewModel.taskTitle.bindAndUpdateValue { [unowned self] title in
+        viewModel.taskTitleObservable.bindAndUpdateValue { [unowned self] title in
             taskTitleTextView.text = title
         }
 
-        viewModel.taskIsCompleted.bindAndUpdateValue { [unowned self] isCompleted in
+        viewModel.taskIsCompletedObservable.bindAndUpdateValue { [unowned self] isCompleted in
             taskDoneButton.isOn = isCompleted
         }
 
-        viewModel.taskIsPriority.bindAndUpdateValue { [unowned self] isPriority in
+        viewModel.taskIsPriorityObservable.bindAndUpdateValue { [unowned self] isPriority in
             isPriorityButton.isOn = isPriority
         }
 
@@ -191,7 +191,6 @@ private extension TaskDetailView {
 
         return cell ?? .init()
     }
-
 
 }
 
@@ -287,7 +286,6 @@ extension TaskDetailView: UITableViewDelegate {
 
         tableView.deselectRow(at: indexPath, animated: false)
     }
-
 
     // MARK: swipers actions
     

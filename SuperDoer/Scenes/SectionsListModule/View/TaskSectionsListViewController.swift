@@ -121,9 +121,9 @@ extension TaskSectionsListViewController {
     }
     
     private func setupBinding() {
-        viewModel.bindAndUpdateSections({ [unowned self] sections in
+        viewModel.sectionsObservable.bindAndUpdateValue { [unowned self] sections in
             self.sectionsTableView.reloadData()
-        })
+        }
     }
 }
 

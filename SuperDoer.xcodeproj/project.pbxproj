@@ -16,11 +16,12 @@
 		360B844D2CA869E300C039C9 /* TaskCellAttributesFormatterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360B844C2CA869D300C039C9 /* TaskCellAttributesFormatterService.swift */; };
 		360D6C5C2A8BC3350092EA5C /* FileButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D6C5B2A8BC3350092EA5C /* FileButtonCell.swift */; };
 		361C9C722B8255FB0002155C /* TaskDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361C9C712B8255FB0002155C /* TaskDetailViewModel.swift */; };
-		361C9C752B8259D40002155C /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361C9C742B8259D40002155C /* Box.swift */; };
+		361C9C752B8259D40002155C /* UIBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361C9C742B8259D40002155C /* UIBox.swift */; };
 		361D85AA2B88A2BD00406A6B /* DeletableItemViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361D85A92B88A2BD00406A6B /* DeletableItemViewModelType.swift */; };
 		361DD8F52B08D5B8009A0AEE /* TaskCoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361DD8F42B08D5B8009A0AEE /* TaskCoreDataManager.swift */; };
 		361DD8FC2B08DE5C009A0AEE /* Task+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361DD8FA2B08DE5C009A0AEE /* Task+CoreDataClass.swift */; };
 		361F20D12B11EB4600CD4A90 /* TaskSectionEntityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361F20D02B11EB4600CD4A90 /* TaskSectionEntityManager.swift */; };
+		3621BD962CAEFF23000F3C17 /* UIBoxObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3621BD952CAEFF1D000F3C17 /* UIBoxObservable.swift */; };
 		362568FC2B8519B300CFC5E4 /* AddSectionPanelTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362568FB2B8519B300CFC5E4 /* AddSectionPanelTextField.swift */; };
 		362AA8BA2B0F69EF0042A17C /* TaskFileEntityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362AA8B92B0F69EF0042A17C /* TaskFileEntityManager.swift */; };
 		362BFA0D2CAAA63B00E7D846 /* TaskDetailVCCoordinatorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 362BFA0C2CAAA62D00E7D846 /* TaskDetailVCCoordinatorDelegate.swift */; };
@@ -170,11 +171,12 @@
 		360B844C2CA869D300C039C9 /* TaskCellAttributesFormatterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCellAttributesFormatterService.swift; sourceTree = "<group>"; };
 		360D6C5B2A8BC3350092EA5C /* FileButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileButtonCell.swift; sourceTree = "<group>"; };
 		361C9C712B8255FB0002155C /* TaskDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailViewModel.swift; sourceTree = "<group>"; };
-		361C9C742B8259D40002155C /* Box.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
+		361C9C742B8259D40002155C /* UIBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIBox.swift; sourceTree = "<group>"; };
 		361D85A92B88A2BD00406A6B /* DeletableItemViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeletableItemViewModelType.swift; sourceTree = "<group>"; };
 		361DD8F42B08D5B8009A0AEE /* TaskCoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCoreDataManager.swift; sourceTree = "<group>"; };
 		361DD8FA2B08DE5C009A0AEE /* Task+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Task+CoreDataClass.swift"; sourceTree = "<group>"; };
 		361F20D02B11EB4600CD4A90 /* TaskSectionEntityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSectionEntityManager.swift; sourceTree = "<group>"; };
+		3621BD952CAEFF1D000F3C17 /* UIBoxObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIBoxObservable.swift; sourceTree = "<group>"; };
 		362568FB2B8519B300CFC5E4 /* AddSectionPanelTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddSectionPanelTextField.swift; sourceTree = "<group>"; };
 		362AA8B92B0F69EF0042A17C /* TaskFileEntityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskFileEntityManager.swift; sourceTree = "<group>"; };
 		362BFA0C2CAAA62D00E7D846 /* TaskDetailVCCoordinatorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailVCCoordinatorDelegate.swift; sourceTree = "<group>"; };
@@ -376,7 +378,8 @@
 		361C9C732B8259BF0002155C /* DataBinding */ = {
 			isa = PBXGroup;
 			children = (
-				361C9C742B8259D40002155C /* Box.swift */,
+				3621BD952CAEFF1D000F3C17 /* UIBoxObservable.swift */,
+				361C9C742B8259D40002155C /* UIBox.swift */,
 			);
 			path = DataBinding;
 			sourceTree = "<group>";
@@ -1163,7 +1166,7 @@
 				36CF277F2BA0921B00641752 /* TaskSectionListCoordinator.swift in Sources */,
 				3676D7682BA03E7100F695A1 /* DIContainer.swift in Sources */,
 				366C8A122B8DE2D700465963 /* TaskRepeatPeriodVariantCellViewModel.swift in Sources */,
-				361C9C752B8259D40002155C /* Box.swift in Sources */,
+				361C9C752B8259D40002155C /* UIBox.swift in Sources */,
 				362BFA0D2CAAA63B00E7D846 /* TaskDetailVCCoordinatorDelegate.swift in Sources */,
 				36FB6DBB2BA42AFF0062FA4D /* ContainerNavigationController.swift in Sources */,
 				3630CB862B1B467400E65115 /* TaskSectionProtocol.swift in Sources */,
@@ -1233,6 +1236,7 @@
 				364E7E8D2B91E69A00C7A2AC /* TaskRepeatPeriodTypeRowViewModel.swift in Sources */,
 				361DD8FC2B08DE5C009A0AEE /* Task+CoreDataClass.swift in Sources */,
 				3607F5562B135905009B5D1D /* SuperDoer.xcdatamodeld in Sources */,
+				3621BD962CAEFF23000F3C17 /* UIBoxObservable.swift in Sources */,
 				36A580E32C95E11400CD7655 /* UIWindow+Extension.swift in Sources */,
 				3630CB842B1B455100E65115 /* TaskSectionSystem.swift in Sources */,
 				36FCF9322B8A0E21002B2CB8 /* BaseVariantCellViewModel.swift in Sources */,

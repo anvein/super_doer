@@ -4,12 +4,12 @@ import Foundation
 /// ViewModel для контроллера выбора предустановленного варианта периода повтора задачи
 /// для поля "Период" у задачи
 class TaskRepeatPeriodTableVariantsViewModel: TableVariantsViewModelType {
-    
+
     // MARK: model data
     private var repeatPeriod: String? {
         didSet {
             let cellViewModels = TaskRepeatPeriodTableVariantsViewModel.buildCellViewModels()
-            variantCellViewModels = Box(cellViewModels)
+            variantCellViewModels = UIBox(cellViewModels)
 
             // TODO: когда переделаю на нормальное значение сделать определение выбранного
             //refreshSelectionOfVariantCellValue(fromTask: task)
@@ -18,16 +18,27 @@ class TaskRepeatPeriodTableVariantsViewModel: TableVariantsViewModelType {
     }
     
     // MARK: state
-    var isShowReadyButton: Box<Bool> = Box(true)
-    var isShowDeleteButton: Box<Bool>
+    var isShowReadyButton: UIBox<Bool> = UIBox(true)
+    var isShowDeleteButton: UIBox<Bool>
     
-    var variantCellViewModels: Box<[BaseVariantCellViewModel]>
-    
+    var variantCellViewModels: UIBox<[BaseVariantCellViewModel]>
+
+    // MARK: - Observable
+
+    var isShowReadyButtonObservable: UIBoxObservable<Bool> { isShowReadyButton.asObservable() }
+    var isShowDeleteButtonObservable: UIBoxObservable<Bool>  { isShowDeleteButton.asObservable() }
+    var variantCellViewModelsObservable: UIBoxObservable<[BaseVariantCellViewModel]> {
+        return variantCellViewModels.asObservable()
+    }
+
+
+    // MARK: - Init
+
     init(repeatPeriod: String?) {
         self.repeatPeriod = repeatPeriod
         
-        variantCellViewModels = Box(TaskRepeatPeriodTableVariantsViewModel.buildCellViewModels())
-        isShowDeleteButton = Box(false)
+        variantCellViewModels = UIBox(TaskRepeatPeriodTableVariantsViewModel.buildCellViewModels())
+        isShowDeleteButton = UIBox(false)
         
         // TODO: когда переделаю на нормальное значение сделать определение выбранного
         //refreshSelectionOfVariantCellViewModel(fromTask: task)

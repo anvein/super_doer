@@ -4,29 +4,27 @@ import Foundation
 /// ViewModel страницы с таблицей списков (разделов)
 class TaskSectionsListViewModel {
 
-    typealias Sections = [[TaskSectionProtocol]]
+    // MARK: - Services
 
-
-    // MARK: services
     private var sectionEm: TaskSectionEntityManager
 
 
-    // MARK: model
+    // MARK: - Model
+
     static var systemSectionsId = 0
     static var customSectionsId = 1
 
-    private var sections: Box<Sections>
-
+    private var sections: UIBox<Sections>
     private var selectedSectionIndexPath: IndexPath?
 
+    // MARK: - Init
 
-    // MARK: init / setup
     required init(
         sectionEm: TaskSectionEntityManager,
         sections: Sections
     ) {
         self.sectionEm = sectionEm
-        self.sections = Box(sections)
+        self.sections = UIBox(sections)
     }
 }
 
@@ -34,12 +32,10 @@ class TaskSectionsListViewModel {
 
 extension TaskSectionsListViewModel: TaskSectionListViewModelType {
 
-    // MARK: binding methods
-    func bindAndUpdateSections(_ listener: @escaping ([[TaskSectionProtocol]]) -> Void) {
-        sections.bindAndUpdateValue(listener: listener)
-    }
-    
-    
+    // MARK: - Observable
+
+    var sectionsObservable: UIBoxObservable<Sections> { sections.asObservable() }
+
     // MARK: get data for VC functions
     func getCountOfTableSections() -> Int {
         return sections.value.count

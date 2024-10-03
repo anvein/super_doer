@@ -165,15 +165,15 @@ extension TableVariantsViewController {
     }
     
     private func setupBindings() {
-        viewModel.variantCellViewModels.bindAndUpdateValue { [weak self] variants in
+        viewModel.variantCellViewModelsObservable.bindAndUpdateValue { [weak self] variants in
             self?.variantsTableView.reloadData()
         }
         
-        viewModel.isShowDeleteButton.bindAndUpdateValue { [weak self] isShowDeleteButton in
+        viewModel.isShowDeleteButtonObservable.bindAndUpdateValue { [weak self] isShowDeleteButton in
             self?.navigationItem.leftBarButtonItem?.isHidden = !isShowDeleteButton
         }
         
-        viewModel.isShowReadyButton.bindAndUpdateValue { [weak self] isShowReadyButton in
+        viewModel.isShowReadyButtonObservable.bindAndUpdateValue { [weak self] isShowReadyButton in
             self?.navigationItem.rightBarButtonItem?.isHidden = !isShowReadyButton
         }
     }

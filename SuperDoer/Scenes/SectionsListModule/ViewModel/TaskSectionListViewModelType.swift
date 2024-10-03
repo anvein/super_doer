@@ -4,8 +4,10 @@ import Foundation
 /// ViewModel страницы разделов задач (списков задач)
 protocol TaskSectionListViewModelType {
 
-    func bindAndUpdateSections(_ listener: @escaping ([[TaskSectionProtocol]]) -> Void)
-    
+    typealias Sections = [[TaskSectionProtocol]]
+
+    var sectionsObservable: UIBoxObservable<Sections> { get }
+
     func getCountOfTableSections() -> Int
     
     func getCountTaskSectionsInTableSection(withSectionId listId: Int) -> Int

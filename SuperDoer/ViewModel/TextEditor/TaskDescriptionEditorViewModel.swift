@@ -14,15 +14,16 @@ class TaskDescriptionEditorViewModel: TextEditorViewModelType {
             return task.title
         }
     }
-    var text: Box<NSMutableAttributedString?>
-    
+    private var text: UIBox<NSMutableAttributedString?>
+    var textObservable: UIBoxObservable<NSMutableAttributedString?> { text.asObservable() }
+
     init(task: CDTask) {
         self.task = task
         
         if let taskDescription = task.descriptionText {
-            text = Box(NSMutableAttributedString(string: taskDescription))
+            text = UIBox(NSMutableAttributedString(string: taskDescription))
         } else {
-            text = Box(nil)
+            text = UIBox(nil)
         }
     }
 }

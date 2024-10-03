@@ -150,7 +150,7 @@ extension TextEditorViewController {
     }
     
     private func setupBindings() {
-        viewModel.text.bindAndUpdateValue { [weak self] mutableAttrString in
+        viewModel.textObservable.bindAndUpdateValue { [weak self] mutableAttrString in
             self?.textView.attributedText = mutableAttrString
             self?.textView.font = UIFont.systemFont(ofSize: 18)
         }

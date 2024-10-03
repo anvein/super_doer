@@ -2,7 +2,14 @@
 import Foundation
 
 class TaskDetailViewModel {
-    
+
+    // TODO: - Services
+
+    private var taskEm = TaskCoreDataManager()
+    private var taskFileEm = TaskFileEntityManager()
+
+    weak var bindingDelegate: TaskDetailViewModelBindingDelegate?
+
     // MARK: model
     private var task: CDTask {
         didSet {
@@ -10,14 +17,8 @@ class TaskDetailViewModel {
             taskDataViewModels.fill(from: task)
         }
     }
-    
-    // TODO: - Services
 
-    private var taskEm = TaskCoreDataManager()
-    private var taskFileEm = TaskFileEntityManager()
-    
-    
-    // MARK: properties for VC
+    // MARK: - State
     /// Объект-массив на основании которого формируется таблица с "кнопками" и данными задачи
     /// Прослойка между сущностью Task и данных для вывода задачи в виде таблицы
     private var taskDataViewModels: TaskDetailDataCellViewModels
@@ -26,19 +27,21 @@ class TaskDetailViewModel {
         return taskDataViewModels.viewModels.count
     }
     
-    var taskTitle: Box<String?>
-    var taskIsCompleted: Box<Bool>
-    var taskIsPriority: Box<Bool>
-    
+    private var taskTitle: UIBox<String?>
+    private var taskIsCompleted: UIBox<Bool>
+    private var taskIsPriority: UIBox<Bool>
+
     var isEnableNotifications: Bool {
-        
         // TODO: получить из сервиса, который вернет "включены ли уведомления"
         return true
     }
-    
-    weak var bindingDelegate: TaskDetailViewModelBindingDelegate?
-    
-    
+
+    // MARK: - Observable
+
+    var taskTitleObservable: UIBoxObservable<String?> { taskTitle.asObservable() }
+    var taskIsCompletedObservable: UIBoxObservable<Bool> { taskIsCompleted.asObservable()}
+    var taskIsPriorityObservable: UIBoxObservable<Bool> { taskIsPriority.asObservable()}
+
     // MARK: - Init
 
     init(
@@ -50,9 +53,9 @@ class TaskDetailViewModel {
         self.taskFileEm = taskFileEm
 
         task = taskEm.getTaskBy(id: taskId)! // TODO: переделать это
-        taskTitle = Box(task.title)
-        taskIsCompleted = Box(task.isCompleted)
-        taskIsPriority = Box(task.isPriority)
+        taskTitle = UIBox(task.title)
+        taskIsCompleted = UIBox(task.isCompleted)
+        taskIsPriority = UIBox(task.isPriority)
         
         taskDataViewModels = TaskDetailDataCellViewModels(task)
     }
