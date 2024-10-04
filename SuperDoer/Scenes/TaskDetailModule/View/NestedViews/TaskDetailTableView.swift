@@ -24,12 +24,12 @@ final class TaskDetailTableView: UITableView {
         
         register(TaskDetailAddSubtaskCell.self, forCellReuseIdentifier: TaskDetailAddSubtaskCell.className)
         register(TaskDetailAddToMyDayCell.self, forCellReuseIdentifier: TaskDetailAddToMyDayCell.className)
-        register(ReminderDateButtonCell.self, forCellReuseIdentifier: ReminderDateButtonCell.className)
-        register(DeadlineDateButtonCell.self, forCellReuseIdentifier: DeadlineDateButtonCell.className)
-        register(RepeatPeriodButtonCell.self, forCellReuseIdentifier: RepeatPeriodButtonCell.className)
-        register(AddFileButtonCell.self, forCellReuseIdentifier: AddFileButtonCell.className)
-        register(FileButtonCell.self, forCellReuseIdentifier: FileButtonCell.className)
-        register(DescriptionButtonCell.self, forCellReuseIdentifier: DescriptionButtonCell.className)
+        register(TaskDetailReminderDateCell.self, forCellReuseIdentifier: TaskDetailReminderDateCell.className)
+        register(TaskDetailDeadlineDateCell.self, forCellReuseIdentifier: TaskDetailDeadlineDateCell.className)
+        register(TaskDetailRepeatPeriodCell.self, forCellReuseIdentifier: TaskDetailRepeatPeriodCell.className)
+        register(TaskDetailAddFileCell.self, forCellReuseIdentifier: TaskDetailAddFileCell.className)
+        register(TaskDetailFileCell.self, forCellReuseIdentifier: TaskDetailFileCell.className)
+        register(TaskDetailDescriptionCell.self, forCellReuseIdentifier: TaskDetailDescriptionCell.className)
         register(TaskDetailLabelsButtonCell.self, forCellReuseIdentifier: TaskDetailLabelsButtonCell.className)
     }
     

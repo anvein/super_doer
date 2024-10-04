@@ -2,7 +2,7 @@
 import UIKit
 
 /// Кнопка-ячейка для "Описания задачи"
-final class DescriptionButtonCell: UITableViewCell {
+final class TaskDetailDescriptionCell: UITableViewCell {
     
     enum State {
         case empty

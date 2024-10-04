@@ -146,7 +146,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
 // MARK: - TaskDetailVCCoordinatorDelegate
 extension TaskDetailCoordinator: TaskDetailVCCoordinatorDelegate {
 
-    func taskDetailVCDidTapReminderDateCell() {
+    func taskDetailVCReminderDateSetterOpen() {
         if !viewModel.isEnableNotifications {
             startNotificationsDisableAlertCoordinator()
         } else {
@@ -154,20 +154,20 @@ extension TaskDetailCoordinator: TaskDetailVCCoordinatorDelegate {
         }
     }
     
-    func taskDetailVCDidTapDeadlineDateCell() {
+    func taskDetailVCDeadlineDateSetterOpen() {
         startTaskDeadlineDateVariantsCoordinator()
     }
     
-    func taskDetailVCDidTapRepeatPeriodCell() {
+    func taskDetailVCRepeatPeriodSetterOpen() {
         startTaskRepeatPeriodVariantsCoordinator()
     }
     
-    func taskDetailVCDidTapDecriptionCell() {
-        startAddFileToTaskSourceAlertCoordinator()
+    func taskDetailVCDecriptionEditorOpen() {
+        startTaskDescriptionEditorCoordinator()
     }
 
-    func taskDetailVCDidTapAddFileCell() {
-        startTaskDescriptionEditorCoordinator()
+    func taskDetailVCAddFileStart() {
+        startAddFileToTaskSourceAlertCoordinator()
     }
 
     func taskDetailVCStartDeleteProcessFile(viewModel: TaskFileDeletableViewModel) {
@@ -179,8 +179,8 @@ extension TaskDetailCoordinator: TaskDetailVCCoordinatorDelegate {
     }
 }
 
+// MARK: - Delegates of child coordinators
 
-// MARK: - delegates of child coordinators
 extension TaskDetailCoordinator: NotificationsDisabledAlertCoordinatorDelegate {
     func didChoosenEnableNotifications() {
         removeChild(withType: NotificationsDisabledAlertCoordinator.self)

@@ -1,13 +1,18 @@
 
 import UIKit
 import SnapKit
+import RxSwift
 
 class TaskDetailViewController: UIViewController {
 
-    private var viewModel: TaskDetailViewModel
+    private let viewModel: TaskDetailViewModel
     private weak var coordinator: TaskDetailVCCoordinatorDelegate?
 
+    private let disposeBag = DisposeBag()
+
     // MARK: - Subviews
+
+    private lazy var readyBarButtonItem = UIBarButtonItem(title: "Готово", style: .done, target: nil, action: nil)
 
     private lazy var customView: TaskDetailView = .init(viewModel: viewModel)
 
@@ -37,6 +42,7 @@ class TaskDetailViewController: UIViewController {
         super.viewDidLoad()
         
         setupNavigation()
+        setupBindings()
 
         PIXEL_PERFECT_screen.createAndSetupInstance(
             baseView: self.view,
@@ -53,50 +59,6 @@ class TaskDetailViewController: UIViewController {
             coordinator?.taskDetailVCDidCloseTaskDetail()
         }
     }
-    
-    // MARK: - Actions handlers
-
-
-    @objc func showTaskTitleNavigationItemReady() {
-        let rightBarButonItem = UIBarButtonItem(
-            title: "Готово",
-            style: .done,
-            target: self,
-            action: #selector(pressedTaskTitleNavigationItemReady)
-        )
-        
-        navigationController?.navigationBar.topItem?.setRightBarButton(rightBarButonItem, animated: true)
-    }
-    
-    @objc func pressedTaskTitleNavigationItemReady() {
-        navigationItem.setRightBarButton(nil, animated: true)
-        customView.titleTextView.resignFirstResponder()
-    }
-    
-    @objc func showSubtaskAddNavigationItemReady() {
-        let rightBarButonItem = UIBarButtonItem(
-            title: "Готово",
-            style: .done,
-            target: self,
-            action: #selector(pressedSubtaskAddNavigationItemReady)
-        )
-        
-        navigationItem.setRightBarButton(rightBarButonItem, animated: true)
-    }
-    
-    @objc func pressedSubtaskAddNavigationItemReady() {
-        // TODO: переделать на endEdit
-        customView.textFieldEditing?.resignFirstResponder()
-        navigationItem.setRightBarButton(nil, animated: true)
-    }
-    
-    
-    // MARK: coordinator methods
-    private func startDeleteFileCoordinatorFor(_ fileCellIndexPath: IndexPath) {
-        guard let fileVM = viewModel.getFileDeletableViewModelFor(fileCellIndexPath) else { return }
-        coordinator?.taskDetailVCStartDeleteProcessFile(viewModel: fileVM)
-    }
-
 }
 
 private extension TaskDetailViewController {
@@ -107,4 +69,63 @@ private extension TaskDetailViewController {
         navigationItem.largeTitleDisplayMode = .never
         navigationController?.navigationBar.tintColor = .Text.blue
     }
+
+    func setupBindings() {
+        // VM -> V
+        viewModel.fieldEditingStateDriver
+            .emit(onNext: { [weak self] state in
+                self?.handleFieldEditingState(state)
+            })
+            .disposed(by: disposeBag)
+
+        // V -> VM
+        readyBarButtonItem.rx.tap
+            .subscribe(onNext:  { [weak self] in
+                self?.viewModel.setEditingState(nil)
+            })
+            .disposed(by: disposeBag)
+
+        // DetailView -> VC
+        customView.userAnswerRelay
+            .subscribe(onNext: { [weak self] userAnswer in
+                self?.handleTaskDetailView(userAnswer)
+            })
+            .disposed(by: disposeBag)
+    }
+
+    // MARK: - Handlers
+
+    func handleFieldEditingState(_ state: TaskDetailViewModel.FieldEditingState?) {
+        switch state {
+        case .taskTitleEditing, .subtaskAdding, .subtastEditing(_):
+            navigationItem.setRightBarButton(readyBarButtonItem, animated: true)
+        case nil:
+            navigationItem.setRightBarButton(nil, animated: true)
+        }
+    }
+
+    func handleTaskDetailView(_ userAnswer: TaskDetailView.UserAnswer) {
+        switch userAnswer {
+        case .deadlineDateSetterOpenDidTap:
+            coordinator?.taskDetailVCDeadlineDateSetterOpen()
+        case .fileDeleteDidTap(let indexPath):
+            startDeleteFileCoordinator(with: indexPath)
+        case .repeatPeriodSetterOpenDidTap:
+            coordinator?.taskDetailVCRepeatPeriodSetterOpen()
+        case .fileAddDidTap:
+            coordinator?.taskDetailVCAddFileStart()
+        case .reminderDateSetterOpenDidTap:
+            coordinator?.taskDetailVCReminderDateSetterOpen()
+        case .descriptionEditorOpenDidTap:
+            coordinator?.taskDetailVCDecriptionEditorOpen()
+        }
+    }
+
+    // MARK: - Coordinator methods
+
+    func startDeleteFileCoordinator(with fileCellIndexPath: IndexPath) {
+        guard let fileVM = viewModel.getFileDeletableViewModel(for: fileCellIndexPath) else { return }
+        coordinator?.taskDetailVCStartDeleteProcessFile(viewModel: fileVM)
+    }
+
 }

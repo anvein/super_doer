@@ -3,7 +3,7 @@ import Foundation
 import RxCocoa
 import RxRelay
 
-class TaskDetailViewModel {
+final class TaskDetailViewModel {
 
     // TODO: - Services
 
@@ -25,12 +25,14 @@ class TaskDetailViewModel {
     /// Объект-массив на основании которого формируется таблица с "кнопками" и данными задачи
     /// Прослойка между сущностью Task и данных для вывода задачи в виде таблицы
     private var taskDataViewModels: TaskDetailDataCellViewModels
-    
-    var countTaskDataCells: Int {  taskDataViewModels.viewModels.count }
+
+    var countSections: Int { taskDataViewModels.countSections }
 
     private let titleRelay = BehaviorRelay<String>(value: "")
     private let isCompletedRelay = BehaviorRelay<Bool>(value: false)
     private let isPriorityRelay = BehaviorRelay<Bool>(value: false)
+
+    private let fieldEditingStateRelay = BehaviorRelay<FieldEditingState?>(value: nil)
 
     var isEnableNotifications: Bool {
         // TODO: получить из сервиса, который вернет "включены ли уведомления"
@@ -42,6 +44,8 @@ class TaskDetailViewModel {
     var titleDriver: Driver<String> { titleRelay.asDriver() }
     var isCompletedDriver: Driver<Bool> { isCompletedRelay.asDriver() }
     var isPriorityDriver: Driver<Bool> { isPriorityRelay.asDriver()}
+
+    var fieldEditingStateDriver: Signal<FieldEditingState?> { fieldEditingStateRelay.asSignal(onErrorJustReturn: nil) }
 
     // MARK: - Init
 
@@ -61,13 +65,23 @@ class TaskDetailViewModel {
 //
         taskDataViewModels = TaskDetailDataCellViewModels(task)
     }
-    
-    
-    // MARK: children view models building
-    func getTaskDataCellViewModelFor(indexPath: IndexPath) -> TaskDataCellViewModelType {
-        return taskDataViewModels.viewModels[indexPath.row]
+
+    // MARK: - Table getters
+
+    func getCountRowsInSection(_ sectionIndex: Int) -> Int {
+        return taskDataViewModels.getCountRowsInSection(sectionIndex)
     }
-    
+
+    func isFileCellViewModel(with indexPath: IndexPath) -> Bool {
+        return taskDataViewModels.getCellVM(for: indexPath) is FileCellViewModel
+    }
+
+    // MARK: - Children view models building
+
+    func getTaskDataCellViewModelFor(indexPath: IndexPath) -> TaskDetailDataCellViewModelType? {
+        return taskDataViewModels.getCellVM(for: indexPath)
+    }
+
     func getTaskDeadlineTableVariantsViewModel() -> TaskDeadlineTableVariantsViewModel {
         return TaskDeadlineTableVariantsViewModel(deadlineDate: task.deadlineDate)
     }
@@ -80,33 +94,28 @@ class TaskDetailViewModel {
         return TaskRepeatPeriodTableVariantsViewModel(repeatPeriod: task.repeatPeriod)
     }
     
-    func getFileCellViewModel(forIndexPath indexPath: IndexPath) -> FileCellViewModel? {
-        let fileCellVM = taskDataViewModels.viewModels[indexPath.row]
+    func getFileCellViewModel(for indexPath: IndexPath) -> FileCellViewModel? {
+        let fileCellVM = taskDataViewModels.getCellVM(for: indexPath)
         guard let fileCellVM = fileCellVM as? FileCellViewModel else { return nil }
         
         return fileCellVM
     }
     
-    func getFileDeletableViewModelFor(_ indexPath: IndexPath) -> TaskFileDeletableViewModel? {
-        let fileCellVM = taskDataViewModels.viewModels[indexPath.row]
-        guard let fileCellVM = fileCellVM as? FileCellViewModel else { return nil }
-        
+    func getFileDeletableViewModel(for indexPath: IndexPath) -> TaskFileDeletableViewModel? {
+        guard let fileCellVM = getFileCellViewModel(for: indexPath) else { return nil }
+
         return TaskFileDeletableViewModel.createFrom(
             fileCellViewModel: fileCellVM,
             indexPath: indexPath
         )
     }
     
-    func isFileCellViewModel(byIndexPath indexPath: IndexPath) -> Bool {
-        return taskDataViewModels.viewModels[indexPath.row] is FileCellViewModel
-    }
-    
     func getTaskDescriptionEditorViewModel() -> TaskDescriptionEditorViewModel {
         return TaskDescriptionEditorViewModel(task: task)
     }
-    
-    
-    // MARK: model manipulations
+
+    // MARK: - Model manipulations
+
     func updateTaskField(title: String) {
         taskEm.updateField(title: title, task: task)
         updateSimpleObservablePropertiesFrom(task)
@@ -125,10 +134,8 @@ class TaskDetailViewModel {
     func updateTaskField(inMyDay: Bool) {
         taskEm.updateField(inMyDay: inMyDay, task: task)
         
-        let rowIndex = taskDataViewModels.fillAddToMyDay(from: task)
-        
-        guard let rowIndex else { return }
-        updateBindedCell(withRowIndex: rowIndex)
+        guard let indexPath = taskDataViewModels.fillAddToMyDay(from: task) else { return }
+        updateBindedCell(with: indexPath)
     }
     
     func switchValueTaskFieldInMyDay() {
@@ -138,29 +145,23 @@ class TaskDetailViewModel {
     
     func updateTaskField(deadlineDate: Date?) {
         taskEm.updateField(deadlineDate: deadlineDate, task: task)
-        
-        let rowIndex = taskDataViewModels.fillDeadlineAt(from: task)
-        
-        guard let rowIndex else { return }
-        updateBindedCell(withRowIndex: rowIndex)
+
+        guard let indexPath = taskDataViewModels.fillDeadlineAt(from: task) else { return }
+        updateBindedCell(with: indexPath)
     }
     
     func updateTaskField(reminderDateTime: Date?) {
         taskEm.updateField(reminderDateTime: reminderDateTime, task: task)
-        
-        let rowIndex = taskDataViewModels.fillReminderDateTime(from: task)
-        
-        guard let rowIndex else { return }
-        updateBindedCell(withRowIndex: rowIndex)
+
+        guard let indexPath = taskDataViewModels.fillReminderDate(from: task) else { return }
+        updateBindedCell(with: indexPath)
     }
     
     func updateTaskField(repeatPeriod: String?) {
         taskEm.updateField(repeatPeriod: repeatPeriod, task: task)
-        
-        let rowIndex = taskDataViewModels.fillRepeatPeriod(from: task)
-        
-        guard let rowIndex else { return }
-        updateBindedCell(withRowIndex: rowIndex)
+
+        guard let indexPath = taskDataViewModels.fillRepeatPeriod(from: task) else { return }
+        updateBindedCell(with: indexPath)
     }
     
     func updateTaskField(descriptionText: NSAttributedString?) {
@@ -170,10 +171,9 @@ class TaskDetailViewModel {
             descriptionUpdatedAt: Date(),
             task: task
         )
-        let rowIndex = taskDataViewModels.fillDescription(from: task)
-        
-        guard let rowIndex else { return }
-        updateBindedCell(withRowIndex: rowIndex)
+
+        guard let indexPath = taskDataViewModels.fillDescription(from: task) else { return }
+        updateBindedCell(with: indexPath)
     }
     
     func createTaskFile(fromImageData imageData: NSData) {
@@ -184,8 +184,8 @@ class TaskDetailViewModel {
             task: task
         )
         
-        let rowIndex = taskDataViewModels.appendFile(taskFile)
-        addBindedCell(withRowIndex: rowIndex)
+        guard let indexPath = taskDataViewModels.addFile(taskFile) else { return }
+        addBindedCell(with: indexPath)
     }
     
     func createTaskFile(fromUrl url: URL) {
@@ -196,8 +196,8 @@ class TaskDetailViewModel {
             task: task
         )
         
-        let rowIndex = taskDataViewModels.appendFile(taskFile)
-        addBindedCell(withRowIndex: rowIndex)
+        guard let indexPath = taskDataViewModels.addFile(taskFile) else { return }
+        addBindedCell(with: indexPath)
     }
     
     func deleteTaskFile(fileDeletableVM: TaskFileDeletableViewModel) {
@@ -206,7 +206,7 @@ class TaskDetailViewModel {
             return
         }
         
-        let cellValue = taskDataViewModels.viewModels[indexPath.row]
+        let cellValue = taskDataViewModels.getCellVM(for: indexPath)
         guard let fileCellValue = cellValue as? FileCellViewModel else {
             // TODO: показать сообщение об ошибке (файл не получилось удалить)
             return
@@ -219,13 +219,19 @@ class TaskDetailViewModel {
         }
         
         taskFileEm.delete(file: taskFile)
-        taskDataViewModels.viewModels.remove(at: indexPath.row)
-        
+        taskDataViewModels.deleteFile(with: indexPath)
+
         bindingDelegate?.removeCells(withIndexPaths: [indexPath])
     }
-    
-    
-    // MARK: binding methods
+
+    // MARK: - State manipulation
+
+    func setEditingState(_ state: FieldEditingState?) {
+        guard fieldEditingStateRelay.value != state else { return }
+        fieldEditingStateRelay.accept(state)
+    }
+
+    // MARK: Binding methods
 
     private func updateSimpleObservablePropertiesFrom(_ task: CDTask) {
         if task.title != titleRelay.value {
@@ -241,35 +247,29 @@ class TaskDetailViewModel {
         }
     }
     
-    private func updateBindedCell(
-        withRowIndex rowIndex: TaskDetailDataCellViewModels.RowIndex
-    ) {
-        let indexPath =  IndexPath(row: rowIndex, section: 0)
-
+    private func updateBindedCell(with indexPath: IndexPath) {
+        guard let cellVM = getTaskDataCellViewModelFor(indexPath: indexPath) else { return }
         bindingDelegate?.updateCell(
             withIndexPath: indexPath,
-            cellViewModel: getTaskDataCellViewModelFor(indexPath: indexPath)
+            cellViewModel: cellVM
         )
     }
     
-    private func addBindedCell(
-        withRowIndex rowIndex: TaskDetailDataCellViewModels.RowIndex
-    ) {
-        let indexPath = IndexPath(row: rowIndex, section: 0)
+    private func addBindedCell(with indexPath: IndexPath) {
+        guard let cellVM = getTaskDataCellViewModelFor(indexPath: indexPath) else { return }
         bindingDelegate?.addCell(
             toIndexPath: indexPath,
-            cellViewModel: getTaskDataCellViewModelFor(indexPath: indexPath)
+            cellViewModel: cellVM
         )
     }
 }
 
+// MARK: - TaskDetailViewModel.EditState
 
-// MARK: delegate protocol for update view (binding)
-protocol TaskDetailViewModelBindingDelegate: AnyObject {
-    func addCell(toIndexPath indexPath: IndexPath, cellViewModel: TaskDataCellViewModelType)
-    
-    func updateCell(withIndexPath indexPath: IndexPath, cellViewModel: TaskDataCellViewModelType)
-    
-    func removeCells(withIndexPaths indexPaths: [IndexPath])
+extension TaskDetailViewModel {
+    enum FieldEditingState: Equatable {
+        case taskTitleEditing
+        case subtaskAdding
+        case subtastEditing(indexPath: IndexPath)
+    }
 }
-

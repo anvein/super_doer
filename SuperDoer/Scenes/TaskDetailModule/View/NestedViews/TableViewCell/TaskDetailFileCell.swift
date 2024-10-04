@@ -2,7 +2,7 @@
 import UIKit
 
 /// Кнопка-ячейка "Прикрепленный файл" (к задаче)
-class FileButtonCell: TaskDetailLabelsButtonCell {
+class TaskDetailFileCell: TaskDetailLabelsButtonCell {
     
     override class var rowHeight: Int {
         return 70

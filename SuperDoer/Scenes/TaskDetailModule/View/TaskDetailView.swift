@@ -8,38 +8,24 @@ final class TaskDetailView: UIView {
 
     private let viewModel: TaskDetailViewModel
 
-    private let disposeBag: DisposeBag = .init()
+    private let disposeBag = DisposeBag()
 
     // MARK: - Subviews
 
-    private var topControlsContainerView: UIView = .init()
+    private var topControlsContainerView = UIView()
 
     private let isCompletedTaskButton = CheckboxButton()
+    private let titleTextView = UITextView()
+    private let isPriorityButton = StarButton()
 
-    lazy var titleTextView: UITextView = {
-        $0.isScrollEnabled = false
-        $0.returnKeyType = .done
+    private let taskDataTableView = TaskDetailTableView()
 
-        $0.backgroundColor = .Common.white
-        $0.textColor = .Text.black
-        $0.font = .systemFont(ofSize: 22, weight: .medium)
+    // MARK: - Bindings
 
-        $0.delegate = self
-        return $0
-    }(UITextView())
-
-    private lazy var isPriorityButton = StarButton()
-
-    private lazy var taskDataTableView: TaskDetailTableView =  {
-        $0.dataSource = self
-        $0.delegate = self
-        return $0
-    }(TaskDetailTableView())
-
-    // MARK: - State
+    let userAnswerRelay = PublishRelay<UserAnswer>()
 
     /// Редактируемое в данный момент поле TextField
-    var textFieldEditing: UITextField?
+//    var textFieldEditing: UITextField?
 
     // MARK: - Init
 
@@ -48,7 +34,8 @@ final class TaskDetailView: UIView {
 
         super.init(frame: .zero)
         setup()
-        setupSubvies()
+        setupSubviews()
+        setupLayoutSubviews()
         setupBindings()
     }
     
@@ -65,7 +52,21 @@ private extension TaskDetailView {
         backgroundColor = .Common.white
     }
 
-    func setupSubvies() {
+    func setupSubviews() {
+        titleTextView.isScrollEnabled = false
+        titleTextView.returnKeyType = .done
+
+        titleTextView.backgroundColor = .Common.white
+        titleTextView.textColor = .Text.black
+        titleTextView.font = .systemFont(ofSize: 22, weight: .medium)
+
+        titleTextView.delegate = self
+
+        taskDataTableView.dataSource = self
+        taskDataTableView.delegate = self
+    }
+
+    func setupLayoutSubviews() {
         addSubviews(topControlsContainerView, taskDataTableView)
         topControlsContainerView.addSubviews(isCompletedTaskButton, titleTextView, isPriorityButton)
 
@@ -122,11 +123,25 @@ private extension TaskDetailView {
             }
             .disposed(by: disposeBag)
 
+        viewModel.fieldEditingStateDriver
+            .filter { $0 == nil }
+            .emit(onNext: { [weak self] state in
+                self?.endEditing(true)
+            })
+            .disposed(by: disposeBag)
+
         // V -> VM
+        titleTextView.rx.didBeginEditing
+            .subscribe(onNext: { [viewModel] in
+                viewModel.setEditingState(.taskTitleEditing)
+            })
+            .disposed(by: disposeBag)
+
         titleTextView.rx.didEndEditing
             .withLatestFrom(titleTextView.rx.text.orEmpty)
             .subscribe(onNext: { [viewModel] text in
                 viewModel.updateTaskField(title: text)
+                viewModel.setEditingState(nil)
             })
             .disposed(by: disposeBag)
 
@@ -142,12 +157,13 @@ private extension TaskDetailView {
             })
             .disposed(by: disposeBag)
 
+
         viewModel.bindingDelegate = self
     }
 
     // MARK: - Helpers
 
-    private func buildTableViewCellFor(_ cellViewModel: TaskDataCellViewModelType) -> UITableViewCell {
+    private func buildTableViewCellFor(_ cellViewModel: TaskDetailDataCellViewModelType) -> UITableViewCell {
         let cell: UITableViewCell?
 
         switch cellViewModel {
@@ -165,39 +181,39 @@ private extension TaskDetailView {
             }
 
         case let cellVM as ReminderDateCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: ReminderDateButtonCell.className)
-            if let cell = cell as? ReminderDateButtonCell {
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailReminderDateCell.className)
+            if let cell = cell as? TaskDetailReminderDateCell {
                 cell.fillFrom(cellVM)
                 cell.delegate = self
             }
 
         case let cellVM as DeadlineDateCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: DeadlineDateButtonCell.className)
-            if let cell = cell as? DeadlineDateButtonCell {
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailDeadlineDateCell.className)
+            if let cell = cell as? TaskDetailDeadlineDateCell {
                 cell.fillFrom(cellVM)
                 cell.delegate = self
             }
 
         case let cellVM as RepeatPeriodCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: RepeatPeriodButtonCell.className)
-            if let cell = cell as? RepeatPeriodButtonCell {
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailRepeatPeriodCell.className)
+            if let cell = cell as? TaskDetailRepeatPeriodCell {
                 cell.fillFrom(cellVM)
                 cell.delegate = self
             }
 
         case _ as AddFileCellVeiwModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: AddFileButtonCell.className)
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailAddFileCell.className)
 
         case let cellVM as FileCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: FileButtonCell.className)
-            if let cell = cell as? FileButtonCell {
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailFileCell.className)
+            if let cell = cell as? TaskDetailFileCell {
                 cell.delegate = self
                 cell.fillFrom(cellValue: cellVM)
             }
 
         case let cellVM as DescriptionCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: DescriptionButtonCell.className)
-            if let cell = cell as? DescriptionButtonCell {
+            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailDescriptionCell.className)
+            if let cell = cell as? TaskDetailDescriptionCell {
                 cell.delegate = self
                 cell.fillFrom(cellVM)
             }
@@ -215,12 +231,16 @@ private extension TaskDetailView {
 // MARK: - UITableViewDataSource
 
 extension TaskDetailView: UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return viewModel.countSections
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.countTaskDataCells
+        return viewModel.getCountRowsInSection(section)
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cellVM = viewModel.getTaskDataCellViewModelFor(indexPath: indexPath)
+        guard let cellVM = viewModel.getTaskDataCellViewModelFor(indexPath: indexPath) else { return .init() }
 
         return buildTableViewCellFor(cellVM)
     }
@@ -241,24 +261,24 @@ extension TaskDetailView: UITableViewDelegate {
             return TaskDetailAddToMyDayCell.rowHeight.cgFloat
 
         case _ as ReminderDateCellViewModel:
-            return ReminderDateButtonCell.rowHeight.cgFloat
+            return TaskDetailReminderDateCell.rowHeight.cgFloat
 
         case _ as DeadlineDateCellViewModel:
-            return DeadlineDateButtonCell.rowHeight.cgFloat
+            return TaskDetailDeadlineDateCell.rowHeight.cgFloat
 
         case _ as RepeatPeriodCellViewModel:
-            return RepeatPeriodButtonCell.rowHeight.cgFloat
+            return TaskDetailRepeatPeriodCell.rowHeight.cgFloat
 
         case _ as AddFileCellVeiwModel:
-            return AddFileButtonCell.rowHeight.cgFloat
+            return TaskDetailAddFileCell.rowHeight.cgFloat
 
         case _ as FileCellViewModel:
-            return FileButtonCell.rowHeight.cgFloat
+            return TaskDetailFileCell.rowHeight.cgFloat
 
         case let cellVM as DescriptionCellViewModel:
             return cellVM.content == nil
-            ? DescriptionButtonCell.emptyHeight.cgFloat
-            : DescriptionButtonCell.maxHeight.cgFloat
+            ? TaskDetailDescriptionCell.emptyHeight.cgFloat
+            : TaskDetailDescriptionCell.maxHeight.cgFloat
 
         default :
             return TaskDetailBaseCell.rowHeight.cgFloat
@@ -275,28 +295,23 @@ extension TaskDetailView: UITableViewDelegate {
         case _ as TaskDetailAddToMyDayCell :
             viewModel.switchValueTaskFieldInMyDay()
 
-        case _ as ReminderDateButtonCell :
-            break
-//            coordinator?.tapReminderDateCell()
+        case _ as TaskDetailReminderDateCell :
+            userAnswerRelay.accept(.reminderDateSetterOpenDidTap)
 
-        case _ as DeadlineDateButtonCell :
-            break
-//            coordinator?.tapDeadlineDateCell()
+        case _ as TaskDetailDeadlineDateCell :
+            userAnswerRelay.accept(.deadlineDateSetterOpenDidTap)
 
-        case _ as RepeatPeriodButtonCell :
-            break
-//            coordinator?.tapRepeatPeriodCell()
+        case _ as TaskDetailRepeatPeriodCell :
+            userAnswerRelay.accept(.repeatPeriodSetterOpenDidTap)
 
-        case _ as AddFileButtonCell :
-            break
-//            coordinator?.tapAddFileCell()
+        case _ as TaskDetailAddFileCell :
+            userAnswerRelay.accept(.fileAddDidTap)
 
-        case _ as FileButtonCell :
+        case _ as TaskDetailFileCell :
             print("💎 Открылся контроллер и показать содержимое файла")
 
-        case _ as DescriptionButtonCell:
-            break
-//            coordinator?.tapDecriptionCell()
+        case _ as TaskDetailDescriptionCell:
+            userAnswerRelay.accept(.descriptionEditorOpenDidTap)
 
         default :
             break
@@ -312,10 +327,10 @@ extension TaskDetailView: UITableViewDelegate {
             style: .destructive,
             title: "Удалить"
         ) { [weak self] _, _, completionHandler in
-//            self?.startDeleteFileCoordinatorFor(indexPath)
-
+            self?.userAnswerRelay.accept(.fileDeleteDidTap(indexPath: indexPath))
             completionHandler(true)
         }
+        
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 14, weight: .bold)
         deleteAction.image = UIImage(systemName: "trash", withConfiguration: symbolConfig)
 
@@ -325,7 +340,7 @@ extension TaskDetailView: UITableViewDelegate {
     // MARK: "edit" / delete row
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        if viewModel.isFileCellViewModel(byIndexPath: indexPath) {
+        if viewModel.isFileCellViewModel(with: indexPath) {
             return true
         }
 
@@ -346,32 +361,25 @@ extension TaskDetailView: UITableViewDelegate {
 
 extension TaskDetailView: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        if (text == "\n") {
-//            navigationController?.navigationBar.topItem?.setRightBarButton(nil, animated: true)
+        if text == "\n" {
             textView.resignFirstResponder()
-
             return false
         } else {
             return true
         }
     }
 
-    func textViewDidBeginEditing(_ textView: UITextView) {
-//        showTaskTitleNavigationItemReady()
-    }
-
     // TODO: заменять перевод строки на пробел когда заканчивается редактирование названия
 }
-
 
 // MARK: - TaskDetailViewModelBindingDelegate
 
 extension TaskDetailView: TaskDetailViewModelBindingDelegate {
-    func addCell(toIndexPath indexPath: IndexPath, cellViewModel: TaskDataCellViewModelType) {
+    func addCell(toIndexPath indexPath: IndexPath, cellViewModel: TaskDetailDataCellViewModelType) {
         taskDataTableView.insertRows(at: [indexPath], with: .fade)
     }
 
-    func updateCell(withIndexPath indexPath: IndexPath, cellViewModel: TaskDataCellViewModelType) {
+    func updateCell(withIndexPath indexPath: IndexPath, cellViewModel: TaskDetailDataCellViewModelType) {
         let cell = taskDataTableView.cellForRow(at: indexPath)
 
         switch cellViewModel {
@@ -383,26 +391,26 @@ extension TaskDetailView: TaskDetailViewModelBindingDelegate {
             cell.fillFrom(cellVM)
 
         case let cellVM as ReminderDateCellViewModel:
-            guard let cell = cell as? ReminderDateButtonCell else { return }
+            guard let cell = cell as? TaskDetailReminderDateCell else { return }
             cell.fillFrom(cellVM)
 
         case let cellVM as DeadlineDateCellViewModel:
-            guard let cell = cell as? DeadlineDateButtonCell else { return }
+            guard let cell = cell as? TaskDetailDeadlineDateCell else { return }
             cell.fillFrom(cellVM)
 
         case let cellVM as RepeatPeriodCellViewModel:
-            guard let cell = cell as? RepeatPeriodButtonCell else { return }
+            guard let cell = cell as? TaskDetailRepeatPeriodCell else { return }
             cell.fillFrom(cellVM)
 
         case _ as AddFileCellVeiwModel:
             break
 
         case let cellVM as FileCellViewModel:
-            guard let cell = cell as? FileButtonCell else { return }
+            guard let cell = cell as? TaskDetailFileCell else { return }
             cell.fillFrom(cellValue: cellVM)
 
         case let cellVM as DescriptionCellViewModel:
-            guard let cell = cell as? DescriptionButtonCell else { return }
+            guard let cell = cell as? TaskDetailDescriptionCell else { return }
             cell.fillFrom(cellVM)
 
         default :
@@ -426,16 +434,16 @@ extension TaskDetailView: UITextFieldDelegate {
 //        textFieldEditing = textField
     }
 
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        // TODO: определять верный ли textField
-        if textFieldEditing === textField {
-            textField.resignFirstResponder()
-//            navigationItem.setRightBarButton(nil, animated: true)
-            textFieldEditing = nil
-        }
-
-        return false
-    }
+//    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+//        // TODO: определять верный ли textField
+////        if textFieldEditing === textField {
+////            textField.resignFirstResponder()
+//////            navigationItem.setRightBarButton(nil, animated: true)
+////            textFieldEditing = nil
+////        }
+//
+//        return false
+//    }
 }
 
 // MARK: - cell delegates, child controllers delegates
@@ -452,21 +460,18 @@ extension TaskDetailView: TaskDetailDataBaseCellDelegate {
         case TaskDetailAddToMyDayCell.className:
             viewModel.updateTaskField(inMyDay: false)
 
-        case ReminderDateButtonCell.className:
+        case TaskDetailReminderDateCell.className:
             viewModel.updateTaskField(reminderDateTime: nil)
 
-        case DeadlineDateButtonCell.className:
+        case TaskDetailDeadlineDateCell.className:
             viewModel.updateTaskField(deadlineDate: nil)
 
-        case RepeatPeriodButtonCell.className :
+        case TaskDetailRepeatPeriodCell.className :
             viewModel.updateTaskField(repeatPeriod: nil)
 
-        case FileButtonCell.className :
-            let indexPath = taskDataTableView.indexPath(for: cell)
-            guard let indexPath else { return }
-
-//            startDeleteFileCoordinatorFor(indexPath)
-            break
+        case TaskDetailFileCell.className :
+            guard let indexPath = taskDataTableView.indexPath(for: cell) else { return }
+            userAnswerRelay.accept(.fileDeleteDidTap(indexPath: indexPath))
 
         default :
             break
@@ -480,6 +485,17 @@ extension TaskDetailView: TaskDetailDataBaseCellDelegate {
 
 extension TaskDetailView: DescriptionButtonCellDelegateProtocol {
     func didTapTaskDescriptionOpenButton() {
-//        coordinator?.taskDetailVCDidTapDecriptionCell()
+        userAnswerRelay.accept(.descriptionEditorOpenDidTap)
+    }
+}
+
+extension TaskDetailView {
+    enum UserAnswer {
+        case reminderDateSetterOpenDidTap
+        case deadlineDateSetterOpenDidTap
+        case repeatPeriodSetterOpenDidTap
+        case fileAddDidTap
+        case fileDeleteDidTap(indexPath: IndexPath)
+        case descriptionEditorOpenDidTap
     }
 }

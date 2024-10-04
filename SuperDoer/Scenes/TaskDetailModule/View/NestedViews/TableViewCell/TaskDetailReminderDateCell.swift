@@ -2,7 +2,7 @@
 import UIKit
 
 /// Кнопка-ячейка "Установить напоминание для задачи"
-class ReminderDateButtonCell: TaskDetailLabels2StatesButtonCell {
+class TaskDetailReminderDateCell: TaskDetailLabels2StatesButtonCell {
 
     override var defaultMainText: String {
         return "Напомнить"

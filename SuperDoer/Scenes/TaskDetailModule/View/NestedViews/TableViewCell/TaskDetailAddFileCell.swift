@@ -3,7 +3,7 @@ import UIKit
 
 
 /// Кнопка-ячейка "Добавить файл в задачу"
-class AddFileButtonCell: TaskDetailLabelsButtonCell {
+class TaskDetailAddFileCell: TaskDetailLabelsButtonCell {
     
     override var showBottomSeparator: Bool {
         return true
