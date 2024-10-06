@@ -4,10 +4,9 @@ import Foundation
 /// Структура содержащая ячейки ViewModel хранящие данные задачи для таблицы
 struct TaskDetailDataCellViewModels {
 
-    // TODO: добавить доступ через сабскрипт?)
+    // добавить доступ через сабскрипт?)
     
     private var viewModels: [[TaskDetailDataCellViewModelType]] = Array(repeating: [], count: 4)
-
 
     // MARK: - Init
 
@@ -133,14 +132,14 @@ struct TaskDetailDataCellViewModels {
 
     @discardableResult
     mutating func deleteFile(with indexPath: IndexPath) -> Bool {
+        let sectionIndex = SectionIndex.files
         let deletingRowIndex = indexPath.row
-        guard var fieldsCellsVMs = getSectionCells(.fields),
+        guard var filesCellsVMs = getSectionCells(sectionIndex),
               0 <= deletingRowIndex,
-              deletingRowIndex < fieldsCellsVMs.count else { return false }
-        let sectionIndex = SectionIndex.fields.rawValue
+              deletingRowIndex < filesCellsVMs.count else { return false }
 
-        fieldsCellsVMs.remove(at: deletingRowIndex)
-        viewModels[sectionIndex] = fieldsCellsVMs
+        filesCellsVMs.remove(at: deletingRowIndex)
+        viewModels[sectionIndex.rawValue] = filesCellsVMs
 
         return true
     }

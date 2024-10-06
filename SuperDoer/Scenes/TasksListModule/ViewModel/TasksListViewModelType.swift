@@ -1,9 +1,10 @@
 
 import Foundation
+import RxCocoa
 
 protocol TasksListViewModelType {
     
-    var taskSectionTitle: String { get }
+    var sectionTitleDriver: Driver<String> { get }
 
     func viewDidLoad()
 

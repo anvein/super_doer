@@ -21,7 +21,7 @@ final class TaskCellAttributesFormatterService {
 
     // MARK: -
 
-    func formatTaskAttributesForCellInList(from task: TaskListItem) -> NSAttributedString? {
+    func formatTaskAttributesForCellInList(from task: TasksListItem) -> NSAttributedString? {
         let sectionTitle = formatAsGrayTextOptional(task.sectionTitle)
         let inMyDayText = task.isInMyDay ? formatAsGrayText("Мой день", iconImage: .SfSymbol.sunMax) : nil
         let dealineDateFormatted = formatDeadlineAt(date: task.deadlineDate)

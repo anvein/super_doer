@@ -10,8 +10,6 @@ class TaskDetailAddToMyDayCell: TaskDetailLabelsButtonCell {
 
     // MARK: - State
 
-    /// true - active (on)
-    /// false - inactive (off)
     var isOn: State = false {
         didSet {
             guard isOn != oldValue else { return }
@@ -51,7 +49,7 @@ class TaskDetailAddToMyDayCell: TaskDetailLabelsButtonCell {
     // MARK: - Helpers
 
     override func createLeftButtonImage() -> UIImage {
-        let symbolConfig = UIImage.SymbolConfiguration(pointSize: 19, weight: .semibold)
+        let symbolConfig = UIImage.SymbolConfiguration(weight: .semibold)
         
         return .SfSymbol.sunMax
             .withConfiguration(symbolConfig)

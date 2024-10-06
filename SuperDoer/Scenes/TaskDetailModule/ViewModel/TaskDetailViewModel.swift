@@ -10,8 +10,6 @@ final class TaskDetailViewModel {
     private let taskEm: TaskCoreDataManager
     private let taskFileEm: TaskFileEntityManager
 
-    weak var bindingDelegate: TaskDetailViewModelBindingDelegate?
-
     // MARK: - Model
 
     private var task: CDTask {
@@ -22,8 +20,8 @@ final class TaskDetailViewModel {
     }
 
     // MARK: - State
-    /// Объект-массив на основании которого формируется таблица с "кнопками" и данными задачи
-    /// Прослойка между сущностью Task и данных для вывода задачи в виде таблицы
+    /// Объект-массив с CellVM's на основании которого формируется таблица с "кнопками" и данными задачи
+    /// Прослойка между сущностью CDTask и таблицей с данными задачи
     private var taskDataViewModels: TaskDetailDataCellViewModels
 
     var countSections: Int { taskDataViewModels.countSections }
@@ -33,6 +31,7 @@ final class TaskDetailViewModel {
     private let isPriorityRelay = BehaviorRelay<Bool>(value: false)
 
     private let fieldEditingStateRelay = BehaviorRelay<FieldEditingState?>(value: nil)
+    private let tableUpdateRelay = PublishRelay<TableUpdateEvent>()
 
     var isEnableNotifications: Bool {
         // TODO: получить из сервиса, который вернет "включены ли уведомления"
@@ -46,6 +45,7 @@ final class TaskDetailViewModel {
     var isPriorityDriver: Driver<Bool> { isPriorityRelay.asDriver()}
 
     var fieldEditingStateDriver: Signal<FieldEditingState?> { fieldEditingStateRelay.asSignal(onErrorJustReturn: nil) }
+    var tableUpdateSignal: Signal<TableUpdateEvent> { tableUpdateRelay.asSignal() }
 
     // MARK: - Init
 
@@ -57,12 +57,14 @@ final class TaskDetailViewModel {
         self.taskEm = taskEm
         self.taskFileEm = taskFileEm
 
-        task = taskEm.getTaskBy(id: taskId)! // TODO: переделать это
+        // TODO: переделать это
+        // возможно запрашивать асинхронно + после viewDidLoad в VC
+        task = taskEm.getTaskBy(id: taskId)!
 
         titleRelay.accept(task.titlePrepared)
         isCompletedRelay.accept(task.isCompleted)
         isPriorityRelay.accept(task.isPriority)
-//
+
         taskDataViewModels = TaskDetailDataCellViewModels(task)
     }
 
@@ -118,17 +120,17 @@ final class TaskDetailViewModel {
 
     func updateTaskField(title: String) {
         taskEm.updateField(title: title, task: task)
-        updateSimpleObservablePropertiesFrom(task)
+        titleRelay.accept(task.titlePrepared)
     }
     
     func updateTaskField(isCompleted: Bool) {
         taskEm.updateField(isCompleted: isCompleted, task: task)
-        updateSimpleObservablePropertiesFrom(task)
+        isCompletedRelay.accept(task.isCompleted)
     }
     
     func updateTaskField(isPriority: Bool) {
         taskEm.updateField(isPriority: isPriority, task: task)
-        updateSimpleObservablePropertiesFrom(task)
+        isPriorityRelay.accept(task.isPriority)
     }
 
     func updateTaskField(inMyDay: Bool) {
@@ -201,11 +203,8 @@ final class TaskDetailViewModel {
     }
     
     func deleteTaskFile(fileDeletableVM: TaskFileDeletableViewModel) {
-        guard let indexPath = fileDeletableVM.indexPath else {
-            // TODO: залогировать
-            return
-        }
-        
+        guard let indexPath = fileDeletableVM.indexPath else { return }
+
         let cellValue = taskDataViewModels.getCellVM(for: indexPath)
         guard let fileCellValue = cellValue as? FileCellViewModel else {
             // TODO: показать сообщение об ошибке (файл не получилось удалить)
@@ -221,7 +220,7 @@ final class TaskDetailViewModel {
         taskFileEm.delete(file: taskFile)
         taskDataViewModels.deleteFile(with: indexPath)
 
-        bindingDelegate?.removeCells(withIndexPaths: [indexPath])
+        tableUpdateRelay.accept(.removeCells(withWndexPaths: [indexPath]))
     }
 
     // MARK: - State manipulation
@@ -249,18 +248,20 @@ final class TaskDetailViewModel {
     
     private func updateBindedCell(with indexPath: IndexPath) {
         guard let cellVM = getTaskDataCellViewModelFor(indexPath: indexPath) else { return }
-        bindingDelegate?.updateCell(
-            withIndexPath: indexPath,
-            cellViewModel: cellVM
-        )
+
+        tableUpdateRelay.accept(.updateCell(
+            withWndexPath: indexPath,
+            cellVM: cellVM
+        ))
     }
     
     private func addBindedCell(with indexPath: IndexPath) {
         guard let cellVM = getTaskDataCellViewModelFor(indexPath: indexPath) else { return }
-        bindingDelegate?.addCell(
+
+        tableUpdateRelay.accept(.addCell(
             toIndexPath: indexPath,
-            cellViewModel: cellVM
-        )
+            cellVM: cellVM
+        ))
     }
 }
 
@@ -271,5 +272,17 @@ extension TaskDetailViewModel {
         case taskTitleEditing
         case subtaskAdding
         case subtastEditing(indexPath: IndexPath)
+    }
+}
+
+// MARK: - TaskDetailViewModel.TableUpdatingEvent
+
+extension TaskDetailViewModel {
+    enum TableUpdateEvent {
+        case addCell(toIndexPath: IndexPath, cellVM: TaskDetailDataCellViewModelType)
+        case updateCell(withWndexPath: IndexPath, cellVM: TaskDetailDataCellViewModelType)
+        case removeCells(withWndexPaths: [IndexPath])
+
+        // move cell
     }
 }

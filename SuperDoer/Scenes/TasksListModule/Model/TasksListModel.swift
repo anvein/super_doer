@@ -1,20 +1,24 @@
 
 import Foundation
 import CoreData
+import RxSwift
 
-final class TaskListModel: NSObject {
+final class TasksListModel: NSObject {
     
     // MARK: - Services
 
     private let taskCDManager: TaskCoreDataManager
     private let coreDataStack: CoreDataStack
 
-    weak var delegate: TaskListModelDelegate?
-
     // MARK: - State
 
     private(set) var taskSection: TaskSectionProtocol?
     private(set) var selectedTaskIndexPath: IndexPath?
+
+    // MARK: - Observable
+
+    private let modelUpdatedSubject = PublishSubject<UpdatedEvent>()
+    var modelUpdatedObservable: Observable<UpdatedEvent> { modelUpdatedSubject.asObservable() }
 
     // MARK: -
 
@@ -63,6 +67,11 @@ final class TaskListModel: NSObject {
 
     // MARK: - Get
 
+    func getSectionTitle() -> String? {
+        guard let taskSection = taskSection as? CDTaskSectionCustom else { return nil }
+        return taskSection.title
+    }
+
     func getTaskIdFor(indexPath: IndexPath) -> UUID? {
         return getCDTask(at: indexPath).id
     }
@@ -75,9 +84,9 @@ final class TaskListModel: NSObject {
         return fetchedResultsController.sections?[section].numberOfObjects ?? 0
     }
 
-    func getTask(for indexPath: IndexPath) -> TaskListItem {
+    func getTask(for indexPath: IndexPath) -> TasksListItem {
         let cdTask = getCDTask(at: indexPath)
-        return TaskListItem(cdTask: cdTask)
+        return TasksListItem(cdTask: cdTask)
     }
 
     // MARK: - Modify Task
@@ -109,8 +118,9 @@ final class TaskListModel: NSObject {
         taskCDManager.delete(tasks: cdTasks)
     }
 
-    func createTaskWith(title: String, section: CDTaskSectionCustom) {
-        taskCDManager.createWith(title: title, section: section)
+    func createTaskInCurrentSectionWith(title: String) {
+        guard let sectionCustom = taskSection as? CDTaskSectionCustom else { return }
+        taskCDManager.createWith(title: title, section: sectionCustom)
     }
 
     // MARK: - Update state
@@ -123,7 +133,7 @@ final class TaskListModel: NSObject {
 
 // MARK: - Private methods
 
-private extension TaskListModel {
+private extension TasksListModel {
     func getCDTask(at indexPath: IndexPath) -> CDTask {
         return fetchedResultsController.object(at: indexPath)
     }
@@ -131,7 +141,7 @@ private extension TaskListModel {
     static func buildFilterBySectionPredicate(taskSection: TaskSectionProtocol?) -> NSPredicate? {
         if let cdCustomSection = taskSection as? CDTaskSectionCustom {
             return NSPredicate(format: "section == %@", cdCustomSection)
-        } else if let systemSection = taskSection as? TaskSectionSystem {
+        } else if taskSection is TaskSectionSystem {
             return nil
         }
 
@@ -141,42 +151,42 @@ private extension TaskListModel {
 
 // MARK: - NSFetchedResultsControllerDelegate
 
-extension TaskListModel: NSFetchedResultsControllerDelegate {
+extension TasksListModel: NSFetchedResultsControllerDelegate {
 
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        delegate?.taskListModelBeginUpdates()
+        modelUpdatedSubject.onNext(.modelBeginUpdates)
     }
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        delegate?.taskListModelEndUpdates()
+        modelUpdatedSubject.onNext(.modelEndUpdates)
     }
 
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         switch type {
         case .insert:
             if let newIndexPath {
-                delegate?.taskListModelTaskDidCreate(indexPath: newIndexPath)
+                modelUpdatedSubject.onNext(.taskDidCreate(indexPath: newIndexPath))
             }
         case .delete:
             if let indexPath {
-                delegate?.taskListModelTaskDidDelete(indexPath: indexPath)
+                modelUpdatedSubject.onNext(.taskDidDelete(indexPath: indexPath))
             }
         case .update:
             if let indexPath,
                let cdTask = anObject as? CDTask{
-                let taskItem = TaskListItem(cdTask: cdTask)
-                delegate?.taskListModelTaskDidUpdate(in: indexPath, taskItem: taskItem)
+                let taskItem = TasksListItem(cdTask: cdTask)
+                modelUpdatedSubject.onNext(.taskDidUpdate(indexPath: indexPath, taskItem: taskItem))
             }
 
         case .move:
             if let indexPath, let newIndexPath,
                let cdTask = anObject as? CDTask {
-               let taskItem = TaskListItem(cdTask: cdTask)
-                delegate?.taskListModelTaskDidMove(
+                let taskItem = TasksListItem(cdTask: cdTask)
+                modelUpdatedSubject.onNext(.taskDidMove(
                     fromIndexPath: indexPath,
                     toIndexPath: newIndexPath,
                     taskItem: taskItem
-                )
+                ))
             }
 
         @unknown default:
@@ -187,12 +197,28 @@ extension TaskListModel: NSFetchedResultsControllerDelegate {
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
         switch type {
         case .insert:
-            delegate?.taskListModelSectionDidInsert(sectionIndex: sectionIndex)
+            modelUpdatedSubject.onNext(.sectionDidInsert(sectionIndex: sectionIndex))
         case .delete:
-            delegate?.taskListModelSectionDidDelete(sectionIndex: sectionIndex)
+            modelUpdatedSubject.onNext(.sectionDidDelete(sectionIndex: sectionIndex))
         default:
             break
         }
     }
 }
 
+// MARK: - TasksListModel.UpdatedEvent
+
+extension TasksListModel {
+    enum UpdatedEvent {
+        case modelBeginUpdates
+        case modelEndUpdates
+
+        case taskDidCreate(indexPath: IndexPath)
+        case taskDidUpdate(indexPath: IndexPath, taskItem: TasksListItem)
+        case taskDidMove(fromIndexPath: IndexPath, toIndexPath: IndexPath, taskItem: TasksListItem)
+        case taskDidDelete(indexPath: IndexPath)
+
+        case sectionDidInsert(sectionIndex: Int)
+        case sectionDidDelete(sectionIndex: Int)
+    }
+}

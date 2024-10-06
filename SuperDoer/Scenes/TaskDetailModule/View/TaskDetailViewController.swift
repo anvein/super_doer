@@ -73,6 +73,7 @@ private extension TaskDetailViewController {
     func setupBindings() {
         // VM -> V
         viewModel.fieldEditingStateDriver
+            .distinctUntilChanged()
             .emit(onNext: { [weak self] state in
                 self?.handleFieldEditingState(state)
             })
@@ -108,7 +109,7 @@ private extension TaskDetailViewController {
         switch userAnswer {
         case .deadlineDateSetterOpenDidTap:
             coordinator?.taskDetailVCDeadlineDateSetterOpen()
-        case .fileDeleteDidTap(let indexPath):
+        case .fileDeleteStartDidTap(let indexPath):
             startDeleteFileCoordinator(with: indexPath)
         case .repeatPeriodSetterOpenDidTap:
             coordinator?.taskDetailVCRepeatPeriodSetterOpen()

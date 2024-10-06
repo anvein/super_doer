@@ -5,6 +5,10 @@ import UIKit
 /// Ячейка для кнопки с лэйблами
 class TaskDetailLabelsButtonCell: TaskDetailBaseCell {
 
+    // MARK:-  Settings
+
+    var leftImageViewSize: CGFloat { 23 }
+
     // MARK: - Subviews
 
     let leftImageView = UIImageView()
@@ -17,9 +21,8 @@ class TaskDetailLabelsButtonCell: TaskDetailBaseCell {
     override func addSubviews() {
         super.addSubviews()
     
-        contentView.addSubview(leftImageView)
-        contentView.addSubview(labelsStackView)
-        
+        contentView.addSubviews(leftImageView, labelsStackView)
+
         labelsStackView.addArrangedSubview(mainTextLabel)
         labelsStackView.addArrangedSubview(additionalTextLabel)
     }
@@ -34,6 +37,7 @@ class TaskDetailLabelsButtonCell: TaskDetailBaseCell {
 
         leftImageView.image = createLeftButtonImage()
         leftImageView.tintAdjustmentMode = .normal
+        leftImageView.contentMode = .scaleAspectFit
 
         mainTextLabel.numberOfLines = 1
         mainTextLabel.font = mainTextLabel.font.withSize(16)
@@ -45,8 +49,8 @@ class TaskDetailLabelsButtonCell: TaskDetailBaseCell {
     override func setupConstraints() {
         super.setupConstraints()
 
-        leftImageView.snp.makeConstraints {
-            $0.size.equalTo(23)
+        leftImageView.snp.makeConstraints { [unowned self] in
+            $0.size.equalTo(self.leftImageViewSize)
             $0.centerY.equalTo(contentView)
             $0.centerX.equalTo(contentView.snp.leading).offset(32)
         }

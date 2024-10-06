@@ -103,6 +103,7 @@ private extension TaskDetailView {
     func setupBindings() {
         // VM -> V
         viewModel.titleDriver
+            .distinctUntilChanged()
             .drive(onNext: { [titleTextView] text in
                 guard titleTextView.text != text else { return }
                 titleTextView.text = text
@@ -110,6 +111,7 @@ private extension TaskDetailView {
             .disposed(by: disposeBag)
 
         viewModel.isCompletedDriver
+            .distinctUntilChanged()
             .drive(onNext: { [isCompletedTaskButton] isCompleted in
                 guard isCompleted != isCompletedTaskButton.isOn else { return }
                 isCompletedTaskButton.isOn = isCompleted
@@ -117,6 +119,7 @@ private extension TaskDetailView {
             .disposed(by: disposeBag)
 
         viewModel.isPriorityDriver
+            .distinctUntilChanged()
             .drive { [isPriorityButton] isPriority in
                 guard isPriority != isPriorityButton.isOn else { return }
                 isPriorityButton.isOn = isPriority
@@ -124,9 +127,16 @@ private extension TaskDetailView {
             .disposed(by: disposeBag)
 
         viewModel.fieldEditingStateDriver
+            .distinctUntilChanged()
             .filter { $0 == nil }
             .emit(onNext: { [weak self] state in
                 self?.endEditing(true)
+            })
+            .disposed(by: disposeBag)
+
+        viewModel.tableUpdateSignal
+            .emit(onNext: { [weak self] event in
+                self?.handleViewModelTableUpdate(event: event)
             })
             .disposed(by: disposeBag)
 
@@ -156,21 +166,31 @@ private extension TaskDetailView {
                 viewModel.updateTaskField(isPriority: !isPriorityButton.isOn)
             })
             .disposed(by: disposeBag)
+    }
 
+    // MARK: - Actions / Events handlers
 
-        viewModel.bindingDelegate = self
+    func handleViewModelTableUpdate(event: TaskDetailViewModel.TableUpdateEvent) {
+        switch event {
+        case .addCell(let toIndexPath, _):
+            taskDataTableView.insertRows(at: [toIndexPath], with: .fade)
+        case .updateCell(let indexPath, let cellVM):
+            updateTableViewCell(with: indexPath, cellVM: cellVM)
+        case .removeCells(let indexPaths):
+            taskDataTableView.deleteRows(at: indexPaths, with: .fade)
+        }
     }
 
     // MARK: - Helpers
 
-    private func buildTableViewCellFor(_ cellViewModel: TaskDetailDataCellViewModelType) -> UITableViewCell {
+    func buildTableViewCellFor(_ cellViewModel: TaskDetailDataCellViewModelType) -> UITableViewCell {
         let cell: UITableViewCell?
 
         switch cellViewModel {
         case _ as AddSubTaskCellViewModel:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailAddSubtaskCell.className)
             if let cell = cell as? TaskDetailAddSubtaskCell {
-                cell.subtaskTextField.delegate = self
+                cell.titleTextField.delegate = self
             }
 
         case let cellVM as AddToMyDayCellViewModel:
@@ -226,6 +246,46 @@ private extension TaskDetailView {
         return cell ?? .init()
     }
 
+    func updateTableViewCell(with indexPath: IndexPath, cellVM: TaskDetailDataCellViewModelType) {
+        let cell = taskDataTableView.cellForRow(at: indexPath)
+
+        switch cellVM {
+        case _ as AddSubTaskCellViewModel:
+            break
+
+        case let cellVM as AddToMyDayCellViewModel:
+            guard let cell = cell as? TaskDetailAddToMyDayCell else { return }
+            cell.fillFrom(cellVM)
+
+        case let cellVM as ReminderDateCellViewModel:
+            guard let cell = cell as? TaskDetailReminderDateCell else { return }
+            cell.fillFrom(cellVM)
+
+        case let cellVM as DeadlineDateCellViewModel:
+            guard let cell = cell as? TaskDetailDeadlineDateCell else { return }
+            cell.fillFrom(cellVM)
+
+        case let cellVM as RepeatPeriodCellViewModel:
+            guard let cell = cell as? TaskDetailRepeatPeriodCell else { return }
+            cell.fillFrom(cellVM)
+
+        case _ as AddFileCellVeiwModel:
+            break
+
+        case let cellVM as FileCellViewModel:
+            guard let cell = cell as? TaskDetailFileCell else { return }
+            cell.fillFrom(cellValue: cellVM)
+
+        case let cellVM as DescriptionCellViewModel:
+            guard let cell = cell as? TaskDetailDescriptionCell else { return }
+            cell.fillFrom(cellVM)
+
+        default :
+            // TODO: залогировать
+            break
+        }
+    }
+
 }
 
 // MARK: - UITableViewDataSource
@@ -239,16 +299,17 @@ extension TaskDetailView: UITableViewDataSource {
         return viewModel.getCountRowsInSection(section)
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cellVM = viewModel.getTaskDataCellViewModelFor(indexPath: indexPath) else { return .init() }
-
-        return buildTableViewCellFor(cellVM)
-    }
 }
 
 // MARK: - UITableViewDelegate
 
 extension TaskDetailView: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cellVM = viewModel.getTaskDataCellViewModelFor(indexPath: indexPath) else { return .init() }
+
+        return buildTableViewCellFor(cellVM)
+    }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let cellVM = viewModel.getTaskDataCellViewModelFor(indexPath: indexPath)
@@ -290,7 +351,7 @@ extension TaskDetailView: UITableViewDelegate {
 
         switch cell {
         case let addSubtaskButton as TaskDetailAddSubtaskCell :
-            addSubtaskButton.subtaskTextField.becomeFirstResponder()
+            addSubtaskButton.titleTextField.becomeFirstResponder()
 
         case _ as TaskDetailAddToMyDayCell :
             viewModel.switchValueTaskFieldInMyDay()
@@ -327,7 +388,7 @@ extension TaskDetailView: UITableViewDelegate {
             style: .destructive,
             title: "Удалить"
         ) { [weak self] _, _, completionHandler in
-            self?.userAnswerRelay.accept(.fileDeleteDidTap(indexPath: indexPath))
+            self?.userAnswerRelay.accept(.fileDeleteStartDidTap(indexPath: indexPath))
             completionHandler(true)
         }
         
@@ -371,59 +432,6 @@ extension TaskDetailView: UITextViewDelegate {
 
     // TODO: заменять перевод строки на пробел когда заканчивается редактирование названия
 }
-
-// MARK: - TaskDetailViewModelBindingDelegate
-
-extension TaskDetailView: TaskDetailViewModelBindingDelegate {
-    func addCell(toIndexPath indexPath: IndexPath, cellViewModel: TaskDetailDataCellViewModelType) {
-        taskDataTableView.insertRows(at: [indexPath], with: .fade)
-    }
-
-    func updateCell(withIndexPath indexPath: IndexPath, cellViewModel: TaskDetailDataCellViewModelType) {
-        let cell = taskDataTableView.cellForRow(at: indexPath)
-
-        switch cellViewModel {
-        case _ as AddSubTaskCellViewModel:
-            break
-
-        case let cellVM as AddToMyDayCellViewModel:
-            guard let cell = cell as? TaskDetailAddToMyDayCell else { return }
-            cell.fillFrom(cellVM)
-
-        case let cellVM as ReminderDateCellViewModel:
-            guard let cell = cell as? TaskDetailReminderDateCell else { return }
-            cell.fillFrom(cellVM)
-
-        case let cellVM as DeadlineDateCellViewModel:
-            guard let cell = cell as? TaskDetailDeadlineDateCell else { return }
-            cell.fillFrom(cellVM)
-
-        case let cellVM as RepeatPeriodCellViewModel:
-            guard let cell = cell as? TaskDetailRepeatPeriodCell else { return }
-            cell.fillFrom(cellVM)
-
-        case _ as AddFileCellVeiwModel:
-            break
-
-        case let cellVM as FileCellViewModel:
-            guard let cell = cell as? TaskDetailFileCell else { return }
-            cell.fillFrom(cellValue: cellVM)
-
-        case let cellVM as DescriptionCellViewModel:
-            guard let cell = cell as? TaskDetailDescriptionCell else { return }
-            cell.fillFrom(cellVM)
-
-        default :
-            // TODO: залогировать
-            break
-        }
-    }
-
-    func removeCells(withIndexPaths indexPaths: [IndexPath]) {
-        taskDataTableView.deleteRows(at: indexPaths, with: .fade)
-    }
-}
-
 
 // MARK: - UITextFieldDelegate (subtasks cells)
 
@@ -471,7 +479,7 @@ extension TaskDetailView: TaskDetailDataBaseCellDelegate {
 
         case TaskDetailFileCell.className :
             guard let indexPath = taskDataTableView.indexPath(for: cell) else { return }
-            userAnswerRelay.accept(.fileDeleteDidTap(indexPath: indexPath))
+            userAnswerRelay.accept(.fileDeleteStartDidTap(indexPath: indexPath))
 
         default :
             break
@@ -495,7 +503,8 @@ extension TaskDetailView {
         case deadlineDateSetterOpenDidTap
         case repeatPeriodSetterOpenDidTap
         case fileAddDidTap
-        case fileDeleteDidTap(indexPath: IndexPath)
+        case fileDeleteStartDidTap(indexPath: IndexPath)
         case descriptionEditorOpenDidTap
     }
 }
+

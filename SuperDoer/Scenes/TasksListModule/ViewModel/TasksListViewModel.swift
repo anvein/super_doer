@@ -1,31 +1,45 @@
 
 import Foundation
+import RxSwift
+import RxCocoa
 
 class TasksListViewModel: TasksListViewModelType {
 
+    private let disposeBag = DisposeBag()
+
     // MARK: - Model
 
-    private let model: TaskListModel
+    private let model: TasksListModel
 
-//    private var tasks = [CDTask]()
+    // MARK: - State
 
-    var tasksUpdateBinding: (() -> ())? // TODO: переделать на Rx???
-    var onTasksListUpdate: ((TasksListUpdateType) -> Void)?
+    private let sectionTitleRelay = BehaviorRelay<String>(value: "")
+    private let tableUpdateEventsRelay = PublishRelay<TableUpdateEvent>()
 
-    // TODO: переделать на TaskSectionProtocol
-    private var taskSection: CDTaskSectionCustom
+    // MARK: - Observable
 
-    var taskSectionTitle: String {
-        return taskSection.title ?? ""
-    }
+    var sectionTitleDriver: Driver<String> { sectionTitleRelay.asDriver() }
+    var tableUpdateEventsSignal: Signal<TableUpdateEvent> { tableUpdateEventsRelay.asSignal() }
 
     // MARK: - Init
 
-    init(model: TaskListModel, taskSection: CDTaskSectionCustom) {
+    init(model: TasksListModel) {
         self.model = model
-        self.taskSection = taskSection
 
-        self.model.delegate  = self
+        sectionTitleRelay.accept(model.getSectionTitle() ?? "")
+
+        setupBindings()
+    }
+
+    // MARK: - Setup
+
+    private func setupBindings() {
+        // M -> VM
+        model.modelUpdatedObservable
+            .subscribe(onNext: { [weak self] event in
+                self?.handleModelUpdatedEvent(event)
+            })
+            .disposed(by: disposeBag)
     }
 
     // MARK: -
@@ -43,12 +57,12 @@ class TasksListViewModel: TasksListViewModelType {
     func getTasksCountIn(section: Int) -> Int {
         return model.getTasksCountIn(in: section)
     }
-    
+
     func getTaskTableViewCellViewModel(forIndexPath indexPath: IndexPath) -> TaskTableViewCellViewModelType  {
         let task = model.getTask(for: indexPath)
         return TaskTableViewCellViewModel(task: task)
     }
-    
+
     func getTaskDetailViewModel(forIndexPath indexPath: IndexPath) -> TaskDetailViewModel? {
         let selectedTask = model.getTask(for: indexPath)
         guard let taskId = selectedTask.id else { return nil }
@@ -59,7 +73,7 @@ class TasksListViewModel: TasksListViewModelType {
             taskFileEm: DIContainer.shared.resolve(TaskFileEntityManager.self)!
         )
     }
-    
+
     func getTaskDeletableViewModels(forIndexPaths indexPaths: [IndexPath]) -> [TaskDeletableViewModel] {
         var viewModels: [TaskDeletableViewModel] = []
         for indexPath in indexPaths {
@@ -69,10 +83,10 @@ class TasksListViewModel: TasksListViewModelType {
             )
             viewModels.append(viewModel)
         }
-        
+
         return viewModels
     }
-    
+
     // MARK: model manipulation methods
     func createNewTaskInCurrentSectionWith(
         title: String,
@@ -81,10 +95,10 @@ class TasksListViewModel: TasksListViewModelType {
         deadlineAt: Date?,
         description: String?
     ) {
-        model.createTaskWith(title: title, section: taskSection)
+        model.createTaskInCurrentSectionWith(title: title)
         // TODO: отловить ошибку, если не получилось создать и показать сообщение об этом
     }
-    
+
     func deleteTasks(taskViewModels: [DeletableItemViewModelType]) {
         var tasksIndexPaths = [IndexPath]()
 
@@ -92,16 +106,16 @@ class TasksListViewModel: TasksListViewModelType {
             guard let indexPath = taskViewModel.indexPath else { continue }
             tasksIndexPaths.append(indexPath)
         }
-        
+
         model.deleteTasksWith(indexPaths: tasksIndexPaths)
     }
-    
+
     func moveTasksInCurrentList(fromPath: IndexPath, to toPath: IndexPath) {
-        
+
 //        let moveElement = tasks[fromPath.row]
 //        tasks[fromPath.row] = tasks[toPath.row]
 //        tasks[toPath.row] = moveElement
- 
+
         // TODO: реализовать перемещение в CoreData
     }
 
@@ -119,49 +133,58 @@ class TasksListViewModel: TasksListViewModelType {
         model.switchAndUpdateInMyDayFieldWith(indexPath: indexPath)
     }
 
+    // MARK: - Event handlers
+
+    func handleModelUpdatedEvent(_ event: TasksListModel.UpdatedEvent) {
+        switch event {
+        case .modelBeginUpdates:
+            tableUpdateEventsRelay.accept(.beginUpdates)
+
+        case .modelEndUpdates:
+            tableUpdateEventsRelay.accept(.endUpdates)
+
+        case .taskDidCreate(let indexPath):
+            tableUpdateEventsRelay.accept(.insertTask(indexPath))
+
+        case .taskDidUpdate(let indexPath, let taskItem):
+            tableUpdateEventsRelay.accept(.updateTask(
+                indexPath,
+                TaskTableViewCellViewModel(task: taskItem)
+            ))
+
+        case .taskDidMove(let fromIndexPath, let toIndexPath, let taskItem):
+            tableUpdateEventsRelay.accept(.moveTask(
+                fromIndexPath,
+                toIndexPath,
+                TaskTableViewCellViewModel(task: taskItem)
+            ))
+
+        case .taskDidDelete(let indexPath):
+            tableUpdateEventsRelay.accept(.deleteTask(indexPath))
+
+        case .sectionDidInsert(let sectionIndex):
+            tableUpdateEventsRelay.accept(.insertSection(sectionIndex))
+
+        case .sectionDidDelete(let sectionIndex):
+            tableUpdateEventsRelay.accept(.deleteSection(sectionIndex))
+        }
+    }
 }
 
-// MARK: - TaskListModelDelegate
+// MARK: - TasksListViewModel.TableUpdateEvent
 
-extension TasksListViewModel: TaskListModelDelegate {
-    func taskListModelBeginUpdates() {
-        onTasksListUpdate?(.beginUpdates)
-    }
+extension TasksListViewModel {
+    enum TableUpdateEvent {
+        case beginUpdates
+        case endUpdates
 
-    func taskListModelEndUpdates() {
-        onTasksListUpdate?(.endUpdates)
-    }
+        case insertTask(IndexPath)
+        case deleteTask(IndexPath)
+        case updateTask(IndexPath, TaskTableViewCellViewModel)
+        case moveTask(IndexPath, IndexPath, TaskTableViewCellViewModel)
 
-
-    func taskListModelTaskDidCreate(indexPath: IndexPath) {
-        onTasksListUpdate?(.insertTask(indexPath))
-    }
-    
-    func taskListModelTaskDidUpdate(in indexPath: IndexPath, taskItem: TaskListItem) {
-        onTasksListUpdate?(.updateTask(
-            indexPath,
-            TaskTableViewCellViewModel(task: taskItem)
-        ))
-    }
-    
-    func taskListModelTaskDidMove(fromIndexPath: IndexPath, toIndexPath: IndexPath, taskItem: TaskListItem) {
-        onTasksListUpdate?(.moveTask(
-            fromIndexPath,
-            toIndexPath,
-            TaskTableViewCellViewModel(task: taskItem)
-        ))
-    }
-    
-    func taskListModelTaskDidDelete(indexPath: IndexPath) {
-        onTasksListUpdate?(.deleteTask(indexPath))
-    }
-    
-    func taskListModelSectionDidInsert(sectionIndex: Int) {
-        onTasksListUpdate?(.insertSection(sectionIndex))
-    }
-    
-    func taskListModelSectionDidDelete(sectionIndex: Int) {
-        onTasksListUpdate?(.deleteSection(sectionIndex))
+        case insertSection(Int)
+        case deleteSection(Int)
     }
 
 }

@@ -11,7 +11,7 @@ class TaskDeletableViewModel: BaseDeletableItemViewModel {
         )
     }
     
-    init(task: TaskListItem, indexPath: IndexPath) {
+    init(task: TasksListItem, indexPath: IndexPath) {
         super.init(
             title: task.title,
             indexPath: indexPath

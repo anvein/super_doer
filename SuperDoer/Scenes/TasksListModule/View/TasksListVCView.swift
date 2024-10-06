@@ -1,8 +1,11 @@
 
 import UIKit
 import SnapKit
+import RxSwift
 
 final class TasksListVCView: UIView {
+
+    private let disposeBag = DisposeBag()
 
     private var viewModel: TasksListViewModelType
 
@@ -20,6 +23,13 @@ final class TasksListVCView: UIView {
 
     // MARK: - Subviews
 
+    private let tableHeaderLabel: UILabel = {
+        let headerLabel = UILabel()
+        headerLabel.textColor = .white
+        headerLabel.font = .systemFont(ofSize: 32, weight: .bold)
+        return headerLabel
+    }()
+
     private lazy var tasksTableView: UITableView = {
         $0.verticalScrollIndicatorInsets.right = -9
         $0.clipsToBounds = false
@@ -29,7 +39,7 @@ final class TasksListVCView: UIView {
         $0.estimatedRowHeight = UITableView.automaticDimension
         $0.rowHeight = UITableView.automaticDimension
         $0.dragInteractionEnabled = true
-        $0.tableHeaderView = buildTasksTableHeaderView()
+        $0.tableHeaderView = tableHeaderLabel
 
         $0.register(StandartTaskTableViewCell.self, forCellReuseIdentifier: StandartTaskTableViewCell.className)
         $0.delegate = self
@@ -140,12 +150,21 @@ private extension TasksListVCView {
     func setupBindings() {
         guard let viewModel = viewModel as? TasksListViewModel else { return }
 
-        viewModel.onTasksListUpdate = { [weak self] updateType in
-            self?.updateTasksTableFor(updateType: updateType)
-        }
+        // VM -> V
+        viewModel.sectionTitleDriver
+            .drive(onNext: { [weak self] title in
+                self?.setTableHeader(title: title)
+            })
+            .disposed(by: disposeBag)
+
+        viewModel.tableUpdateEventsSignal
+            .emit(onNext: { [weak self] event in
+                self?.updateTasksTableFor(updateType: event)
+            })
+            .disposed(by: disposeBag)
     }
 
-    func updateTasksTableFor(updateType: TasksListUpdateType) {
+    func updateTasksTableFor(updateType: TasksListViewModel.TableUpdateEvent) {
         switch updateType {
         case .beginUpdates:
             tasksTableView.beginUpdates()
@@ -182,24 +201,19 @@ private extension TasksListVCView {
         }
     }
 
-    func buildTasksTableHeaderView() -> UILabel {
-        let headerLabel = UILabel()
-        headerLabel.text = viewModel.taskSectionTitle
-        headerLabel.textColor = .white
-        headerLabel.font = .systemFont(ofSize: 32, weight: .bold)
-        headerLabel.sizeToFit()
-        headerLabel.frame = .init(
+    // MARK: - Update view
+
+    func setTableHeader(title: String) {
+        tableHeaderLabel.text = title
+        tableHeaderLabel.sizeToFit()
+        tableHeaderLabel.frame = .init(
             origin: .zero,
             size: .init(
-                width: headerLabel.frame.width,
-                height: headerLabel.frame.height + 10
+                width: tableHeaderLabel.frame.width,
+                height: tableHeaderLabel.frame.height + 10
             )
         )
-
-        return headerLabel
     }
-
-    // MARK: - Update view
 
     func setTableHeaderVisible(_ visible: Bool) {
         guard let tableHeader = tasksTableView.tableHeaderView else { return }
