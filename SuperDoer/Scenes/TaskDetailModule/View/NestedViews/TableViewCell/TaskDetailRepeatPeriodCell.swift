@@ -2,7 +2,7 @@
 import UIKit
 
 /// Кнопка-ячейка "Период повтора задачи"
-class RepeatPeriodButtonCell: TaskDetailLabels2StatesButtonCell {
+class TaskDetailRepeatPeriodCell: TaskDetailLabels2StatesButtonCell {
 
     override var defaultMainText: String {
         return "Повтор"

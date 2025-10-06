@@ -27,3 +27,9 @@ public class CDTask: NSManagedObject {
         return nil
     }
 }
+
+extension CDTask {
+    var titlePrepared: String {
+        get { title ?? "No title" }
+    }
+}

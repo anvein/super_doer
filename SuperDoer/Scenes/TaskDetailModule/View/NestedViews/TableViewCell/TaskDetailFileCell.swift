@@ -1,22 +1,25 @@
 
 import UIKit
+import SnapKit
 
 /// Кнопка-ячейка "Прикрепленный файл" (к задаче)
-class FileButtonCell: TaskDetailLabelsButtonCell {
-    
-    override class var rowHeight: Int {
-        return 70
-    }
-    
-    /// id файла, который размещен в этой ячейке
+class TaskDetailFileCell: TaskDetailLabelsButtonCell {
+
+    // MARK: - Settings
+
+    override class var rowHeight: Int { 70 }
+    override var leftImageViewSize: CGFloat { 36 }
+
+    // MARK: - Data
+
     var fileId: UUID?
     
-    
-    // MARK: views
-    let extensionLabel = UILabel()
+    // MARK: - Subviews
 
+    let extensionLabel = UILabel()
     
-    // MARK: setup methods
+    // MARK: - Subviews
+
     override func addSubviews() {
         super.addSubviews()
         
@@ -26,9 +29,7 @@ class FileButtonCell: TaskDetailLabelsButtonCell {
     override func setupSubviews()
     {
         super.setupSubviews()
-        
-        extensionLabel.translatesAutoresizingMaskIntoConstraints = false
-        
+
         leftImageView.backgroundColor = .Text.blue
         leftImageView.layer.cornerRadius = 2
         leftImageView.clipsToBounds = true
@@ -48,27 +49,22 @@ class FileButtonCell: TaskDetailLabelsButtonCell {
     
     override func setupConstraints() {
         super.setupConstraints()
-        
-        // leftImageView
-        NSLayoutConstraint.activate([
-            leftImageView.widthAnchor.constraint(equalToConstant: 36),
-            leftImageView.heightAnchor.constraint(equalToConstant: 36),
-        ])
-        
-        // extensionLabel
-        NSLayoutConstraint.activate([
-            extensionLabel.centerYAnchor.constraint(equalTo: leftImageView.centerYAnchor),
-            extensionLabel.centerXAnchor.constraint(equalTo: leftImageView.centerXAnchor),
-            extensionLabel.widthAnchor.constraint(equalToConstant: 30),
-        ])
+
+        extensionLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(3)
+        }
     }
-    
-    
-    // MARK: methods helpers
+
+    // MARK: - Methods helpers
+
     override func createLeftButtonImage() -> UIImage? {
         return nil
     }
-    
+
+
+    // MARK: - Update view
+
     func fillFrom(cellValue: FileCellViewModel) {
         fileId = cellValue.id
         

@@ -2,10 +2,10 @@
 import Foundation
 
 protocol CustomDateSetterViewModelType: AnyObject {
-    var isShowReadyButton: Box<Bool> { get }
-    var isShowDeleteButton: Box<Bool> { get }
-    
-    var deadlineDate: Box<Date?> { get }
+    var isShowReadyButtonObservable: UIBoxObservable<Bool> { get }
+    var isShowDeleteButtonObservable: UIBoxObservable<Bool> { get }
+
+    var deadlineDateObservable: UIBoxObservable<Date?> { get }
     
     var defaultDate: Date { get }
 }

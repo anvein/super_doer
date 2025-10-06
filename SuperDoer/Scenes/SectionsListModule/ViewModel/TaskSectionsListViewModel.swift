@@ -4,29 +4,30 @@ import Foundation
 /// ViewModel страницы с таблицей списков (разделов)
 class TaskSectionsListViewModel {
 
+   
     typealias SectionGroup = [[TaskSectionProtocol]]
 
+    // MARK: - Services
 
-    // MARK: services
     private var sectionEm: TaskSectionEntityManager
 
 
-    // MARK: model
+    // MARK: - Model
+
     static var systemSectionsId = 0
     static var customSectionsId = 1
 
-    private var sections: Box<SectionGroup>
-
+    private var sections: UIBox<SectionGroup>
     private var selectedSectionIndexPath: IndexPath?
 
+    // MARK: - Init
 
-    // MARK: init / setup
     required init(
         sectionEm: TaskSectionEntityManager,
         sections: SectionGroup
     ) {
         self.sectionEm = sectionEm
-        self.sections = Box(sections)
+        self.sections = UIBox(sections)
     }
 }
 
@@ -34,12 +35,10 @@ class TaskSectionsListViewModel {
 
 extension TaskSectionsListViewModel: TaskSectionListViewModelType {
 
-    // MARK: binding methods
-    func bindAndUpdateSections(_ listener: @escaping ([[TaskSectionProtocol]]) -> Void) {
-        sections.bindAndUpdateValue(listener: listener)
-    }
-    
-    
+    // MARK: - Observable
+
+    var sectionsObservable: UIBoxObservable<Sections> { sections.asObservable() }
+
     // MARK: get data for VC functions
     func getCountOfTableSections() -> Int {
         return sections.value.count
@@ -87,11 +86,10 @@ extension TaskSectionsListViewModel: TaskSectionListViewModelType {
         case let taskSectionCustom as CDTaskSectionCustom :
             let taskCDManager = DIContainer.shared.resolve(TaskCoreDataManager.self)!
             return TasksListViewModel(
-                model: TaskListModel(
+                model: TasksListModel(
                     taskSection: section,
                     taskCDManager: taskCDManager
-                ),
-                taskSection: taskSectionCustom
+                )
             )
 
         case _ as TaskSectionSystem:

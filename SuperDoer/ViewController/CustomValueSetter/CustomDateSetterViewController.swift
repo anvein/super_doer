@@ -55,13 +55,13 @@ class CustomDateSetterViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+
         updateDetent()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
+
         setupNavigationBar()
     }
     
@@ -184,16 +184,16 @@ extension CustomDateSetterViewController {
     }
     
     private func setupBindings() {
-        viewModel.deadlineDate.bindAndUpdateValue { [weak self] date in
+        viewModel.deadlineDateObservable.bindAndUpdateValue { [weak self] date in
             guard let defaultDate = self?.viewModel.defaultDate else { return }
             self?.datePicker.date = date ?? defaultDate
         }
         
-        viewModel.isShowDeleteButton.bindAndUpdateValue { [weak self] isShowDeleteButton in
+        viewModel.isShowDeleteButtonObservable.bindAndUpdateValue { [weak self] isShowDeleteButton in
             self?.navigationItem.leftBarButtonItem?.isHidden = !isShowDeleteButton
         }
         
-        viewModel.isShowReadyButton.bindAndUpdateValue { [weak self] isShowReadyButton in
+        viewModel.isShowReadyButtonObservable.bindAndUpdateValue { [weak self] isShowReadyButton in
             self?.navigationItem.rightBarButtonItem?.isHidden = !isShowReadyButton
         }
     }

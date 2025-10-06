@@ -1,9 +1,12 @@
 
 import UIKit
 import SnapKit
+import RxSwift
 
 /// Контроллер списка задач в отдельном списке (разделе)
 class TasksListViewController: UIViewController {
+
+    private let disposeBag = DisposeBag()
 
     private var viewModel: TasksListViewModelType
     private weak var coordinator: TaskListViewControllerCoordinator?
@@ -40,6 +43,7 @@ class TasksListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupBindings()
         setupNavigationBar()
         viewModel.viewDidLoad()
 
@@ -87,11 +91,9 @@ class TasksListViewController: UIViewController {
 
 private extension TasksListViewController {
 
-    // MARK: setup controls
+    // MARK: - Setup
 
     func setupNavigationBar() {
-        self.title = viewModel.taskSectionTitle
-
         guard let navigationBar = navigationController?.navigationBar else { return }
 
         navigationBar.tintColor = .white
@@ -117,6 +119,16 @@ private extension TasksListViewController {
         //        navigationController?.navigationBar.setBackgroundImage(UIImage(named: "bgList"), for: UIBarMetrics.compact)
         //        navigationController?.navigationBar.isOpaque = true
     }
+
+    func setupBindings() {
+        // VM -> V (VC)
+        viewModel.sectionTitleDriver
+            .drive(onNext: { [weak self] title in
+                self?.title = title
+            })
+            .disposed(by: disposeBag)
+    }
+
 }
 
 extension TasksListViewController: TasksListVCViewDelegate {
