@@ -44,12 +44,12 @@ class TaskSectionsListViewController: UIViewController {
         setupConstraints()
         setupBinding()
 
-        PIXEL_PERFECT_screen.createAndSetupInstance(
-            baseView: self.view,
-            imageName: "PIXEL_PERFECT_home",
-            controlsBottomSideOffset: 0,
-            imageScaleFactor: 3
-        )
+//        PIXEL_PERFECT_screen.createAndSetupInstance(
+//            baseView: self.view,
+//            imageName: "PIXEL_PERFECT_home",
+//            controlsBottomSideOffset: 0,
+//            imageScaleFactor: 3
+//        )
     }
 
     override func viewDidDisappear(_ animated: Bool) {
