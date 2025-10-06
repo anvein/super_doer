@@ -48,7 +48,7 @@ final class AppCoordinator: BaseCoordinator {
     }
     
     
-    private func buildSectionsViewModel() -> TaskSectionsListViewModel.Sections {
+    private func buildSectionsViewModel() -> TaskSectionsListViewModel.SectionGroup {
         var sections: [[TaskSectionProtocol]] = [[], []]
         
         sections[TaskSectionsListViewModel.systemSectionsId] = systemSectionsBuilder.buildSections()

@@ -4,7 +4,7 @@ import Foundation
 /// ViewModel страницы с таблицей списков (разделов)
 class TaskSectionsListViewModel {
 
-    typealias Sections = [[TaskSectionProtocol]]
+    typealias SectionGroup = [[TaskSectionProtocol]]
 
 
     // MARK: services
@@ -15,7 +15,7 @@ class TaskSectionsListViewModel {
     static var systemSectionsId = 0
     static var customSectionsId = 1
 
-    private var sections: Box<Sections>
+    private var sections: Box<SectionGroup>
 
     private var selectedSectionIndexPath: IndexPath?
 
@@ -23,7 +23,7 @@ class TaskSectionsListViewModel {
     // MARK: init / setup
     required init(
         sectionEm: TaskSectionEntityManager,
-        sections: Sections
+        sections: SectionGroup
     ) {
         self.sectionEm = sectionEm
         self.sections = Box(sections)
@@ -82,7 +82,7 @@ extension TaskSectionsListViewModel: TaskSectionListViewModelType {
    
     func getTaskListViewModel(forIndexPath indexPath: IndexPath) -> TasksListViewModelType? {
         let section = sections.value[indexPath.section][indexPath.row]
-        
+
         switch section {
         case let taskSectionCustom as CDTaskSectionCustom :
             let taskCDManager = DIContainer.shared.resolve(TaskCoreDataManager.self)!
