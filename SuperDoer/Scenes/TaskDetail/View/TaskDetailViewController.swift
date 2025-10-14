@@ -44,12 +44,12 @@ class TaskDetailViewController: UIViewController {
         setupNavigation()
         setupBindings()
 
-        PIXEL_PERFECT_screen.createAndSetupInstance(
-            baseView: self.view,
-            imageName: "PIXEL_PERFECT_detail1",
-            controlsBottomSideOffset: 0,
-            imageScaleFactor: 3
-        )
+//        PIXEL_PERFECT_screen.createAndSetupInstance(
+//            baseView: self.view,
+//            imageName: "PIXEL_PERFECT_detail1",
+//            controlsBottomSideOffset: 0,
+//            imageScaleFactor: 3
+//        )
     }
 
     override func viewDidDisappear(_ animated: Bool) {

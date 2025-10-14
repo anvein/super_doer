@@ -1,10 +1,9 @@
-
 import Foundation
 import CoreData
 import RxSwift
 
 final class TasksListModel: NSObject {
-    
+
     // MARK: - Services
 
     private let taskCDManager: TaskCoreDataManager
