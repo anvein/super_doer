@@ -1,19 +1,41 @@
-
 import UIKit
 import SnapKit
 import RxSwift
+import RxRelay
+import RxCocoa
 
 final class TasksListVCView: UIView {
 
-    private let disposeBag = DisposeBag()
+    enum Answer {
+        case onSelectTask(IndexPath)
+        case onTapIsDoneButton(IndexPath)
+        case onTapIsPriorityButton(IndexPath)
+        case onSelectDeleteTasks([IndexPath])
+        case onConfirmCreateTask(TaskCreateData)
 
-    private var viewModel: TasksListViewModelType
+        case onNavigationTitleVisibleChange(Bool)
+    }
 
-    weak var delegate: TasksListVCViewDelegate?
+    weak var tableDataSource: TaskListTableDataSource?
 
     // MARK: - Services
 
     private let symbolCreator: SymbolCreatorService
+
+    // MARK: - Rx
+
+    private let disposeBag = DisposeBag()
+
+    private let answerRelay: PublishRelay<Answer> = .init()
+    var answerSignal: Signal<Answer> {
+        answerRelay.asSignal()
+    }
+
+    var sectionTitleBinder: Binder<String> {
+        Binder(self) { view, text in
+            view.tableHeaderLabel.text = text
+        }
+    }
 
     // MARK: - Views Accessors
 
@@ -23,51 +45,12 @@ final class TasksListVCView: UIView {
 
     // MARK: - Subviews
 
-    private let tableHeaderLabel: UILabel = {
-        let headerLabel = UILabel()
-        headerLabel.textColor = .white
-        headerLabel.font = .systemFont(ofSize: 32, weight: .bold)
-        return headerLabel
-    }()
+    private let tableHeaderLabel = UILabel()
+    private let tasksTableView = UITableView(frame: .zero, style: .grouped)
+    private let tableContainerView = UIView()
 
-    private lazy var tasksTableView: UITableView = {
-        $0.verticalScrollIndicatorInsets.right = -9
-        $0.clipsToBounds = false
-        $0.backgroundColor = nil
-        $0.scrollsToTop = true
-        $0.separatorStyle = .none
-        $0.estimatedRowHeight = UITableView.automaticDimension
-        $0.rowHeight = UITableView.automaticDimension
-        $0.dragInteractionEnabled = true
-        $0.tableHeaderView = tableHeaderLabel
-
-        $0.register(StandartTaskTableViewCell.self, forCellReuseIdentifier: StandartTaskTableViewCell.className)
-        $0.delegate = self
-        $0.dataSource = self
-        $0.dragDelegate = self
-        $0.dropDelegate = self
-        return $0
-    }(UITableView(frame: .zero, style: .grouped))
-
-    private let tableContainerView: UIView = {
-        $0.clipsToBounds = true
-        $0.layer.zPosition = 1
-        return $0
-    }(UIView())
-
-    private lazy var taskCreatePanel: TaskCreateBottomPanel = {
-        $0.textFieldPlaceholder = "Создать задачу"
-        $0.layer.zPosition = 2
-        $0.delegate = self
-        return $0
-    }(TaskCreateBottomPanel())
-
-    private let backgroundImageView = {
-        $0.contentMode = .scaleAspectFill
-        $0.clipsToBounds = true
-        $0.layer.zPosition = 0
-        return $0
-    }(UIImageView(image: .bgList))
+    private lazy var taskCreatePanel = TaskCreateBottomPanel()
+    private let backgroundImageView = UIImageView()
 
     // MARK: - Constraints
 
@@ -75,27 +58,18 @@ final class TasksListVCView: UIView {
     private var panelTopPaddingConstraint: Constraint?
     private var panelHorizontalPaddingsConstraint: Constraint?
 
-    // MARK: - State
+    // MARK: - State / Rx
 
-    private var isShowNavigationTitle: Bool = true {
-        willSet {
-            guard isShowNavigationTitle != newValue else { return }
-            delegate?.tasksListVCViewNavigationTitleDidChange(isVisible: newValue)
-            setTableHeaderVisible(!newValue)
-        }
-    }
+    private let isShowNavigationTitleRelay = BehaviorRelay(value: true)
 
     // MARK: - Init
 
-    init(
-        viewModel: TasksListViewModelType,
-        symbolCreator: SymbolCreatorService = .init()
-    ) {
+    init(symbolCreator: SymbolCreatorService = .init()) {
         self.symbolCreator = symbolCreator
-        self.viewModel = viewModel
         super.init(frame: UIWindow.current?.bounds ?? .zero)
 
-        setupSubviewsLayout()
+        setupHierarchy()
+        setupView()
         setupBindings()
     }
     
@@ -109,13 +83,94 @@ final class TasksListVCView: UIView {
         tasksTableView.reloadData()
     }
 
+    func updateTasksTable(for updateEvent: TaskListTableUpdateEvent) {
+        switch updateEvent {
+        case .beginUpdates:
+            tasksTableView.beginUpdates()
+
+        case .endUpdates:
+            tasksTableView.endUpdates()
+
+        case .insertTask(let indexPath):
+            tasksTableView.insertRows(at: [indexPath], with: .automatic)
+
+        case .deleteTask(let indexPath):
+            tasksTableView.deleteRows(at: [indexPath], with: .automatic)
+
+        case .updateTask(let indexPath, let taskCellVM):
+            guard let cell = tasksTableView.cellForRow(at: indexPath) as? StandartTaskTableCell else { return }
+            cell.fillFrom(viewModel: taskCellVM)
+
+        case .moveTask(let fromIndexPath, let toIndexPath, let taskCellVM):
+            guard let cell = tasksTableView.cellForRow(at: fromIndexPath) as? StandartTaskTableCell else { return }
+            cell.fillFrom(viewModel: taskCellVM)
+            tasksTableView.moveRow(at: fromIndexPath, to: toIndexPath)
+
+        case .insertSection(let sectionId):
+            tasksTableView.insertSections(
+                .init(integer: sectionId),
+                with: .middle
+            )
+
+        case .deleteSection(let sectionId):
+            tasksTableView.deleteSections(
+                .init(integer: sectionId),
+                with: .middle
+            )
+        }
+    }
+
+    func setTableHeader(title: String) {
+        tableHeaderLabel.text = title
+        tableHeaderLabel.sizeToFit()
+        tableHeaderLabel.frame = .init(
+            origin: .zero,
+            size: .init(
+                width: tableHeaderLabel.frame.width,
+                height: tableHeaderLabel.frame.height + 10
+            )
+        )
+    }
+
 }
 
 private extension TasksListVCView {
 
     // MARK: - Setup
 
-    func setupSubviewsLayout() {
+    func setupView() {
+        tableHeaderLabel.textColor = .white
+        tableHeaderLabel.font = .systemFont(ofSize: 32, weight: .bold)
+
+        tasksTableView.verticalScrollIndicatorInsets.right = -9
+        tasksTableView.clipsToBounds = false
+        tasksTableView.backgroundColor = nil
+        tasksTableView.scrollsToTop = true
+        tasksTableView.separatorStyle = .none
+        tasksTableView.estimatedRowHeight = UITableView.automaticDimension
+        tasksTableView.rowHeight = UITableView.automaticDimension
+        tasksTableView.dragInteractionEnabled = true
+        tasksTableView.tableHeaderView = tableHeaderLabel
+
+        tableContainerView.clipsToBounds = true
+        tableContainerView.layer.zPosition = 1
+
+        tasksTableView.register(StandartTaskTableCell.self, forCellReuseIdentifier: StandartTaskTableCell.className)
+        tasksTableView.delegate = self
+        tasksTableView.dataSource = self
+        tasksTableView.dragDelegate = self
+        tasksTableView.dropDelegate = self
+
+        taskCreatePanel.textFieldPlaceholder = "Создать задачу"
+        taskCreatePanel.layer.zPosition = 2
+
+        backgroundImageView.image = .bgList
+        backgroundImageView.contentMode = .scaleAspectFill
+        backgroundImageView.clipsToBounds = true
+        backgroundImageView .layer.zPosition = 0
+    }
+
+    func setupHierarchy() {
         addSubviews(
             tableContainerView,
             backgroundImageView,
@@ -137,7 +192,7 @@ private extension TasksListVCView {
             $0.horizontalEdges.equalToSuperview().inset(8)
         }
 
-        let panelState = taskCreatePanel.currentState
+        let panelState = taskCreatePanel.currentStateValue
         taskCreatePanel.snp.makeConstraints {
             $0.bottom.equalTo(keyboardLayoutGuide.snp.top)
             $0.centerX.equalToSuperview()
@@ -148,72 +203,25 @@ private extension TasksListVCView {
     }
 
     func setupBindings() {
-        guard let viewModel = viewModel as? TasksListViewModel else { return }
-
-        // VM -> V
-        viewModel.sectionTitleDriver
-            .drive(onNext: { [weak self] title in
-                self?.setTableHeader(title: title)
-            })
+        taskCreatePanel.answerSignal
+            .emit { [weak self] answer in
+                self?.handleTaskCreatePanelAnswer(answer)
+            }
             .disposed(by: disposeBag)
 
-        viewModel.tableUpdateEventsSignal
-            .emit(onNext: { [weak self] event in
-                self?.updateTasksTableFor(updateType: event)
+        isShowNavigationTitleRelay
+            .map { .onNavigationTitleVisibleChange($0) }
+            .bind(to: answerRelay)
+            .disposed(by: disposeBag)
+
+        isShowNavigationTitleRelay
+            .subscribe(onNext: { [weak self] isShowNavigationTitle in
+                self?.setTableHeaderVisible(!isShowNavigationTitle)
             })
             .disposed(by: disposeBag)
-    }
-
-    func updateTasksTableFor(updateType: TasksListViewModel.TableUpdateEvent) {
-        switch updateType {
-        case .beginUpdates:
-            tasksTableView.beginUpdates()
-
-        case .endUpdates:
-            tasksTableView.endUpdates()
-
-        case .insertTask(let indexPath):
-            tasksTableView.insertRows(at: [indexPath], with: .automatic)
-
-        case .deleteTask(let indexPath):
-            tasksTableView.deleteRows(at: [indexPath], with: .automatic)
-
-        case .updateTask(let indexPath, let taskCellVM):
-            guard let cell = tasksTableView.cellForRow(at: indexPath) as? StandartTaskTableViewCell else { return }
-            cell.fillFrom(viewModel: taskCellVM)
-
-        case .moveTask(let fromIndexPath, let toIndexPath, let taskCellVM):
-            guard let cell = tasksTableView.cellForRow(at: fromIndexPath) as? StandartTaskTableViewCell else { return }
-            cell.fillFrom(viewModel: taskCellVM)
-            tasksTableView.moveRow(at: fromIndexPath, to: toIndexPath)
-
-        case .insertSection(let sectionId):
-            tasksTableView.insertSections(
-                .init(integer: sectionId),
-                with: .middle
-            )
-
-        case .deleteSection(let sectionId):
-            tasksTableView.deleteSections(
-                .init(integer: sectionId),
-                with: .middle
-            )
-        }
     }
 
     // MARK: - Update view
-
-    func setTableHeader(title: String) {
-        tableHeaderLabel.text = title
-        tableHeaderLabel.sizeToFit()
-        tableHeaderLabel.frame = .init(
-            origin: .zero,
-            size: .init(
-                width: tableHeaderLabel.frame.width,
-                height: tableHeaderLabel.frame.height + 10
-            )
-        )
-    }
 
     func setTableHeaderVisible(_ visible: Bool) {
         guard let tableHeader = tasksTableView.tableHeaderView else { return }
@@ -237,6 +245,28 @@ private extension TasksListVCView {
         }
     }
 
+    // MARK: - Actions Handlers
+
+    func handleTableCellAnswer(_ action: StandartTaskTableCell.Answer) {
+        switch action {
+        case .onTapIsDoneButton(let indexPath):
+            answerRelay.accept(.onTapIsDoneButton(indexPath))
+
+        case .onTapIsPriorityButton(let indexPath):
+            answerRelay.accept(.onTapIsPriorityButton(indexPath))
+        }
+    }
+
+    private func handleTaskCreatePanelAnswer(_ answer: TaskCreateBottomPanel.Answer) {
+        switch answer {
+        case .onChangedState(let newState):
+            updatePanelForState(newState)
+
+        case .onConfirmCreateTask(let taskData):
+            answerRelay.accept(.onConfirmCreateTask(taskData))
+        }
+    }
+
 }
 
 // MARK: - UITableViewDataSource
@@ -244,23 +274,27 @@ private extension TasksListVCView {
 extension TasksListVCView: UITableViewDataSource {
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        return viewModel.getSectionsCount()
+        return tableDataSource?.getSectionsCount() ?? 2
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.getTasksCountIn(section: section)
+        return tableDataSource?.getCountRowsInSection(with: section) ?? 1
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: StandartTaskTableViewCell.className
-        ) as? StandartTaskTableViewCell else { return .init() }
+            withIdentifier: StandartTaskTableCell.className
+        ) as? StandartTaskTableCell else { return .init() }
 
-        let cellVM = viewModel.getTaskTableViewCellViewModel(forIndexPath: indexPath)
-        
-        cell.fillFrom(viewModel: cellVM)
-        cell.isLast = tableView.numberOfRows(inSection: indexPath.section) == indexPath.row + 1
-        cell.delegate = self
+        if let cellVM = tableDataSource?.getCellViewModel(for: indexPath) {
+            cell.fillFrom(viewModel: cellVM)
+            cell.isLast = tableView.numberOfRows(inSection: indexPath.section) - 1 == indexPath.row
+
+            cell.actionSignal.emit(onNext: { [weak self] action in
+                self?.handleTableCellAnswer(action)
+            })
+            .disposed(by: cell.externalDisposeBag)
+        }
 
         return cell
     }
@@ -273,13 +307,11 @@ extension TasksListVCView: UITableViewDelegate {
     // MARK: Select row
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let selectedTaskVM = viewModel.getTaskDetailViewModel(forIndexPath: indexPath) else { return }
-        delegate?.tasksListVCViewDidSelectTask(viewModel: selectedTaskVM)
-
+        answerRelay.accept(.onSelectTask(indexPath))
         tableView.deselectRow(at: indexPath, animated: true)
     }
 
-    // MARK: Swipes actions
+    // MARK: Swipe actions
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         // TODO: доработать, чтобы SwipeAction отображались внутри ячейки (или были со скругленными краями)
@@ -292,7 +324,7 @@ extension TasksListVCView: UITableViewDelegate {
             style: .destructive,
             title: "Удалить"
         ) { [weak self] _, _, completionHandler in
-            self?.delegate?.tasksListVCViewDidSelectDeleteTask(tasksIndexPaths: [indexPath])
+            self?.answerRelay.accept(.onSelectDeleteTasks([indexPath]))
             completionHandler(false)
         }
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .bold)
@@ -304,29 +336,29 @@ extension TasksListVCView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         var actions: [UIContextualAction] = []
 
-        let cellVM = viewModel.getTaskTableViewCellViewModel(forIndexPath: indexPath)
-        var symbolImage: UIImage? = nil
-        if cellVM.isInMyDay {
-            symbolImage = symbolCreator.combineSymbols(symbolName1: "sun.max", symbolName2: "line.diagonal", pointSize: 15, weight1: .bold)
-            symbolImage = symbolImage?.withTintColor(.white, renderingMode: .alwaysOriginal)
-        } else {
-            let symbolConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .bold)
-            symbolImage = UIImage(systemName: "sun.max")?.withConfiguration(symbolConfig)
-        }
-
-        if let symbolImage {
-            let action = UIContextualAction(
-                style: .normal,
-                title: "Мой день"
-            ) { [viewModel] _, _, completionHandler in
-                    viewModel.switchTaskFieldInMyDayWith(indexPath: indexPath)
-                    completionHandler(true)
-                }
-            action.backgroundColor = .systemOrange
-            action.image = symbolImage
-
-            actions.append(action)
-        }
+//        let cellVM = viewModel.getTasksTableViewCellVM(forIndexPath: indexPath)
+//        var symbolImage: UIImage? = nil
+//        if cellVM.isInMyDay {
+//            symbolImage = symbolCreator.combineSymbols(symbolName1: "sun.max", symbolName2: "line.diagonal", pointSize: 15, weight1: .bold)
+//            symbolImage = symbolImage?.withTintColor(.white, renderingMode: .alwaysOriginal)
+//        } else {
+//            let symbolConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .bold)
+//            symbolImage = UIImage(systemName: "sun.max")?.withConfiguration(symbolConfig)
+//        }
+//
+//        if let symbolImage {
+//            let action = UIContextualAction(
+//                style: .normal,
+//                title: "Мой день"
+//            ) { [viewModel] _, _, completionHandler in
+//                    viewModel.switchTaskFieldInMyDayWith(indexPath: indexPath)
+//                    completionHandler(true)
+//                }
+//            action.backgroundColor = .systemOrange
+//            action.image = symbolImage
+//
+//            actions.append(action)
+//        }
 
         return UISwipeActionsConfiguration(actions: actions)
     }
@@ -356,7 +388,7 @@ extension TasksListVCView: UITableViewDelegate {
     // MARK: Move row
 
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        viewModel.moveTasksInCurrentList(fromPath: sourceIndexPath, to: destinationIndexPath)
+//        viewModel.moveTasksInCurrentList(fromPath: sourceIndexPath, to: destinationIndexPath)
     }
 
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
@@ -457,46 +489,12 @@ extension TasksListVCView: UIScrollViewDelegate {
         let offset = scrollView.contentOffset.y
 
         let headerHeight = (tasksTableView.tableHeaderView?.bounds.height ?? 0) / 3
+        let isShowValue = isShowNavigationTitleRelay.value
 
-        if offset >= headerHeight && !isShowNavigationTitle {
-            isShowNavigationTitle = true
-        } else if offset < headerHeight && isShowNavigationTitle {
-            isShowNavigationTitle = false
+        if offset >= headerHeight && !isShowValue {
+            isShowNavigationTitleRelay.accept(true)
+        } else if offset < headerHeight && isShowValue {
+            isShowNavigationTitleRelay.accept(false)
         }
     }
-}
-
-// MARK: - CreateTaskBottomPanelDelegate
-
-extension TasksListVCView: TaskCreateBottomPanelDelegate {
-    func taskCreateBottomPanelDidTapCreateButton(title: String, inMyDay: Bool, reminderDateTime: Date?, deadlineAt: Date?, description: String?) {
-        let title = title.trimmingCharacters(in: .whitespaces)
-        if !title.isEmpty {
-            viewModel.createNewTaskInCurrentSectionWith(
-                title: title,
-                inMyDay: inMyDay,
-                reminderDateTime: reminderDateTime,
-                deadlineAt: deadlineAt,
-                description: description
-            )
-        }
-    }
-
-    func taskCreateBottomPanelDidChangedState(newState: TaskCreateBottomPanel.State) {
-        updatePanelForState(newState)
-    }
-
-}
-// MARK: - StandartTaskTableViewCellDelegate
-
-extension TasksListVCView: StandartTaskTableViewCellDelegate {
-
-    func standartTaskCellDidTapIsDoneButton(indexPath: IndexPath) {
-        viewModel.switchTaskFieldIsCompletedWith(indexPath: indexPath)
-    }
-
-    func standartTaskCellDidTapIsPriorityButton(indexPath: IndexPath) {
-        viewModel.switchTaskFieldIsPriorityWith(indexPath: indexPath)
-    }
-
 }

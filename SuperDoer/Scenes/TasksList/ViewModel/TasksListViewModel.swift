@@ -1,25 +1,20 @@
-
 import Foundation
 import RxSwift
 import RxCocoa
 
 class TasksListViewModel: TasksListViewModelType {
 
-    private let disposeBag = DisposeBag()
-
-    // MARK: - Model
-
     private let model: TasksListModel
 
-    // MARK: - State
+    // MARK: - State / Rx
+
+    private let disposeBag = DisposeBag()
 
     private let sectionTitleRelay = BehaviorRelay<String>(value: "")
-    private let tableUpdateEventsRelay = PublishRelay<TableUpdateEvent>()
-
-    // MARK: - Observable
-
     var sectionTitleDriver: Driver<String> { sectionTitleRelay.asDriver() }
-    var tableUpdateEventsSignal: Signal<TableUpdateEvent> { tableUpdateEventsRelay.asSignal() }
+
+    private let tableUpdateEventsRelay = PublishRelay<TaskListTableUpdateEvent>()
+    var tableUpdateEventsSignal: Signal<TaskListTableUpdateEvent> { tableUpdateEventsRelay.asSignal() }
 
     // MARK: - Init
 
@@ -44,7 +39,7 @@ class TasksListViewModel: TasksListViewModelType {
 
     // MARK: -
 
-    func viewDidLoad() {
+    func loadInitialData() {
         model.loadTasks()
     }
 
@@ -54,16 +49,16 @@ class TasksListViewModel: TasksListViewModelType {
         return model.getSectionsCount()
     }
 
-    func getTasksCountIn(section: Int) -> Int {
-        return model.getTasksCountIn(in: section)
+    func getTasksCountInSection(with index: Int) -> Int {
+        return model.getTasksCountIn(in: index)
     }
 
-    func getTaskTableViewCellViewModel(forIndexPath indexPath: IndexPath) -> TaskTableViewCellViewModelType  {
+    func getTasksTableViewCellVM(forIndexPath indexPath: IndexPath) -> TaskTableViewCellViewModelType  {
         let task = model.getTask(for: indexPath)
         return TaskTableViewCellViewModel(task: task)
     }
 
-    func getTaskDetailViewModel(forIndexPath indexPath: IndexPath) -> TaskDetailViewModel? {
+    func getTaskDetailViewModel(for indexPath: IndexPath) -> TaskDetailViewModel? {
         let selectedTask = model.getTask(for: indexPath)
         guard let taskId = selectedTask.id else { return nil }
 
@@ -74,7 +69,7 @@ class TasksListViewModel: TasksListViewModelType {
         )
     }
 
-    func getTaskDeletableViewModels(forIndexPaths indexPaths: [IndexPath]) -> [TaskDeletableViewModel] {
+    func getTasksDeletableViewModels(for indexPaths: [IndexPath]) -> [TaskDeletableViewModel] {
         var viewModels: [TaskDeletableViewModel] = []
         for indexPath in indexPaths {
             let viewModel = TaskDeletableViewModel(
@@ -88,14 +83,9 @@ class TasksListViewModel: TasksListViewModelType {
     }
 
     // MARK: model manipulation methods
-    func createNewTaskInCurrentSectionWith(
-        title: String,
-        inMyDay: Bool,
-        reminderDateTime: Date?,
-        deadlineAt: Date?,
-        description: String?
-    ) {
-        model.createTaskInCurrentSectionWith(title: title)
+
+    func createNewTaskInCurrentSection(with data: TaskCreateData) {
+        model.createTaskInCurrentSectionWith(title: data.title)
         // TODO: отловить ошибку, если не получилось создать и показать сообщение об этом
     }
 
@@ -169,22 +159,4 @@ class TasksListViewModel: TasksListViewModelType {
             tableUpdateEventsRelay.accept(.deleteSection(sectionIndex))
         }
     }
-}
-
-// MARK: - TasksListViewModel.TableUpdateEvent
-
-extension TasksListViewModel {
-    enum TableUpdateEvent {
-        case beginUpdates
-        case endUpdates
-
-        case insertTask(IndexPath)
-        case deleteTask(IndexPath)
-        case updateTask(IndexPath, TaskTableViewCellViewModel)
-        case moveTask(IndexPath, IndexPath, TaskTableViewCellViewModel)
-
-        case insertSection(Int)
-        case deleteSection(Int)
-    }
-
 }

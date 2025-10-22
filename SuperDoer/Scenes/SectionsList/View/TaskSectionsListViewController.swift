@@ -64,12 +64,12 @@ class TaskSectionsListViewController: UIViewController {
         super.viewDidAppear(true)
 
         // TODO: код для разработки (удалить)
-        /////////////////////////////////////////////////////
-//        let vm = viewModel.getTaskListViewModel(forIndexPath: IndexPath(row: 0, section: 1))
-//        if let vm = vm as? TasksListViewModel {
-//            coordinator?.selectTaskSection(viewModel: vm)
-//        }
-        /////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////
+        let vm = viewModel.getTaskListViewModel(forIndexPath: IndexPath(row: 0, section: 1))
+        if let vm = vm as? TasksListViewModel {
+            coordinator?.selectTaskSection(viewModel: vm)
+        }
+        ///////////////////////////////////////////////////
     }
 
     // MARK: action-handlers
@@ -166,7 +166,7 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
         guard let taskListInSectionVM else { return }
         
         switch taskListInSectionVM {
-        case let taskListInSectionVM as TasksListViewModel :
+        case let taskListInSectionVM as TasksListViewModel:
             coordinator?.selectTaskSection(viewModel: taskListInSectionVM)
             tableView.deselectRow(at: indexPath, animated: true)
             

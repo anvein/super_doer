@@ -1,7 +1,6 @@
-
 import Foundation
 
-struct TasksListItem {
+struct TasksListItemModel {
     var id: UUID?
     var title: String
     var sectionTitle: String?

@@ -1,29 +1,23 @@
-
 import Foundation
 import RxCocoa
 
 protocol TasksListViewModelType {
     
     var sectionTitleDriver: Driver<String> { get }
+    var tableUpdateEventsSignal: Signal<TaskListTableUpdateEvent> { get }
 
-    func viewDidLoad()
+    func loadInitialData()
 
     func getSectionsCount() -> Int
-    func getTasksCountIn(section: Int) -> Int
+    func getTasksCountInSection(with index: Int) -> Int
 
-    func getTaskTableViewCellViewModel(forIndexPath indexPath: IndexPath) -> TaskTableViewCellViewModelType
+    func getTasksTableViewCellVM(forIndexPath indexPath: IndexPath) -> TaskTableViewCellViewModelType
     
-    func getTaskDetailViewModel(forIndexPath indexPath: IndexPath) -> TaskDetailViewModel?
+    func getTaskDetailViewModel(for indexPath: IndexPath) -> TaskDetailViewModel?
     
-    func getTaskDeletableViewModels(forIndexPaths indexPaths: [IndexPath]) -> [TaskDeletableViewModel]
-    
-    func createNewTaskInCurrentSectionWith(
-        title: String,
-        inMyDay: Bool,
-        reminderDateTime: Date?,
-        deadlineAt: Date?,
-        description: String?
-    )
+    func getTasksDeletableViewModels(for indexPaths: [IndexPath]) -> [TaskDeletableViewModel]
+
+    func createNewTaskInCurrentSection(with data: TaskCreateData)
 
     func switchTaskFieldIsCompletedWith(indexPath: IndexPath)
     func switchTaskFieldIsPriorityWith(indexPath: IndexPath)

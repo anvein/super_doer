@@ -1,9 +1,7 @@
-
 import UIKit
 import SnapKit
 import RxSwift
 
-/// Контроллер списка задач в отдельном списке (разделе)
 class TasksListViewController: UIViewController {
 
     private let disposeBag = DisposeBag()
@@ -13,10 +11,7 @@ class TasksListViewController: UIViewController {
     
     // MARK: - Subviews
 
-    private lazy var customView: TasksListVCView = {
-        $0.delegate = self
-        return $0
-    }(TasksListVCView(viewModel: viewModel))
+    private lazy var selfView: TasksListVCView = .init()
 
     // MARK: - Init
 
@@ -37,15 +32,16 @@ class TasksListViewController: UIViewController {
     // MARK: - Lifecycle
 
     override func loadView() {
-        view = customView
+        view = selfView
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupView()
         setupBindings()
         setupNavigationBar()
-        viewModel.viewDidLoad()
+        viewModel.loadInitialData()
 
 //        PIXEL_PERFECT_screen.createAndSetupInstance(
 //            baseView: self.view,
@@ -60,27 +56,27 @@ class TasksListViewController: UIViewController {
         
         navigationController?.navigationBar.tintColor = .Common.white
 
-        if customView.hasTasksInTable {
-            customView.reloadTableData()
+        if selfView.hasTasksInTable {
+            selfView.reloadTableData()
         }
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        // TODO: код для разработки (удалить)
-        /////////////////////////////////////////////////////
+//        //  TODO: код для разработки (удалить)
+//        ///////////////////////////////////////////////////
 //        let vm = viewModel.getTaskDetailViewModel(forIndexPath: IndexPath(row: 0, section: 0))
 //        if let vm = vm as? TaskDetailViewModel {
 //            coordinator?.selectTask(viewModel: vm)
 //        }
-        /////////////////////////////////////////////////////
+//        ///////////////////////////////////////////////////
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
-        customView.endEditing(true)
+        selfView.endEditing(true)
 
         if isMovingFromParent {
             coordinator?.closeTaskListInSection()
@@ -120,21 +116,67 @@ private extension TasksListViewController {
         //        navigationController?.navigationBar.isOpaque = true
     }
 
+    func setupView() {
+        selfView.tableDataSource = self
+    }
+
     func setupBindings() {
+        // V -> VM
+        selfView.answerSignal.emit(onNext: { [weak self] action in
+            self?.handleViewAction(action)
+        })
+        .disposed(by: disposeBag)
+
         // VM -> V (VC)
         viewModel.sectionTitleDriver
             .drive(onNext: { [weak self] title in
                 self?.title = title
+                self?.selfView.setTableHeader(title: title)
             })
             .disposed(by: disposeBag)
+
+        viewModel.sectionTitleDriver
+            .drive(selfView.sectionTitleBinder)
+            .disposed(by: disposeBag)
+
+            viewModel.tableUpdateEventsSignal
+                .emit(onNext: { [weak self] updateEvent in
+                    self?.selfView.updateTasksTable(for: updateEvent)
+                })
+                .disposed(by: disposeBag)
     }
 
-}
+    // MARK: - Actions handlers
 
-extension TasksListViewController: TasksListVCViewDelegate {
-    func tasksListVCViewNavigationTitleDidChange(isVisible: Bool) {
+    func handleViewAction(_ action: TasksListVCView.Answer) {
+        switch action {
+        case .onSelectTask(let indexPath):
+            guard let detailVM = viewModel.getTaskDetailViewModel(for: indexPath) else { return }
+            coordinator?.selectTask(viewModel: detailVM)
+
+        case .onTapIsDoneButton(let indexPath):
+            viewModel.switchTaskFieldIsCompletedWith(indexPath: indexPath)
+
+        case .onTapIsPriorityButton(let indexPath):
+            viewModel.switchTaskFieldIsPriorityWith(indexPath: indexPath)
+
+        case .onSelectDeleteTasks(let indexPaths):
+            let viewModels = viewModel.getTasksDeletableViewModels(for: indexPaths)
+            coordinator?.startDeleteProcessTasks(tasksViewModels: viewModels)
+
+        case .onConfirmCreateTask(let taskData):
+            viewModel.createNewTaskInCurrentSection(with: taskData)
+
+        case .onNavigationTitleVisibleChange(let isShow):
+            updateNavigationBarTitleVisible(isShow: isShow)
+        }
+    }
+
+    // MARK: - Update view
+
+    func updateNavigationBarTitleVisible(isShow: Bool) {
         guard let navigationBar = navigationController?.navigationBar else { return }
-        let titleColor: UIColor = isVisible ? .white : .clear
+        let titleColor: UIColor = isShow ? .white : .clear
 
         UIView.transition(
             with: navigationBar,
@@ -144,14 +186,21 @@ extension TasksListViewController: TasksListVCViewDelegate {
             navigationBar.titleTextAttributes = [.foregroundColor: titleColor]
         }
     }
-    
-    func tasksListVCViewDidSelectTask(viewModel: TaskDetailViewModel) {
-        coordinator?.selectTask(viewModel: viewModel)
-    }
-    
-    func tasksListVCViewDidSelectDeleteTask(tasksIndexPaths: [IndexPath]) {
-        let viewModels = viewModel.getTaskDeletableViewModels(forIndexPaths: tasksIndexPaths)
-        coordinator?.startDeleteProcessTasks(tasksViewModels: viewModels)
+
+}
+
+// MARK: - TaskListTableDataSource
+
+extension TasksListViewController: TaskListTableDataSource {
+    func getSectionsCount() -> Int {
+        viewModel.getSectionsCount()
     }
 
+    func getCountRowsInSection(with sectionIndex: Int) -> Int {
+        viewModel.getTasksCountInSection(with: sectionIndex)
+    }
+
+    func getCellViewModel(for indexPath: IndexPath) -> any TaskTableViewCellViewModelType {
+        viewModel.getTasksTableViewCellVM(forIndexPath: indexPath)
+    }
 }

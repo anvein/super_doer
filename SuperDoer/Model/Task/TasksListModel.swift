@@ -60,6 +60,7 @@ final class TasksListModel: NSObject {
             try fetchedResultsController.performFetch()
         } catch {
             // TODO: обработать нормально
+            // уведомить VM -> VC -> показать плашку с ошибкой
             print("Fetch failed")
         }
     }
@@ -71,9 +72,9 @@ final class TasksListModel: NSObject {
         return taskSection.title
     }
 
-    func getTaskIdFor(indexPath: IndexPath) -> UUID? {
-        return getCDTask(at: indexPath).id
-    }
+//    func getTaskIdFor(indexPath: IndexPath) -> UUID? {
+//        return getCDTask(at: indexPath).id
+//    }
 
     func getSectionsCount() -> Int {
         return fetchedResultsController.sections?.count ?? 0
@@ -83,9 +84,9 @@ final class TasksListModel: NSObject {
         return fetchedResultsController.sections?[section].numberOfObjects ?? 0
     }
 
-    func getTask(for indexPath: IndexPath) -> TasksListItem {
+    func getTask(for indexPath: IndexPath) -> TasksListItemModel {
         let cdTask = getCDTask(at: indexPath)
-        return TasksListItem(cdTask: cdTask)
+        return TasksListItemModel(cdTask: cdTask)
     }
 
     // MARK: - Modify Task
@@ -128,16 +129,13 @@ final class TasksListModel: NSObject {
         selectedTaskIndexPath = indexPath
     }
 
-}
+    // MARK: - Private methods
 
-// MARK: - Private methods
-
-private extension TasksListModel {
-    func getCDTask(at indexPath: IndexPath) -> CDTask {
+    private func getCDTask(at indexPath: IndexPath) -> CDTask {
         return fetchedResultsController.object(at: indexPath)
     }
 
-    static func buildFilterBySectionPredicate(taskSection: TaskSectionProtocol?) -> NSPredicate? {
+    private static func buildFilterBySectionPredicate(taskSection: TaskSectionProtocol?) -> NSPredicate? {
         if let cdCustomSection = taskSection as? CDTaskSectionCustom {
             return NSPredicate(format: "section == %@", cdCustomSection)
         } else if taskSection is TaskSectionSystem {
@@ -173,14 +171,14 @@ extension TasksListModel: NSFetchedResultsControllerDelegate {
         case .update:
             if let indexPath,
                let cdTask = anObject as? CDTask{
-                let taskItem = TasksListItem(cdTask: cdTask)
+                let taskItem = TasksListItemModel(cdTask: cdTask)
                 modelUpdatedSubject.onNext(.taskDidUpdate(indexPath: indexPath, taskItem: taskItem))
             }
 
         case .move:
             if let indexPath, let newIndexPath,
                let cdTask = anObject as? CDTask {
-                let taskItem = TasksListItem(cdTask: cdTask)
+                let taskItem = TasksListItemModel(cdTask: cdTask)
                 modelUpdatedSubject.onNext(.taskDidMove(
                     fromIndexPath: indexPath,
                     toIndexPath: newIndexPath,
@@ -205,7 +203,7 @@ extension TasksListModel: NSFetchedResultsControllerDelegate {
     }
 }
 
-// MARK: - TasksListModel.UpdatedEvent
+// MARK: - UpdatedEvent
 
 extension TasksListModel {
     enum UpdatedEvent {
@@ -213,8 +211,8 @@ extension TasksListModel {
         case modelEndUpdates
 
         case taskDidCreate(indexPath: IndexPath)
-        case taskDidUpdate(indexPath: IndexPath, taskItem: TasksListItem)
-        case taskDidMove(fromIndexPath: IndexPath, toIndexPath: IndexPath, taskItem: TasksListItem)
+        case taskDidUpdate(indexPath: IndexPath, taskItem: TasksListItemModel)
+        case taskDidMove(fromIndexPath: IndexPath, toIndexPath: IndexPath, taskItem: TasksListItemModel)
         case taskDidDelete(indexPath: IndexPath)
 
         case sectionDidInsert(sectionIndex: Int)

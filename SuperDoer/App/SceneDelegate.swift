@@ -14,8 +14,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         window = UIWindow(windowScene: windowScene)
         guard let window else { return }
-            
-        
+
         appCoordinator = DIContainer.shared.resolve(AppCoordinator.self, argument: window)
         appCoordinator?.start()
     }

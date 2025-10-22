@@ -1,12 +1,34 @@
-
 import UIKit
-import SnapKit
+import RxRelay
+import RxSwift
+import RxCocoa
 
 final class TaskCreateBottomPanel: UIView {
 
-    // MARK: - Services
+    enum Answer {
+        case onConfirmCreateTask(TaskCreateData)
+        case onChangedState(State)
+    }
 
-    weak var delegate: TaskCreateBottomPanelDelegate?
+    // MARK: - Subviews
+
+    private let textField = TextField()
+    private let readyButton = UIButton()
+    private let blurBgEffectView = UIVisualEffectView()
+
+    // MARK: - State / Rx
+
+    private let disposeBag = DisposeBag()
+
+    private let currentStateRelay = BehaviorRelay<State>(value: .base)
+    var currentStateValue: State {
+        currentStateRelay.value
+    }
+
+    private let answerRelay = PublishRelay<Answer>()
+    var answerSignal: Signal<Answer> {
+        answerRelay.asSignal()
+    }
 
     // MARK: - Subviews Accessors
 
@@ -15,47 +37,14 @@ final class TaskCreateBottomPanel: UIView {
         set { textField.placeholder = newValue }
     }
 
-    // MARK: - State
-
-    var currentState: State = .base {
-        didSet {
-            if oldValue != currentState {
-                updateAppearaceFor(state: currentState)
-                delegate?.taskCreateBottomPanelDidChangedState(newState: currentState)
-            }
-        }
-    }
-
-    // MARK: - Subviews
-
-    private lazy var textField: TextField = {
-        $0.delegate = self
-        $0.autocorrectionType = .no
-        return $0
-    }(TextField())
-
-    private lazy var readyButton: UIButton = {
-        $0.backgroundColor = .systemBlue
-        $0.setImage(buildCheckmarkImage(), for: .normal)
-        $0.addTarget(self, action: #selector(didTapReadyButton), for: .touchUpInside)
-        return $0
-    }(UIButton())
-
-    private lazy var blurBgEffectView: UIVisualEffectView = {
-        let blurEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
-        $0.effect = blurEffect
-        $0.layer.cornerRadius = 8
-        $0.layer.masksToBounds = true
-        return $0
-    }(UIVisualEffectView())
-
     // MARK: - Init
 
     convenience init() {
         self.init(frame: .zero)
 
-        setupLayout()
-        updateAppearaceFor(state: currentState)
+        setupHierarchy()
+        setupView()
+        setupBindings()
     }
 
     // MARK: - Lifecycle
@@ -71,7 +60,7 @@ private extension TaskCreateBottomPanel {
 
     // MARK: - Setup
 
-    func setupLayout() {
+    func setupHierarchy() {
         addSubviews(blurBgEffectView, textField, readyButton)
 
         blurBgEffectView.snp.makeConstraints {
@@ -88,6 +77,40 @@ private extension TaskCreateBottomPanel {
             $0.trailing.equalToSuperview().inset(8)
             $0.centerY.equalToSuperview()
         }
+    }
+
+    func setupView() {
+        textField.delegate = self
+        textField.autocorrectionType = .no
+
+        readyButton.backgroundColor = .systemBlue
+        readyButton.setImage(buildCheckmarkImage(), for: .normal)
+
+        let blurEffect = UIBlurEffect(style: .systemUltraThinMaterialDark)
+        blurBgEffectView.effect = blurEffect
+        blurBgEffectView.layer.cornerRadius = 8
+        blurBgEffectView.layer.masksToBounds = true
+    }
+
+    func setupBindings() {
+        currentStateRelay
+            .distinctUntilChanged()
+            .subscribe(onNext: { [weak self] state in
+                self?.updateAppearaceFor(state: state)
+            })
+            .disposed(by: disposeBag)
+
+        currentStateRelay
+            .distinctUntilChanged()
+            .map { .onChangedState($0) }
+            .bind(to: answerRelay)
+            .disposed(by: disposeBag)
+
+        readyButton.rx.tap
+            .subscribe(onNext: { [weak self] in
+                self?.handleTapReadyButton()
+            })
+            .disposed(by: disposeBag)
     }
 
     func updateAppearaceFor(state: State) {
@@ -116,32 +139,31 @@ private extension TaskCreateBottomPanel {
         textField.updateAppearanceFor(state: state)
     }
 
+
     // MARK: - Actions handlers
 
-    @objc func changeAppearance() {
-        var cstate: State
-        switch currentState {
+    func changeAppearance() {
+        var newState: State
+        switch currentStateValue {
         case .base:
-            cstate = .editable
+            newState = .editable
         case .editable:
-            cstate = .base
+            newState = .base
         }
 
-        currentState = cstate
+        currentStateRelay.accept(newState)
     }
 
-    @objc func didTapReadyButton() {
-        if let text = textField.text, text.count != 0 {
-            delegate?.taskCreateBottomPanelDidTapCreateButton(
-                title: text,
-                inMyDay: false,
-                reminderDateTime: nil,
-                deadlineAt: nil,
-                description: nil
+    func handleTapReadyButton() {
+        if let text = textField.text?.trimmingCharacters(in: .whitespaces), !text.isEmpty {
+            answerRelay.accept(
+                .onConfirmCreateTask(
+                    TaskCreateData(title: text)
+                )
             )
-            textField.text = nil
         }
 
+        textField.text = nil
         textField.resignFirstResponder()
     }
 
@@ -164,19 +186,18 @@ private extension TaskCreateBottomPanel {
 
 extension TaskCreateBottomPanel: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        guard currentState != .editable else { return }
-        currentState = .editable
+        guard currentStateValue != .editable else { return }
+        currentStateRelay.accept(.editable)
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-        guard currentState != .base else { return }
-        currentState = .base
-
+        guard currentStateValue != .base else { return }
+        currentStateRelay.accept(.base)
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField === self.textField {
-            didTapReadyButton()
+            handleTapReadyButton()
         }
         
         return false

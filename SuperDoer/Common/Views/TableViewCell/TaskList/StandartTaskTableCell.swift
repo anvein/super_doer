@@ -1,58 +1,38 @@
-
 import UIKit
 import SnapKit
+import RxRelay
+import RxSwift
+import RxCocoa
 
-class StandartTaskTableViewCell: UITableViewCell {
+class StandartTaskTableCell: UITableViewCell {
 
-    weak var delegate: StandartTaskTableViewCellDelegate?
+    enum Answer {
+        case onTapIsDoneButton(IndexPath)
+        case onTapIsPriorityButton(IndexPath)
+    }
 
     // MARK: - Subviews
 
-    private var contentContainerView: UIView = {
-        $0.backgroundColor = .Common.white
-        $0.cornerRadius = 8
-        return $0
-    }(UIView())
+    private let contentContainerView = UIView()
+    private let isDoneButton = CheckboxButton()
+    private let rowsStackView = UIStackView()
+    private let taskTitleLabel = UILabel()
+    private let attributesLabel = UILabel()
+    private let isPriorityButton = StarButton()
 
-    private lazy var isDoneButton: CheckboxButton = {
-        $0.addTarget(self, action: #selector(didTapIsDoneButton), for: .touchUpInside)
-        return $0
-    }(CheckboxButton())
-
-    private let rowsStackView: UIStackView = {
-        $0.axis = .vertical
-        $0.spacing = 3
-        return $0
-    }(UIStackView())
-
-    private let taskTitleLabel: UILabel = {
-        $0.textColor = .Text.black
-        $0.font = .systemFont(ofSize: 16)
-        $0.numberOfLines = 0
-        return $0
-    }(UILabel())
-
-    private let attributesLabel: UILabel = {
-        $0.textColor = .Text.gray
-        $0.font = .systemFont(ofSize: 14)
-        $0.numberOfLines = 2
-        return $0
-    }(UILabel())
-
-    private lazy var isPriorityButton: StarButton = {
-        $0.isOnColor = .Common.blueGray
-        $0.isOffColor = .Common.blueGray
-        $0.addTarget(self, action: #selector(didTapIsPriorityButton), for: .touchUpInside)
-        return $0
-    }(StarButton())
-
-    // MARK: - Constraints
+    // MARK: - Constraints / Rx
 
     private var bottomInsetConstraint: Constraint?
 
-    // MARK: - State
+    var externalDisposeBag = DisposeBag()
+    private let internalDisposeBag = DisposeBag()
 
-    var showSectionTitle: Bool = false
+    private let answerRelay: PublishRelay<Answer> = .init()
+    var actionSignal: Signal<Answer> {
+        answerRelay.asSignal()
+    }
+
+    // MARK: - State
 
     var isLast: Bool = false {
         didSet {
@@ -65,8 +45,10 @@ class StandartTaskTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        setup()
+        setupView()
+        setupHierarchy()
         setupConstraints()
+        setupBindings()
     }
 
     required init?(coder: NSCoder) {
@@ -82,7 +64,7 @@ class StandartTaskTableViewCell: UITableViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
-
+        externalDisposeBag = .init()
     }
 
     // MARK: - Update view
@@ -103,21 +85,40 @@ class StandartTaskTableViewCell: UITableViewCell {
 
 }
 
-private extension StandartTaskTableViewCell {
+private extension StandartTaskTableCell {
     // MARK: - Setup
 
-    private func setup() {
+    func setupView() {
+        backgroundColor = nil
+        backgroundView = UIView()
+        selectedBackgroundView = UIView()
+
+        contentContainerView.backgroundColor = .Common.white
+        contentContainerView.cornerRadius = 8
+
+        rowsStackView.axis = .vertical
+        rowsStackView.spacing = 3
+
+        taskTitleLabel.textColor = .Text.black
+        taskTitleLabel.font = .systemFont(ofSize: 16)
+        taskTitleLabel.numberOfLines = 0
+
+        attributesLabel.textColor = .Text.gray
+        attributesLabel.font = .systemFont(ofSize: 14)
+        attributesLabel.numberOfLines = 2
+
+        isPriorityButton.isOnColor = .Common.blueGray
+        isPriorityButton.isOffColor = .Common.blueGray
+    }
+
+    func setupHierarchy() {
         contentView.addSubview(contentContainerView)
         contentContainerView.addSubviews(isDoneButton, rowsStackView, isPriorityButton)
         rowsStackView.addArrangedSubview(taskTitleLabel)
         rowsStackView.addArrangedSubview(attributesLabel)
-
-        backgroundColor = nil
-        backgroundView = UIView()
-        selectedBackgroundView = UIView()
     }
 
-    private func setupConstraints() {
+    func setupConstraints() {
         contentContainerView.snp.makeConstraints {
             $0.top.horizontalEdges.equalToSuperview()
             $0.bottom.equalToSuperview().inset(2)
@@ -146,10 +147,36 @@ private extension StandartTaskTableViewCell {
         }
     }
 
+    func setupBindings() {
+        isDoneButton.rx.tap
+            .map { [weak self] in
+                // TODO: переделать получение indexPath
+                guard let self, let tableView = self.superview as? UITableView,
+                      let indexPath = tableView.indexPath(for: self) else { return nil }
+
+                return Answer.onTapIsDoneButton(indexPath)
+            }
+            .compactMap { $0 }
+            .bind(to: answerRelay)
+            .disposed(by: internalDisposeBag)
+
+        isPriorityButton.rx.tap
+            .map { [weak self] in
+                // TODO: переделать получение indexPath
+                guard let self, let tableView = self.superview as? UITableView,
+                      let indexPath = tableView.indexPath(for: self) else { return nil }
+
+                return Answer.onTapIsPriorityButton(indexPath)
+            }
+            .compactMap { $0 }
+            .bind(to: answerRelay)
+            .disposed(by: internalDisposeBag)
+    }
+
     // MARK: - Update view
 
     func setCornerRadiusForSwipeButtons(state: UITableViewCell.StateMask) {
-        // допилить, баги:
+        // TODO: пофиксить:
         // - если у одной ячейки открыты swipe actions, то при открытии другой кнопки не скругляются
         // - если при закрытии действий willTransition() не отработала, то кнопки не скругляются
         // особенность: willTransition() срабатывает с задержкой после того, как действия закрыты
@@ -170,27 +197,11 @@ private extension StandartTaskTableViewCell {
         }
     }
 
-    // MARK: - Actions handlers
-
-    @objc func didTapIsDoneButton() {
-        guard let tableView = self.superview as? UITableView,
-              let indexPath = tableView.indexPath(for: self) else { return }
-
-        delegate?.standartTaskCellDidTapIsDoneButton(indexPath: indexPath)
-    }
-
-    @objc func didTapIsPriorityButton() {
-        guard let tableView = self.superview as? UITableView,
-              let indexPath = tableView.indexPath(for: self) else { return }
-
-        delegate?.standartTaskCellDidTapIsPriorityButton(indexPath: indexPath)
-    }
-
 }
 
-// MARK: - Helpers
+// MARK: - HighlightableCell
 
-extension StandartTaskTableViewCell: HighlightableCell {
+extension StandartTaskTableCell: HighlightableCell {
     func setCellHighlighted(_ highlighted: Bool) {
         contentContainerView.backgroundColor = highlighted ? .TaskCell.selectedBackground : .Common.white
     }

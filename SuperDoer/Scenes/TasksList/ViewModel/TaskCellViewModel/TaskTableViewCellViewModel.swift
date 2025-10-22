@@ -3,7 +3,7 @@ import Foundation
 
 class TaskTableViewCellViewModel: TaskTableViewCellViewModelType {
 
-    private var task: TasksListItem
+    private var task: TasksListItemModel
 
     // MARK: - Services
 
@@ -34,7 +34,7 @@ class TaskTableViewCellViewModel: TaskTableViewCellViewModelType {
     // MARK: - Init
 
     init(
-        task: TasksListItem,
+        task: TasksListItemModel,
         taskAttributesFormatter: TaskCellAttributesFormatterService = .init()
     ) {
         self.task = task
