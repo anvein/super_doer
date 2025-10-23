@@ -138,12 +138,19 @@ private extension TasksListViewController {
         viewModel.sectionTitleDriver
             .drive(selfView.sectionTitleBinder)
             .disposed(by: disposeBag)
+        
+        viewModel.tableUpdateEventsSignal
+            .emit(onNext: { [weak self] updateEvent in
+                self?.selfView.updateTasksTable(for: updateEvent)
+            })
+            .disposed(by: disposeBag)
 
-            viewModel.tableUpdateEventsSignal
-                .emit(onNext: { [weak self] updateEvent in
-                    self?.selfView.updateTasksTable(for: updateEvent)
-                })
-                .disposed(by: disposeBag)
+
+        viewModel.errorMessageSignal
+            .emit(onNext: { [weak self] message in
+                self?.showErrorAlert(message: message, title: nil)
+            })
+            .disposed(by: disposeBag)
     }
 
     // MARK: - Actions handlers
@@ -172,6 +179,9 @@ private extension TasksListViewController {
 
         case .onMoveTask(from: let fromIndexPath, to: let toIndexPath):
             viewModel.moveTasksInCurrentList(fromPath: fromIndexPath, to: toIndexPath)
+
+        case .onConfirmChangingSectionTitle(let title):
+            viewModel.updateSectionTitle(title)
 
         case .onNavigationTitleVisibleChange(let isShow):
             updateNavigationBarTitleVisible(isShow: isShow)

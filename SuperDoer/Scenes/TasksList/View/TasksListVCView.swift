@@ -14,6 +14,7 @@ final class TasksListVCView: UIView {
         case onSelectDeleteTasks([IndexPath])
         case onConfirmCreateTask(TaskCreateData)
         case onMoveTask(from: IndexPath, to: IndexPath)
+        case onConfirmChangingSectionTitle(String)
         case onNavigationTitleVisibleChange(isShow: Bool)
     }
 
@@ -34,7 +35,7 @@ final class TasksListVCView: UIView {
 
     var sectionTitleBinder: Binder<String> {
         Binder(self) { view, text in
-            view.tableHeaderLabel.text = text
+            view.sectionTitleTextView.text = text
         }
     }
 
@@ -46,7 +47,7 @@ final class TasksListVCView: UIView {
 
     // MARK: - Subviews
 
-    private let tableHeaderTextField = UITextField()
+    private let sectionTitleTextView = UITextView()
     private let tableHeaderLabel = UILabel()
     private let tasksTableView = UITableView(frame: .zero, style: .grouped)
     private let tableContainerView = UIView()
@@ -149,8 +150,17 @@ private extension TasksListVCView {
     // MARK: - Setup
 
     func setupView() {
-        tableHeaderLabel.textColor = .white
-        tableHeaderLabel.font = .systemFont(ofSize: 32, weight: .bold)
+        sectionTitleTextView.textColor = .white
+        sectionTitleTextView.tintColor = .white
+        sectionTitleTextView.font = .systemFont(ofSize: 32, weight: .bold)
+        sectionTitleTextView.backgroundColor = .clear
+        sectionTitleTextView.returnKeyType = .done
+        sectionTitleTextView.textContainer.widthTracksTextView = false
+        sectionTitleTextView.textContainer.lineBreakMode = .byClipping
+        sectionTitleTextView.alwaysBounceHorizontal = false
+        // TODO: переделать установление размера + чтобы можно было вводить многострочный текст
+        sectionTitleTextView.frame.size = .init(width: .zero, height: 50)
+        sectionTitleTextView.delegate = self
 
         tasksTableView.verticalScrollIndicatorInsets.right = -9
         tasksTableView.clipsToBounds = false
@@ -160,7 +170,7 @@ private extension TasksListVCView {
         tasksTableView.estimatedRowHeight = UITableView.automaticDimension
         tasksTableView.rowHeight = UITableView.automaticDimension
         tasksTableView.dragInteractionEnabled = true
-        tasksTableView.tableHeaderView = tableHeaderLabel
+        tasksTableView.tableHeaderView = sectionTitleTextView
 
         tableContainerView.clipsToBounds = true
         tableContainerView.layer.zPosition = 1
@@ -240,6 +250,15 @@ private extension TasksListVCView {
                 self?.setTableHeaderVisible(!isShowNavigationTitle)
             })
             .disposed(by: disposeBag)
+
+        sectionTitleTextView.rx.didEndEditing
+            .subscribe(onNext: { [weak self] in
+                guard let self else { return }
+                self.answerRelay.accept(
+                    .onConfirmChangingSectionTitle(self.sectionTitleTextView.text)
+                )
+            })
+            .disposed(by: disposeBag)
     }
 
     // MARK: - Update view
@@ -279,7 +298,7 @@ private extension TasksListVCView {
         }
     }
 
-    private func handleTaskCreatePanelAnswer(_ answer: TaskCreateBottomPanel.Answer) {
+    func handleTaskCreatePanelAnswer(_ answer: TaskCreateBottomPanel.Answer) {
         switch answer {
         case .onChangedState(let newState):
             updatePanelForState(newState)
@@ -521,5 +540,22 @@ extension TasksListVCView: UIScrollViewDelegate {
         } else if offset < headerHeight && isShowValue {
             isShowNavigationTitleRelay.accept(false)
         }
+    }
+}
+
+// MARK: - UITextViewDelegate
+
+extension TasksListVCView: UITextViewDelegate {
+    func textView(
+        _ textView: UITextView,
+        shouldChangeTextIn range: NSRange,
+        replacementText text: String
+    ) -> Bool {
+        if text == "\n" {
+            textView.resignFirstResponder()
+            return false
+        }
+
+        return true
     }
 }

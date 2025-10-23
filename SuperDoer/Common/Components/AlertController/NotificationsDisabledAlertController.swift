@@ -1,8 +1,5 @@
-
 import UIKit
 
-/// Уведомление об отключенных уведомлениях
-/// с предложением их включить
 class NotificationsDisabledAlertController: UIAlertController {
     
     private var coordinator: NotificationsDisabledAlertControllerCoordinator?

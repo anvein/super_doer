@@ -1,4 +1,3 @@
-
 import CoreData
 
 final class CoreDataStack {
@@ -19,14 +18,14 @@ final class CoreDataStack {
         return container
     }()
 
-    var context: NSManagedObjectContext {
+    var viewContext: NSManagedObjectContext {
         return persistentContainer.viewContext
     }
 
     func saveContext () {
-        if context.hasChanges {
+        if viewContext.hasChanges {
             do {
-                try context.save()
+                try viewContext.save()
             } catch let error as NSError {
                 // TODO: обработать ошибку нормально
                 fatalError("Unresolved error \(error), \(error.userInfo)")

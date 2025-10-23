@@ -18,7 +18,7 @@ class TaskCoreDataManager {
         fetchRequest.predicate = NSPredicate(format: "\(CDTask.idKey) == %@", id.uuidString)
 
         do {
-            return try coreDataStack.context.fetch(fetchRequest).first
+            return try coreDataStack.viewContext.fetch(fetchRequest).first
         } catch let error as NSError {
             fatalError("getTaskBy id error - \(error)")
         }
@@ -28,7 +28,7 @@ class TaskCoreDataManager {
         let fetchRequest = NSFetchRequest<CDTask>(entityName: CDTask.entityName)
         
         do {
-            let tasks = try coreDataStack.context.fetch(fetchRequest)
+            let tasks = try coreDataStack.viewContext.fetch(fetchRequest)
             return tasks
         } catch let error as NSError {
             fatalError("getAllTasks error - \(error)")
@@ -44,7 +44,7 @@ class TaskCoreDataManager {
         }
     
         do {
-            return try coreDataStack.context.fetch(fetchRequest)
+            return try coreDataStack.viewContext.fetch(fetchRequest)
         } catch let error as NSError {
             fatalError("getTasks for custom section error - \(error)")
         }
@@ -100,7 +100,7 @@ class TaskCoreDataManager {
 
     @discardableResult
     func createWith(title: String, section: CDTaskSectionCustom? = nil) -> CDTask {
-        let task = CDTask(context: coreDataStack.context)
+        let task = CDTask(context: coreDataStack.viewContext)
         task.id = UUID()
         task.title = title
         task.section = section
@@ -116,14 +116,14 @@ class TaskCoreDataManager {
 
     func delete(tasks: [CDTask]) {
         for task in tasks {
-            coreDataStack.context.delete(task)
+            coreDataStack.viewContext.delete(task)
         }
 
         coreDataStack.saveContext()
     }
 
     func delete(task: CDTask) {
-        coreDataStack.context.delete(task)
+        coreDataStack.viewContext.delete(task)
         coreDataStack.saveContext()
     }
 

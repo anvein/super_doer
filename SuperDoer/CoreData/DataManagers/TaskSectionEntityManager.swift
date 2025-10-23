@@ -1,4 +1,3 @@
-
 import Foundation
 import CoreData
 
@@ -32,7 +31,7 @@ class TaskSectionEntityManager {
         fetchRequest.sortDescriptors = [sortByOrder, /*sortByTitle*/]
         
         do {
-            let sections = try coreDataStack.context.fetch(fetchRequest)
+            let sections = try coreDataStack.viewContext.fetch(fetchRequest)
             return sections
         } catch let error as NSError {
             fatalError("get custom sections error - \(error)")
@@ -41,7 +40,7 @@ class TaskSectionEntityManager {
     
     // MARK: insert
     func createCustomSectionWith(title: String, order: Int = 100, isCycled: Bool = false) -> CDTaskSectionCustom {
-        let section = CDTaskSectionCustom(context: coreDataStack.context)
+        let section = CDTaskSectionCustom(context: coreDataStack.viewContext)
         
         section.id = UUID()
         section.title = title
@@ -68,12 +67,12 @@ class TaskSectionEntityManager {
     
     // MARK: delete
     func deleteSection(_ section: CDTaskSectionCustom) {
-        coreDataStack.context.delete(section)
+        coreDataStack.viewContext.delete(section)
         coreDataStack.saveContext()
     }
     
     func deleteSections(_ sections: [CDTaskSectionCustom]) {
-        let context = coreDataStack.context
+        let context = coreDataStack.viewContext
         for section in sections {
             context.delete(section)
         }

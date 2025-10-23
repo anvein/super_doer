@@ -13,7 +13,7 @@ class TaskFileEntityManager {
 
     // MARK: insert
     func createWith(fileName: String, fileExtension: String, fileSize: Int, task: CDTask) -> TaskFile {
-        let file = TaskFile(context: coreDataStack.context)
+        let file = TaskFile(context: coreDataStack.viewContext)
         file.id = UUID()
         file.fileName = fileName
         file.fileExtension = fileExtension
@@ -27,7 +27,7 @@ class TaskFileEntityManager {
     
     // MARK: delete
     func delete(file: TaskFile) {
-        coreDataStack.context.delete(file)
+        coreDataStack.viewContext.delete(file)
         coreDataStack.saveContext()
     }
 }

@@ -44,7 +44,7 @@ final class TasksListRepository: NSObject {
 
         fetchedResultsController = NSFetchedResultsController(
             fetchRequest: fetchRequest,
-            managedObjectContext: coreDataStack.context,
+            managedObjectContext: coreDataStack.viewContext,
             sectionNameKeyPath: CDTask.isCompletedKey,
             cacheName: nil
         )

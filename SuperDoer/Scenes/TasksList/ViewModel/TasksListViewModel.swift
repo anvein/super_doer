@@ -5,6 +5,7 @@ import RxCocoa
 class TasksListViewModel: TasksListViewModelType {
 
     private let repository: TasksListRepository
+    private let sectionCDManager: TaskSectionEntityManager
 
     // MARK: - State / Rx
 
@@ -16,12 +17,18 @@ class TasksListViewModel: TasksListViewModelType {
     private let tableUpdateEventsRelay = PublishRelay<TaskListTableUpdateEvent>()
     var tableUpdateEventsSignal: Signal<TaskListTableUpdateEvent> { tableUpdateEventsRelay.asSignal() }
 
+    private let errorMessageRelay = PublishRelay<String>()
+    var errorMessageSignal: Signal<String> {
+        errorMessageRelay.asSignal()
+    }
+
     // MARK: - Init
 
-    init(model: TasksListRepository) {
-        self.repository = model
+    init(repository: TasksListRepository, sectionCDManager: TaskSectionEntityManager) {
+        self.repository = repository
+        self.sectionCDManager = sectionCDManager
 
-        sectionTitleRelay.accept(model.getSectionTitle() ?? "")
+        sectionTitleRelay.accept(repository.getSectionTitle() ?? "")
 
         setupBindings()
     }
@@ -127,6 +134,18 @@ class TasksListViewModel: TasksListViewModelType {
 
     func switchTaskFieldInMyDayWith(indexPath: IndexPath) {
         repository.switchAndUpdateInMyDayFieldWith(indexPath: indexPath)
+    }
+
+    func updateSectionTitle(_ title: String) {
+        guard let titlePrepared = title.normalizedWhitespaceOrNil(),
+              let section = repository.taskSection as? CDTaskSectionCustom else {
+            sectionTitleRelay.accept(repository.getSectionTitle() ?? "")
+            errorMessageRelay.accept("Не удалось изменить название")
+
+            return
+        }
+
+        sectionCDManager.updateCustomSectionField(title: titlePrepared, section: section)
     }
 
     // MARK: - Event handlers
