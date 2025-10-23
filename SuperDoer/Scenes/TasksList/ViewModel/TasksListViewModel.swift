@@ -4,7 +4,7 @@ import RxCocoa
 
 class TasksListViewModel: TasksListViewModelType {
 
-    private let model: TasksListModel
+    private let repository: TasksListRepository
 
     // MARK: - State / Rx
 
@@ -18,8 +18,8 @@ class TasksListViewModel: TasksListViewModelType {
 
     // MARK: - Init
 
-    init(model: TasksListModel) {
-        self.model = model
+    init(model: TasksListRepository) {
+        self.repository = model
 
         sectionTitleRelay.accept(model.getSectionTitle() ?? "")
 
@@ -30,9 +30,15 @@ class TasksListViewModel: TasksListViewModelType {
 
     private func setupBindings() {
         // M -> VM
-        model.modelUpdatedObservable
-            .subscribe(onNext: { [weak self] event in
-                self?.handleModelUpdatedEvent(event)
+        repository.modelUpdatedObservable
+            .scan((
+                nil as TasksListRepository.UpdatedEvent?,
+                nil as TasksListRepository.UpdatedEvent?
+            )) { accumulator, current in
+                (accumulator.1, current)
+            }
+            .subscribe(onNext: { [weak self] prevEvent, newEvent in
+                self?.handleModelUpdatedEvent(prev: prevEvent, new: newEvent)
             })
             .disposed(by: disposeBag)
     }
@@ -40,26 +46,26 @@ class TasksListViewModel: TasksListViewModelType {
     // MARK: -
 
     func loadInitialData() {
-        model.loadTasks()
+        repository.loadTasks()
     }
 
     // MARK: get data for VC methods
 
     func getSectionsCount() -> Int {
-        return model.getSectionsCount()
+        return repository.getSectionsCount()
     }
 
     func getTasksCountInSection(with index: Int) -> Int {
-        return model.getTasksCountIn(in: index)
+        return repository.getTasksCountIn(in: index)
     }
 
     func getTasksTableViewCellVM(forIndexPath indexPath: IndexPath) -> TaskTableViewCellViewModelType  {
-        let task = model.getTask(for: indexPath)
+        let task = repository.getTask(for: indexPath)
         return TaskTableViewCellViewModel(task: task)
     }
 
     func getTaskDetailViewModel(for indexPath: IndexPath) -> TaskDetailViewModel? {
-        let selectedTask = model.getTask(for: indexPath)
+        let selectedTask = repository.getTask(for: indexPath)
         guard let taskId = selectedTask.id else { return nil }
 
         return TaskDetailViewModel(
@@ -73,7 +79,7 @@ class TasksListViewModel: TasksListViewModelType {
         var viewModels: [TaskDeletableViewModel] = []
         for indexPath in indexPaths {
             let viewModel = TaskDeletableViewModel(
-                task: model.getTask(for: indexPath),
+                task: repository.getTask(for: indexPath),
                 indexPath: indexPath
             )
             viewModels.append(viewModel)
@@ -85,7 +91,7 @@ class TasksListViewModel: TasksListViewModelType {
     // MARK: model manipulation methods
 
     func createNewTaskInCurrentSection(with data: TaskCreateData) {
-        model.createTaskInCurrentSectionWith(title: data.title)
+        repository.createTaskInCurrentSectionWith(title: data.title)
         // TODO: отловить ошибку, если не получилось создать и показать сообщение об этом
     }
 
@@ -97,7 +103,7 @@ class TasksListViewModel: TasksListViewModelType {
             tasksIndexPaths.append(indexPath)
         }
 
-        model.deleteTasksWith(indexPaths: tasksIndexPaths)
+        repository.deleteTasksWith(indexPaths: tasksIndexPaths)
     }
 
     func moveTasksInCurrentList(fromPath: IndexPath, to toPath: IndexPath) {
@@ -112,51 +118,63 @@ class TasksListViewModel: TasksListViewModelType {
     // MARK: - Update
 
     func switchTaskFieldIsCompletedWith(indexPath: IndexPath) {
-        model.updateAndSwitchIsCompletedFieldWith(indexPath: indexPath)
+        repository.updateAndSwitchIsCompletedFieldWith(indexPath: indexPath)
     }
 
     func switchTaskFieldIsPriorityWith(indexPath: IndexPath) {
-        model.updateAndSwitchIsPriorityFieldWith(indexPath: indexPath)
+        repository.updateAndSwitchIsPriorityFieldWith(indexPath: indexPath)
     }
 
     func switchTaskFieldInMyDayWith(indexPath: IndexPath) {
-        model.switchAndUpdateInMyDayFieldWith(indexPath: indexPath)
+        repository.switchAndUpdateInMyDayFieldWith(indexPath: indexPath)
     }
 
     // MARK: - Event handlers
 
-    func handleModelUpdatedEvent(_ event: TasksListModel.UpdatedEvent) {
-        switch event {
-        case .modelBeginUpdates:
+    private func handleModelUpdatedEvent(
+        prev prevEvent: TasksListRepository.UpdatedEvent?,
+        new currentEvent: TasksListRepository.UpdatedEvent?
+    ) {
+        switch (prevEvent, currentEvent) {
+        case (_, .modelBeginUpdates):
             tableUpdateEventsRelay.accept(.beginUpdates)
 
-        case .modelEndUpdates:
+        case (_, .modelEndUpdates):
             tableUpdateEventsRelay.accept(.endUpdates)
 
-        case .taskDidCreate(let indexPath):
+        case (_, .taskDidCreate(let indexPath)):
             tableUpdateEventsRelay.accept(.insertTask(indexPath))
 
-        case .taskDidUpdate(let indexPath, let taskItem):
+        case (_, .taskDidUpdate(let indexPath, let taskItem)):
             tableUpdateEventsRelay.accept(.updateTask(
                 indexPath,
                 TaskTableViewCellViewModel(task: taskItem)
             ))
 
-        case .taskDidMove(let fromIndexPath, let toIndexPath, let taskItem):
+        case (.sectionDidDelete(_), .taskDidMove(let fromIndexPath, let toIndexPath, _)),
+             (.sectionDidInsert(_), .taskDidMove(let fromIndexPath, let toIndexPath, _)):
+
+            tableUpdateEventsRelay.accept(.deleteTask(fromIndexPath, withEditSection: true))
+            tableUpdateEventsRelay.accept(.insertTask(toIndexPath, withEditSection: true))
+
+        case (_, .taskDidMove(let fromIndexPath, let toIndexPath, let taskItem)):
             tableUpdateEventsRelay.accept(.moveTask(
                 fromIndexPath,
                 toIndexPath,
                 TaskTableViewCellViewModel(task: taskItem)
             ))
 
-        case .taskDidDelete(let indexPath):
+        case (_, .taskDidDelete(let indexPath)):
             tableUpdateEventsRelay.accept(.deleteTask(indexPath))
 
-        case .sectionDidInsert(let sectionIndex):
+        case (_, .sectionDidInsert(let sectionIndex)):
             tableUpdateEventsRelay.accept(.insertSection(sectionIndex))
 
-        case .sectionDidDelete(let sectionIndex):
+        case (_, .sectionDidDelete(let sectionIndex)):
             tableUpdateEventsRelay.accept(.deleteSection(sectionIndex))
+
+        default:
+            break
         }
     }
 }

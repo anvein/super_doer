@@ -2,7 +2,7 @@ import Foundation
 import CoreData
 import RxSwift
 
-final class TasksListModel: NSObject {
+final class TasksListRepository: NSObject {
 
     // MARK: - Services
 
@@ -84,9 +84,9 @@ final class TasksListModel: NSObject {
         return fetchedResultsController.sections?[section].numberOfObjects ?? 0
     }
 
-    func getTask(for indexPath: IndexPath) -> TasksListItemModel {
+    func getTask(for indexPath: IndexPath) -> TasksListItemEntity {
         let cdTask = getCDTask(at: indexPath)
-        return TasksListItemModel(cdTask: cdTask)
+        return TasksListItemEntity(cdTask: cdTask)
     }
 
     // MARK: - Modify Task
@@ -148,7 +148,7 @@ final class TasksListModel: NSObject {
 
 // MARK: - NSFetchedResultsControllerDelegate
 
-extension TasksListModel: NSFetchedResultsControllerDelegate {
+extension TasksListRepository: NSFetchedResultsControllerDelegate {
 
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         modelUpdatedSubject.onNext(.modelBeginUpdates)
@@ -158,27 +158,35 @@ extension TasksListModel: NSFetchedResultsControllerDelegate {
         modelUpdatedSubject.onNext(.modelEndUpdates)
     }
 
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+    func controller(
+        _ controller: NSFetchedResultsController<NSFetchRequestResult>,
+        didChange anObject: Any,
+        at indexPath: IndexPath?,
+        for type: NSFetchedResultsChangeType,
+        newIndexPath: IndexPath?
+    ) {
         switch type {
         case .insert:
             if let newIndexPath {
                 modelUpdatedSubject.onNext(.taskDidCreate(indexPath: newIndexPath))
             }
+
         case .delete:
             if let indexPath {
                 modelUpdatedSubject.onNext(.taskDidDelete(indexPath: indexPath))
             }
+
         case .update:
             if let indexPath,
                let cdTask = anObject as? CDTask{
-                let taskItem = TasksListItemModel(cdTask: cdTask)
+                let taskItem = TasksListItemEntity(cdTask: cdTask)
                 modelUpdatedSubject.onNext(.taskDidUpdate(indexPath: indexPath, taskItem: taskItem))
             }
 
         case .move:
             if let indexPath, let newIndexPath,
                let cdTask = anObject as? CDTask {
-                let taskItem = TasksListItemModel(cdTask: cdTask)
+                let taskItem = TasksListItemEntity(cdTask: cdTask)
                 modelUpdatedSubject.onNext(.taskDidMove(
                     fromIndexPath: indexPath,
                     toIndexPath: newIndexPath,
@@ -191,12 +199,19 @@ extension TasksListModel: NSFetchedResultsControllerDelegate {
         }
     }
 
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
+    func controller(
+        _ controller: NSFetchedResultsController<NSFetchRequestResult>,
+        didChange sectionInfo: NSFetchedResultsSectionInfo,
+        atSectionIndex sectionIndex: Int,
+        for type: NSFetchedResultsChangeType
+    ) {
         switch type {
         case .insert:
             modelUpdatedSubject.onNext(.sectionDidInsert(sectionIndex: sectionIndex))
+
         case .delete:
             modelUpdatedSubject.onNext(.sectionDidDelete(sectionIndex: sectionIndex))
+
         default:
             break
         }
@@ -205,14 +220,14 @@ extension TasksListModel: NSFetchedResultsControllerDelegate {
 
 // MARK: - UpdatedEvent
 
-extension TasksListModel {
+extension TasksListRepository {
     enum UpdatedEvent {
         case modelBeginUpdates
         case modelEndUpdates
 
         case taskDidCreate(indexPath: IndexPath)
-        case taskDidUpdate(indexPath: IndexPath, taskItem: TasksListItemModel)
-        case taskDidMove(fromIndexPath: IndexPath, toIndexPath: IndexPath, taskItem: TasksListItemModel)
+        case taskDidUpdate(indexPath: IndexPath, taskItem: TasksListItemEntity)
+        case taskDidMove(fromIndexPath: IndexPath, toIndexPath: IndexPath, taskItem: TasksListItemEntity)
         case taskDidDelete(indexPath: IndexPath)
 
         case sectionDidInsert(sectionIndex: Int)

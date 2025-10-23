@@ -4,8 +4,8 @@ enum TaskListTableUpdateEvent {
     case beginUpdates
     case endUpdates
 
-    case insertTask(IndexPath)
-    case deleteTask(IndexPath)
+    case insertTask(IndexPath, withEditSection: Bool = false)
+    case deleteTask(IndexPath, withEditSection: Bool = false)
     case updateTask(IndexPath, TaskTableViewCellViewModel)
     case moveTask(IndexPath, IndexPath, TaskTableViewCellViewModel)
 

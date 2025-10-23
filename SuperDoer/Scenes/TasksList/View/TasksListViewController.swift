@@ -160,12 +160,18 @@ private extension TasksListViewController {
         case .onTapIsPriorityButton(let indexPath):
             viewModel.switchTaskFieldIsPriorityWith(indexPath: indexPath)
 
+        case .onSwitchTaskInMyDay(let indexPath):
+            viewModel.switchTaskFieldInMyDayWith(indexPath: indexPath)
+
         case .onSelectDeleteTasks(let indexPaths):
             let viewModels = viewModel.getTasksDeletableViewModels(for: indexPaths)
             coordinator?.startDeleteProcessTasks(tasksViewModels: viewModels)
 
         case .onConfirmCreateTask(let taskData):
             viewModel.createNewTaskInCurrentSection(with: taskData)
+
+        case .onMoveTask(from: let fromIndexPath, to: let toIndexPath):
+            viewModel.moveTasksInCurrentList(fromPath: fromIndexPath, to: toIndexPath)
 
         case .onNavigationTitleVisibleChange(let isShow):
             updateNavigationBarTitleVisible(isShow: isShow)

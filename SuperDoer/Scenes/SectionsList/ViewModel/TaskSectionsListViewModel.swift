@@ -86,7 +86,7 @@ extension TaskSectionsListViewModel: TaskSectionListViewModelType {
         case let taskSectionCustom as CDTaskSectionCustom :
             let taskCDManager = DIContainer.shared.resolve(TaskCoreDataManager.self)!
             return TasksListViewModel(
-                model: TasksListModel(
+                model: TasksListRepository(
                     taskSection: section,
                     taskCDManager: taskCDManager
                 )

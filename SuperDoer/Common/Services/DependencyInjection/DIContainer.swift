@@ -58,8 +58,8 @@ final class DIContainer {
      
         // MARK: - Models
 
-        Self.shared.register(TasksListModel.self) { r, arg1 in
-            return TasksListModel(
+        Self.shared.register(TasksListRepository.self) { r, arg1 in
+            return TasksListRepository(
                 taskSection: arg1,
                 taskCDManager: r.resolve(TaskCoreDataManager.self)!
             )

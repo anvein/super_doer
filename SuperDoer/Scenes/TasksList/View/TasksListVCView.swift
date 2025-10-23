@@ -10,10 +10,11 @@ final class TasksListVCView: UIView {
         case onSelectTask(IndexPath)
         case onTapIsDoneButton(IndexPath)
         case onTapIsPriorityButton(IndexPath)
+        case onSwitchTaskInMyDay(IndexPath)
         case onSelectDeleteTasks([IndexPath])
         case onConfirmCreateTask(TaskCreateData)
-
-        case onNavigationTitleVisibleChange(Bool)
+        case onMoveTask(from: IndexPath, to: IndexPath)
+        case onNavigationTitleVisibleChange(isShow: Bool)
     }
 
     weak var tableDataSource: TaskListTableDataSource?
@@ -91,11 +92,17 @@ final class TasksListVCView: UIView {
         case .endUpdates:
             tasksTableView.endUpdates()
 
-        case .insertTask(let indexPath):
-            tasksTableView.insertRows(at: [indexPath], with: .automatic)
+        case .insertTask(let indexPath, let withEditSection):
+            tasksTableView.insertRows(
+                at: [indexPath],
+                with: withEditSection ? .fade : .automatic
+            )
 
-        case .deleteTask(let indexPath):
-            tasksTableView.deleteRows(at: [indexPath], with: .automatic)
+        case .deleteTask(let indexPath, let withEditSection):
+            tasksTableView.deleteRows(
+                at: [indexPath],
+                with: withEditSection ? .fade : .automatic
+            )
 
         case .updateTask(let indexPath, let taskCellVM):
             guard let cell = tasksTableView.cellForRow(at: indexPath) as? StandartTaskTableCell else { return }
@@ -109,13 +116,13 @@ final class TasksListVCView: UIView {
         case .insertSection(let sectionId):
             tasksTableView.insertSections(
                 .init(integer: sectionId),
-                with: .middle
+                with: .fade
             )
 
         case .deleteSection(let sectionId):
             tasksTableView.deleteSections(
                 .init(integer: sectionId),
-                with: .middle
+                with: .fade
             )
         }
     }
@@ -210,7 +217,7 @@ private extension TasksListVCView {
             .disposed(by: disposeBag)
 
         isShowNavigationTitleRelay
-            .map { .onNavigationTitleVisibleChange($0) }
+            .map { .onNavigationTitleVisibleChange(isShow: $0) }
             .bind(to: answerRelay)
             .disposed(by: disposeBag)
 
@@ -336,29 +343,30 @@ extension TasksListVCView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         var actions: [UIContextualAction] = []
 
-//        let cellVM = viewModel.getTasksTableViewCellVM(forIndexPath: indexPath)
-//        var symbolImage: UIImage? = nil
-//        if cellVM.isInMyDay {
-//            symbolImage = symbolCreator.combineSymbols(symbolName1: "sun.max", symbolName2: "line.diagonal", pointSize: 15, weight1: .bold)
-//            symbolImage = symbolImage?.withTintColor(.white, renderingMode: .alwaysOriginal)
-//        } else {
-//            let symbolConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .bold)
-//            symbolImage = UIImage(systemName: "sun.max")?.withConfiguration(symbolConfig)
-//        }
-//
-//        if let symbolImage {
-//            let action = UIContextualAction(
-//                style: .normal,
-//                title: "Мой день"
-//            ) { [viewModel] _, _, completionHandler in
-//                    viewModel.switchTaskFieldInMyDayWith(indexPath: indexPath)
-//                    completionHandler(true)
-//                }
-//            action.backgroundColor = .systemOrange
-//            action.image = symbolImage
-//
-//            actions.append(action)
-//        }
+        guard let cellVM = tableDataSource?.getCellViewModel(for: indexPath) else { return .init() }
+
+        var symbolImage: UIImage? = nil
+        if cellVM.isInMyDay {
+            symbolImage = symbolCreator.combineSymbols(symbolName1: "sun.max", symbolName2: "line.diagonal", pointSize: 15, weight1: .bold)
+            symbolImage = symbolImage?.withTintColor(.white, renderingMode: .alwaysOriginal)
+        } else {
+            let symbolConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .bold)
+            symbolImage = UIImage(systemName: "sun.max")?.withConfiguration(symbolConfig)
+        }
+
+        if let symbolImage {
+            let action = UIContextualAction(
+                style: .normal,
+                title: "Мой день"
+            ) { [weak self] _, _, completionHandler in
+                self?.answerRelay.accept(.onSwitchTaskInMyDay(indexPath))
+                completionHandler(true)
+            }
+            action.backgroundColor = .systemOrange
+            action.image = symbolImage
+
+            actions.append(action)
+        }
 
         return UISwipeActionsConfiguration(actions: actions)
     }
@@ -388,7 +396,9 @@ extension TasksListVCView: UITableViewDelegate {
     // MARK: Move row
 
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-//        viewModel.moveTasksInCurrentList(fromPath: sourceIndexPath, to: destinationIndexPath)
+        answerRelay.accept(
+            .onMoveTask(from: sourceIndexPath, to: destinationIndexPath)
+        )
     }
 
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
