@@ -99,6 +99,8 @@ private extension StandartTaskTableCell {
         rowsStackView.axis = .vertical
         rowsStackView.spacing = 3
 
+        isDoneButton.visibleAreaInsets = 6
+
         taskTitleLabel.textColor = .Text.black
         taskTitleLabel.font = .systemFont(ofSize: 16)
         taskTitleLabel.numberOfLines = 0
@@ -125,8 +127,8 @@ private extension StandartTaskTableCell {
         }
 
         isDoneButton.snp.makeConstraints {
-            $0.size.equalTo(24)
-            $0.leading.equalToSuperview().inset(16)
+            $0.size.equalTo(36)
+            $0.leading.equalToSuperview().inset(10)
             $0.top.greaterThanOrEqualToSuperview().inset(14)
             $0.bottom.lessThanOrEqualToSuperview().inset(14)
             $0.centerY.equalToSuperview()
@@ -134,7 +136,7 @@ private extension StandartTaskTableCell {
 
         rowsStackView.snp.makeConstraints {
             $0.verticalEdges.equalToSuperview().inset(11).priority(.medium)
-            $0.leading.equalTo(isDoneButton.snp.trailing).offset(16)
+            $0.leading.equalTo(isDoneButton.snp.trailing).offset(10)
         }
 
         isPriorityButton.snp.makeConstraints {

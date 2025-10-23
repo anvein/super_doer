@@ -80,10 +80,10 @@ extension TaskSectionsListViewModel: TaskSectionListViewModelType {
     }
    
     func getTaskListViewModel(forIndexPath indexPath: IndexPath) -> TasksListViewModelType? {
-        let section = sections.value[indexPath.section][indexPath.row]
+        guard let section = sections.value[safe: indexPath.section]?[safe: indexPath.row] else { return nil }
 
         switch section {
-        case let taskSectionCustom as CDTaskSectionCustom :
+        case let taskSectionCustom as CDTaskSectionCustom:
             let taskCDManager = DIContainer.shared.resolve(TaskCoreDataManager.self)!
             return TasksListViewModel(
                 model: TasksListRepository(

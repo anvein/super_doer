@@ -1,7 +1,25 @@
-
 import UIKit
+import SnapKit
 
 final class CheckboxButton: UIButton {
+
+    private let checkImageView = UIImageView()
+    private let imageViewContainer = UIView()
+
+    private var imageInsetsConstraint: Constraint?
+    private var visibleAreaInsetsConstraint: Constraint?
+
+    var visibleAreaInsets: CGFloat = 0 {
+        didSet {
+            visibleAreaInsetsConstraint?.update(inset: visibleAreaInsets)
+        }
+    }
+
+    var imageInsets: CGFloat = 5.5 {
+        didSet {
+            imageInsetsConstraint?.update(inset: imageInsets)
+        }
+    }
 
     // MARK: - State
 
@@ -36,19 +54,33 @@ final class CheckboxButton: UIButton {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        cornerRadius = bounds.width / 2
+        imageViewContainer.cornerRadius = imageViewContainer.bounds.width / 2
     }
 
 }
 
 private extension CheckboxButton {
+
     // MARK: - Setup
 
     func setup() {
-        borderWidth = 2
+        addSubview(imageViewContainer)
+        imageViewContainer.addSubview(checkImageView)
 
-        // TODO - переделать на конфигурацию
-        imageEdgeInsets = UIEdgeInsets(top: 6, left: 6, bottom: 6, right: 6)
+        imageViewContainer.snp.makeConstraints {
+            self.visibleAreaInsetsConstraint = $0.edges
+                .equalToSuperview()
+                .inset(visibleAreaInsets).constraint
+        }
+
+        checkImageView.snp.makeConstraints {
+            self.imageInsetsConstraint = $0.edges.equalToSuperview().inset(imageInsets).constraint
+        }
+
+        imageViewContainer.borderWidth = 2
+        imageViewContainer.isUserInteractionEnabled = false
+        checkImageView.contentMode = .scaleAspectFill
+
         setAppearanceForState(isOn)
     }
 
@@ -56,16 +88,16 @@ private extension CheckboxButton {
 
     func setAppearanceForState(_ isOn: Bool) {
         if isOn {
-            borderColor = .IsCompletedCheckbox.completedBg
-            layer.backgroundColor = UIColor.IsCompletedCheckbox.completedBg.cgColor
+            imageViewContainer.borderColor = .IsCompletedCheckbox.completedBg
+            imageViewContainer.backgroundColor = UIColor.IsCompletedCheckbox.completedBg
 
             let image: UIImage = .Common.taskIsDoneCheckmark.withTintColor(.white, renderingMode: .alwaysOriginal)
-            setImage(image, for: .normal)
+            checkImageView.image = image
         } else {
-            borderColor = .Common.darkGrayApp
-            layer.backgroundColor = UIColor.IsCompletedCheckbox.uncompletedBg.cgColor
+            imageViewContainer.borderColor = .Common.darkGrayApp
+            imageViewContainer.backgroundColor = UIColor.IsCompletedCheckbox.uncompletedBg
 
-            setImage(nil, for: .normal)
+            checkImageView.image = nil
         }
     }
 }
@@ -74,7 +106,11 @@ private extension CheckboxButton {
 
 @available(iOS 17, *)
 #Preview {
-    CheckboxButton()
+     {
+        let btn = CheckboxButton()
+        btn.frame = .init(origin: .zero, size: .init(width: 40, height: 40))
+        return btn
+    }()
 }
 
 
