@@ -1,4 +1,3 @@
-
 import UIKit
 
 extension TaskCreateBottomPanel {
@@ -38,21 +37,17 @@ extension TaskCreateBottomPanel {
                 ]
             }
         }
+
+        // MARK: - Setup
+
+        private func setupControl() {
+            font = .systemFont(ofSize: 17)
+            textColor = .Text.black
+
+            let imageInsets: UIEdgeInsets = .init(top: 0, left: 8, bottom: 0, right: 16)
+            setImageViewToLeftView(imageView: leftImageView, insets: imageInsets)
+            leftViewMode = .always
+            leftView?.isUserInteractionEnabled = false
+        }
     }
-}
-
-private extension TaskCreateBottomPanel.TextField {
-
-    // MARK: - Setup
-
-    func setupControl() {
-        font = .systemFont(ofSize: 17)
-        textColor = .Text.black
-
-        let imageInsets: UIEdgeInsets = .init(top: 0, left: 8, bottom: 0, right: 16)
-        setImageViewToLeftView(imageView: leftImageView, insets: imageInsets)
-        leftViewMode = .always
-        leftView?.isUserInteractionEnabled = false
-    }
-
 }

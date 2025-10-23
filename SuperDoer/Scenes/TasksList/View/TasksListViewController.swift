@@ -43,12 +43,12 @@ class TasksListViewController: UIViewController {
         setupNavigationBar()
         viewModel.loadInitialData()
 
-//        PIXEL_PERFECT_screen.createAndSetupInstance(
-//            baseView: self.view,
-//            imageName: "PIXEL_PERFECT_task_list",
-//            controlsBottomSideOffset: 0,
-//            imageScaleFactor: 3
-//        )
+        PIXEL_PERFECT_screen.createAndSetupInstance(
+            baseView: self.view,
+            imageName: "PIXEL_PERFECT_task_list",
+            controlsBottomSideOffset: 0,
+            imageScaleFactor: 3
+        )
     }
 
     override func viewWillAppear(_ animated: Bool) {

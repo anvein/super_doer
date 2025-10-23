@@ -46,6 +46,7 @@ final class TasksListVCView: UIView {
 
     // MARK: - Subviews
 
+    private let tableHeaderTextField = UITextField()
     private let tableHeaderLabel = UILabel()
     private let tasksTableView = UITableView(frame: .zero, style: .grouped)
     private let tableContainerView = UIView()
@@ -58,6 +59,7 @@ final class TasksListVCView: UIView {
     private var panelHeightConstraint: Constraint?
     private var panelTopPaddingConstraint: Constraint?
     private var panelHorizontalPaddingsConstraint: Constraint?
+    private var panelBottomPaddingConstraint: Constraint?
 
     // MARK: - State / Rx
 
@@ -70,6 +72,7 @@ final class TasksListVCView: UIView {
         super.init(frame: UIWindow.current?.bounds ?? .zero)
 
         setupHierarchy()
+        setupConstraints()
         setupView()
         setupBindings()
     }
@@ -184,7 +187,9 @@ private extension TasksListVCView {
             taskCreatePanel
         )
         tableContainerView.addSubview(tasksTableView)
+    }
 
+    func setupConstraints() {
         backgroundImageView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
@@ -201,11 +206,20 @@ private extension TasksListVCView {
 
         let panelState = taskCreatePanel.currentStateValue
         taskCreatePanel.snp.makeConstraints {
-            $0.bottom.equalTo(keyboardLayoutGuide.snp.top)
             $0.centerX.equalToSuperview()
             panelHeightConstraint = $0.height.equalTo(panelState.panelHeight).constraint
-            panelTopPaddingConstraint = $0.top.equalTo(tasksTableView.snp.bottom).offset(panelState.panelSidesPadding).constraint
-            panelHorizontalPaddingsConstraint = $0.horizontalEdges.equalToSuperview().inset(panelState.panelSidesPadding).constraint
+
+            panelTopPaddingConstraint = $0.top.equalTo(tasksTableView.snp.bottom)
+                .offset(panelState.panelTopPadding)
+                .constraint
+
+            panelBottomPaddingConstraint = $0.bottom.equalTo(keyboardLayoutGuide.snp.top)
+                .offset(-panelState.panelBottomPadding)
+                .constraint
+
+            panelHorizontalPaddingsConstraint = $0.horizontalEdges.equalToSuperview()
+                .inset(panelState.panelHorizontalSidesPadding)
+                .constraint
         }
     }
 
@@ -244,8 +258,9 @@ private extension TasksListVCView {
 
     func updatePanelForState(_ newState: TaskCreateBottomPanel.State) {
         panelHeightConstraint?.update(offset: newState.panelHeight)
-        panelTopPaddingConstraint?.update(offset: newState.panelSidesPadding)
-        panelHorizontalPaddingsConstraint?.update(inset: newState.panelSidesPadding)
+        panelTopPaddingConstraint?.update(offset: newState.panelTopPadding)
+        panelBottomPaddingConstraint?.update(offset: -newState.panelBottomPadding)
+        panelHorizontalPaddingsConstraint?.update(inset: newState.panelHorizontalSidesPadding)
 
         UIView.animate(withDuration: 0.3) { [weak self] in
             self?.layoutIfNeeded()

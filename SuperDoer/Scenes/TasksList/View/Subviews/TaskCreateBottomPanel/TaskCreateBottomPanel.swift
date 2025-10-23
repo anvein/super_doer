@@ -133,7 +133,12 @@ private extension TaskCreateBottomPanel {
             layer.shadowRadius = 10
             layer.shadowOffset = CGSize(width: 5, height: 5)
             layer.shadowOpacity = 0.75
-            roundCorners([.topLeft, .topRight], radius: 8)
+
+            if #available(iOS 26, *) {
+                roundCorners([.topLeft, .topRight, .bottomLeft, .bottomRight], radius: 8)
+            } else {
+                roundCorners([.topLeft, .topRight], radius: 8)
+            }
         }
 
         textField.updateAppearanceFor(state: state)
@@ -239,10 +244,24 @@ extension TaskCreateBottomPanel {
             }
         }
 
-        var panelSidesPadding: Float {
+        var panelHorizontalSidesPadding: Float {
             switch self {
             case .base: return 8
-            case .editable: return 0
+            case .editable: return UIView.ifAvailableiOS26(trueValue: 8, elseValue: 0)
+            }
+        }
+
+        var panelTopPadding: Float {
+            switch self {
+            case .base: return 8
+            case .editable: return UIView.ifAvailableiOS26(trueValue: -10, elseValue: 0)
+            }
+        }
+
+        var panelBottomPadding: Float {
+            switch self {
+            case .base: return 10
+            case .editable: return UIView.ifAvailableiOS26(trueValue: 8, elseValue: 0)
             }
         }
 

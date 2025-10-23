@@ -3,6 +3,14 @@ import UIKit
 
 extension UIView {
 
+    static func ifAvailableiOS26<Value>(trueValue: Value, elseValue: Value) -> Value {
+        if #available(iOS 26, *) {
+            return trueValue
+        } else {
+            return elseValue
+        }
+    }
+
     // MARK: - Layer properties
 
     var cornerRadius: CGFloat {
@@ -47,5 +55,9 @@ extension UIView {
         if corners.contains(.bottomRight) { cornerMask.insert(.layerMaxXMaxYCorner) }
 
         return cornerMask
+    }
+
+    func ifAvailableiOS26<Value>(trueValue: Value, elseValue: Value) -> Value {
+        UIView.ifAvailableiOS26(trueValue: trueValue, elseValue: elseValue)
     }
 }
