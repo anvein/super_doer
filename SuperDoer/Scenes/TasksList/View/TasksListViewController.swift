@@ -7,7 +7,6 @@ class TasksListViewController: UIViewController {
     private let disposeBag = DisposeBag()
 
     private var viewModel: TasksListViewModelType
-    private weak var coordinator: TaskListViewControllerCoordinator?
     
     // MARK: - Subviews
 
@@ -15,11 +14,7 @@ class TasksListViewController: UIViewController {
 
     // MARK: - Init
 
-    init(
-        coordinator: TaskListViewControllerCoordinator,
-        viewModel: TasksListViewModelType
-    ) {
-        self.coordinator = coordinator
+    init(viewModel: TasksListViewModelType) {
         self.viewModel = viewModel
         
         super.init(nibName: nil, bundle: nil)
@@ -79,7 +74,7 @@ class TasksListViewController: UIViewController {
         selfView.endEditing(true)
 
         if isMovingFromParent {
-            coordinator?.closeTaskListInSection()
+//            coordinator?.closeTaskListInSection()
         }
     }
     
@@ -159,7 +154,7 @@ private extension TasksListViewController {
         switch action {
         case .onSelectTask(let indexPath):
             guard let detailVM = viewModel.getTaskDetailViewModel(for: indexPath) else { return }
-            coordinator?.selectTask(viewModel: detailVM)
+//            coordinator?.selectTask(viewModel: detailVM)
 
         case .onTapIsDoneButton(let indexPath):
             viewModel.switchTaskFieldIsCompletedWith(indexPath: indexPath)
@@ -172,7 +167,7 @@ private extension TasksListViewController {
 
         case .onSelectDeleteTasks(let indexPaths):
             let viewModels = viewModel.getTasksDeletableViewModels(for: indexPaths)
-            coordinator?.startDeleteProcessTasks(tasksViewModels: viewModels)
+//            coordinator?.startDeleteProcessTasks(tasksViewModels: viewModels)
 
         case .onConfirmCreateTask(let taskData):
             viewModel.createNewTaskInCurrentSection(with: taskData)

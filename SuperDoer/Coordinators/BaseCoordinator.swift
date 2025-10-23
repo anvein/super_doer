@@ -1,7 +1,6 @@
-
 import Foundation
 
-class BaseCoordinator: Coordinator {
+class BaseCoordinator: NSObject, Coordinator {
     var childs: [Coordinator] = []
     weak var parent: Coordinator?
     // TODO: перенести сюда navigation (UINavigationController)?

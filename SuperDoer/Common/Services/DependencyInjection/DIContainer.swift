@@ -1,4 +1,3 @@
-
 import Swinject
 import UserNotifications
 
@@ -40,12 +39,8 @@ final class DIContainer {
         
         // MARK: Coordinators     
 
-        Self.shared.register(AppCoordinator.self) { r, arg1 in
-            return AppCoordinator(
-                window: arg1,
-                sectionEm: r.resolve(TaskSectionEntityManager.self)!,
-                systemSectionsBuilder: r.resolve(SystemSectionsBuilder.self)!
-            )
+        Self.shared.register(AppCoordinator.self) { r, window, navigation in
+            return AppCoordinator(window: window, navigation: navigation)
         }.inObjectScope(.container)
     
         

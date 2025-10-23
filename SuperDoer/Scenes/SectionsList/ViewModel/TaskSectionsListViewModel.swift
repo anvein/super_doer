@@ -1,34 +1,37 @@
-
 import Foundation
 
-/// ViewModel страницы с таблицей списков (разделов)
-class TaskSectionsListViewModel {
+final class TaskSectionsListViewModel {
 
-   
     typealias SectionGroup = [[TaskSectionProtocol]]
 
     // MARK: - Services
 
-    private var sectionEm: TaskSectionEntityManager
-
+    private let coordinator: TaskSectionsListViewControllerCoordinator
+    private let sectionEm: TaskSectionEntityManager
+    private let systemSectionsBuilder: SystemSectionsBuilder
 
     // MARK: - Model
 
     static var systemSectionsId = 0
     static var customSectionsId = 1
 
-    private var sections: UIBox<SectionGroup>
+    private var sections: UIBox<SectionGroup> = .init(SectionGroup())
     private var selectedSectionIndexPath: IndexPath?
 
     // MARK: - Init
 
     required init(
+        coordinator: TaskSectionsListViewControllerCoordinator,
         sectionEm: TaskSectionEntityManager,
-        sections: SectionGroup
+        systemSectionsBuilder: SystemSectionsBuilder
     ) {
+        self.coordinator = coordinator
         self.sectionEm = sectionEm
-        self.sections = UIBox(sections)
+        self.systemSectionsBuilder = systemSectionsBuilder
+
+        self.sections = UIBox(SectionGroup())
     }
+
 }
 
 // MARK: - TaskSectionListViewModelType
@@ -38,6 +41,15 @@ extension TaskSectionsListViewModel: TaskSectionListViewModelType {
     // MARK: - Observable
 
     var sectionsObservable: UIBoxObservable<Sections> { sections.asObservable() }
+
+    func loadInitialData() {
+        var sections: [[TaskSectionProtocol]] = [[], []]
+
+        sections[TaskSectionsListViewModel.systemSectionsId] = systemSectionsBuilder.buildSections()
+        sections[TaskSectionsListViewModel.customSectionsId] = sectionEm.getCustomSectionsWithOrder()
+
+        self.sections.value = sections
+    }
 
     // MARK: get data for VC functions
     func getCountOfTableSections() -> Int {
@@ -67,7 +79,12 @@ extension TaskSectionsListViewModel: TaskSectionListViewModelType {
         }
     }
     
-    func selectTaskSection(forIndexPath indexPath: IndexPath) {
+    func selectTaskSection(with indexPath: IndexPath) {
+        guard let section = sections.value[safe: indexPath.section]?[safe: indexPath.row] else { return }
+
+        coordinator.startTasksInSectionFlow(section)
+
+        // TODO: надо ли это? (вроде нет)
         self.selectedSectionIndexPath = indexPath
     }
     
@@ -77,28 +94,6 @@ extension TaskSectionsListViewModel: TaskSectionListViewModelType {
         }
     
         return getTaskSectionTableViewCellViewModel(forIndexPath: selectedIndexPath)
-    }
-   
-    func getTaskListViewModel(forIndexPath indexPath: IndexPath) -> TasksListViewModelType? {
-        guard let section = sections.value[safe: indexPath.section]?[safe: indexPath.row] else { return nil }
-
-        switch section {
-        case let taskSectionCustom as CDTaskSectionCustom:
-            let taskCDManager = DIContainer.shared.resolve(TaskCoreDataManager.self)!
-            return TasksListViewModel(
-                repository: TasksListRepository(
-                    taskSection: section,
-                    taskCDManager: taskCDManager
-                ),
-                sectionCDManager: DIContainer.shared.resolve(TaskSectionEntityManager.self)!
-            )
-
-        case _ as TaskSectionSystem:
-            // TODO: создать тип для системного списка (там будут другие параметры, скорей всего)
-            return nil
-        default :
-            return nil
-        }
     }
     
     func getDeletableSectionViewModelFor(indexPath: IndexPath) -> TaskSectionDeletableViewModel? {

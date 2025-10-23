@@ -6,6 +6,7 @@ class TasksListViewModel: TasksListViewModelType {
 
     private let repository: TasksListRepository
     private let sectionCDManager: TaskSectionEntityManager
+    private weak var coordinator: TasksListViewControllerCoordinator?
 
     // MARK: - State / Rx
 
@@ -24,7 +25,12 @@ class TasksListViewModel: TasksListViewModelType {
 
     // MARK: - Init
 
-    init(repository: TasksListRepository, sectionCDManager: TaskSectionEntityManager) {
+    init(
+        coordinator: TasksListViewControllerCoordinator,
+        repository: TasksListRepository,
+        sectionCDManager: TaskSectionEntityManager
+    ) {
+        self.coordinator = coordinator
         self.repository = repository
         self.sectionCDManager = sectionCDManager
 

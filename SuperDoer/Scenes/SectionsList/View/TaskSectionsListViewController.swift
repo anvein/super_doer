@@ -1,25 +1,16 @@
-
 import UIKit
 
-/// Экран списков (разделов)
 class TaskSectionsListViewController: UIViewController {
 
-    private weak var coordinator: TaskSectionsListViewControllerCoordinator?
     private var viewModel: TaskSectionListViewModelType
-    
-     
+
     // MARK: controls
     private lazy var sectionsTableView = TaskSectionsTableView()
-    
     private lazy var addSectionBottomPanelView = AddSectionBottomPanelView()
 
     
     // MARK: init
-    init(
-        coordinator: TaskSectionsListViewControllerCoordinator,
-        viewModel: TaskSectionListViewModelType
-    ) {
-        self.coordinator = coordinator
+    init(viewModel: TaskSectionListViewModelType) {
         self.viewModel = viewModel
         
         super.init(nibName: nil, bundle: nil)
@@ -38,11 +29,12 @@ class TaskSectionsListViewController: UIViewController {
         
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .never
-        
+
         setupControls()
         addSubviewsToMainView()
         setupConstraints()
         setupBinding()
+        viewModel.loadInitialData()
 
 //        PIXEL_PERFECT_screen.createAndSetupInstance(
 //            baseView: self.view,
@@ -55,30 +47,31 @@ class TaskSectionsListViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
-        if isMovingFromParent {
-            coordinator?.closeTaskSectionsList()
-        }
+//        if isMovingFromParent {
+//            viewModel.coordinator.finish()
+//        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
 
-        // TODO: код для разработки (удалить)
-        ///////////////////////////////////////////////////
-        let vm = viewModel.getTaskListViewModel(forIndexPath: IndexPath(row: 0, section: 1))
-        if let vm = vm as? TasksListViewModel {
-            coordinator?.selectTaskSection(viewModel: vm)
-        }
-        ///////////////////////////////////////////////////
+//        // TODO: код для разработки (удалить)
+//        ///////////////////////////////////////////////////
+//        let vm = viewModel.getTaskListViewModel(forIndexPath: IndexPath(row: 0, section: 1))
+//        if let vm = vm as? TasksListViewModel {
+//            coordinator?.selectTaskSection(viewModel: vm)
+//        }
+//        ///////////////////////////////////////////////////
     }
 
     // MARK: action-handlers
     @objc func presentDeleteAlertController(sectionIndexPath: IndexPath) {
+        // TODO: перенести в VM
         let sectionVM = self.viewModel.getDeletableSectionViewModelFor(
             indexPath: sectionIndexPath
         )
         guard let sectionVM else { return }
-        coordinator?.startDeleteProcessSection(sectionVM)
+//        viewModel.coordinator.startDeleteProcessSection(sectionVM)
     }
     
 }
@@ -160,24 +153,8 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        viewModel.selectTaskSection(forIndexPath: indexPath) // TODO: нужен ли этот метод?
-        
-        let taskListInSectionVM = viewModel.getTaskListViewModel(forIndexPath: indexPath)
-        guard let taskListInSectionVM else { return }
-        
-        switch taskListInSectionVM {
-        case let taskListInSectionVM as TasksListViewModel:
-            coordinator?.selectTaskSection(viewModel: taskListInSectionVM)
-            tableView.deselectRow(at: indexPath, animated: true)
-            
-        default:
-            // TODO: проработать открытие системного списка
-            print("📋 Открыть системный список")
-            
-            // TODO: для default залогировать ошибку
-            // TODO: nil-вариант
-            print("🔴 Залогировать ошибку")
-        }
+        viewModel.selectTaskSection(with: indexPath)
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -242,12 +219,3 @@ extension TaskSectionsListViewController: AddSectionBottomPanelViewDelegate {
     }
 }
 
-
-// MARK: coordinator protocol
-protocol TaskSectionsListViewControllerCoordinator: AnyObject {
-    func selectTaskSection(viewModel: TasksListViewModel)
-    
-    func startDeleteProcessSection(_ section: TaskSectionDeletableViewModel)
-    
-    func closeTaskSectionsList()
-}

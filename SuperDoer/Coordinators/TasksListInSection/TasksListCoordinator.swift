@@ -1,33 +1,36 @@
-
 import UIKit
 
 final class TasksListCoordinator: BaseCoordinator {
+
     private var navigation: UINavigationController
-    private var viewModel: TasksListViewModel
-    
-    init(
-        parent: Coordinator,
-        navigation: UINavigationController,
-        viewModel: TasksListViewModel
-    ) {
+    private let section: CDTaskSectionCustom
+
+    init(parent: Coordinator, navigation: UINavigationController, section: CDTaskSectionCustom) {
         self.navigation = navigation
-        self.viewModel = viewModel
+        self.section = section
         super.init(parent: parent)
     }
-    
+
     override func start() {
-        let vc = TasksListViewController(
+        let vm = TasksListViewModel(
             coordinator: self,
-            viewModel: viewModel
+            repository: TasksListRepository(
+                taskSection: section,
+                taskCDManager: DIContainer.shared.resolve(TaskCoreDataManager.self)!
+            ),
+            sectionCDManager: DIContainer.shared.resolve(TaskSectionEntityManager.self)!
         )
+
+        let vc = TasksListViewController(viewModel: vm)
+
         navigation.pushViewController(vc, animated: true)
     }
-    
+
 }
 
 // MARK: - TaskListViewControllerCoordinator
 
-extension TasksListCoordinator: TaskListViewControllerCoordinator {
+extension TasksListCoordinator: TasksListViewControllerCoordinator {
     func selectTask(viewModel: TaskDetailViewModel) {
         let coordinator = TaskDetailCoordinator(
             parent: self,
@@ -37,7 +40,7 @@ extension TasksListCoordinator: TaskListViewControllerCoordinator {
         addChild(coordinator)
         coordinator.start()
     }
-    
+
     func startDeleteProcessTasks(tasksViewModels: [TaskDeletableViewModel]) {
         let coordinator = DeleteItemCoordinator(
             parent: self,
@@ -48,7 +51,7 @@ extension TasksListCoordinator: TaskListViewControllerCoordinator {
         addChild(coordinator)
         coordinator.start()
     }
-    
+
     func closeTaskListInSection() {
         parent?.removeChild(self)
     }
@@ -58,6 +61,7 @@ extension TasksListCoordinator: TaskListViewControllerCoordinator {
 
 extension TasksListCoordinator: DeleteItemCoordinatorDelegate {
     func didConfirmDeleteItems(_ items: [DeletableItemViewModelType]) {
-        viewModel.deleteTasks(taskViewModels: items)
+        //private var viewModel: TasksListViewModel
+//        viewModel.deleteTasks(taskViewModels: items)
     }
 }

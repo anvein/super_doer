@@ -1,9 +1,8 @@
-
 import Foundation
 
 // MARK: - Coordinator protocol
 
-protocol TaskListViewControllerCoordinator: AnyObject {
+protocol TasksListViewControllerCoordinator: AnyObject {
     func selectTask(viewModel: TaskDetailViewModel)
 
     func startDeleteProcessTasks(tasksViewModels: [TaskDeletableViewModel])
