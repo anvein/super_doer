@@ -68,7 +68,7 @@ final class TasksListRepository: NSObject {
     // MARK: - Get
 
     func getSectionTitle() -> String? {
-        guard let taskSection = taskSection as? CDTaskSectionCustom else { return nil }
+        guard let taskSection = taskSection as? CDTaskCustomSection else { return nil }
         return taskSection.title
     }
 
@@ -119,7 +119,7 @@ final class TasksListRepository: NSObject {
     }
 
     func createTaskInCurrentSectionWith(title: String) {
-        guard let sectionCustom = taskSection as? CDTaskSectionCustom else { return }
+        guard let sectionCustom = taskSection as? CDTaskCustomSection else { return }
         taskCDManager.createWith(title: title, section: sectionCustom)
     }
 
@@ -136,9 +136,9 @@ final class TasksListRepository: NSObject {
     }
 
     private static func buildFilterBySectionPredicate(taskSection: TaskSectionProtocol?) -> NSPredicate? {
-        if let cdCustomSection = taskSection as? CDTaskSectionCustom {
+        if let cdCustomSection = taskSection as? CDTaskCustomSection {
             return NSPredicate(format: "section == %@", cdCustomSection)
-        } else if taskSection is TaskSectionSystem {
+        } else if taskSection is TaskSystemSection {
             return nil
         }
 

@@ -20,9 +20,10 @@ final class AppCoordinator: BaseCoordinator {
     }
 
     func startTaskSectionsListFlow() {
-        let sectionsListCoordinator = TaskSectionsListCoordinator(
+        let sectionsListCoordinator = SectionsListCoordinator(
             parent: self,
-            navigation: navigation
+            navigation: navigation,
+            deleteAlertFactory: DIContainer.container.resolve(DeleteItemsAlertFactory.self)!
         )
 
         addChild(sectionsListCoordinator)

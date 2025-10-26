@@ -12,4 +12,8 @@ class BaseCoordinator: NSObject, Coordinator {
     func start() {
         fatalError("Child should implement func start")
     }
+
+    func finish() {
+        parent?.removeChild(self)
+    }
 }

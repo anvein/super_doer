@@ -10,10 +10,10 @@ import Foundation
 import CoreData
 
 
-extension CDTaskSectionCustom {
+extension CDTaskCustomSection {
 
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<CDTaskSectionCustom> {
-        return NSFetchRequest<CDTaskSectionCustom>(entityName: CDTaskSectionCustom.entityName)
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<CDTaskCustomSection> {
+        return NSFetchRequest<CDTaskCustomSection>(entityName: CDTaskCustomSection.entityName)
     }
 
     @NSManaged public var deletedAt: Date?
@@ -29,7 +29,7 @@ extension CDTaskSectionCustom {
 }
 
 // MARK: Generated accessors for tasks
-extension CDTaskSectionCustom {
+extension CDTaskCustomSection {
 
     @objc(insertObject:inTasksAtIndex:)
     @NSManaged public func insertIntoTasks(_ value: CDTask, at idx: Int)
@@ -63,6 +63,6 @@ extension CDTaskSectionCustom {
 
 }
 
-extension CDTaskSectionCustom : Identifiable {
+extension CDTaskCustomSection : Identifiable {
 
 }

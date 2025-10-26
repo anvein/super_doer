@@ -5,29 +5,29 @@ class TaskSectionTableViewCell: UITableViewCell {
     static let identifier: String = "TaskSectionTableViewCell"
     static let cellHeight = 48.4
     
-    private let systemSectionsConfig: [TaskSectionSystem.SectionType: SystemSectionViewSetting] = [
-        TaskSectionSystem.SectionType.myDay: SystemSectionViewSetting(
+    private let systemSectionsConfig: [TaskSystemSection.SectionType: SystemSectionViewSetting] = [
+        TaskSystemSection.SectionType.myDay: SystemSectionViewSetting(
             imageName: "sun.max",
             imageColor: .SectionIcons.myDay
         ),
-        TaskSectionSystem.SectionType.important: SystemSectionViewSetting(
+        TaskSystemSection.SectionType.important: SystemSectionViewSetting(
             imageName: "star",
             imageColor: .SectionIcons.important
         ),
-        TaskSectionSystem.SectionType.planned: SystemSectionViewSetting(
+        TaskSystemSection.SectionType.planned: SystemSectionViewSetting(
             imageName: "calendar",
             imageColor: .SectionIcons.planned
         ),
-        TaskSectionSystem.SectionType.all: SystemSectionViewSetting(
+        TaskSystemSection.SectionType.all: SystemSectionViewSetting(
             imageName: "infinity",
             imageColor: .SectionIcons.allTasks,
             imageSize: 17
         ),
-        TaskSectionSystem.SectionType.completed: SystemSectionViewSetting(
+        TaskSystemSection.SectionType.completed: SystemSectionViewSetting(
             imageName: "checkmark.circle",
             imageColor: .SectionIcons.completed
         ),
-        TaskSectionSystem.SectionType.withoutSection: SystemSectionViewSetting(
+        TaskSystemSection.SectionType.withoutSection: SystemSectionViewSetting(
             imageName: "tray",
             imageColor: .SectionIcons.withoutSection
         ),
@@ -40,7 +40,7 @@ class TaskSectionTableViewCell: UITableViewCell {
     
     // TODO: надо ли тут weak???
     // вроде цикла сильных ссылок быть не должно быть
-    weak var viewModel: SectionListTableViewCellViewModelType? {
+    weak var viewModel: SectionListTableCellVMType? {
         willSet (newViewModel) {
             if let newViewModel {
                 self.textLabel?.text = newViewModel.title
@@ -90,22 +90,22 @@ class TaskSectionTableViewCell: UITableViewCell {
         textLabel?.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
     }
 
-    private func configureCellImage(_ cellViewModel: SectionListTableViewCellViewModelType) {
-        if let listCustomCellViewModel = cellViewModel as? SectionCustomListTableViewCellViewModel {
+    private func configureCellImage(_ cellViewModel: SectionListTableCellVMType) {
+        if let listCustomCellViewModel = cellViewModel as? SectionCustomListTableCellVM {
             configureCellImageFor(listCustomCellViewModel: listCustomCellViewModel)
             
-        } else if let listSystemCellViewModel = cellViewModel as? SectionSystemListTableViewCellViewModel {
+        } else if let listSystemCellViewModel = cellViewModel as? SectionSystemListTableCellVM {
             configureCellImageFor(listSystemCellViewModel: listSystemCellViewModel)
         } 
     }
     
-    private func configureCellImageFor(listCustomCellViewModel: SectionCustomListTableViewCellViewModel) {
+    private func configureCellImageFor(listCustomCellViewModel: SectionCustomListTableCellVM) {
         let symbolConfig = UIImage.SymbolConfiguration(weight: .bold)
         imageView?.image = UIImage(systemName: defaultViewConfig.imageName, withConfiguration: symbolConfig)
         imageView?.tintColor = defaultViewConfig.imageColor
     }
     
-    private func configureCellImageFor(listSystemCellViewModel: SectionSystemListTableViewCellViewModel) {
+    private func configureCellImageFor(listSystemCellViewModel: SectionSystemListTableCellVM) {
         let viewConfig = systemSectionsConfig[listSystemCellViewModel.type] ?? defaultViewConfig
         
         let symbolConfig = UIImage.SymbolConfiguration(

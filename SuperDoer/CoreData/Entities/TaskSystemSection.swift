@@ -1,9 +1,8 @@
-
 import Foundation
 
 /// Системные списки задач
 /// Не хранятся в БД, поэтому для них обычный класс
-class TaskSectionSystem: TaskSectionProtocol {
+class TaskSystemSection: TaskSectionProtocol {
     enum SectionType {
         case myDay
         case important

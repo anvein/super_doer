@@ -1,4 +1,3 @@
-
 import UIKit
 
 ///  Координатор работает для загрузки файлов из:
@@ -71,6 +70,10 @@ class AddFileToTaskFromLibraryCoordinator: NSObject, Coordinator {
         }
         
         navigation.present(controller, animated: true)
+    }
+
+    func finish() {
+        parent?.removeChild(self)
     }
 }
 

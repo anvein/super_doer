@@ -17,7 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let navigation = UINavigationController()
 
-        appCoordinator = DIContainer.shared.resolve(
+        appCoordinator = DIContainer.container.resolve(
             AppCoordinator.self,
             arguments: window, navigation
         )

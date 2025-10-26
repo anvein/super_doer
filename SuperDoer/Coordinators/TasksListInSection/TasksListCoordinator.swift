@@ -3,9 +3,9 @@ import UIKit
 final class TasksListCoordinator: BaseCoordinator {
 
     private var navigation: UINavigationController
-    private let section: CDTaskSectionCustom
+    private let section: CDTaskCustomSection
 
-    init(parent: Coordinator, navigation: UINavigationController, section: CDTaskSectionCustom) {
+    init(parent: Coordinator, navigation: UINavigationController, section: CDTaskCustomSection) {
         self.navigation = navigation
         self.section = section
         super.init(parent: parent)
@@ -16,9 +16,9 @@ final class TasksListCoordinator: BaseCoordinator {
             coordinator: self,
             repository: TasksListRepository(
                 taskSection: section,
-                taskCDManager: DIContainer.shared.resolve(TaskCoreDataManager.self)!
+                taskCDManager: DIContainer.container.resolve(TaskCoreDataManager.self)!
             ),
-            sectionCDManager: DIContainer.shared.resolve(TaskSectionEntityManager.self)!
+            sectionCDManager: DIContainer.container.resolve(TaskSectionEntityManager.self)!
         )
 
         let vc = TasksListViewController(viewModel: vm)
@@ -42,14 +42,14 @@ extension TasksListCoordinator: TasksListViewControllerCoordinator {
     }
 
     func startDeleteProcessTasks(tasksViewModels: [TaskDeletableViewModel]) {
-        let coordinator = DeleteItemCoordinator(
-            parent: self,
-            navigation: navigation,
-            viewModels: tasksViewModels,
-            delegate: self
-        )
-        addChild(coordinator)
-        coordinator.start()
+//        let coordinator = DeleteItemsConfirmCoordinator(
+//            parent: self,
+//            navigation: navigation,
+//            viewModels: tasksViewModels,
+//            delegate: self
+//        )
+//        addChild(coordinator)
+//        coordinator.start()
     }
 
     func closeTaskListInSection() {
@@ -59,9 +59,9 @@ extension TasksListCoordinator: TasksListViewControllerCoordinator {
 
 // MARK: - DeleteItemCoordinatorDelegate
 
-extension TasksListCoordinator: DeleteItemCoordinatorDelegate {
-    func didConfirmDeleteItems(_ items: [DeletableItemViewModelType]) {
-        //private var viewModel: TasksListViewModel
-//        viewModel.deleteTasks(taskViewModels: items)
-    }
-}
+//extension TasksListCoordinator: DeleteItemCoordinatorDelegate {
+//    func didConfirmDeleteItems(_ items: [DeletableItemViewModelType]) {
+//        //private var viewModel: TasksListViewModel
+////        viewModel.deleteTasks(taskViewModels: items)
+//    }
+//}

@@ -6,6 +6,7 @@ protocol Coordinator: AnyObject {
     var parent: Coordinator? { get set }
     
     func start()
+    func finish()
 }
 
 extension Coordinator {

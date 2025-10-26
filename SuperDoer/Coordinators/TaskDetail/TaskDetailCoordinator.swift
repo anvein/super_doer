@@ -131,14 +131,14 @@ final class TaskDetailCoordinator: BaseCoordinator {
     }
     
     private func startFileDeleteCoordinator(viewModel: TaskFileDeletableViewModel) {
-        let coordinator = DeleteItemCoordinator(
-            parent: self,
-            navigation: navigation,
-            viewModels: [viewModel],
-            delegate: self
-        )
-        addChild(coordinator)
-        coordinator.start()
+//        let coordinator = DeleteItemsConfirmCoordinator(
+//            parent: self,
+//            navigation: navigation,
+//            viewModels: [viewModel],
+//            delegate: self
+//        )
+//        addChild(coordinator)
+//        coordinator.start()
     }
     
 }
@@ -238,16 +238,16 @@ extension TaskDetailCoordinator: AddFileToTaskFromFilesCoordinatorDelegate {
     }
 }
 
-extension TaskDetailCoordinator: DeleteItemCoordinatorDelegate {
-    func didConfirmDeleteItems(_ items: [DeletableItemViewModelType]) {
-        if let items = items as? [TaskFileDeletableViewModel] {
-            guard let item = items.first else { return }
-            viewModel.deleteTaskFile(fileDeletableVM: item)
-        } else {
-            // удаление задачи
-        }
-    }
-}
+//extension TaskDetailCoordinator: DeleteItemCoordinatorDelegate {
+//    func didConfirmDeleteItems(_ items: [DeletableItemViewModelType]) {
+//        if let items = items as? [TaskFileDeletableViewModel] {
+//            guard let item = items.first else { return }
+//            viewModel.deleteTaskFile(fileDeletableVM: item)
+//        } else {
+//            // удаление задачи
+//        }
+//    }
+//}
 
 extension TaskDetailCoordinator: TaskDescriptionEditorCoordinatorDelegate {
     func didChooseTaskDescription(text: NSAttributedString) {

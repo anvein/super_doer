@@ -1,4 +1,3 @@
-
 import Foundation
 
 class TaskSectionDeletableViewModel: BaseDeletableItemViewModel {
@@ -11,7 +10,7 @@ class TaskSectionDeletableViewModel: BaseDeletableItemViewModel {
         )
     }
     
-    static func createFrom(section: CDTaskSectionCustom, indexPath: IndexPath) -> TaskSectionDeletableViewModel {
+    static func createFrom(section: CDTaskCustomSection, indexPath: IndexPath) -> TaskSectionDeletableViewModel {
         return TaskSectionDeletableViewModel(
             title: section.title ?? "",
             indexPath: indexPath

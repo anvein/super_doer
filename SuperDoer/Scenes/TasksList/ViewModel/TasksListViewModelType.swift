@@ -22,7 +22,7 @@ protocol TasksListViewModelType {
     func switchTaskFieldIsPriorityWith(indexPath: IndexPath)
     func switchTaskFieldInMyDayWith(indexPath: IndexPath)
 
-    func deleteTasks(taskViewModels: [DeletableItemViewModelType])
+    func tapDeleteTasks(taskViewModels: [DeletableItemViewModelType])
     
     func moveTasksInCurrentList(fromPath: IndexPath, to toPath: IndexPath)
 

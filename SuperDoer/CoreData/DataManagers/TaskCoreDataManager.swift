@@ -35,7 +35,7 @@ class TaskCoreDataManager {
         }
     }
     
-    func getTasks(for taskSection: CDTaskSectionCustom?) -> [CDTask] {
+    func getTasks(for taskSection: CDTaskCustomSection?) -> [CDTask] {
         let fetchRequest = CDTask.fetchRequest()
         
         if let safeTaskSection = taskSection {
@@ -99,7 +99,7 @@ class TaskCoreDataManager {
     // MARK: - Insert
 
     @discardableResult
-    func createWith(title: String, section: CDTaskSectionCustom? = nil) -> CDTask {
+    func createWith(title: String, section: CDTaskCustomSection? = nil) -> CDTask {
         let task = CDTask(context: coreDataStack.viewContext)
         task.id = UUID()
         task.title = title

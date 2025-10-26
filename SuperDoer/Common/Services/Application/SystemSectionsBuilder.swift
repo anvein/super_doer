@@ -2,32 +2,32 @@
 import UIKit
 
 class SystemSectionsBuilder {
-    func buildSections() -> [TaskSectionSystem] {
+    func buildSections() -> [TaskSystemSection] {
         // TODO: предусмотреть, чтобы в случае скрывания списков они не создавались (настройки брать в UserDefaults)
         
-        var systemSections = [TaskSectionSystem]()
+        var systemSections = [TaskSystemSection]()
         systemSections.append(
-            TaskSectionSystem(type: .myDay, title: "Мой день")
+            TaskSystemSection(type: .myDay, title: "Мой день")
         )
         
         systemSections.append(
-            TaskSectionSystem(type: .important, title: "Важно")
+            TaskSystemSection(type: .important, title: "Важно")
         )
         
         systemSections.append(
-            TaskSectionSystem(type: .planned, title: "Запланировано")
+            TaskSystemSection(type: .planned, title: "Запланировано")
         )
         
         systemSections.append(
-            TaskSectionSystem(type: .all, title: "Все")
+            TaskSystemSection(type: .all, title: "Все")
         )
         
         systemSections.append(
-            TaskSectionSystem(type: .completed, title: "Завершенные")
+            TaskSystemSection(type: .completed, title: "Завершенные")
         )
         
         systemSections.append(
-            TaskSectionSystem(type: .withoutSection, title: "Задачи")
+            TaskSystemSection(type: .withoutSection, title: "Задачи")
         )
         
         return systemSections

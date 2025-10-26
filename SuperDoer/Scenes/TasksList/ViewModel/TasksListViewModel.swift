@@ -83,8 +83,8 @@ class TasksListViewModel: TasksListViewModelType {
 
         return TaskDetailViewModel(
             taskId,
-            taskEm: DIContainer.shared.resolve(TaskCoreDataManager.self)!,
-            taskFileEm: DIContainer.shared.resolve(TaskFileEntityManager.self)!
+            taskEm: DIContainer.container.resolve(TaskCoreDataManager.self)!,
+            taskFileEm: DIContainer.container.resolve(TaskFileEntityManager.self)!
         )
     }
 
@@ -108,7 +108,7 @@ class TasksListViewModel: TasksListViewModelType {
         // TODO: отловить ошибку, если не получилось создать и показать сообщение об этом
     }
 
-    func deleteTasks(taskViewModels: [DeletableItemViewModelType]) {
+    func tapDeleteTasks(taskViewModels: [DeletableItemViewModelType]) {
         var tasksIndexPaths = [IndexPath]()
 
         for taskViewModel in taskViewModels {
@@ -144,7 +144,7 @@ class TasksListViewModel: TasksListViewModelType {
 
     func updateSectionTitle(_ title: String) {
         guard let titlePrepared = title.normalizedWhitespaceOrNil(),
-              let section = repository.taskSection as? CDTaskSectionCustom else {
+              let section = repository.taskSection as? CDTaskCustomSection else {
             sectionTitleRelay.accept(repository.getSectionTitle() ?? "")
             errorMessageRelay.accept("Не удалось изменить название")
 

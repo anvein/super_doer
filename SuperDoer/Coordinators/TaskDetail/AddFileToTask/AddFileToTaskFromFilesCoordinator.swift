@@ -1,4 +1,3 @@
-
 import UIKit
 
 class AddFileToTaskFromFilesCoordinator: NSObject, Coordinator {
@@ -27,6 +26,10 @@ class AddFileToTaskFromFilesCoordinator: NSObject, Coordinator {
         documentPicker.allowsMultipleSelection = false
 
         navigation.present(documentPicker, animated: true)
+    }
+
+    func finish() {
+        parent?.removeChild(self)
     }
 }
 

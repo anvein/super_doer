@@ -1,27 +1,27 @@
 import UIKit
 
-class TaskSectionsListViewController: UIViewController {
+class SectionsListViewController: UIViewController {
 
-    private var viewModel: TaskSectionListViewModelType
+    private var viewModel: SectionsListViewModelType
 
-    // MARK: controls
+    // MARK: - Subviews
+
     private lazy var sectionsTableView = TaskSectionsTableView()
     private lazy var addSectionBottomPanelView = AddSectionBottomPanelView()
 
-    
-    // MARK: init
-    init(viewModel: TaskSectionListViewModelType) {
+    // MARK: - Init
+
+    init(viewModel: SectionsListViewModelType) {
         self.viewModel = viewModel
-        
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    
-    // MARK: life cycle
+
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -30,18 +30,16 @@ class TaskSectionsListViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .never
 
-        setupControls()
-        addSubviewsToMainView()
+        setupView()
+        setupHierarchy()
         setupConstraints()
         setupBinding()
         viewModel.loadInitialData()
 
-//        PIXEL_PERFECT_screen.createAndSetupInstance(
-//            baseView: self.view,
-//            imageName: "PIXEL_PERFECT_home",
-//            controlsBottomSideOffset: 0,
-//            imageScaleFactor: 3
-//        )
+        PIXEL_PERFECT_screen.createAndSetupInstance(
+            baseView: self.view,
+            imageName: "PIXEL_PERFECT_home"
+        )
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -63,28 +61,19 @@ class TaskSectionsListViewController: UIViewController {
 //        }
 //        ///////////////////////////////////////////////////
     }
-
-    // MARK: action-handlers
-    @objc func presentDeleteAlertController(sectionIndexPath: IndexPath) {
-        // TODO: перенести в VM
-        let sectionVM = self.viewModel.getDeletableSectionViewModelFor(
-            indexPath: sectionIndexPath
-        )
-        guard let sectionVM else { return }
-//        viewModel.coordinator.startDeleteProcessSection(sectionVM)
-    }
     
 }
 
-// MARK: LAYOUT
+private extension SectionsListViewController {
 
-extension TaskSectionsListViewController {
-    private func addSubviewsToMainView() {
+    // MARK: - Setup
+
+    func setupHierarchy() {
         view.addSubview(sectionsTableView)
         view.addSubview(addSectionBottomPanelView)
     }
     
-    private func setupControls() {
+    func setupView() {
         view.backgroundColor = .white
         
         sectionsTableView.delegate = self
@@ -93,7 +82,7 @@ extension TaskSectionsListViewController {
         addSectionBottomPanelView.delegate = self
     }
     
-    private func setupConstraints() {
+    func setupConstraints() {
         NSLayoutConstraint.activate([
             sectionsTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             sectionsTableView.bottomAnchor.constraint(equalTo: addSectionBottomPanelView.topAnchor),
@@ -113,35 +102,42 @@ extension TaskSectionsListViewController {
         ])
     }
     
-    private func setupBinding() {
-        viewModel.sectionsObservable.bindAndUpdateValue { [unowned self] sections in
-            self.sectionsTableView.reloadData()
+    func setupBinding() {
+        viewModel.sectionsObservable.bindAndUpdateValue { [weak self] sections in
+            guard let self else { return }
+            UIView.transition(
+                with: self.sectionsTableView,
+                duration: 0.3,
+                options: .transitionCrossDissolve
+            ) {
+                self.sectionsTableView.reloadData()
+            }
         }
     }
 }
 
+// MARK: - UITableViewDataSource
 
-// MARK: table datasource, delegate
-extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDelegate {
+extension SectionsListViewController: UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return viewModel.getCountOfTableSections()
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.getCountTaskSectionsInTableSection(withSectionId: section)
+        return viewModel.getCountTaskSectionsInTableSection(with: section)
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: TaskSectionTableViewCell.identifier) as! TaskSectionTableViewCell
         
-        let sectionCellVM = viewModel.getTaskSectionTableViewCellViewModel(forIndexPath: indexPath)
+        let sectionCellVM = viewModel.getTaskSectionTableViewVM(forIndexPath: indexPath)
         
         switch sectionCellVM {
-        case let sectionCustomCellVM as SectionCustomListTableViewCellViewModel :
+        case let sectionCustomCellVM as SectionCustomListTableCellVM :
             cell.viewModel = sectionCustomCellVM
             
-        case let sectionSystemCellVM as SectionSystemListTableViewCellViewModel:
+        case let sectionSystemCellVM as SectionSystemListTableCellVM:
             cell.viewModel = sectionSystemCellVM
             
         default:
@@ -151,28 +147,35 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
         
         return cell
     }
-    
+
+}
+
+// MARK: - UITableViewDelegate
+
+extension SectionsListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         viewModel.selectTaskSection(with: indexPath)
         tableView.deselectRow(at: indexPath, animated: true)
     }
-    
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return TaskSectionTableViewCell.cellHeight
     }
-    
-    
-    // MARK: swipe actions
+
+
+    // MARK: Swipe actions
+
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") { [unowned self] _, _, completionHandler in
-            self.presentDeleteAlertController(sectionIndexPath: indexPath)
+        let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {
+            [weak self] _, _, completionHandler in
+            self?.viewModel.didTapDeleteCustomSection(with: indexPath)
             completionHandler(true)
         }
-        
+
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 16, weight: .semibold)
         deleteAction.image = UIImage(systemName: "trash")?
             .withConfiguration(symbolConfig)
-        
+
         let archiveAction = UIContextualAction(style: .normal, title: "Архивировать") { [unowned self] _,_,completionHandler in
             self.viewModel.archiveCustomSection(indexPath: indexPath)
             completionHandler(true)
@@ -180,15 +183,15 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
         archiveAction.image = UIImage(systemName: "archivebox")?
             .withConfiguration(symbolConfig)
         archiveAction.backgroundColor = .TaskCell.orangeSwipeAction
-        
+
         return UISwipeActionsConfiguration(actions: [deleteAction, archiveAction])
     }
-    
+
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         return UIView()
     }
-    
+
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         if section == 0 {
             return TaskSectionsSeparator()
@@ -196,11 +199,11 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
             return UIView()
         }
     }
-    
+
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return CGFloat.leastNormalMagnitude
     }
-    
+
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         if section == 0 {
             return 26
@@ -208,12 +211,13 @@ extension TaskSectionsListViewController: UITableViewDataSource, UITableViewDele
             return CGFloat.leastNormalMagnitude
         }
     }
-    
+
 }
 
 
-// MARK: add section bottom panel delegate
-extension TaskSectionsListViewController: AddSectionBottomPanelViewDelegate {
+// MARK: - AddSectionBottomPanelViewDelegate
+
+extension SectionsListViewController: AddSectionBottomPanelViewDelegate {
     func createSectionWith(title: String) {
         viewModel.createCustomTaskSectionWith(title: title)
     }
