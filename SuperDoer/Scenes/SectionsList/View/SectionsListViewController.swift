@@ -7,7 +7,7 @@ class SectionsListViewController: UIViewController {
     // MARK: - Subviews
 
     private lazy var sectionsTableView = TaskSectionsTableView()
-    private lazy var addSectionBottomPanelView = AddSectionBottomPanelView()
+    private lazy var addSectionPanelView = AddSectionBottomPanelView()
 
     // MARK: - Init
 
@@ -36,24 +36,18 @@ class SectionsListViewController: UIViewController {
         setupBinding()
         viewModel.loadInitialData()
 
-        PIXEL_PERFECT_screen.createAndSetupInstance(
-            baseView: self.view,
-            imageName: "PIXEL_PERFECT_home"
-        )
+//        // TODO: УДАЛИТЬ!!! КОД ДЛЯ РАЗРАБОТКИ!!!
+//        PIXEL_PERFECT_screen.createAndSetupInstance(
+//            baseView: self.view,
+//            imageName: "PIXEL_PERFECT_home"
+//        )
     }
 
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-//        if isMovingFromParent {
-//            viewModel.coordinator.finish()
-//        }
-    }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
 
-//        // TODO: код для разработки (удалить)
+//        // TODO: УДАЛИТЬ!!! КОД ДЛЯ РАЗРАБОТКИ!!!
 //        ///////////////////////////////////////////////////
 //        let vm = viewModel.getTaskListViewModel(forIndexPath: IndexPath(row: 0, section: 1))
 //        if let vm = vm as? TasksListViewModel {
@@ -70,7 +64,7 @@ private extension SectionsListViewController {
 
     func setupHierarchy() {
         view.addSubview(sectionsTableView)
-        view.addSubview(addSectionBottomPanelView)
+        view.addSubview(addSectionPanelView)
     }
     
     func setupView() {
@@ -79,26 +73,26 @@ private extension SectionsListViewController {
         sectionsTableView.delegate = self
         sectionsTableView.dataSource = self
         
-        addSectionBottomPanelView.delegate = self
+        addSectionPanelView.delegate = self
     }
     
     func setupConstraints() {
         NSLayoutConstraint.activate([
             sectionsTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            sectionsTableView.bottomAnchor.constraint(equalTo: addSectionBottomPanelView.topAnchor),
+            sectionsTableView.bottomAnchor.constraint(equalTo: addSectionPanelView.topAnchor),
             sectionsTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             sectionsTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
         ])
         
-        let bottomPanelHeightConstraint = addSectionBottomPanelView.heightAnchor.constraint(
+        let bottomPanelHeightConstraint = addSectionPanelView.heightAnchor.constraint(
             equalToConstant: AddSectionBottomPanelView.State.base.params.panelHeight.cgFloat
         )
-        addSectionBottomPanelView.panelHeightConstraint = bottomPanelHeightConstraint
+        addSectionPanelView.panelHeightConstraint = bottomPanelHeightConstraint
         NSLayoutConstraint.activate([
             bottomPanelHeightConstraint,
-            addSectionBottomPanelView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            addSectionBottomPanelView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            addSectionBottomPanelView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+            addSectionPanelView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            addSectionPanelView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            addSectionPanelView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
         ])
     }
     
@@ -131,8 +125,8 @@ extension SectionsListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: TaskSectionTableViewCell.identifier) as! TaskSectionTableViewCell
         
-        let sectionCellVM = viewModel.getTaskSectionTableViewVM(forIndexPath: indexPath)
-        
+        let sectionCellVM = viewModel.getTaskSectionTableCellVM(for: indexPath)
+
         switch sectionCellVM {
         case let sectionCustomCellVM as SectionCustomListTableCellVM :
             cell.viewModel = sectionCustomCellVM
@@ -141,7 +135,6 @@ extension SectionsListViewController: UITableViewDataSource {
             cell.viewModel = sectionSystemCellVM
             
         default:
-            // TODO: залогировать ошибку
             break
         }
         
@@ -154,7 +147,7 @@ extension SectionsListViewController: UITableViewDataSource {
 
 extension SectionsListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        viewModel.selectTaskSection(with: indexPath)
+        viewModel.didSelectTaskSection(with: indexPath)
         tableView.deselectRow(at: indexPath, animated: true)
     }
 
@@ -177,7 +170,7 @@ extension SectionsListViewController: UITableViewDelegate {
             .withConfiguration(symbolConfig)
 
         let archiveAction = UIContextualAction(style: .normal, title: "Архивировать") { [unowned self] _,_,completionHandler in
-            self.viewModel.archiveCustomSection(indexPath: indexPath)
+            self.viewModel.didTapArchiveCustomSection(indexPath: indexPath)
             completionHandler(true)
         }
         archiveAction.image = UIImage(systemName: "archivebox")?
@@ -219,7 +212,7 @@ extension SectionsListViewController: UITableViewDelegate {
 
 extension SectionsListViewController: AddSectionBottomPanelViewDelegate {
     func createSectionWith(title: String) {
-        viewModel.createCustomTaskSectionWith(title: title)
+        viewModel.didConfirmCreateCustomSection(title: title)
     }
 }
 

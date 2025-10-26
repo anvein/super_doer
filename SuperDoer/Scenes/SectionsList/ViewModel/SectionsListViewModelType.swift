@@ -8,18 +8,12 @@ protocol SectionsListViewModelType {
 
     func getCountOfTableSections() -> Int
     func getCountTaskSectionsInTableSection(with listId: Int) -> Int
+    func getTaskSectionTableCellVM(for indexPath: IndexPath) -> SectionListTableCellVMType?
 
     func loadInitialData()
+
+    func didSelectTaskSection(with indexPath: IndexPath)
     func didTapDeleteCustomSection(with indexPath: IndexPath)
-
-
-
-    func getTaskSectionTableViewVM(forIndexPath indexPath: IndexPath) -> SectionListTableCellVMType?
-    
-    func selectTaskSection(with indexPath: IndexPath)
-
-    func createCustomTaskSectionWith(title: String)
-    
-    func archiveCustomSection(indexPath: IndexPath)
-
+    func didTapArchiveCustomSection(indexPath: IndexPath)
+    func didConfirmCreateCustomSection(title: String)
 }

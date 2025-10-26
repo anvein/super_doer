@@ -72,6 +72,21 @@ extension SectionsListViewModel: SectionsListViewModelType {
         return sections.value[safe: sectionId]?.count ?? 0
     }
 
+    func getTaskSectionTableCellVM(for indexPath: IndexPath) -> SectionListTableCellVMType? {
+        let section = sections.value[safe: indexPath.section]?[safe: indexPath.row]
+
+        switch section {
+        case let taskSectionCustom as CDTaskCustomSection :
+            return SectionCustomListTableCellVM(section: taskSectionCustom)
+
+        case let taskSectionSystem as TaskSystemSection:
+            return SectionSystemListTableCellVM(section: taskSectionSystem)
+
+        default:
+            return nil
+        }
+    }
+
 //    func getTasksCountInSection(withSectionId id: Int) -> Int {
 //        return Int.random(in: 0...11)
 //    }
@@ -94,55 +109,30 @@ extension SectionsListViewModel: SectionsListViewModelType {
         coordinator?.startDeleteSectionConfirm(customSection, indexPath)
     }
 
-    func getTaskSectionTableViewVM(forIndexPath indexPath: IndexPath) -> SectionListTableCellVMType? {
-        let section = sections.value[safe: indexPath.section]?[safe: indexPath.row]
+    func didTapArchiveCustomSection(indexPath: IndexPath) {
+        guard let section = sections.value[safe: Self.customSectionsId]?[safe: indexPath.row],
+              let customSection = section as? CDTaskCustomSection else { return }
 
-        switch section {
-        case let taskSectionCustom as CDTaskCustomSection :
-            return SectionCustomListTableCellVM(section: taskSectionCustom)
-        
-        case let taskSectionSystem as TaskSystemSection:
-            return SectionSystemListTableCellVM(section: taskSectionSystem)
-            
-        default:
-            return nil
-        }
+        sectionEm.updateCustomSectionField(isArchive: true, section: customSection)
+        sections.value[Self.customSectionsId].remove(at: indexPath.item)
     }
-    
-    func selectTaskSection(with indexPath: IndexPath) {
+
+    func didSelectTaskSection(with indexPath: IndexPath) {
         guard let section = sections.value[safe: indexPath.section]?[safe: indexPath.row] else { return }
 
         coordinator?.startTasksInSectionFlow(section)
-
-        // TODO: надо ли это? (вроде нет)
-        self.selectedSectionIndexPath = indexPath
     }
-    
-    func getViewModelForSelectedRow() -> SectionListTableCellVMType? {
-        guard let selectedIndexPath = selectedSectionIndexPath else { return nil }
 
-        return getTaskSectionTableViewVM(forIndexPath: selectedIndexPath)
+    func didConfirmCreateCustomSection(title: String) {
+        let section = sectionEm.createCustomSectionWith(title: title)
+        sections.value[Self.customSectionsId].insert(section, at: 0)
     }
-    
+
     // MARK: model manipulate methods
-    func createCustomTaskSectionWith(title: String) {
+
+    func createCustomSectionWith(title: String) {
         let section = sectionEm.createCustomSectionWith(title: title)
         sections.value[SectionsListViewModel.customSectionsId].insert(section, at: 0)
-    }
-    
-    func deleteCustomSection(sectionViewModel: TaskSectionDeletableViewModel) {
-
-    }
-    
-    func archiveCustomSection(indexPath: IndexPath) {
-        let section = sections.value[SectionsListViewModel.customSectionsId][indexPath.row]
-        guard let customSection = section as? CDTaskCustomSection else {
-            // TODO: залогировать, что сюда попал системный раздел (список)
-            return
-        }
-        
-        sectionEm.updateCustomSectionField(isArchive: true, section: customSection)
-        sections.value[Self.customSectionsId].remove(at: indexPath.item)
     }
 
     // MARK: - Actions handlers
