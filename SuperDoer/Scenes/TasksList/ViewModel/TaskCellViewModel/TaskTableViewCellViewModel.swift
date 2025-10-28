@@ -1,7 +1,7 @@
 
 import Foundation
 
-class TaskTableViewCellViewModel: TaskTableViewCellViewModelType {
+class TaskTableViewCellViewModel: TaskTableCellViewModelType {
 
     private var task: TasksListItemEntity
 

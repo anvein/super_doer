@@ -7,14 +7,15 @@ import RxCocoa
 final class TasksListVCView: UIView {
 
     enum Answer {
-        case onSelectTask(IndexPath)
+        case onTapOpenTask(IndexPath)
         case onTapIsDoneButton(IndexPath)
         case onTapIsPriorityButton(IndexPath)
-        case onSwitchTaskInMyDay(IndexPath)
-        case onSelectDeleteTasks([IndexPath])
+        case onTapSwitchTaskInMyDay(IndexPath)
+        case onTapDeleteTasks([IndexPath])
+        case onTapDeleteTask(IndexPath)
         case onConfirmCreateTask(TaskCreateData)
-        case onMoveTask(from: IndexPath, to: IndexPath)
-        case onConfirmChangingSectionTitle(String)
+        case onMoveEndTask(from: IndexPath, to: IndexPath)
+        case onConfirmRenameSectionTitle(String)
         case onNavigationTitleVisibleChange(isShow: Bool)
     }
 
@@ -255,7 +256,7 @@ private extension TasksListVCView {
             .subscribe(onNext: { [weak self] in
                 guard let self else { return }
                 self.answerRelay.accept(
-                    .onConfirmChangingSectionTitle(self.sectionTitleTextView.text)
+                    .onConfirmRenameSectionTitle(self.sectionTitleTextView.text)
                 )
             })
             .disposed(by: disposeBag)
@@ -348,7 +349,7 @@ extension TasksListVCView: UITableViewDelegate {
     // MARK: Select row
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        answerRelay.accept(.onSelectTask(indexPath))
+        answerRelay.accept(.onTapOpenTask(indexPath))
         tableView.deselectRow(at: indexPath, animated: true)
     }
 
@@ -365,7 +366,7 @@ extension TasksListVCView: UITableViewDelegate {
             style: .destructive,
             title: "Удалить"
         ) { [weak self] _, _, completionHandler in
-            self?.answerRelay.accept(.onSelectDeleteTasks([indexPath]))
+            self?.answerRelay.accept(.onTapDeleteTask(indexPath))
             completionHandler(false)
         }
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .bold)
@@ -393,7 +394,7 @@ extension TasksListVCView: UITableViewDelegate {
                 style: .normal,
                 title: "Мой день"
             ) { [weak self] _, _, completionHandler in
-                self?.answerRelay.accept(.onSwitchTaskInMyDay(indexPath))
+                self?.answerRelay.accept(.onTapSwitchTaskInMyDay(indexPath))
                 completionHandler(true)
             }
             action.backgroundColor = .systemOrange
@@ -431,7 +432,7 @@ extension TasksListVCView: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         answerRelay.accept(
-            .onMoveTask(from: sourceIndexPath, to: destinationIndexPath)
+            .onMoveEndTask(from: sourceIndexPath, to: destinationIndexPath)
         )
     }
 

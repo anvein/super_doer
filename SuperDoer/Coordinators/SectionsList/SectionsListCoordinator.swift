@@ -61,14 +61,15 @@ extension SectionsListCoordinator: SectionsListCoordinatorType {
         let coordinator = TasksListCoordinator(
             parent: self,
             navigation: navigation,
-            section: section
+            section: section,
+            deleteAlertFactory: DIContainer.container.resolve(DeleteItemsAlertFactory.self)!
         )
 
         addChild(coordinator)
         coordinator.start()
     }
 
-    func startDeleteSectionConfirm(_ section: CDTaskCustomSection, _ indexPath: IndexPath) {
+    func startDeleteSectionConfirmation(_ section: CDTaskCustomSection, _ indexPath: IndexPath) {
         let deletableSectionVM = TaskSectionDeletableViewModel(
             title: section.title ?? "",
             indexPath: indexPath

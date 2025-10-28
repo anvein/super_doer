@@ -17,6 +17,28 @@ final class AppCoordinator: BaseCoordinator {
         window.makeKeyAndVisible()
 
         startTaskSectionsListFlow()
+
+
+//        // TODO: УДАЛИТЬ!!! КОД ДЛЯ РАЗРАБОТКИ!!!
+//        ///////////////////////////////////////////////////
+//        let sectionEm = DIContainer.container.resolve(TaskSectionEntityManager.self)!
+//        let sections = sectionEm.getCustomSectionsWithOrder(isActive: true)
+//
+//        navigation.pushViewController(.init(), animated: false)
+//        if let section = sections[safe: 0] {
+//            let tasksListCoordinator = TasksListCoordinator(
+//                parent: self,
+//                navigation: navigation,
+//                section: section,
+//                deleteAlertFactory: DIContainer.container.resolve(DeleteItemsAlertFactory.self)!
+//            )
+//
+//            addChild(tasksListCoordinator)
+//            tasksListCoordinator.start()
+//        } else {
+//            print("no sections")
+//        }
+//        ///////////////////////////////////////////////////
     }
 
     func startTaskSectionsListFlow() {

@@ -3,24 +3,29 @@ import UIKit
 
 final class TaskDetailCoordinator: BaseCoordinator {
 
-    private var navigation: UINavigationController
-    private var viewModel: TaskDetailViewModel
-    
+    private let navigation: UINavigationController
+    private let taskId: UUID
+    private weak var viewController: TaskDetailViewController?
+
     init(
         parent: Coordinator,
         navigation: UINavigationController,
-        viewModel: TaskDetailViewModel
+        taskId: UUID
     ) {
         self.navigation = navigation
-        self.viewModel = viewModel
+        self.taskId = taskId
         super.init(parent: parent)
     }
     
     override func start() {
-        let vc = TaskDetailViewController(
-            coordinator: self,
-            viewModel: viewModel
+        let vm = TaskDetailViewModel(
+            taskId,
+            taskEm: DIContainer.container.resolve(TaskCoreDataManager.self)!,
+            taskFileEm: DIContainer.container.resolve(TaskFileEntityManager.self)!
         )
+        let vc = TaskDetailViewController(coordinator: self, viewModel: vm)
+        self.viewController = vc
+
         navigation.pushViewController(vc, animated: true)
     }
     
@@ -38,96 +43,96 @@ final class TaskDetailCoordinator: BaseCoordinator {
     }
     
     private func startTaskReminderCustomDateCoordinator() {
-        let vm = viewModel.getTaskReminderCustomDateViewModel()
-        
-        let coordinator = TaskReminderCustomDateCoordinator(
-            parent: self,
-            navigation: navigation,
-            viewModel: vm,
-            delegate: self
-        )
-        addChild(coordinator)
-        coordinator.start()
+//        let vm = viewModel?.getTaskReminderCustomDateViewModel()
+//
+//        let coordinator = TaskReminderCustomDateCoordinator(
+//            parent: self,
+//            navigation: navigation,
+//            viewModel: vm,
+//            delegate: self
+//        )
+//        addChild(coordinator)
+//        coordinator.start()
     }
     
     private func startTaskDeadlineDateVariantsCoordinator() {
-        let vm = viewModel.getTaskDeadlineTableVariantsViewModel()
-        
-        let coordinator = TaskDeadlineDateVariantsCoordinator(
-            parent: self,
-            navigation: navigation,
-            viewModel: vm,
-            delegate: self
-        )
-        addChild(coordinator)
-        coordinator.start()
+//        let vm = viewModel.getTaskDeadlineTableVariantsViewModel()
+//        
+//        let coordinator = TaskDeadlineDateVariantsCoordinator(
+//            parent: self,
+//            navigation: navigation,
+//            viewModel: vm,
+//            delegate: self
+//        )
+//        addChild(coordinator)
+//        coordinator.start()
     }
     
     private func startTaskRepeatPeriodVariantsCoordinator() {
-        let viewModel = viewModel.getTaskRepeatPeriodTableVariantsViewModel()
-        
-        let coordinator = TaskRepeatPeriodVariantsCoordinator(
-            parent: self,
-            navigation: navigation,
-            viewModel: viewModel,
-            delegate: self
-        )
-        addChild(coordinator)
-        coordinator.start()
+//        let viewModel = viewModel.getTaskRepeatPeriodTableVariantsViewModel()
+//        
+//        let coordinator = TaskRepeatPeriodVariantsCoordinator(
+//            parent: self,
+//            navigation: navigation,
+//            viewModel: viewModel,
+//            delegate: self
+//        )
+//        addChild(coordinator)
+//        coordinator.start()
     }
     
     private func startAddFileToTaskSourceAlertCoordinator() {
-        let coordinator = AddFileToTaskSourceAlertCoordinator(
-            parent: self,
-            navigation: navigation,
-            delegate: self
-        )
-        addChild(coordinator)
-        coordinator.start()
+//        let coordinator = AddFileToTaskSourceAlertCoordinator(
+//            parent: self,
+//            navigation: navigation,
+//            delegate: self
+//        )
+//        addChild(coordinator)
+//        coordinator.start()
     }
     
     private func startAddFileToTaskFromLibraryCoordinator() {
-        let coordinator = AddFileToTaskFromLibraryCoordinator(
-            parent: self,
-            navigation: navigation,
-            delegate: self,
-            mode: .library
-        )
-        addChild(coordinator)
-        coordinator.start()
+//        let coordinator = AddFileToTaskFromLibraryCoordinator(
+//            parent: self,
+//            navigation: navigation,
+//            delegate: self,
+//            mode: .library
+//        )
+//        addChild(coordinator)
+//        coordinator.start()
     }
     
     private func startAddFileToTaskFromCameraCoordinator() {
-        let coordinator = AddFileToTaskFromLibraryCoordinator(
-            parent: self,
-            navigation: navigation,
-            delegate: self,
-            mode: .camera
-        )
-        addChild(coordinator)
-        coordinator.start()
+//        let coordinator = AddFileToTaskFromLibraryCoordinator(
+//            parent: self,
+//            navigation: navigation,
+//            delegate: self,
+//            mode: .camera
+//        )
+//        addChild(coordinator)
+//        coordinator.start()
     }
     
     private func startAddFileToTaskFromFilesCoordinator() {
-        let coordinator = AddFileToTaskFromFilesCoordinator(
-            parent: self,
-            navigation: navigation,
-            delegate: self
-        )
-        addChild(coordinator)
-        coordinator.start()
+//        let coordinator = AddFileToTaskFromFilesCoordinator(
+//            parent: self,
+//            navigation: navigation,
+//            delegate: self
+//        )
+//        addChild(coordinator)
+//        coordinator.start()
     }
     
     private func startTaskDescriptionEditorCoordinator() {
-        let viewModel = viewModel.getTaskDescriptionEditorViewModel()
-        let coordinator = TaskDescriptionEditorCoordinator(
-            parent: self,
-            navigation: navigation,
-            viewModel: viewModel,
-            delegate: self
-        )
-        addChild(coordinator)
-        coordinator.start()
+//        let viewModel = viewModel.getTaskDescriptionEditorViewModel()
+//        let coordinator = TaskDescriptionEditorCoordinator(
+//            parent: self,
+//            navigation: navigation,
+//            viewModel: viewModel,
+//            delegate: self
+//        )
+//        addChild(coordinator)
+//        coordinator.start()
     }
     
     private func startFileDeleteCoordinator(viewModel: TaskFileDeletableViewModel) {
@@ -147,11 +152,11 @@ final class TaskDetailCoordinator: BaseCoordinator {
 extension TaskDetailCoordinator: TaskDetailVCCoordinatorDelegate {
 
     func taskDetailVCReminderDateSetterOpen() {
-        if !viewModel.isEnableNotifications {
-            startNotificationsDisableAlertCoordinator()
-        } else {
-            startTaskReminderCustomDateCoordinator()
-        }
+//        if !viewModel.isEnableNotifications {
+//            startNotificationsDisableAlertCoordinator()
+//        } else {
+//            startTaskReminderCustomDateCoordinator()
+//        }
     }
     
     func taskDetailVCDeadlineDateSetterOpen() {
@@ -195,19 +200,19 @@ extension TaskDetailCoordinator: NotificationsDisabledAlertCoordinatorDelegate {
 
 extension TaskDetailCoordinator: TaskReminderCustomDateCoordinatorDelegate {
     func didChooseTaskReminderDate(newDate: Date?) {
-        viewModel.updateTaskField(reminderDateTime: newDate)
+//        viewModel.updateTaskField(reminderDateTime: newDate)
     }
 }
 
 extension TaskDetailCoordinator: TaskDeadlineDateVariantsCoordinatorDelegate {
     func didChooseTaskDeadlineDate(newDate: Date?) {
-        viewModel.updateTaskField(deadlineDate: newDate)
+//        viewModel.updateTaskField(deadlineDate: newDate)
     }
 }
 
 extension TaskDetailCoordinator: TaskRepeatPeriodVariantsCoordinatorDelegate {
     func didChooseTaskRepeatPeriod(newPeriod: String?) {
-        viewModel.updateTaskField(repeatPeriod: newPeriod)
+//        viewModel.updateTaskField(repeatPeriod: newPeriod)
     }
 }
 
@@ -228,13 +233,13 @@ extension TaskDetailCoordinator: AddFileToTaskSourceAlertCoordinatorDelegate {
 
 extension TaskDetailCoordinator: AddFileToTaskFromLibraryCoordinatorDelegate {
     func didFinishPickingMediaFromLibrary(imageData: NSData) {
-        viewModel.createTaskFile(fromImageData: imageData)
+//        viewModel.createTaskFile(fromImageData: imageData)
     }
 }
 
 extension TaskDetailCoordinator: AddFileToTaskFromFilesCoordinatorDelegate {
     func didFinishPickingFileFromLibrary(withUrl url: URL) {
-        viewModel.createTaskFile(fromUrl: url)
+//        viewModel.createTaskFile(fromUrl: url)
     }
 }
 
@@ -251,6 +256,6 @@ extension TaskDetailCoordinator: AddFileToTaskFromFilesCoordinatorDelegate {
 
 extension TaskDetailCoordinator: TaskDescriptionEditorCoordinatorDelegate {
     func didChooseTaskDescription(text: NSAttributedString) {
-        viewModel.updateTaskField(descriptionText: text)
+//        viewModel.updateTaskField(descriptionText: text)
     }
 }

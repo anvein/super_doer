@@ -106,7 +106,7 @@ extension SectionsListViewModel: SectionsListViewModelType {
         guard let section = sections.value[safe: indexPath.section]?[safe: indexPath.row],
               let customSection = section as? CDTaskCustomSection else { return }
 
-        coordinator?.startDeleteSectionConfirm(customSection, indexPath)
+        coordinator?.startDeleteSectionConfirmation(customSection, indexPath)
     }
 
     func didTapArchiveCustomSection(indexPath: IndexPath) {
@@ -117,7 +117,7 @@ extension SectionsListViewModel: SectionsListViewModelType {
         sections.value[Self.customSectionsId].remove(at: indexPath.item)
     }
 
-    func didSelectTaskSection(with indexPath: IndexPath) {
+    func didTapOpenTasksListInSection(with indexPath: IndexPath) {
         guard let section = sections.value[safe: indexPath.section]?[safe: indexPath.row] else { return }
 
         coordinator?.startTasksInSectionFlow(section)

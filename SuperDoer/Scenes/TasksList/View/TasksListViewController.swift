@@ -56,26 +56,10 @@ class TasksListViewController: UIViewController {
         }
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-//        //  TODO: код для разработки (удалить)
-//        ///////////////////////////////////////////////////
-//        let vm = viewModel.getTaskDetailViewModel(for: IndexPath(row: 0, section: 0))
-//        if let vm = vm as? TaskDetailViewModel {
-//            coordinator?.selectTask(viewModel: vm)
-//        }
-//        ///////////////////////////////////////////////////
-    }
-
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
         selfView.endEditing(true)
-
-        if isMovingFromParent {
-//            coordinator?.closeTaskListInSection()
-        }
     }
     
 }
@@ -152,31 +136,32 @@ private extension TasksListViewController {
 
     func handleViewAction(_ action: TasksListVCView.Answer) {
         switch action {
-        case .onSelectTask(let indexPath):
-            guard let detailVM = viewModel.getTaskDetailViewModel(for: indexPath) else { return }
-//            coordinator?.selectTask(viewModel: detailVM)
+        case .onTapOpenTask(let indexPath):
+            viewModel.didTapOpenTask(with: indexPath)
 
         case .onTapIsDoneButton(let indexPath):
-            viewModel.switchTaskFieldIsCompletedWith(indexPath: indexPath)
+            viewModel.didToggleTaskIsCompleted(with: indexPath)
 
         case .onTapIsPriorityButton(let indexPath):
-            viewModel.switchTaskFieldIsPriorityWith(indexPath: indexPath)
+            viewModel.didToggleTaskIsPriority(with: indexPath)
 
-        case .onSwitchTaskInMyDay(let indexPath):
-            viewModel.switchTaskFieldInMyDayWith(indexPath: indexPath)
+        case .onTapSwitchTaskInMyDay(let indexPath):
+            viewModel.didToggleTaskInMyDay(with: indexPath)
 
-        case .onSelectDeleteTasks(let indexPaths):
-            let viewModels = viewModel.getTasksDeletableViewModels(for: indexPaths)
-//            coordinator?.startDeleteProcessTasks(tasksViewModels: viewModels)
+        case .onTapDeleteTasks(let indexPaths):
+            viewModel.didTapDeleteTasks(with: indexPaths)
+
+        case .onTapDeleteTask(let indexPath):
+            viewModel.didTapDeleteTask(with: indexPath)
 
         case .onConfirmCreateTask(let taskData):
-            viewModel.createNewTaskInCurrentSection(with: taskData)
+            viewModel.didTapCreateTaskInCurrentSection(with: taskData)
 
-        case .onMoveTask(from: let fromIndexPath, to: let toIndexPath):
-            viewModel.moveTasksInCurrentList(fromPath: fromIndexPath, to: toIndexPath)
+        case .onMoveEndTask(from: let fromIndexPath, to: let toIndexPath):
+            viewModel.didMoveEndTasksInCurrentSection(from: fromIndexPath, to: toIndexPath)
 
-        case .onConfirmChangingSectionTitle(let title):
-            viewModel.updateSectionTitle(title)
+        case .onConfirmRenameSectionTitle(let title):
+            viewModel.didConfirmRenameSectionTitle(title)
 
         case .onNavigationTitleVisibleChange(let isShow):
             updateNavigationBarTitleVisible(isShow: isShow)
@@ -211,7 +196,7 @@ extension TasksListViewController: TaskListTableDataSource {
         viewModel.getTasksCountInSection(with: sectionIndex)
     }
 
-    func getCellViewModel(for indexPath: IndexPath) -> any TaskTableViewCellViewModelType {
-        viewModel.getTasksTableViewCellVM(forIndexPath: indexPath)
+    func getCellViewModel(for indexPath: IndexPath) -> any TaskTableCellViewModelType {
+        viewModel.getTableCellVM(for: indexPath)
     }
 }

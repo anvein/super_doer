@@ -5,5 +5,5 @@ protocol SectionsListCoordinatorType: AnyObject {
     var viewModelEventSignal: Signal<SectionsListCoordinatorToVmEvent> { get }
 
     func startTasksInSectionFlow(_ section: TaskSectionProtocol)
-    func startDeleteSectionConfirm(_ section: CDTaskCustomSection, _ indexPath: IndexPath)
+    func startDeleteSectionConfirmation(_ section: CDTaskCustomSection, _ indexPath: IndexPath)
 }

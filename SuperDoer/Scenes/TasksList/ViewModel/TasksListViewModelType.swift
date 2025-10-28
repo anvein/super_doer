@@ -7,25 +7,29 @@ protocol TasksListViewModelType {
     var tableUpdateEventsSignal: Signal<TaskListTableUpdateEvent> { get }
     var errorMessageSignal: Signal<String> { get }
 
-    func loadInitialData()
-
     func getSectionsCount() -> Int
     func getTasksCountInSection(with index: Int) -> Int
+    func getTableCellVM(for indexPath: IndexPath) -> TaskTableCellViewModelType
 
-    func getTasksTableViewCellVM(forIndexPath indexPath: IndexPath) -> TaskTableViewCellViewModelType
-    func getTaskDetailViewModel(for indexPath: IndexPath) -> TaskDetailViewModel?
-    func getTasksDeletableViewModels(for indexPaths: [IndexPath]) -> [TaskDeletableViewModel]
+    func loadInitialData()
 
-    func createNewTaskInCurrentSection(with data: TaskCreateData)
+    func didTapOpenTask(with indexPath: IndexPath)
+    func didTapDeleteTask(with indexPath: IndexPath)
+    func didTapDeleteTasks(with indexPaths: [IndexPath])
 
-    func switchTaskFieldIsCompletedWith(indexPath: IndexPath)
-    func switchTaskFieldIsPriorityWith(indexPath: IndexPath)
-    func switchTaskFieldInMyDayWith(indexPath: IndexPath)
+    func didToggleTaskInMyDay(with indexPath: IndexPath)
+    func didToggleTaskIsCompleted(with indexPath: IndexPath)
+    func didToggleTaskIsPriority(with indexPath: IndexPath)
 
-    func tapDeleteTasks(taskViewModels: [DeletableItemViewModelType])
-    
-    func moveTasksInCurrentList(fromPath: IndexPath, to toPath: IndexPath)
+    func didTapCreateTaskInCurrentSection(with data: TaskCreateData)
+    func didMoveEndTasksInCurrentSection(from: IndexPath, to toPath: IndexPath)
 
-    func updateSectionTitle(_ title: String)
+
+
+
+
+
+
+    func didConfirmRenameSectionTitle(_ title: String)
 
 }

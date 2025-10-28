@@ -1,6 +1,6 @@
 import Foundation
 
-protocol TaskTableViewCellViewModelType {
+protocol TaskTableCellViewModelType {
     var isInMyDay: Bool { get }
     var isCompleted: Bool { get }
     var isPriority: Bool { get }

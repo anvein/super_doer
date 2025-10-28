@@ -69,7 +69,7 @@ class StandartTaskTableCell: UITableViewCell {
 
     // MARK: - Update view
 
-    func fillFrom(viewModel: TaskTableViewCellViewModelType) {
+    func fillFrom(viewModel: TaskTableCellViewModelType) {
         taskTitleLabel.text = viewModel.title
         taskTitleLabel.setStrikedStyle(viewModel.isCompleted)
         taskTitleLabel.textColor = viewModel.isCompleted ? .Text.gray : .Text.black

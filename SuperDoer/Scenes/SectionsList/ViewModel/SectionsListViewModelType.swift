@@ -12,7 +12,7 @@ protocol SectionsListViewModelType {
 
     func loadInitialData()
 
-    func didSelectTaskSection(with indexPath: IndexPath)
+    func didTapOpenTasksListInSection(with indexPath: IndexPath)
     func didTapDeleteCustomSection(with indexPath: IndexPath)
     func didTapArchiveCustomSection(indexPath: IndexPath)
     func didConfirmCreateCustomSection(title: String)

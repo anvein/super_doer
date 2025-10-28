@@ -6,7 +6,7 @@ class TasksListViewModel: TasksListViewModelType {
 
     private let repository: TasksListRepository
     private let sectionCDManager: TaskSectionEntityManager
-    private weak var coordinator: TasksListViewControllerCoordinator?
+    private weak var coordinator: TasksListCoordinatorType?
 
     // MARK: - State / Rx
 
@@ -26,7 +26,7 @@ class TasksListViewModel: TasksListViewModelType {
     // MARK: - Init
 
     init(
-        coordinator: TasksListViewControllerCoordinator,
+        coordinator: TasksListCoordinatorType,
         repository: TasksListRepository,
         sectionCDManager: TaskSectionEntityManager
     ) {
@@ -54,15 +54,22 @@ class TasksListViewModel: TasksListViewModelType {
                 self?.handleModelUpdatedEvent(prev: prevEvent, new: newEvent)
             })
             .disposed(by: disposeBag)
+
+        // C -> VM
+        coordinator?.viewModelEventSignal
+            .emit { [weak self] event in
+                switch event {
+                case .onDeleteTasksConfirmed(let deletableTasks):
+                    self?.handleConfirmDelete(deletableTasks)
+
+                case .onDeleteTasksCanceled:
+                    return
+                }
+            }
+            .disposed(by: disposeBag)
     }
 
-    // MARK: -
-
-    func loadInitialData() {
-        repository.loadTasks()
-    }
-
-    // MARK: get data for VC methods
+    // MARK: - Get data
 
     func getSectionsCount() -> Int {
         return repository.getSectionsCount()
@@ -72,55 +79,60 @@ class TasksListViewModel: TasksListViewModelType {
         return repository.getTasksCountIn(in: index)
     }
 
-    func getTasksTableViewCellVM(forIndexPath indexPath: IndexPath) -> TaskTableViewCellViewModelType  {
+    func getTableCellVM(for indexPath: IndexPath) -> TaskTableCellViewModelType  {
         let task = repository.getTask(for: indexPath)
         return TaskTableViewCellViewModel(task: task)
     }
 
-    func getTaskDetailViewModel(for indexPath: IndexPath) -> TaskDetailViewModel? {
-        let selectedTask = repository.getTask(for: indexPath)
-        guard let taskId = selectedTask.id else { return nil }
+    // MARK: - UI Actions
 
-        return TaskDetailViewModel(
-            taskId,
-            taskEm: DIContainer.container.resolve(TaskCoreDataManager.self)!,
-            taskFileEm: DIContainer.container.resolve(TaskFileEntityManager.self)!
-        )
+    func loadInitialData() {
+        repository.loadTasks()
     }
 
-    func getTasksDeletableViewModels(for indexPaths: [IndexPath]) -> [TaskDeletableViewModel] {
-        var viewModels: [TaskDeletableViewModel] = []
-        for indexPath in indexPaths {
-            let viewModel = TaskDeletableViewModel(
-                task: repository.getTask(for: indexPath),
-                indexPath: indexPath
+    func didTapOpenTask(with indexPath: IndexPath) {
+        let task = repository.getTask(for: indexPath)
+
+        if let taskId = task.id {
+            coordinator?.startTaskDetailFlow(for: taskId)
+        }
+    }
+
+    func didTapDeleteTask(with indexPath: IndexPath) {
+        let task = repository.getTask(for: indexPath)
+        let deletableItem = (task, indexPath)
+
+        coordinator?.startDeleteTasksConfirmation(for: [deletableItem])
+    }
+
+    func didTapDeleteTasks(with indexPaths: [IndexPath]) {
+        let deletableItems = indexPaths.map { indexPath in
+            return (
+                repository.getTask(for: indexPath),
+                indexPath
             )
-            viewModels.append(viewModel)
         }
 
-        return viewModels
+        coordinator?.startDeleteTasksConfirmation(for: deletableItems)
     }
 
-    // MARK: model manipulation methods
+    func didToggleTaskInMyDay(with indexPath: IndexPath) {
+        repository.switchAndUpdateInMyDayFieldWith(indexPath: indexPath)
+    }
 
-    func createNewTaskInCurrentSection(with data: TaskCreateData) {
+    func didToggleTaskIsCompleted(with indexPath: IndexPath) {
+        repository.updateAndSwitchIsCompletedFieldWith(indexPath: indexPath)
+    }
+
+    func didToggleTaskIsPriority(with indexPath: IndexPath) {
+        repository.updateAndSwitchIsPriorityFieldWith(indexPath: indexPath)
+    }
+
+    func didTapCreateTaskInCurrentSection(with data: TaskCreateData) {
         repository.createTaskInCurrentSectionWith(title: data.title)
-        // TODO: отловить ошибку, если не получилось создать и показать сообщение об этом
     }
 
-    func tapDeleteTasks(taskViewModels: [DeletableItemViewModelType]) {
-        var tasksIndexPaths = [IndexPath]()
-
-        for taskViewModel in taskViewModels {
-            guard let indexPath = taskViewModel.indexPath else { continue }
-            tasksIndexPaths.append(indexPath)
-        }
-
-        repository.deleteTasksWith(indexPaths: tasksIndexPaths)
-    }
-
-    func moveTasksInCurrentList(fromPath: IndexPath, to toPath: IndexPath) {
-
+    func didMoveEndTasksInCurrentSection(from: IndexPath, to toPath: IndexPath) {
 //        let moveElement = tasks[fromPath.row]
 //        tasks[fromPath.row] = tasks[toPath.row]
 //        tasks[toPath.row] = moveElement
@@ -128,21 +140,7 @@ class TasksListViewModel: TasksListViewModelType {
         // TODO: реализовать перемещение в CoreData
     }
 
-    // MARK: - Update
-
-    func switchTaskFieldIsCompletedWith(indexPath: IndexPath) {
-        repository.updateAndSwitchIsCompletedFieldWith(indexPath: indexPath)
-    }
-
-    func switchTaskFieldIsPriorityWith(indexPath: IndexPath) {
-        repository.updateAndSwitchIsPriorityFieldWith(indexPath: indexPath)
-    }
-
-    func switchTaskFieldInMyDayWith(indexPath: IndexPath) {
-        repository.switchAndUpdateInMyDayFieldWith(indexPath: indexPath)
-    }
-
-    func updateSectionTitle(_ title: String) {
+    func didConfirmRenameSectionTitle(_ title: String) {
         guard let titlePrepared = title.normalizedWhitespaceOrNil(),
               let section = repository.taskSection as? CDTaskCustomSection else {
             sectionTitleRelay.accept(repository.getSectionTitle() ?? "")
@@ -202,4 +200,16 @@ class TasksListViewModel: TasksListViewModelType {
             break
         }
     }
+
+    private func handleConfirmDelete(_ deletableViewModels: [TaskDeletableViewModel]) {
+        var tasksIndexPaths = [IndexPath]()
+
+        for deletableVM in deletableViewModels {
+            guard let indexPath = deletableVM.indexPath else { continue }
+            tasksIndexPaths.append(indexPath)
+        }
+
+        repository.deleteTasksWith(indexPaths: tasksIndexPaths)
+    }
+
 }

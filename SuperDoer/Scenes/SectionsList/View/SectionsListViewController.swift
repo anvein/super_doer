@@ -44,20 +44,6 @@ class SectionsListViewController: UIViewController {
 //            imageName: "PIXEL_PERFECT_home"
 //        )
     }
-
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-
-//        // TODO: УДАЛИТЬ!!! КОД ДЛЯ РАЗРАБОТКИ!!!
-//        ///////////////////////////////////////////////////
-//        let vm = viewModel.getTaskListViewModel(forIndexPath: IndexPath(row: 0, section: 1))
-//        if let vm = vm as? TasksListViewModel {
-//            coordinator?.selectTaskSection(viewModel: vm)
-//        }
-//        ///////////////////////////////////////////////////
-    }
-    
 }
 
 private extension SectionsListViewController {
@@ -155,7 +141,7 @@ extension SectionsListViewController: UITableViewDataSource {
 
 extension SectionsListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        viewModel.didSelectTaskSection(with: indexPath)
+        viewModel.didTapOpenTasksListInSection(with: indexPath)
         tableView.deselectRow(at: indexPath, animated: true)
     }
 
