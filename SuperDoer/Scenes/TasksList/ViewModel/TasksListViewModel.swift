@@ -5,7 +5,7 @@ import RxCocoa
 class TasksListViewModel: TasksListViewModelType {
 
     private let repository: TasksListRepository
-    private let sectionCDManager: TaskSectionEntityManager
+    private let sectionCDManager: TaskSectionCoreDataManager
     private weak var coordinator: TasksListCoordinatorType?
 
     // MARK: - State / Rx
@@ -28,7 +28,7 @@ class TasksListViewModel: TasksListViewModelType {
     init(
         coordinator: TasksListCoordinatorType,
         repository: TasksListRepository,
-        sectionCDManager: TaskSectionEntityManager
+        sectionCDManager: TaskSectionCoreDataManager
     ) {
         self.coordinator = coordinator
         self.repository = repository

@@ -6,10 +6,15 @@ final class TasksListRepository: NSObject {
 
     // MARK: - Services
 
+    private let sectionCDManager: TaskSectionCoreDataManager
     private let taskCDManager: TaskCoreDataManager
     private let coreDataStack: CoreDataStack
 
+    private var fetchedResultsController: NSFetchedResultsController<CDTask>
+
     // MARK: - State
+
+    let sectionId: UUID?
 
     private(set) var taskSection: TaskSectionProtocol?
     private(set) var selectedTaskIndexPath: IndexPath?
@@ -19,20 +24,22 @@ final class TasksListRepository: NSObject {
     private let modelUpdatedSubject = PublishSubject<UpdatedEvent>()
     var modelUpdatedObservable: Observable<UpdatedEvent> { modelUpdatedSubject.asObservable() }
 
-    // MARK: -
-
-    private var fetchedResultsController: NSFetchedResultsController<CDTask>
-
     // MARK: - Init
 
     init(
-        taskSection: TaskSectionProtocol?,
+        sectionId: UUID?,
+        sectionCDManager: TaskSectionCoreDataManager,
         taskCDManager: TaskCoreDataManager,
         coreDataStack: CoreDataStack = .shared
     ) {
-        self.taskSection = taskSection
+        self.sectionId = sectionId
+        self.sectionCDManager = sectionCDManager
         self.taskCDManager = taskCDManager
         self.coreDataStack = coreDataStack
+
+        if let sectionId {
+            taskSection = sectionCDManager.getSection(by: sectionId)
+        }
 
         let fetchRequest: NSFetchRequest<CDTask> = CDTask.fetchRequest()
         fetchRequest.sortDescriptors = [
@@ -71,10 +78,6 @@ final class TasksListRepository: NSObject {
         guard let taskSection = taskSection as? CDTaskCustomSection else { return nil }
         return taskSection.title
     }
-
-//    func getTaskIdFor(indexPath: IndexPath) -> UUID? {
-//        return getCDTask(at: indexPath).id
-//    }
 
     func getSectionsCount() -> Int {
         return fetchedResultsController.sections?.count ?? 0

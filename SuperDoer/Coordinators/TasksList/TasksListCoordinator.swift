@@ -7,7 +7,7 @@ final class TasksListCoordinator: BaseCoordinator {
     private weak var viewController: TasksListViewController?
 
     private let navigation: UINavigationController
-    private let section: CDTaskCustomSection // TODO: переделать на передачу ID
+    private let sectionId: UUID?
     private let deleteAlertFactory: DeleteItemsAlertFactory
 
     private let viewModelEventRelay = PublishRelay<TasksListCoordinatorToVmEvent>()
@@ -15,11 +15,11 @@ final class TasksListCoordinator: BaseCoordinator {
     init(
         parent: Coordinator,
         navigation: UINavigationController,
-        section: CDTaskCustomSection,
+        sectionId: UUID?,
         deleteAlertFactory: DeleteItemsAlertFactory
     ) {
         self.navigation = navigation
-        self.section = section
+        self.sectionId = sectionId
         self.deleteAlertFactory = deleteAlertFactory
         super.init(parent: parent)
         self.navigation.delegate = self
@@ -28,11 +28,8 @@ final class TasksListCoordinator: BaseCoordinator {
     override func start() {
         let vm = TasksListViewModel(
             coordinator: self,
-            repository: TasksListRepository(
-                taskSection: section,
-                taskCDManager: DIContainer.container.resolve(TaskCoreDataManager.self)!
-            ),
-            sectionCDManager: DIContainer.container.resolve(TaskSectionEntityManager.self)!
+            repository: DIContainer.container.resolve(TasksListRepository.self, argument: sectionId)!,
+            sectionCDManager: DIContainer.container.resolve(TaskSectionCoreDataManager.self)!
         )
         let vc = TasksListViewController(viewModel: vm)
 

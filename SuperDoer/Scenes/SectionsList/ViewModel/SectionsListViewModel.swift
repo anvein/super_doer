@@ -10,7 +10,7 @@ final class SectionsListViewModel {
     // MARK: - Services
 
     private weak var coordinator: (any SectionsListCoordinatorType)?
-    private let sectionEm: TaskSectionEntityManager
+    private let sectionEm: TaskSectionCoreDataManager
     private let systemSectionsBuilder: SystemSectionsBuilder
 
     // MARK: - Model
@@ -25,7 +25,7 @@ final class SectionsListViewModel {
 
     required init(
         coordinator: any SectionsListCoordinatorType,
-        sectionEm: TaskSectionEntityManager,
+        sectionEm: TaskSectionCoreDataManager,
         systemSectionsBuilder: SystemSectionsBuilder
     ) {
         self.coordinator = coordinator
@@ -120,7 +120,17 @@ extension SectionsListViewModel: SectionsListViewModelType {
     func didTapOpenTasksListInSection(with indexPath: IndexPath) {
         guard let section = sections.value[safe: indexPath.section]?[safe: indexPath.row] else { return }
 
-        coordinator?.startTasksInSectionFlow(section)
+        switch section {
+        case let customSection as CDTaskCustomSection:
+            guard let sectionId = customSection.id else { return }
+            coordinator?.startTasksListInCustomSectionFlow(with: sectionId)
+
+        case let _ as TaskSystemSection:
+            coordinator?.startTasksListInSystemSectionFlow()
+
+        default:
+            return
+        }
     }
 
     func didConfirmCreateCustomSection(title: String) {

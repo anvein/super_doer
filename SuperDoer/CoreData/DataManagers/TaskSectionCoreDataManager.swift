@@ -1,7 +1,7 @@
 import Foundation
 import CoreData
 
-class TaskSectionEntityManager {
+class TaskSectionCoreDataManager {
     private let coreDataStack: CoreDataStack
 
     // MARK: - Init
@@ -37,7 +37,18 @@ class TaskSectionEntityManager {
             fatalError("get custom sections error - \(error)")
         }
     }
-    
+
+    func getSection(by id: UUID) -> CDTaskCustomSection? {
+        let request = CDTaskCustomSection.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id.uuidString)
+
+        do {
+            return try coreDataStack.viewContext.fetch(request).first
+        } catch let error as NSError {
+            fatalError("getSection id error - \(error)")
+        }
+    }
+
     // MARK: insert
     func createCustomSectionWith(title: String, order: Int = 100, isCycled: Bool = false) -> CDTaskCustomSection {
         let section = CDTaskCustomSection(context: coreDataStack.viewContext)

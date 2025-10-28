@@ -25,7 +25,7 @@ final class SectionsListCoordinator: BaseCoordinator {
     override func start() {
         let vm = SectionsListViewModel(
             coordinator: self,
-            sectionEm: DIContainer.container.resolve(TaskSectionEntityManager.self)!,
+            sectionEm: DIContainer.container.resolve(TaskSectionCoreDataManager.self)!,
             systemSectionsBuilder: DIContainer.container.resolve(SystemSectionsBuilder.self)!
         )
         let vc = SectionsListViewController(viewModel: vm)
@@ -42,26 +42,15 @@ extension SectionsListCoordinator: SectionsListCoordinatorType {
         viewModelEventRelay.asSignal()
     }
 
-    func startTasksInSectionFlow(_ section: TaskSectionProtocol) {
-        switch section {
-        case let customSection as CDTaskCustomSection:
-            startTasksInCustomSectionFlow(customSection)
-
-        case _ as TaskSystemSection:
-            print("📋 Открыть системный список")
-            // TODO: создать тип для системного списка (там будут другие параметры, скорей всего)
-            return
-
-        default:
-            print("❌ Ошибка - незивестный тип списка")
-        }
+    func startTasksListInSystemSectionFlow() {
+        print("📋 Открыть системный список")
     }
 
-    private func startTasksInCustomSectionFlow(_ section: CDTaskCustomSection) {
+    func startTasksListInCustomSectionFlow(with sectionId: UUID) {
         let coordinator = TasksListCoordinator(
             parent: self,
             navigation: navigation,
-            section: section,
+            sectionId: sectionId,
             deleteAlertFactory: DIContainer.container.resolve(DeleteItemsAlertFactory.self)!
         )
 

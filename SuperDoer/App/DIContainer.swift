@@ -26,8 +26,8 @@ final class DIContainer {
 
         // MARK: - CoreData services
 
-        Self.container.register(TaskSectionEntityManager.self, factory: { _ in
-            return TaskSectionEntityManager()
+        Self.container.register(TaskSectionCoreDataManager.self, factory: { _ in
+            return TaskSectionCoreDataManager()
         }).inObjectScope(.container)
         
         Self.container.register(TaskCoreDataManager.self, factory: { _ in
@@ -57,10 +57,11 @@ final class DIContainer {
 
         Self.container.register(TasksListRepository.self) { r, arg1 in
             return TasksListRepository(
-                taskSection: arg1,
+                sectionId: arg1,
+                sectionCDManager: r.resolve(TaskSectionCoreDataManager.self)!,
                 taskCDManager: r.resolve(TaskCoreDataManager.self)!
             )
-        }.inObjectScope(.container)
+        }.inObjectScope(.graph)
     }
     
 }
