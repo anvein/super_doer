@@ -128,13 +128,6 @@ extension SectionsListViewModel: SectionsListViewModelType {
         sections.value[Self.customSectionsId].insert(section, at: 0)
     }
 
-    // MARK: model manipulate methods
-
-    func createCustomSectionWith(title: String) {
-        let section = sectionEm.createCustomSectionWith(title: title)
-        sections.value[SectionsListViewModel.customSectionsId].insert(section, at: 0)
-    }
-
     // MARK: - Actions handlers
 
     private func handleConfirmDelete(_ deletableViewModels: [TaskSectionDeletableViewModel]) {

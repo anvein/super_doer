@@ -1,13 +1,16 @@
 import UIKit
+import RxSwift
 
 class SectionsListViewController: UIViewController {
 
     private var viewModel: SectionsListViewModelType
 
+    private let disposeBag = DisposeBag()
+
     // MARK: - Subviews
 
     private lazy var sectionsTableView = TaskSectionsTableView()
-    private lazy var addSectionPanelView = AddSectionBottomPanelView()
+    private lazy var createSectionPanelView = CreateSectionPanelView()
 
     // MARK: - Init
 
@@ -31,8 +34,7 @@ class SectionsListViewController: UIViewController {
         navigationItem.largeTitleDisplayMode = .never
 
         setupView()
-        setupHierarchy()
-        setupConstraints()
+        setupHierarchyAndConstraints()
         setupBinding()
         viewModel.loadInitialData()
 
@@ -61,42 +63,47 @@ class SectionsListViewController: UIViewController {
 private extension SectionsListViewController {
 
     // MARK: - Setup
-
-    func setupHierarchy() {
-        view.addSubview(sectionsTableView)
-        view.addSubview(addSectionPanelView)
-    }
     
     func setupView() {
         view.backgroundColor = .white
         
         sectionsTableView.delegate = self
         sectionsTableView.dataSource = self
-        
-        addSectionPanelView.delegate = self
     }
     
-    func setupConstraints() {
+    func setupHierarchyAndConstraints() {
+        view.addSubviews(sectionsTableView, createSectionPanelView)
+
         NSLayoutConstraint.activate([
             sectionsTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            sectionsTableView.bottomAnchor.constraint(equalTo: addSectionPanelView.topAnchor),
+            sectionsTableView.bottomAnchor.constraint(equalTo: createSectionPanelView.topAnchor),
             sectionsTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             sectionsTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
         ])
         
-        let bottomPanelHeightConstraint = addSectionPanelView.heightAnchor.constraint(
-            equalToConstant: AddSectionBottomPanelView.State.base.params.panelHeight.cgFloat
+        let bottomPanelHeightConstraint = createSectionPanelView.heightAnchor.constraint(
+            equalToConstant: CreateSectionPanelView.State.base.params.panelHeight.cgFloat
         )
-        addSectionPanelView.panelHeightConstraint = bottomPanelHeightConstraint
+        createSectionPanelView.panelHeightConstraint = bottomPanelHeightConstraint
         NSLayoutConstraint.activate([
             bottomPanelHeightConstraint,
-            addSectionPanelView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            addSectionPanelView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            addSectionPanelView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+            createSectionPanelView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            createSectionPanelView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            createSectionPanelView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
         ])
     }
     
     func setupBinding() {
+        // V -> VM
+        createSectionPanelView.answerSignal
+            .emit { [weak self] answer in
+                guard case .onConfirmCreate(let data) = answer else { return }
+                self?.viewModel.didConfirmCreateCustomSection(title: data.title)
+            }
+            .disposed(by: disposeBag)
+
+
+        // VM -> V
         viewModel.sectionsObservable.bindAndUpdateValue { [weak self] sections in
             guard let self else { return }
             UIView.transition(
@@ -121,10 +128,11 @@ extension SectionsListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.getCountTaskSectionsInTableSection(with: section)
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: TaskSectionTableViewCell.identifier) as! TaskSectionTableViewCell
-        
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: TaskSectionTableCell.identifier),
+              let cell = cell as? TaskSectionTableCell else { return .init() }
+
         let sectionCellVM = viewModel.getTaskSectionTableCellVM(for: indexPath)
 
         switch sectionCellVM {
@@ -152,7 +160,7 @@ extension SectionsListViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return TaskSectionTableViewCell.cellHeight
+        return TaskSectionTableCell.cellHeight
     }
 
 
@@ -206,13 +214,3 @@ extension SectionsListViewController: UITableViewDelegate {
     }
 
 }
-
-
-// MARK: - AddSectionBottomPanelViewDelegate
-
-extension SectionsListViewController: AddSectionBottomPanelViewDelegate {
-    func createSectionWith(title: String) {
-        viewModel.didConfirmCreateCustomSection(title: title)
-    }
-}
-

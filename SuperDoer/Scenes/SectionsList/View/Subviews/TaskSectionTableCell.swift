@@ -1,7 +1,7 @@
 
 import UIKit
 
-class TaskSectionTableViewCell: UITableViewCell {
+class TaskSectionTableCell: UITableViewCell {
     static let identifier: String = "TaskSectionTableViewCell"
     static let cellHeight = 48.4
     

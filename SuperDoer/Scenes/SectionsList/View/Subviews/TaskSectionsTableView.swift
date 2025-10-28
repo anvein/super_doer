@@ -14,7 +14,7 @@ class TaskSectionsTableView: UITableView {
         separatorStyle = .none
         backgroundColor = nil
         
-        register(TaskSectionTableViewCell.self, forCellReuseIdentifier: TaskSectionTableViewCell.identifier)
+        register(TaskSectionTableCell.self, forCellReuseIdentifier: TaskSectionTableCell.identifier)
     }
     
     required init?(coder: NSCoder) {

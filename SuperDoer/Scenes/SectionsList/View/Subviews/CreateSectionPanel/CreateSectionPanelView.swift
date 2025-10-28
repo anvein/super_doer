@@ -1,17 +1,23 @@
 import UIKit
+import RxRelay
+import RxCocoa
+import RxSwift
 
-/// Вьюха с элементами для добавления нового раздела (списка) включающая в себя:
-/// - textField - поле для ввода названия нового списка
-/// - createButton - кнопка для добавления раздела (списка)
-final class AddSectionBottomPanelView: UIView {
-    typealias PanelParams = (
-        panelHeight: Float,
-        createButtonCenterYConstant: Float,
-        plusImageColor: UIColor,
-        textFieldPlaceholderColor: UIColor,
-        textFieldPlaceholderWeight: UIFont.Weight
-    )
-    
+final class CreateSectionPanelView: UIView {
+
+    enum Answer {
+        case onConfirmCreate(SectionCreateData)
+        case onChangedState(State)
+    }
+
+    struct PanelParams {
+        let panelHeight: Float
+        let createButtonCenterYConstant: Float
+        let plusImageColor: UIColor
+        let textFieldPlaceholderColor: UIColor
+        let textFieldPlaceholderWeight: UIFont.Weight
+    }
+
     enum State {
         case base
         case editable
@@ -19,7 +25,7 @@ final class AddSectionBottomPanelView: UIView {
         var params: PanelParams {
             switch self {
             case .base :
-                return (
+                return .init(
                     panelHeight: 48,
                     createButtonCenterYConstant: 85,
                     plusImageColor: .Text.blue,
@@ -28,7 +34,7 @@ final class AddSectionBottomPanelView: UIView {
                 )
                 
             case .editable :
-                return (
+                return .init(
                     panelHeight: 68,
                     createButtonCenterYConstant: 0,
                     plusImageColor: .Common.darkGrayApp,
@@ -38,24 +44,28 @@ final class AddSectionBottomPanelView: UIView {
             }
         }
     }
-    
-    private var currentState: State = .base {
-        didSet {
-            if oldValue != currentState {
-                updateAppearaceFor(state: currentState)
-            }
-        }
+
+    // MARK: - State / Rx
+
+    private let disposeBag = DisposeBag()
+
+    private(set) var currentStateRelay: BehaviorRelay<State> = .init(value: .base)
+    var currentStateValue: State {
+        currentStateRelay.value
+    }
+
+    private let answerRelay = PublishRelay<Answer>()
+    var answerSignal: Signal<Answer> {
+        answerRelay.asSignal()
     }
     
-    weak var delegate: AddSectionBottomPanelViewDelegate?
     
-    
-    // MARK: properties views
-    private lazy var textField = AddSectionPanelTextField()
+    // MARK: - Subviews
+
+    private lazy var textField = CreateSectionPanelTextField()
     private lazy var createButton = UIButton()
-    
-    
-    // MARK: properties constraints
+
+    // MARK: - Constraints
     /// Высота плашки
     /// т.к. констрэинты к этой плашке добавляются во вне этого класса,
     /// то чтобы высота платки менялась надо присвоить в это свойство констрэинт высоты
@@ -87,8 +97,8 @@ final class AddSectionBottomPanelView: UIView {
         super.init(frame: frame)
         
         setupViews()
-        addSubviews()
-        setupConstraints()
+        setupHierarchyAndConstraints()
+        setupBindings()
         updateAppearaceFor(state: .base)
     }
     
@@ -98,31 +108,24 @@ final class AddSectionBottomPanelView: UIView {
 
 }
 
-private extension AddSectionBottomPanelView {
-    // MARK: layout / appearance
-    private func setupViews() {
-        // self
+private extension CreateSectionPanelView {
+    // MARK: - Setup
+
+    func setupViews() {
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .Common.white
 
-        // textFeild
         textField.delegate = self
 
-        // createButton
         createButton.translatesAutoresizingMaskIntoConstraints = false
         createButton.setImage(createCheckmarkImage(), for: .normal)
         createButton.backgroundColor = .Text.blue
         createButton.layer.cornerRadius = 25
-
-        createButton.addTarget(self, action: #selector(tapCreateSectionButton), for: .touchUpInside)
     }
 
-    private func addSubviews() {
-        addSubview(textField)
-        addSubview(createButton)
-    }
+    func setupHierarchyAndConstraints() {
+        addSubviews(textField, createButton)
 
-    private func setupConstraints() {
         NSLayoutConstraint.activate([
             textField.topAnchor.constraint(equalTo: self.topAnchor),
             textField.bottomAnchor.constraint(equalTo: self.bottomAnchor),
@@ -142,7 +145,28 @@ private extension AddSectionBottomPanelView {
         ])
     }
 
-    private func updateAppearaceFor(state: State) {
+    func setupBindings() {
+        currentStateRelay
+            .distinctUntilChanged()
+            .subscribe(onNext: { [weak self] state in
+                self?.updateAppearaceFor(state: state)
+            })
+            .disposed(by: disposeBag)
+
+        currentStateRelay
+            .distinctUntilChanged()
+            .map { .onChangedState($0) }
+            .bind(to: answerRelay)
+            .disposed(by: disposeBag)
+
+        createButton.rx.tap
+            .subscribe(onNext: { [weak self] in
+                self?.handleTapCreateButton()
+            })
+            .disposed(by: disposeBag)
+    }
+
+    func updateAppearaceFor(state: State) {
         let params = state.params
         panelHeight = params.panelHeight
         createButtonCenterYConstant = params.createButtonCenterYConstant
@@ -161,17 +185,20 @@ private extension AddSectionBottomPanelView {
 
     // MARK: - Actions handlers
 
-    @objc func tapCreateSectionButton() {
+    func handleTapCreateButton() {
         if let text = textField.text, text.count != 0 {
-            delegate?.createSectionWith(title: text)
-            textField.text = nil
+            answerRelay.accept(
+                .onConfirmCreate(.init(title: text))
+            )
         }
 
+        textField.text = nil
         textField.resignFirstResponder()
     }
 
-    // MARK: methods helpers
-    private func createCheckmarkImage() -> UIImage {
+    // MARK: - Helpers
+
+    func createCheckmarkImage() -> UIImage {
         let symbolConfig = UIImage.SymbolConfiguration(weight: .medium)
         let image = UIImage.SfSymbol.checkmark.withConfiguration(symbolConfig)
             .withTintColor(
@@ -184,18 +211,18 @@ private extension AddSectionBottomPanelView {
 
 // MARK: - UITextFieldDelegate
 
-extension AddSectionBottomPanelView: UITextFieldDelegate {
+extension CreateSectionPanelView: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        currentState = .editable
+        currentStateRelay.accept(.editable)
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-        currentState = .base
+        currentStateRelay.accept(.base)
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if self.textField === textField {
-            self.tapCreateSectionButton()
+            handleTapCreateButton()
         }
         
         return false
@@ -206,5 +233,5 @@ extension AddSectionBottomPanelView: UITextFieldDelegate {
 
 @available(iOS 17, *)
 #Preview {
-    AddSectionBottomPanelView()
+    CreateSectionPanelView()
 }

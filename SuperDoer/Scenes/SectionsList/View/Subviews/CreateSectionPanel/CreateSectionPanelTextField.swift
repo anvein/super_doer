@@ -1,25 +1,11 @@
 import UIKit
 
-final class AddSectionPanelTextField: UITextField {
+final class CreateSectionPanelTextField: UITextField {
     let placeholderText = "Создать список"
 
     // MARK: - Subviews
 
     private lazy var leftImageView = UIImageView()
-
-    // MARK: - State
-
-    override var isHighlighted: Bool {
-        didSet {
-//            if isHighlighted {
-//                leftImageView.tintColor = .Text.gray
-//                self.setTextFieldPlaceholderColor(isEditable: true)
-//            } else {
-//                leftImageView.tintColor = .Text.blue
-//                setTextFieldPlaceholderColor(isEditable: false)
-//            }
-        }
-    }
 
     // MARK: - Init
 
@@ -36,7 +22,7 @@ final class AddSectionPanelTextField: UITextField {
 
     // MARK: - Update view
 
-    func updateAppearanceFor(state: AddSectionBottomPanelView.State) {
+    func updateAppearanceFor(state: CreateSectionPanelView.State) {
         let params = state.params
 
         leftImageView.tintColor = params.plusImageColor
@@ -44,7 +30,7 @@ final class AddSectionPanelTextField: UITextField {
     }
 }
 
-private extension AddSectionPanelTextField {
+private extension CreateSectionPanelTextField {
 
     // MARK: - Setup
 
@@ -55,8 +41,7 @@ private extension AddSectionPanelTextField {
         placeholder = placeholderText
 
         // left image
-        leftImageView.image = UIImage.init(systemName: "plus")?.withRenderingMode(.alwaysTemplate)
-        leftImageView.image?.withTintColor(.red)
+        leftImageView.image = UIImage.init(systemName: "plus")?.withTintColor(.red, renderingMode: .alwaysTemplate)
         leftImageView.frame.size = CGSize(width: 25, height: 25)
 
         leftView = UIView()
@@ -66,7 +51,7 @@ private extension AddSectionPanelTextField {
         leftViewMode = .always
     }
 
-    func setTextFieldPlaceholderColorFor(_ state: AddSectionBottomPanelView.State) {
+    func setTextFieldPlaceholderColorFor(_ state: CreateSectionPanelView.State) {
         guard let attributedPlaceholder = attributedPlaceholder?.mutableCopy() as? NSMutableAttributedString else {
             return
         }
