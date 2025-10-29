@@ -88,8 +88,12 @@ class TaskCoreDataManager {
         coreDataStack.saveContext()
     }
     
-    func updateFields(descriptionText: String?, descriptionUpdatedAt: Date, task: CDTask) {
-        task.descriptionText = descriptionText
+    func updateFields(
+        descriptionText: NSAttributedString?,
+        descriptionUpdatedAt: Date,
+        task: CDTask
+    ) {
+        task.descriptionTextAttributed = descriptionText
         task.descriptionUpdatedAt = descriptionUpdatedAt
         
         coreDataStack.saveContext()

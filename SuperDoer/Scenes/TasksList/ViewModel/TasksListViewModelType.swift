@@ -24,12 +24,6 @@ protocol TasksListViewModelType {
     func didTapCreateTaskInCurrentSection(with data: TaskCreateData)
     func didMoveEndTasksInCurrentSection(from: IndexPath, to toPath: IndexPath)
 
-
-
-
-
-
-
     func didConfirmRenameSectionTitle(_ title: String)
 
 }

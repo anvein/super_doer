@@ -1,29 +1,25 @@
-
 import UIKit
+import RxSwift
 
-/// Контроллер редактирования и форматирования "текста"
 class TextEditorViewController: UIViewController {
-    
-    private weak var coordinator: TextEditorViewControllerCoordinator?
+
     private var viewModel: TextEditorViewModelType
-    
-    
-    // MARK: controls
-    private lazy var navigationBar = UINavigationBar()
-    private lazy var textView = UITextView()
-    
-    
-    // MARK: toolbar controls
-    private lazy var toolbar = UIToolbar()
-    private lazy var boldBarButtonItem = UIBarButtonItem(title: "bold", style: .plain, target: nil, action: nil)
-    
-    
-    // MARK: init
-    init(
-        coordinator: TextEditorViewControllerCoordinator,
-        viewModel: TaskDescriptionEditorViewModel
-    ) {
-        self.coordinator = coordinator
+
+    private let disposeBag = DisposeBag()
+
+    // MARK: - Subviews
+
+    private let navigationBar = UINavigationBar()
+    private let textView = UITextView()
+
+    private var readyBarButton: UIBarButtonItem?
+
+    private let toolbar = UIToolbar()
+    private let boldBarButtonItem = UIBarButtonItem(title: "bold", style: .plain, target: nil, action: nil)
+
+    // MARK: - Init
+
+    init(viewModel: TextEditorViewModel) {
         self.viewModel = viewModel
         
         super.init(nibName: nil, bundle: nil)
@@ -32,58 +28,40 @@ class TextEditorViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    
-    // MARK: lifecycle
+
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupControls()
-        addSubviews()
+        setupView()
+        setupHierarchy()
         setupConstraints()
         setupBindings()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        
-        coordinator?.didDisappearTextEditorViewController(
-            text: textView.attributedText,
-            isSuccess: true
-        )
-    }
-    
-    
-    // MARK: action-handlers
-    @objc private func readyEditTaskDescription() {
-        if textView.isFirstResponder {
-            textView.resignFirstResponder()
+
+        if isBeingDismissed || isMovingFromParent {
+            viewModel.didClose()
         }
-        
-        dismiss(animated: true)
-    }
-    
-    @objc private func switchBoldText() {
-        
     }
     
 }
 
+private extension TextEditorViewController {
+    // MARK: - Setup
 
-// MARK: - setup and layout
-extension TextEditorViewController {
-    private func setupControls() {
-        setupViewOfController()
+    func setupView() {
+        view.backgroundColor = .Common.white
+
         setupNavigationBar()
         setupTaskDescriptionTextView()
         setupToolbar()
     }
-    
-    private func setupViewOfController() {
-        view.backgroundColor = .Common.white
-    }
-    
-    private func setupNavigationBar() {
+
+    func setupNavigationBar() {
         navigationBar.translatesAutoresizingMaskIntoConstraints = false
         navigationBar.delegate = self
         
@@ -93,32 +71,27 @@ extension TextEditorViewController {
         navigationBar.layer.borderColor = UIColor.TaskDescription.navBarSeparator.cgColor
 
         navigationBar.pushItem(navigationItem, animated: false)
-    
-        title = "Заметка"
-        navigationBar.topItem?.prompt = viewModel.title
-        navigationBar.topItem?.rightBarButtonItem = UIBarButtonItem(
-            title: "Готово",
-            style: .done,
-            target: self,
-            action: #selector(readyEditTaskDescription)
-        )
+
+        let readyBarButton = UIBarButtonItem(title: "Готово", style: .done, target: nil, action: nil)
+        navigationBar.topItem?.rightBarButtonItem = readyBarButton
+        self.readyBarButton = readyBarButton
     }
     
-    private func setupTaskDescriptionTextView() {
+    func setupTaskDescriptionTextView() {
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.delegate = self
         textView.backgroundColor = .Common.white
         textView.textColor = .Text.black
+        textView.font = UIFont.systemFont(ofSize: 18)
     }
     
-    private func setupToolbar() {
+    func setupToolbar() {
 
         toolbar.sizeToFit()
         toolbar.backgroundColor = nil
         toolbar.isOpaque = true
         toolbar.isTranslucent = true
-        
-        
+
 //        boldBarButtonItem.image = UIImage(systemName: "bold")
 //        boldBarButtonItem.tintColor = .Text.gray
 //
@@ -127,20 +100,18 @@ extension TextEditorViewController {
         textView.inputAccessoryView = toolbar
     }
     
-    private func addSubviews() {
+    func setupHierarchy() {
         view.addSubview(navigationBar)
         view.addSubview(textView)
     }
     
-    private func setupConstraints() {
-        // navigationBar
+    func setupConstraints() {
         NSLayoutConstraint.activate([
             navigationBar.topAnchor.constraint(equalTo: view.topAnchor, constant: -1),
             navigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: -1),
             navigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 1),
         ])
-        
-        // descriptionTextView
+
         NSLayoutConstraint.activate([
             textView.topAnchor.constraint(equalTo: navigationBar.bottomAnchor),
             textView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
@@ -149,19 +120,58 @@ extension TextEditorViewController {
         ])
     }
     
-    private func setupBindings() {
-        viewModel.textObservable.bindAndUpdateValue { [weak self] mutableAttrString in
-            self?.textView.attributedText = mutableAttrString
-            self?.textView.font = UIFont.systemFont(ofSize: 18)
+    func setupBindings() {
+        // VM -> V
+        viewModel.titleDriver.drive(onNext: { [weak self] value in
+            self?.title = value
+        })
+        .disposed(by: disposeBag)
+
+        viewModel.subtitleDriver.drive(onNext: { [weak self] value in
+            self?.navigationBar.topItem?.prompt = value
+        })
+        .disposed(by: disposeBag)
+
+        viewModel.textRelay
+            .asDriver()
+            .distinctUntilChanged()
+            .drive(textView.rx.attributedText)
+            .disposed(by: disposeBag)
+
+        // V -> VM
+        textView.rx.attributedText
+            .distinctUntilChanged()
+            .bind(to: viewModel.textRelay)
+            .disposed(by: disposeBag)
+
+        // internal
+        readyBarButton?.rx.tap
+            .subscribe { [weak self] _ in
+                self?.handleTapReadyButton()
+            }
+            .disposed(by: disposeBag)
+
+    }
+
+    // MARK: - Actions handlers
+
+    func handleTapReadyButton() {
+        if textView.isFirstResponder {
+            textView.resignFirstResponder()
         }
+
+        dismiss(animated: true)
+    }
+
+    @objc func switchBoldText() {
+
     }
 }
 
+// MARK: - UITextViewDelegate
 
-// MARK: - descriptionTextView delegate
 extension TextEditorViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        
         return true
     }
     
@@ -173,19 +183,10 @@ extension TextEditorViewController: UITextViewDelegate {
 }
 
 
-// MARK: - NavigationBar delegate
+// MARK: - UINavigationBarDelegate
+
 extension TextEditorViewController: UINavigationBarDelegate {
 //    func position(for bar: UIBarPositioning) -> UIBarPosition {
 //        return .topAttached
 //    }
-}
-
-
-// MARK: - coordinator protocol for TextEditorViewController
-protocol TextEditorViewControllerCoordinator: AnyObject {
-    /// Контроллер редактирования текста был закрыт
-    /// - Parameters:
-    ///   - text: текст, который был на момент закрытия контроллера в TextView
-    ///   - isSuccess: хз зачем этот параметр (в каком случае может быть isSuccess = false?)
-    func didDisappearTextEditorViewController(text: NSAttributedString, isSuccess: Bool)
 }

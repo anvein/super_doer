@@ -86,11 +86,7 @@ extension SectionsListCoordinator: UINavigationControllerDelegate {
         didShow viewController: UIViewController,
         animated: Bool
     ) {
-        guard let fromVC = navigation.transitionCoordinator?.viewController(forKey: .from),
-              !navigation.viewControllers.contains(fromVC) else { return }
-
-        if fromVC === self.viewController {
-            finish()
-        }
+        guard let selfVC = self.viewController else { return }
+        finishIfNavigationPop(selfVC, from: navigationController)
     }
 }

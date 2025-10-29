@@ -83,11 +83,9 @@ extension TasksListCoordinator: UINavigationControllerDelegate {
         didShow viewController: UIViewController,
         animated: Bool
     ) {
-        guard let fromVC = navigation.transitionCoordinator?.viewController(forKey: .from),
-              !navigation.viewControllers.contains(fromVC) else { return }
-
-        if fromVC === self.viewController {
-            finish()
-        }
+        // TODO: не срабатывает если перейти на деталку а потом назад в список задач -> список разделов
+        // потому что каждый координатор при создании устанавливает себя в navigation.delegate (а это один navigation)
+        guard let selfVC = self.viewController else { return }
+        finishIfNavigationPop(selfVC, from: navigation)
     }
 }

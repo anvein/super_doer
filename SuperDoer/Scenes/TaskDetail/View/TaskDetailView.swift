@@ -1,10 +1,18 @@
-
 import UIKit
 import SnapKit
 import RxSwift
 import RxCocoa
 
 final class TaskDetailView: UIView {
+
+    enum Answer {
+        case didTapOpenReminderDateSetter
+        case didTapOpenDeadlineDateSetter
+        case didTapOpenRepeatPeriodSetter
+        case didTapAddFile
+        case didTapFileDelete(indexPath: IndexPath)
+        case didTapOpenDescriptionEditor
+    }
 
     private let viewModel: TaskDetailViewModel
 
@@ -22,7 +30,10 @@ final class TaskDetailView: UIView {
 
     // MARK: - Bindings
 
-    let userAnswerRelay = PublishRelay<UserAnswer>()
+    private let answerRelay = PublishRelay<Answer>()
+    var answerSignal: Signal<Answer> {
+        answerRelay.asSignal()
+    }
 
     /// Редактируемое в данный момент поле TextField
 //    var textFieldEditing: UITextField?
@@ -337,7 +348,7 @@ extension TaskDetailView: UITableViewDelegate {
             return TaskDetailFileCell.rowHeight.cgFloat
 
         case let cellVM as DescriptionCellViewModel:
-            return cellVM.content == nil
+            return cellVM.text == nil
             ? TaskDetailDescriptionCell.emptyHeight.cgFloat
             : TaskDetailDescriptionCell.maxHeight.cgFloat
 
@@ -357,22 +368,22 @@ extension TaskDetailView: UITableViewDelegate {
             viewModel.switchValueTaskFieldInMyDay()
 
         case _ as TaskDetailReminderDateCell :
-            userAnswerRelay.accept(.reminderDateSetterOpenDidTap)
+            answerRelay.accept(.didTapOpenReminderDateSetter)
 
         case _ as TaskDetailDeadlineDateCell :
-            userAnswerRelay.accept(.deadlineDateSetterOpenDidTap)
+            answerRelay.accept(.didTapOpenDeadlineDateSetter)
 
         case _ as TaskDetailRepeatPeriodCell :
-            userAnswerRelay.accept(.repeatPeriodSetterOpenDidTap)
+            answerRelay.accept(.didTapOpenRepeatPeriodSetter)
 
         case _ as TaskDetailAddFileCell :
-            userAnswerRelay.accept(.fileAddDidTap)
+            answerRelay.accept(.didTapAddFile)
 
         case _ as TaskDetailFileCell :
             print("💎 Открылся контроллер и показать содержимое файла")
 
         case _ as TaskDetailDescriptionCell:
-            userAnswerRelay.accept(.descriptionEditorOpenDidTap)
+            answerRelay.accept(.didTapOpenDescriptionEditor)
 
         default :
             break
@@ -388,7 +399,7 @@ extension TaskDetailView: UITableViewDelegate {
             style: .destructive,
             title: "Удалить"
         ) { [weak self] _, _, completionHandler in
-            self?.userAnswerRelay.accept(.fileDeleteStartDidTap(indexPath: indexPath))
+            self?.answerRelay.accept(.didTapFileDelete(indexPath: indexPath))
             completionHandler(true)
         }
         
@@ -479,7 +490,7 @@ extension TaskDetailView: TaskDetailDataBaseCellDelegate {
 
         case TaskDetailFileCell.className :
             guard let indexPath = taskDataTableView.indexPath(for: cell) else { return }
-            userAnswerRelay.accept(.fileDeleteStartDidTap(indexPath: indexPath))
+            answerRelay.accept(.didTapFileDelete(indexPath: indexPath))
 
         default :
             break
@@ -493,18 +504,6 @@ extension TaskDetailView: TaskDetailDataBaseCellDelegate {
 
 extension TaskDetailView: DescriptionButtonCellDelegateProtocol {
     func didTapTaskDescriptionOpenButton() {
-        userAnswerRelay.accept(.descriptionEditorOpenDidTap)
+        answerRelay.accept(.didTapOpenDescriptionEditor)
     }
 }
-
-extension TaskDetailView {
-    enum UserAnswer {
-        case reminderDateSetterOpenDidTap
-        case deadlineDateSetterOpenDidTap
-        case repeatPeriodSetterOpenDidTap
-        case fileAddDidTap
-        case fileDeleteStartDidTap(indexPath: IndexPath)
-        case descriptionEditorOpenDidTap
-    }
-}
-

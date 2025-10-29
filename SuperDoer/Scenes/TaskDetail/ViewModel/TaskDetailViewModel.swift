@@ -1,9 +1,13 @@
-
 import Foundation
 import RxCocoa
 import RxRelay
+import RxSwift
 
 final class TaskDetailViewModel {
+
+    private weak var coordinator: TaskDetailCoordinatorType?
+
+    private let disposeBag = DisposeBag()
 
     // TODO: - Services
 
@@ -12,7 +16,8 @@ final class TaskDetailViewModel {
 
     // MARK: - Model
 
-    private var task: CDTask {
+    private let taskId: UUID
+    private var task: CDTask = .init() {
         didSet {
             updateSimpleObservablePropertiesFrom(task)
             taskDataViewModels.fill(from: task)
@@ -22,50 +27,87 @@ final class TaskDetailViewModel {
     // MARK: - State
     /// Объект-массив с CellVM's на основании которого формируется таблица с "кнопками" и данными задачи
     /// Прослойка между сущностью CDTask и таблицей с данными задачи
-    private var taskDataViewModels: TaskDetailDataCellViewModels
+    private var taskDataViewModels: TaskDetailDataCellViewModels = .init()
 
     var countSections: Int { taskDataViewModels.countSections }
 
     private let titleRelay = BehaviorRelay<String>(value: "")
+    var titleDriver: Driver<String> { titleRelay.asDriver() }
+
     private let isCompletedRelay = BehaviorRelay<Bool>(value: false)
+    var isCompletedDriver: Driver<Bool> { isCompletedRelay.asDriver() }
+
     private let isPriorityRelay = BehaviorRelay<Bool>(value: false)
+    var isPriorityDriver: Driver<Bool> { isPriorityRelay.asDriver()}
 
     private let fieldEditingStateRelay = BehaviorRelay<FieldEditingState?>(value: nil)
+    var fieldEditingStateDriver: Signal<FieldEditingState?> { fieldEditingStateRelay.asSignal(onErrorJustReturn: nil) }
+
     private let tableUpdateRelay = PublishRelay<TableUpdateEvent>()
+    var tableUpdateSignal: Signal<TableUpdateEvent> { tableUpdateRelay.asSignal() }
 
     var isEnableNotifications: Bool {
         // TODO: получить из сервиса, который вернет "включены ли уведомления"
         return true
     }
 
-    // MARK: - Observable
-
-    var titleDriver: Driver<String> { titleRelay.asDriver() }
-    var isCompletedDriver: Driver<Bool> { isCompletedRelay.asDriver() }
-    var isPriorityDriver: Driver<Bool> { isPriorityRelay.asDriver()}
-
-    var fieldEditingStateDriver: Signal<FieldEditingState?> { fieldEditingStateRelay.asSignal(onErrorJustReturn: nil) }
-    var tableUpdateSignal: Signal<TableUpdateEvent> { tableUpdateRelay.asSignal() }
-
     // MARK: - Init
 
     init(
-        _ taskId: UUID,
+        taskId: UUID,
+        coodinator: TaskDetailCoordinatorType,
         taskEm: TaskCoreDataManager,
         taskFileEm: TaskFileEntityManager
     ) {
+        self.taskId = taskId
+        self.coordinator = coodinator
         self.taskEm = taskEm
         self.taskFileEm = taskFileEm
 
-        // TODO: переделать это
-        // возможно запрашивать асинхронно + после viewDidLoad в VC
-        task = taskEm.getTaskBy(id: taskId)!
+        setupBindings()
+    }
 
+    // MARK: - Setup
+
+    private func setupBindings() {
+        coordinator?.viewModelEventSignal.emit(onNext: { [weak self] event in
+            self?.handleCoordinatorEvent(event)
+        })
+        .disposed(by: disposeBag)
+    }
+
+    // MARK: - Actions handlers
+
+    private func handleCoordinatorEvent(_ event: TaskDetailCoordinatorVmEvent) {
+        switch event {
+        case .didCloseDescriptionEditor(let text):
+            updateTaskField(descriptionText: text)
+        }
+    }
+
+    // MARK: - UI Actions
+
+    func loadInitialData() {
+        guard let task = taskEm.getTaskBy(id: taskId) else { return }
+
+        self.task = task
         titleRelay.accept(task.titlePrepared)
         isCompletedRelay.accept(task.isCompleted)
         isPriorityRelay.accept(task.isPriority)
 
         taskDataViewModels = TaskDetailDataCellViewModels(task)
+    }
+
+    func didTapOpenDeadlineDateSetter() {
+        coordinator?.startDeadlineDateSetter(deadlineAt: task.deadlineDate)
+    }
+
+    func didTapOpenDescriptionEditor() {
+        let editorData = TextEditorData(
+            text: task.descriptionTextAttributed,
+            title: task.title
+        )
+        coordinator?.startDecriptionEditor(with: editorData)
     }
 
     // MARK: - Table getters
@@ -110,10 +152,6 @@ final class TaskDetailViewModel {
             fileCellViewModel: fileCellVM,
             indexPath: indexPath
         )
-    }
-    
-    func getTaskDescriptionEditorViewModel() -> TaskDescriptionEditorViewModel {
-        return TaskDescriptionEditorViewModel(task: task)
     }
 
     // MARK: - Model manipulations
@@ -169,7 +207,7 @@ final class TaskDetailViewModel {
     func updateTaskField(descriptionText: NSAttributedString?) {
         // TODO: конвертировать из NSAttributedString в хранимый string
         taskEm.updateFields(
-            descriptionText: descriptionText?.string,
+            descriptionText: descriptionText,
             descriptionUpdatedAt: Date(),
             task: task
         )
@@ -265,7 +303,7 @@ final class TaskDetailViewModel {
     }
 }
 
-// MARK: - TaskDetailViewModel.EditState
+// MARK: - FieldEditingState
 
 extension TaskDetailViewModel {
     enum FieldEditingState: Equatable {
@@ -275,7 +313,7 @@ extension TaskDetailViewModel {
     }
 }
 
-// MARK: - TaskDetailViewModel.TableUpdatingEvent
+// MARK: - TableUpdateEvent
 
 extension TaskDetailViewModel {
     enum TableUpdateEvent {

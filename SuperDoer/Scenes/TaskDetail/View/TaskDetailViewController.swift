@@ -1,28 +1,20 @@
-
 import UIKit
-import SnapKit
 import RxSwift
 
 class TaskDetailViewController: UIViewController {
 
     private let viewModel: TaskDetailViewModel
-    private weak var coordinator: TaskDetailVCCoordinatorDelegate?
 
     private let disposeBag = DisposeBag()
 
     // MARK: - Subviews
 
     private lazy var readyBarButtonItem = UIBarButtonItem(title: "Готово", style: .done, target: nil, action: nil)
-
-    private lazy var customView: TaskDetailView = .init(viewModel: viewModel)
+    private lazy var customView = TaskDetailView(viewModel: viewModel)
 
     // MARK: - Init
 
-    init(
-        coordinator: TaskDetailVCCoordinatorDelegate,
-        viewModel: TaskDetailViewModel
-    ) {
-        self.coordinator = coordinator
+    init(viewModel: TaskDetailViewModel) {
         self.viewModel = viewModel
         
         super.init(nibName: nil, bundle: nil)
@@ -43,6 +35,7 @@ class TaskDetailViewController: UIViewController {
         
         setupNavigation()
         setupBindings()
+        viewModel.loadInitialData()
 
 //        PIXEL_PERFECT_screen.createAndSetupInstance(
 //            baseView: self.view,
@@ -50,14 +43,6 @@ class TaskDetailViewController: UIViewController {
 //            controlsBottomSideOffset: 0,
 //            imageScaleFactor: 3
 //        )
-    }
-
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        if isMovingFromParent {
-            coordinator?.taskDetailVCDidCloseTaskDetail()
-        }
     }
 }
 
@@ -71,7 +56,7 @@ private extension TaskDetailViewController {
     }
 
     func setupBindings() {
-        // VM -> V
+        // V / VC -> V
         viewModel.fieldEditingStateDriver
             .distinctUntilChanged()
             .emit(onNext: { [weak self] state in
@@ -79,16 +64,16 @@ private extension TaskDetailViewController {
             })
             .disposed(by: disposeBag)
 
-        // V -> VM
+        // V / VC -> VM
         readyBarButtonItem.rx.tap
             .subscribe(onNext:  { [weak self] in
                 self?.viewModel.setEditingState(nil)
             })
             .disposed(by: disposeBag)
 
-        // DetailView -> VC
-        customView.userAnswerRelay
-            .subscribe(onNext: { [weak self] userAnswer in
+        // V -> VC
+        customView.answerSignal
+            .emit(onNext: { [weak self] userAnswer in
                 self?.handleTaskDetailView(userAnswer)
             })
             .disposed(by: disposeBag)
@@ -105,20 +90,25 @@ private extension TaskDetailViewController {
         }
     }
 
-    func handleTaskDetailView(_ userAnswer: TaskDetailView.UserAnswer) {
+    func handleTaskDetailView(_ userAnswer: TaskDetailView.Answer) {
         switch userAnswer {
-        case .deadlineDateSetterOpenDidTap:
-            coordinator?.taskDetailVCDeadlineDateSetterOpen()
-        case .fileDeleteStartDidTap(let indexPath):
+        case .didTapOpenDeadlineDateSetter:
+            viewModel.didTapOpenDeadlineDateSetter()
+            
+        case .didTapFileDelete(let indexPath):
             startDeleteFileCoordinator(with: indexPath)
-        case .repeatPeriodSetterOpenDidTap:
-            coordinator?.taskDetailVCRepeatPeriodSetterOpen()
-        case .fileAddDidTap:
-            coordinator?.taskDetailVCAddFileStart()
-        case .reminderDateSetterOpenDidTap:
-            coordinator?.taskDetailVCReminderDateSetterOpen()
-        case .descriptionEditorOpenDidTap:
-            coordinator?.taskDetailVCDecriptionEditorOpen()
+        case .didTapOpenRepeatPeriodSetter:
+            break
+//            coordinator?.taskDetailVCRepeatPeriodSetterOpen()
+        case .didTapAddFile:
+            break
+//            coordinator?.taskDetailVCAddFileStart()
+        case .didTapOpenReminderDateSetter:
+            break
+//            coordinator?.taskDetailVCReminderDateSetterOpen()
+
+        case .didTapOpenDescriptionEditor:
+            viewModel.didTapOpenDescriptionEditor()
         }
     }
 
@@ -126,7 +116,7 @@ private extension TaskDetailViewController {
 
     func startDeleteFileCoordinator(with fileCellIndexPath: IndexPath) {
         guard let fileVM = viewModel.getFileDeletableViewModel(for: fileCellIndexPath) else { return }
-        coordinator?.taskDetailVCStartDeleteProcessFile(viewModel: fileVM)
+//        coordinator?.taskDetailVCStartDeleteProcessFile(viewModel: fileVM)
     }
 
 }

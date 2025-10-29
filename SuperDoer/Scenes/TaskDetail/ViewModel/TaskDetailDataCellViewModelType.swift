@@ -1,4 +1,3 @@
-
 import Foundation
 
 // MARK: TaskData classes
@@ -47,24 +46,11 @@ struct FileCellViewModel: TaskDetailDataCellViewModelType {
 }
 
 struct DescriptionCellViewModel: TaskDetailDataCellViewModelType {
-    var content: NSAttributedString?
+    var text: NSAttributedString?
     var updatedAt: Date?
 
-    init(contentAsHtml: String? = nil, dateUpdatedAt: Date? = nil) {
-        self.content = convertToNsAttributedStringFrom(contentAsHtml: contentAsHtml)
+    init(text: NSAttributedString? = nil, dateUpdatedAt: Date? = nil) {
+        self.text = text
         self.updatedAt = dateUpdatedAt
-    }
-
-    private func convertToNsAttributedStringFrom(contentAsHtml: String?) -> NSAttributedString? {
-//        self.content = NSAttributedString(string: "", attributes: []).data(from: 0..<contentAsHtml.len, documentAttributes: <#T##[NSAttributedString.DocumentAttributeKey : Any]#>)
-//        NSAttributedString().data(from: 0.., documentAttributes: <#T##[NSAttributedString.DocumentAttributeKey : Any]#>)
-//
-//        NSAttributedString(data: Data(), documentAttributes: <#T##AutoreleasingUnsafeMutablePointer<NSDictionary?>?#>)
-
-        if let filledContentAsHtml = contentAsHtml {
-            return NSAttributedString(string: filledContentAsHtml)
-        } else {
-            return nil
-        }
     }
 }

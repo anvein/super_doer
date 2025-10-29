@@ -3,7 +3,7 @@
     <entity name="CDTask" representedClassName=".CDTask" syncable="YES" codeGenerationType="category">
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="deadlineDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="descriptionText" optional="YES" attributeType="String"/>
+        <attribute name="descriptionTextData" optional="YES" attributeType="Binary"/>
         <attribute name="descriptionUpdatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="inMyDay" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>

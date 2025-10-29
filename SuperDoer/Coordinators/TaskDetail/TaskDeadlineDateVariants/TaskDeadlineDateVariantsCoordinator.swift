@@ -1,10 +1,9 @@
-
 import UIKit
 
 class TaskDeadlineDateVariantsCoordinator: BaseCoordinator {
     private var navigation: UINavigationController
     private var viewModel: TaskDeadlineTableVariantsViewModel
-    private weak var delegate: TaskDeadlineDateVariantsCoordinatorDelegate?
+
     
     private var currentNavigation: ContainerNavigationController?
     
@@ -16,7 +15,7 @@ class TaskDeadlineDateVariantsCoordinator: BaseCoordinator {
     ) {
         self.navigation = navigation
         self.viewModel = viewModel
-        self.delegate = delegate
+//        self.delegate = delegate
         super.init(parent: parent)
     }
     
@@ -63,7 +62,7 @@ protocol TaskDeadlineDateVariantsCoordinatorDelegate: AnyObject {
 // MARK: - coordinator methods for TableVariantsViewController
 extension TaskDeadlineDateVariantsCoordinator: TableVariantsViewControllerCoordinator {
     func didChooseDateVariant(newDate: Date?) {
-        delegate?.didChooseTaskDeadlineDate(newDate: newDate)
+//        delegate?.didChooseTaskDeadlineDate(newDate: newDate)
     }
     
     func didChooseCustomVariant() {
@@ -71,7 +70,7 @@ extension TaskDeadlineDateVariantsCoordinator: TableVariantsViewControllerCoordi
     }
     
     func didChooseDeleteVariantButton() {
-        delegate?.didChooseTaskDeadlineDate(newDate: nil)
+//        delegate?.didChooseTaskDeadlineDate(newDate: nil)
     }
 }
 
@@ -87,6 +86,6 @@ extension TaskDeadlineDateVariantsCoordinator: ContainerNavigationControllerCoor
 // MARK: - delegates of child coordinators
 extension TaskDeadlineDateVariantsCoordinator: TaskDeadlineDateCustomCoordinatorDelegate {
     func didChooseTaskDeadlineDate(newDate: Date?) {
-        self.delegate?.didChooseTaskDeadlineDate(newDate: newDate)
+//        self.delegate?.didChooseTaskDeadlineDate(newDate: newDate)
     }
 }

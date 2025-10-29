@@ -16,12 +16,14 @@ final class AppCoordinator: BaseCoordinator {
         window.rootViewController = navigation
         window.makeKeyAndVisible()
 
-        startTaskSectionsListFlow()
+//        startTaskSectionsListFlow()
 
 
-//        // TODO: УДАЛИТЬ!!! КОД ДЛЯ РАЗРАБОТКИ!!!
-//        ///////////////////////////////////////////////////
-//        let sectionEm = DIContainer.container.resolve(TaskSectionEntityManager.self)!
+        // TODO: УДАЛИТЬ!!! КОД ДЛЯ РАЗРАБОТКИ!!!
+        ///////////////////////////////////////////////////
+
+        // ЭРКРАН СПИСКА ЗАДАЧ
+//        let sectionEm = DIContainer.container.resolve(TaskSectionCoreDataManager.self)!
 //        let sections = sectionEm.getCustomSectionsWithOrder(isActive: true)
 //
 //        navigation.pushViewController(.init(), animated: false)
@@ -38,7 +40,28 @@ final class AppCoordinator: BaseCoordinator {
 //        } else {
 //            print("no sections")
 //        }
-//        ///////////////////////////////////////////////////
+
+        // ЭКРАН ЗАДАЧИ
+        let sectionEm = DIContainer.container.resolve(TaskSectionCoreDataManager.self)!
+        let taskEm = DIContainer.container.resolve(TaskCoreDataManager.self)!
+        let sections = sectionEm.getCustomSectionsWithOrder(isActive: true)
+
+        navigation.pushViewController(.init(), animated: false)
+        if let section = sections[safe: 0], let task = section.tasks?.firstObject as? CDTask {
+
+            let tasksDetailCoordinator = TaskDetailCoordinator(
+                parent: self,
+                navigation: navigation,
+                taskId: task.id!
+            )
+            addChild(tasksDetailCoordinator)
+            tasksDetailCoordinator.start()
+        } else {
+            print("no sections / tasks in section")
+            startTaskSectionsListFlow()
+        }
+
+        ///////////////////////////////////////////////////
     }
 
     func startTaskSectionsListFlow() {

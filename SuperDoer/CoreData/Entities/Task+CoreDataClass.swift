@@ -32,4 +32,24 @@ extension CDTask {
     var titlePrepared: String {
         get { title ?? "No title" }
     }
+
+    var descriptionTextAttributed: NSAttributedString? {
+        get {
+            guard let data = descriptionTextData else { return nil }
+            return try? NSKeyedUnarchiver.unarchivedObject(
+                ofClass: NSAttributedString.self,
+                from: data
+            )
+        }
+        set {
+            guard let newValue = newValue else {
+                descriptionTextData = nil
+                return
+            }
+            descriptionTextData = try? NSKeyedArchiver.archivedData(
+                withRootObject: newValue,
+                requiringSecureCoding: true
+            )
+        }
+    }
 }

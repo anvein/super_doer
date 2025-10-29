@@ -10,6 +10,8 @@ struct TaskDetailDataCellViewModels {
 
     // MARK: - Init
 
+    init() { }
+
     init(_ task: CDTask) {
         fill(from: task)
     }
@@ -48,7 +50,10 @@ struct TaskDetailDataCellViewModels {
         }
 
         addCellVM(
-            DescriptionCellViewModel(contentAsHtml: task.descriptionText, dateUpdatedAt: task.descriptionUpdatedAt),
+            DescriptionCellViewModel(
+                text: task.descriptionTextAttributed,
+                dateUpdatedAt: task.descriptionUpdatedAt
+            ),
             to: .description
         )
     }
@@ -150,12 +155,7 @@ struct TaskDetailDataCellViewModels {
 
         for (rowIndex, cellVM) in fieldsCellsVMs.enumerated() {
             if var descriptionCellVM = cellVM as? DescriptionCellViewModel {
-                // TODO: сконвертировать нормально хранимый string в NSAttributedString
-                if let safeContent = task.descriptionText {
-                    descriptionCellVM.content = NSAttributedString(string: safeContent)
-                } else {
-                    descriptionCellVM.content = nil
-                }
+                descriptionCellVM.text = task.descriptionTextAttributed
                 descriptionCellVM.updatedAt = task.descriptionUpdatedAt
                 viewModels[sectionIndex][rowIndex] = descriptionCellVM
 

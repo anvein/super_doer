@@ -160,7 +160,7 @@ final class TaskDetailDescriptionCell: UITableViewCell {
     // TODO: пока костыль + текст надо изменять только при помощи этого метода
     // TODO: надо придумать, как отслеживать изменение mainTextLabel.text и изменять state при изменении mainTextLabel.text
     func fillFrom(_ cellViewModel: DescriptionCellViewModel) {
-        fillContent(attributedText: cellViewModel.content)
+        fillContent(attributedText: cellViewModel.text)
         fillInfoLabel(dateUpdated: cellViewModel.updatedAt)
     }
     

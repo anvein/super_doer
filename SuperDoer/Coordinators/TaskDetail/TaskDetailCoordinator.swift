@@ -1,11 +1,17 @@
-
 import UIKit
+import RxCocoa
+import RxRelay
+import RxSwift
 
 final class TaskDetailCoordinator: BaseCoordinator {
 
     private let navigation: UINavigationController
     private let taskId: UUID
     private weak var viewController: TaskDetailViewController?
+
+    private let viewModelEventsRelay = PublishRelay<TaskDetailCoordinatorVmEvent>()
+
+    private let disposeBag = DisposeBag()
 
     init(
         parent: Coordinator,
@@ -19,29 +25,99 @@ final class TaskDetailCoordinator: BaseCoordinator {
     
     override func start() {
         let vm = TaskDetailViewModel(
-            taskId,
+            taskId: taskId,
+            coodinator: self,
             taskEm: DIContainer.container.resolve(TaskCoreDataManager.self)!,
             taskFileEm: DIContainer.container.resolve(TaskFileEntityManager.self)!
         )
-        let vc = TaskDetailViewController(coordinator: self, viewModel: vm)
-        self.viewController = vc
+        let vc = TaskDetailViewController(viewModel: vm)
+        viewController = vc
+        navigation.delegate = self
 
         navigation.pushViewController(vc, animated: true)
     }
+
+}
+
+// MARK: - TaskDetailCoordinatorType
+
+extension TaskDetailCoordinator: TaskDetailCoordinatorType {
+    var viewModelEventSignal: Signal<TaskDetailCoordinatorVmEvent> {
+        viewModelEventsRelay.asSignal()
+    }
+
+    func startReminderDateSetter() {
+//        if !viewModel.isEnableNotifications {
+//            startNotificationsDisableAlertCoordinator()
+//        } else {
+//            startTaskReminderCustomDateCoordinator()
+//        }
+    }
     
+    func startDeadlineDateSetter(deadlineAt: Date?) {
+        let vm = TaskDeadlineTableVariantsViewModel(
+            deadlineDate: deadlineAt
+        )
+
+        let coordinator = TaskDeadlineDateVariantsCoordinator(
+            parent: self,
+            navigation: navigation,
+            viewModel: vm,
+            delegate: self
+        )
+        addChild(coordinator)
+        coordinator.start()
+    }
     
-    // MARK: start of child's coordinators
+    func startRepeatPeriodSetter() {
+        startTaskRepeatPeriodVariantsCoordinator()
+    }
+    
+    func startDecriptionEditor(with data: TextEditorData) {
+        guard let viewController else { return }
+
+        let coordinator = TextEditorCoordinator(
+            parent: self,
+            parentVC: viewController,
+            data: data
+        )
+
+        coordinator.didCloseEventSignal.emit(onNext: { [weak self] result in
+            self?.viewModelEventsRelay.accept(
+                .didCloseDescriptionEditor(result)
+            )
+        })
+        .disposed(by: coordinator.externalDiposeBag)
+
+        addChild(coordinator)
+        coordinator.start()
+    }
+
+    func startAddFile() {
+        startAddFileToTaskSourceAlertCoordinator()
+    }
+
+    func startDeleteFileConfirmation(viewModel: TaskFileDeletableViewModel) {
+        startFileDeleteCoordinator(viewModel: viewModel)
+    }
+
+    func didCloseTaskDetail() {
+        parent?.removeChild(self)
+    }
+
+    // MARK: - Start childs
+
     private func startNotificationsDisableAlertCoordinator() {
         let coordinator = NotificationsDisabledAlertCoordinator(
             parent: self,
             navigation: navigation,
             delegate: self
         )
-        
+
         addChild(coordinator)
         coordinator.start()
     }
-    
+
     private func startTaskReminderCustomDateCoordinator() {
 //        let vm = viewModel?.getTaskReminderCustomDateViewModel()
 //
@@ -54,23 +130,10 @@ final class TaskDetailCoordinator: BaseCoordinator {
 //        addChild(coordinator)
 //        coordinator.start()
     }
-    
-    private func startTaskDeadlineDateVariantsCoordinator() {
-//        let vm = viewModel.getTaskDeadlineTableVariantsViewModel()
-//        
-//        let coordinator = TaskDeadlineDateVariantsCoordinator(
-//            parent: self,
-//            navigation: navigation,
-//            viewModel: vm,
-//            delegate: self
-//        )
-//        addChild(coordinator)
-//        coordinator.start()
-    }
-    
+
     private func startTaskRepeatPeriodVariantsCoordinator() {
 //        let viewModel = viewModel.getTaskRepeatPeriodTableVariantsViewModel()
-//        
+//
 //        let coordinator = TaskRepeatPeriodVariantsCoordinator(
 //            parent: self,
 //            navigation: navigation,
@@ -80,7 +143,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
 //        addChild(coordinator)
 //        coordinator.start()
     }
-    
+
     private func startAddFileToTaskSourceAlertCoordinator() {
 //        let coordinator = AddFileToTaskSourceAlertCoordinator(
 //            parent: self,
@@ -90,7 +153,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
 //        addChild(coordinator)
 //        coordinator.start()
     }
-    
+
     private func startAddFileToTaskFromLibraryCoordinator() {
 //        let coordinator = AddFileToTaskFromLibraryCoordinator(
 //            parent: self,
@@ -101,7 +164,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
 //        addChild(coordinator)
 //        coordinator.start()
     }
-    
+
     private func startAddFileToTaskFromCameraCoordinator() {
 //        let coordinator = AddFileToTaskFromLibraryCoordinator(
 //            parent: self,
@@ -112,7 +175,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
 //        addChild(coordinator)
 //        coordinator.start()
     }
-    
+
     private func startAddFileToTaskFromFilesCoordinator() {
 //        let coordinator = AddFileToTaskFromFilesCoordinator(
 //            parent: self,
@@ -122,19 +185,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
 //        addChild(coordinator)
 //        coordinator.start()
     }
-    
-    private func startTaskDescriptionEditorCoordinator() {
-//        let viewModel = viewModel.getTaskDescriptionEditorViewModel()
-//        let coordinator = TaskDescriptionEditorCoordinator(
-//            parent: self,
-//            navigation: navigation,
-//            viewModel: viewModel,
-//            delegate: self
-//        )
-//        addChild(coordinator)
-//        coordinator.start()
-    }
-    
+
     private func startFileDeleteCoordinator(viewModel: TaskFileDeletableViewModel) {
 //        let coordinator = DeleteItemsConfirmCoordinator(
 //            parent: self,
@@ -145,44 +196,23 @@ final class TaskDetailCoordinator: BaseCoordinator {
 //        addChild(coordinator)
 //        coordinator.start()
     }
-    
+
 }
 
-// MARK: - TaskDetailVCCoordinatorDelegate
-extension TaskDetailCoordinator: TaskDetailVCCoordinatorDelegate {
 
-    func taskDetailVCReminderDateSetterOpen() {
-//        if !viewModel.isEnableNotifications {
-//            startNotificationsDisableAlertCoordinator()
-//        } else {
-//            startTaskReminderCustomDateCoordinator()
-//        }
-    }
-    
-    func taskDetailVCDeadlineDateSetterOpen() {
-        startTaskDeadlineDateVariantsCoordinator()
-    }
-    
-    func taskDetailVCRepeatPeriodSetterOpen() {
-        startTaskRepeatPeriodVariantsCoordinator()
-    }
-    
-    func taskDetailVCDecriptionEditorOpen() {
-        startTaskDescriptionEditorCoordinator()
-    }
+// MARK: - UINavigationControllerDelegate
 
-    func taskDetailVCAddFileStart() {
-        startAddFileToTaskSourceAlertCoordinator()
-    }
-
-    func taskDetailVCStartDeleteProcessFile(viewModel: TaskFileDeletableViewModel) {
-        startFileDeleteCoordinator(viewModel: viewModel)
-    }
-
-    func taskDetailVCDidCloseTaskDetail() {
-        parent?.removeChild(self)
+extension TaskDetailCoordinator: UINavigationControllerDelegate {
+    func navigationController(
+        _ navigationController: UINavigationController,
+        didShow viewController: UIViewController,
+        animated: Bool
+    ) {
+        guard let selfVC = self.viewController else { return }
+        finishIfNavigationPop(selfVC, from: navigation)
     }
 }
+
 
 // MARK: - Delegates of child coordinators
 
@@ -253,9 +283,3 @@ extension TaskDetailCoordinator: AddFileToTaskFromFilesCoordinatorDelegate {
 //        }
 //    }
 //}
-
-extension TaskDetailCoordinator: TaskDescriptionEditorCoordinatorDelegate {
-    func didChooseTaskDescription(text: NSAttributedString) {
-//        viewModel.updateTaskField(descriptionText: text)
-    }
-}

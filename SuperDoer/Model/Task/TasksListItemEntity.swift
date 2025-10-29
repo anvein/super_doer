@@ -4,7 +4,7 @@ struct TasksListItemEntity {
     var id: UUID?
     var title: String
     var sectionTitle: String?
-    var description: String?
+    var description: NSAttributedString?
     var isCompleted: Bool
     var isPriority: Bool
     var isInMyDay: Bool
@@ -14,7 +14,7 @@ struct TasksListItemEntity {
         id: UUID? = nil,
         title: String,
         sectionTitle: String? = nil,
-        description: String? = nil,
+        description: NSAttributedString? = nil,
         isCompleted: Bool,
         isPriority: Bool,
         isInMyDay: Bool,
@@ -34,7 +34,7 @@ struct TasksListItemEntity {
         self.id = cdTask.id
         self.title = cdTask.title ?? "No title"
         self.sectionTitle = cdTask.section?.title
-        self.description = cdTask.descriptionText
+        self.description = cdTask.descriptionTextAttributed
         self.isCompleted = cdTask.isCompleted
         self.isPriority = cdTask.isPriority
         self.isInMyDay = cdTask.inMyDay
