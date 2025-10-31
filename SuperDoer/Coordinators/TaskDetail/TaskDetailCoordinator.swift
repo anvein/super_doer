@@ -109,12 +109,12 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
             data: data
         )
 
-        coordinator.didCloseEventSignal.emit(onNext: { [weak self] result in
+        coordinator.didFinishWithResultSignal.emit(onNext: { [weak self] result in
             self?.viewModel?.coordinatorResult.accept(
                 .didCloseDescriptionEditor(result)
             )
         })
-        .disposed(by: coordinator.externalDiposeBag)
+        .disposed(by: coordinator.disposeBag)
 
         addChild(coordinator)
         coordinator.start()

@@ -4,43 +4,41 @@ import RxCocoa
 import RxSwift
 import Foundation
 
-class TextEditorCoordinator: BaseCoordinator {
-    let externalDiposeBag = DisposeBag()
+class TextEditorCoordinator: BaseCoordinator, TextEditorCoordinatorType {
+    let disposeBag = DisposeBag()
 
-    private weak var parentVC: UIViewController?
+    private weak var parentController: UIViewController?
     private let data: TextEditorData
 
-    private let didCloseAndSaveEventRelay = PublishRelay<NSAttributedString?>()
+    private var viewModel: TextEditorNavigationEmittable?
+
+    private let didFinishWithResultRelay = PublishRelay<NSAttributedString?>()
+    var didFinishWithResultSignal: Signal<NSAttributedString?> {
+        didFinishWithResultRelay.asSignal()
+    }
 
     init(
         parent: Coordinator,
         parentVC: UIViewController,
         data: TextEditorData
     ) {
-        self.parentVC = parentVC
+        self.parentController = parentVC
         self.data = data
         super.init(parent: parent)
     }
     
     override func start() {
-        let vm = TextEditorViewModel(coordinator: self, data: data)
+        let vm = TextEditorViewModel(data: data)
         let vc = TextEditorViewController(viewModel: vm)
-        
-        parentVC?.present(vc, animated: true)
-    }
+        viewModel = vm
 
-}
+        viewModel?.didCloseWithSave.emit(onNext: { [weak self] result in
+            self?.didFinishWithResultRelay.accept(result)
+            self?.finish()
+        })
+        .disposed(by: disposeBag)
 
-// MARK: - TextEditorCoordinatorType
-
-extension TextEditorCoordinator: TextEditorCoordinatorType {
-    var didCloseEventSignal: Signal<NSAttributedString?> {
-        didCloseAndSaveEventRelay.asSignal()
-    }
-
-    func didCloseWithSaveTextEditor(with text: NSAttributedString?) {
-        didCloseAndSaveEventRelay.accept(text)
-        finish()
+        parentController?.present(vc, animated: true)
     }
 
 }

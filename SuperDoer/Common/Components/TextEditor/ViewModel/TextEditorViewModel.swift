@@ -1,10 +1,11 @@
 import Foundation
 import RxRelay
 import RxCocoa
+import RxSwift
 
-class TextEditorViewModel: TextEditorViewModelType {
+class TextEditorViewModel: TextEditorViewModelType, TextEditorNavigationEmittable {
 
-    private weak var coordinator: TextEditorCoordinatorType?
+    private let disposeBag = DisposeBag()
 
     // MARK: - State / Rx
 
@@ -20,20 +21,26 @@ class TextEditorViewModel: TextEditorViewModelType {
         subtitleRelay.asDriver()
     }
 
+    let didCloseRelay = PublishRelay<Void>()
+
+    // MARK: - Navigation
+
+    private let didCloseWithSaveRelay = PublishRelay<NSAttributedString?>()
+    var didCloseWithSave: Signal<NSAttributedString?> { didCloseWithSaveRelay.asSignal() }
+
     // MARK: - Init
 
-    init(coordinator: TextEditorCoordinator, data: TextEditorData) {
-        self.coordinator = coordinator
-
+    init(data: TextEditorData) {
         textRelay.accept(data.text)
         titleRelay.accept(data.title)
         subtitleRelay.accept(data.subtitle)
-    }
 
-    // MARK: - UI Actions
-
-    func didClose() {
-        coordinator?.didCloseWithSaveTextEditor(with: textRelay.value)
+        didCloseRelay
+            .map { [weak self] in
+                self?.textRelay.value
+            }
+            .bind(to: didCloseWithSaveRelay)
+            .disposed(by: disposeBag)
     }
 
 }

@@ -44,7 +44,7 @@ class TextEditorViewController: UIViewController {
         super.viewDidDisappear(animated)
 
         if isBeingDismissed || isMovingFromParent {
-            viewModel.didClose()
+            viewModel.didCloseRelay.accept(())
         }
     }
     
@@ -162,10 +162,7 @@ private extension TextEditorViewController {
 
         dismiss(animated: true)
     }
-
-    @objc func switchBoldText() {
-
-    }
+    
 }
 
 // MARK: - UITextViewDelegate

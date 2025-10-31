@@ -7,5 +7,5 @@ protocol TextEditorViewModelType {
     var titleDriver: Driver<String?> { get }
     var subtitleDriver: Driver<String?> { get }
 
-    func didClose()
+    var didCloseRelay: PublishRelay<Void> { get }
 }
