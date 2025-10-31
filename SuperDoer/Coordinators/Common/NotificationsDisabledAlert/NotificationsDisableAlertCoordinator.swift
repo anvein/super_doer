@@ -1,16 +1,15 @@
-
 import UIKit
 
 class NotificationsDisabledAlertCoordinator: BaseCoordinator {
-    private var navigation: UINavigationController
+    private var parentController: UIViewController
     weak var delegate: NotificationsDisabledAlertCoordinatorDelegate?
         
     init(
         parent: Coordinator,
-        navigation: UINavigationController,
+        parentController: UIViewController,
         delegate: NotificationsDisabledAlertCoordinatorDelegate
     ) {
-        self.navigation = navigation
+        self.parentController = parentController
         self.delegate = delegate
         super.init(parent: parent)
     }
@@ -18,7 +17,7 @@ class NotificationsDisabledAlertCoordinator: BaseCoordinator {
     override func start() {
         let alertController = NotificationsDisabledAlertController(coordinator: self)
         
-        navigation.present(alertController, animated: true)
+        parentController.present(alertController, animated: true)
     }
 }
 

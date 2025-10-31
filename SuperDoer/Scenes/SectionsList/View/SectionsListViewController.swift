@@ -149,7 +149,6 @@ extension SectionsListViewController: UITableViewDelegate {
         return TaskSectionTableCell.cellHeight
     }
 
-
     // MARK: Swipe actions
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -173,7 +172,6 @@ extension SectionsListViewController: UITableViewDelegate {
 
         return UISwipeActionsConfiguration(actions: [deleteAction, archiveAction])
     }
-
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         return UIView()

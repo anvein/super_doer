@@ -53,7 +53,7 @@ class TaskCoreDataManager {
     
     // MARK: - Update
 
-    func updateField(title: String, task: CDTask) {
+    func updateField(title: String?, task: CDTask) {
         task.title = title
         coreDataStack.saveContext()
     }

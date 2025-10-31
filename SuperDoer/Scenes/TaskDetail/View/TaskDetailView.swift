@@ -4,17 +4,7 @@ import RxSwift
 import RxCocoa
 
 final class TaskDetailView: UIView {
-
-    enum Answer {
-        case didTapOpenReminderDateSetter
-        case didTapOpenDeadlineDateSetter
-        case didTapOpenRepeatPeriodSetter
-        case didTapAddFile
-        case didTapFileDelete(indexPath: IndexPath)
-        case didTapOpenDescriptionEditor
-    }
-
-    private let viewModel: TaskDetailViewModel
+    private weak var viewModel: (TaskDetailViewModelInput & TaskDetailViewModelOutput)?
 
     private let disposeBag = DisposeBag()
 
@@ -22,48 +12,38 @@ final class TaskDetailView: UIView {
 
     private var topControlsContainerView = UIView()
 
-    private let isCompletedTaskButton = CheckboxButton()
+    private let isCompletedTaskCheckbox = CheckboxToggleView()
     private let titleTextView = UITextView()
-    private let isPriorityButton = StarButton()
+    private let isPriorityToggle = StarToggleView()
 
     private let taskDataTableView = TaskDetailTableView()
 
-    // MARK: - Bindings
-
-    private let answerRelay = PublishRelay<Answer>()
-    var answerSignal: Signal<Answer> {
-        answerRelay.asSignal()
-    }
-
-    /// Редактируемое в данный момент поле TextField
-//    var textFieldEditing: UITextField?
-
     // MARK: - Init
 
-    init(viewModel: TaskDetailViewModel) {
-        self.viewModel = viewModel
-
+    init(viewModel: TaskDetailViewModelInput & TaskDetailViewModelOutput) {
         super.init(frame: .zero)
-        setup()
-        setupSubviews()
-        setupLayoutSubviews()
+        self.viewModel = viewModel
+        setupView()
+        setupHierarchyAndConstraints()
         setupBindings()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
 }
 
 private extension TaskDetailView {
 
     // MARK: - Setup
 
-    func setup() {
+    func setupView() {
         backgroundColor = .Common.white
-    }
 
-    func setupSubviews() {
+        isCompletedTaskCheckbox.visibleAreaInsets = 4
+        isPriorityToggle.imageInsets = 4
+
         titleTextView.isScrollEnabled = false
         titleTextView.returnKeyType = .done
 
@@ -77,29 +57,29 @@ private extension TaskDetailView {
         taskDataTableView.delegate = self
     }
 
-    func setupLayoutSubviews() {
+    func setupHierarchyAndConstraints() {
         addSubviews(topControlsContainerView, taskDataTableView)
-        topControlsContainerView.addSubviews(isCompletedTaskButton, titleTextView, isPriorityButton)
+        topControlsContainerView.addSubviews(isCompletedTaskCheckbox, titleTextView, isPriorityToggle)
 
         topControlsContainerView.snp.makeConstraints {
             $0.top.equalTo(self.safeAreaLayoutGuide).offset(18)
             $0.horizontalEdges.equalToSuperview()
         }
 
-        isCompletedTaskButton.snp.makeConstraints {
-            $0.size.equalTo(26)
-            $0.top.equalToSuperview().inset(9)
-            $0.leading.equalToSuperview().inset(19)
+        isCompletedTaskCheckbox.snp.makeConstraints {
+            $0.size.equalTo(34)
+            $0.top.equalToSuperview().inset(5)
+            $0.leading.equalToSuperview().inset(15)
         }
 
         titleTextView.snp.makeConstraints {
             $0.verticalEdges.equalToSuperview()
-            $0.leading.equalTo(isCompletedTaskButton.snp.trailing).offset(14)
-            $0.trailing.equalTo(isPriorityButton.snp.leading).offset(-5)
+            $0.leading.equalTo(isCompletedTaskCheckbox.snp.trailing).offset(10)
+            $0.trailing.equalTo(isPriorityToggle.snp.leading).offset(-5)
             $0.height.greaterThanOrEqualTo(45)
         }
 
-        isPriorityButton.snp.makeConstraints {
+        isPriorityToggle.snp.makeConstraints {
             $0.size.equalTo(30)
             $0.trailing.equalToSuperview().inset(12)
             $0.top.equalToSuperview().inset(6)
@@ -112,35 +92,34 @@ private extension TaskDetailView {
     }
 
     func setupBindings() {
+        guard let viewModel else { return }
+
         // VM -> V
         viewModel.titleDriver
             .distinctUntilChanged()
             .drive(onNext: { [titleTextView] text in
-                guard titleTextView.text != text else { return }
                 titleTextView.text = text
             })
             .disposed(by: disposeBag)
 
         viewModel.isCompletedDriver
             .distinctUntilChanged()
-            .drive(onNext: { [isCompletedTaskButton] isCompleted in
-                guard isCompleted != isCompletedTaskButton.isOn else { return }
-                isCompletedTaskButton.isOn = isCompleted
+            .drive(onNext: { [isCompletedTaskCheckbox] newValue in
+                isCompletedTaskCheckbox.value = newValue
             })
             .disposed(by: disposeBag)
 
         viewModel.isPriorityDriver
             .distinctUntilChanged()
-            .drive { [isPriorityButton] isPriority in
-                guard isPriority != isPriorityButton.isOn else { return }
-                isPriorityButton.isOn = isPriority
+            .drive { [isPriorityToggle] newValue in
+                isPriorityToggle.value = newValue
             }
             .disposed(by: disposeBag)
 
         viewModel.fieldEditingStateDriver
             .distinctUntilChanged()
             .filter { $0 == nil }
-            .emit(onNext: { [weak self] state in
+            .drive(onNext: { [weak self] state in
                 self?.endEditing(true)
             })
             .disposed(by: disposeBag)
@@ -153,40 +132,37 @@ private extension TaskDetailView {
 
         // V -> VM
         titleTextView.rx.didBeginEditing
-            .subscribe(onNext: { [viewModel] in
-                viewModel.setEditingState(.taskTitleEditing)
-            })
+            .map { .didBeginTaskTitleEditing }
+            .bind(to: viewModel.inputEvent)
             .disposed(by: disposeBag)
-
+        
         titleTextView.rx.didEndEditing
-            .withLatestFrom(titleTextView.rx.text.orEmpty)
-            .subscribe(onNext: { [viewModel] text in
-                viewModel.updateTaskField(title: text)
-                viewModel.setEditingState(nil)
-            })
+            .withLatestFrom(titleTextView.rx.text)
+            .map { .didEndTaskTitleEditing(newValue: $0) }
+            .bind(to: viewModel.inputEvent)
             .disposed(by: disposeBag)
-
-        isCompletedTaskButton.rx.tap
-            .subscribe(onNext: { [viewModel, isCompletedTaskButton] in
-                viewModel.updateTaskField(isCompleted: !isCompletedTaskButton.isOn)
-            })
+        
+        isCompletedTaskCheckbox.valueChangedSignal
+            .map { .didChangeIsCompleted(newValue: $0) }
+            .emit(to: viewModel.inputEvent)
             .disposed(by: disposeBag)
-
-        isPriorityButton.rx.tap
-            .subscribe(onNext: { [viewModel, isPriorityButton] in
-                viewModel.updateTaskField(isPriority: !isPriorityButton.isOn)
-            })
+        
+        isPriorityToggle.valueChangedSignal
+            .map { .didChangeIsPriority(newValue: $0) }
+            .emit(to: viewModel.inputEvent)
             .disposed(by: disposeBag)
     }
 
     // MARK: - Actions / Events handlers
 
-    func handleViewModelTableUpdate(event: TaskDetailViewModel.TableUpdateEvent) {
+    func handleViewModelTableUpdate(event: TaskDetailTableUpdateEvent) {
         switch event {
         case .addCell(let toIndexPath, _):
             taskDataTableView.insertRows(at: [toIndexPath], with: .fade)
+
         case .updateCell(let indexPath, let cellVM):
             updateTableViewCell(with: indexPath, cellVM: cellVM)
+
         case .removeCells(let indexPaths):
             taskDataTableView.deleteRows(at: indexPaths, with: .fade)
         }
@@ -291,8 +267,7 @@ private extension TaskDetailView {
             guard let cell = cell as? TaskDetailDescriptionCell else { return }
             cell.fillFrom(cellVM)
 
-        default :
-            // TODO: залогировать
+        default:
             break
         }
     }
@@ -303,27 +278,28 @@ private extension TaskDetailView {
 
 extension TaskDetailView: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
-        return viewModel.countSections
+        viewModel?.countSections ?? 0
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.getCountRowsInSection(section)
+        viewModel?.getCountRowsInSection(section) ?? 0
     }
 
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let viewModel, let cellVM = viewModel.getTableCellViewModel(for: indexPath) else {
+            return .init()
+        }
+
+        return buildTableViewCellFor(cellVM)
+    }
 }
 
 // MARK: - UITableViewDelegate
 
 extension TaskDetailView: UITableViewDelegate {
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cellVM = viewModel.getTaskDataCellViewModelFor(indexPath: indexPath) else { return .init() }
-
-        return buildTableViewCellFor(cellVM)
-    }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let cellVM = viewModel.getTaskDataCellViewModelFor(indexPath: indexPath)
+        let cellVM = viewModel?.getTableCellViewModel(for: indexPath)
 
         switch cellVM {
         case _ as AddSubTaskCellViewModel:
@@ -361,48 +337,50 @@ extension TaskDetailView: UITableViewDelegate {
         let cell = tableView.cellForRow(at: indexPath)
 
         switch cell {
-        case let addSubtaskButton as TaskDetailAddSubtaskCell :
+        case let addSubtaskButton as TaskDetailAddSubtaskCell:
             addSubtaskButton.titleTextField.becomeFirstResponder()
 
-        case _ as TaskDetailAddToMyDayCell :
-            viewModel.switchValueTaskFieldInMyDay()
+        case _ as TaskDetailAddToMyDayCell:
+            viewModel?.inputEvent.accept(.didToggleValueInMyDay)
 
-        case _ as TaskDetailReminderDateCell :
-            answerRelay.accept(.didTapOpenReminderDateSetter)
+        case _ as TaskDetailReminderDateCell:
+            viewModel?.inputEvent.accept(.didTapOpenReminderDateSetter)
 
-        case _ as TaskDetailDeadlineDateCell :
-            answerRelay.accept(.didTapOpenDeadlineDateSetter)
+        case _ as TaskDetailDeadlineDateCell:
+            viewModel?.inputEvent.accept(.didTapOpenDeadlineDateSetter)
 
-        case _ as TaskDetailRepeatPeriodCell :
-            answerRelay.accept(.didTapOpenRepeatPeriodSetter)
+        case _ as TaskDetailRepeatPeriodCell:
+            viewModel?.inputEvent.accept(.didTapOpenRepeatPeriodSetter)
 
-        case _ as TaskDetailAddFileCell :
-            answerRelay.accept(.didTapAddFile)
+        case _ as TaskDetailAddFileCell:
+            viewModel?.inputEvent.accept(.didTapAddFile)
 
-        case _ as TaskDetailFileCell :
+        case _ as TaskDetailFileCell:
             print("💎 Открылся контроллер и показать содержимое файла")
 
         case _ as TaskDetailDescriptionCell:
-            answerRelay.accept(.didTapOpenDescriptionEditor)
+            viewModel?.inputEvent.accept(.didTapOpenDescriptionEditor)
 
-        default :
+        default:
             break
         }
 
         tableView.deselectRow(at: indexPath, animated: false)
     }
 
-    // MARK: swipers actions
-    
+    // MARK: swipes actions
+
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(
             style: .destructive,
             title: "Удалить"
         ) { [weak self] _, _, completionHandler in
-            self?.answerRelay.accept(.didTapFileDelete(indexPath: indexPath))
+            self?.viewModel?.inputEvent.accept(
+                .didTapFileDelete(indexPath: indexPath)
+            )
             completionHandler(true)
         }
-        
+
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 14, weight: .bold)
         deleteAction.image = UIImage(systemName: "trash", withConfiguration: symbolConfig)
 
@@ -412,7 +390,7 @@ extension TaskDetailView: UITableViewDelegate {
     // MARK: "edit" / delete row
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        if viewModel.isFileCellViewModel(with: indexPath) {
+        if let viewModel, viewModel.canDeleteCell(with: indexPath) {
             return true
         }
 
@@ -473,26 +451,26 @@ extension TaskDetailView: UITextFieldDelegate {
 /// - "Дата выполнения" [x]
 /// - "Период повтора" [x]
 /// - "Прикрепленный файл" [х] - удаление
-extension TaskDetailView: TaskDetailDataBaseCellDelegate {
+extension TaskDetailView: TaskDetailDataCellDelegate {
     func taskDetailDataCellDidTapActionButton(cellIdentifier: String, cell: UITableViewCell) {
         switch cellIdentifier {
         case TaskDetailAddToMyDayCell.className:
-            viewModel.updateTaskField(inMyDay: false)
+            viewModel?.inputEvent.accept(.didTapResetValueInMyDay)
 
         case TaskDetailReminderDateCell.className:
-            viewModel.updateTaskField(reminderDateTime: nil)
+            viewModel?.inputEvent.accept(.didTapResetValueReminderDate)
 
         case TaskDetailDeadlineDateCell.className:
-            viewModel.updateTaskField(deadlineDate: nil)
+            viewModel?.inputEvent.accept(.didTapResetValueDeadlineDate)
 
-        case TaskDetailRepeatPeriodCell.className :
-            viewModel.updateTaskField(repeatPeriod: nil)
+        case TaskDetailRepeatPeriodCell.className:
+            viewModel?.inputEvent.accept(.didTapResetValueRepeatPeriod)
 
         case TaskDetailFileCell.className :
             guard let indexPath = taskDataTableView.indexPath(for: cell) else { return }
-            answerRelay.accept(.didTapFileDelete(indexPath: indexPath))
+            viewModel?.inputEvent.accept(.didTapFileDelete(indexPath: indexPath))
 
-        default :
+        default:
             break
         }
 
@@ -504,6 +482,6 @@ extension TaskDetailView: TaskDetailDataBaseCellDelegate {
 
 extension TaskDetailView: DescriptionButtonCellDelegateProtocol {
     func didTapTaskDescriptionOpenButton() {
-        answerRelay.accept(.didTapOpenDescriptionEditor)
+        viewModel?.inputEvent.accept(.didTapOpenDescriptionEditor)
     }
 }

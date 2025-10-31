@@ -14,11 +14,11 @@ class StandartTaskTableCell: UITableViewCell {
     // MARK: - Subviews
 
     private let contentContainerView = UIView()
-    private let isDoneButton = CheckboxButton()
+    private let isDoneCheckbox = CheckboxToggleView()
     private let rowsStackView = UIStackView()
     private let taskTitleLabel = UILabel()
     private let attributesLabel = UILabel()
-    private let isPriorityButton = StarButton()
+    private let isPriorityToggle = StarToggleView()
 
     // MARK: - Constraints / Rx
 
@@ -74,8 +74,8 @@ class StandartTaskTableCell: UITableViewCell {
         taskTitleLabel.setStrikedStyle(viewModel.isCompleted)
         taskTitleLabel.textColor = viewModel.isCompleted ? .Text.gray : .Text.black
 
-        isDoneButton.isOn = viewModel.isCompleted
-        isPriorityButton.isOn = viewModel.isPriority
+        isDoneCheckbox.value = viewModel.isCompleted
+        isPriorityToggle.value = viewModel.isPriority
 
         attributesLabel.attributedText = viewModel.attributes
         attributesLabel.isHidden = viewModel.attributes == nil
@@ -99,7 +99,7 @@ private extension StandartTaskTableCell {
         rowsStackView.axis = .vertical
         rowsStackView.spacing = 3
 
-        isDoneButton.visibleAreaInsets = 6
+        isDoneCheckbox.visibleAreaInsets = 6
 
         taskTitleLabel.textColor = .Text.black
         taskTitleLabel.font = .systemFont(ofSize: 16)
@@ -109,13 +109,13 @@ private extension StandartTaskTableCell {
         attributesLabel.font = .systemFont(ofSize: 14)
         attributesLabel.numberOfLines = 2
 
-        isPriorityButton.isOnColor = .Common.blueGray
-        isPriorityButton.isOffColor = .Common.blueGray
+        isPriorityToggle.isOnColor = .Common.blueGray
+        isPriorityToggle.isOffColor = .Common.blueGray
     }
 
     func setupHierarchy() {
         contentView.addSubview(contentContainerView)
-        contentContainerView.addSubviews(isDoneButton, rowsStackView, isPriorityButton)
+        contentContainerView.addSubviews(isDoneCheckbox, rowsStackView, isPriorityToggle)
         rowsStackView.addArrangedSubview(taskTitleLabel)
         rowsStackView.addArrangedSubview(attributesLabel)
     }
@@ -126,7 +126,7 @@ private extension StandartTaskTableCell {
             $0.bottom.equalToSuperview().inset(2)
         }
 
-        isDoneButton.snp.makeConstraints {
+        isDoneCheckbox.snp.makeConstraints {
             $0.size.equalTo(36)
             $0.leading.equalToSuperview().inset(10)
             $0.top.greaterThanOrEqualToSuperview().inset(14)
@@ -136,10 +136,10 @@ private extension StandartTaskTableCell {
 
         rowsStackView.snp.makeConstraints {
             $0.verticalEdges.equalToSuperview().inset(11).priority(.medium)
-            $0.leading.equalTo(isDoneButton.snp.trailing).offset(10)
+            $0.leading.equalTo(isDoneCheckbox.snp.trailing).offset(10)
         }
 
-        isPriorityButton.snp.makeConstraints {
+        isPriorityToggle.snp.makeConstraints {
             $0.size.equalTo(24)
             $0.leading.equalTo(rowsStackView.snp.trailing).offset(10)
             $0.trailing.equalToSuperview().inset(16)
@@ -150,29 +150,30 @@ private extension StandartTaskTableCell {
     }
 
     func setupBindings() {
-        isDoneButton.rx.tap
-            .map { [weak self] in
-                // TODO: переделать получение indexPath
-                guard let self, let tableView = self.superview as? UITableView,
-                      let indexPath = tableView.indexPath(for: self) else { return nil }
-
-                return Answer.onTapIsDoneButton(indexPath)
-            }
-            .compactMap { $0 }
-            .bind(to: answerRelay)
-            .disposed(by: internalDisposeBag)
-
-        isPriorityButton.rx.tap
-            .map { [weak self] in
-                // TODO: переделать получение indexPath
-                guard let self, let tableView = self.superview as? UITableView,
-                      let indexPath = tableView.indexPath(for: self) else { return nil }
-
-                return Answer.onTapIsPriorityButton(indexPath)
-            }
-            .compactMap { $0 }
-            .bind(to: answerRelay)
-            .disposed(by: internalDisposeBag)
+        // TODO: доработать
+//        isDoneCheckbox.valueChangedSignal
+//            .map { [weak self] value in
+//                // TODO: переделать получение indexPath
+//                guard let self, let tableView = self.superview as? UITableView,
+//                      let indexPath = tableView.indexPath(for: self) else { return nil }
+//
+//                return Answer.onTapIsDoneButton(indexPath)
+//            }
+//            .compactMap { $0 }
+////            .bind(to: answerRelay)
+////            .disposed(by: internalDisposeBag)
+//
+//        isPriorityButton.rx.tap
+//            .map { [weak self] in
+//                // TODO: переделать получение indexPath
+//                guard let self, let tableView = self.superview as? UITableView,
+//                      let indexPath = tableView.indexPath(for: self) else { return nil }
+//
+//                return Answer.onTapIsPriorityButton(indexPath)
+//            }
+//            .compactMap { $0 }
+//            .bind(to: answerRelay)
+//            .disposed(by: internalDisposeBag)
     }
 
     // MARK: - Update view

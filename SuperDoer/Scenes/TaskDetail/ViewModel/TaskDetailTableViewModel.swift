@@ -2,7 +2,7 @@
 import Foundation
 
 /// Структура содержащая ячейки ViewModel хранящие данные задачи для таблицы
-struct TaskDetailDataCellViewModels {
+struct TaskDetailTableViewModel {
 
     // добавить доступ через сабскрипт?)
     
@@ -189,7 +189,7 @@ struct TaskDetailDataCellViewModels {
 
 // MARK: - TaskDetailDataCellViewModels.SectionIndex
 
-extension TaskDetailDataCellViewModels {
+extension TaskDetailTableViewModel {
     enum SectionIndex: Int {
         case subtasks = 0
         case fields = 1

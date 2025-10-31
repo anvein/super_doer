@@ -17,12 +17,12 @@ final class AppCoordinator: BaseCoordinator {
         window.makeKeyAndVisible()
 
 //        startTaskSectionsListFlow()
-
+//        return
 
         // TODO: УДАЛИТЬ!!! КОД ДЛЯ РАЗРАБОТКИ!!!
         ///////////////////////////////////////////////////
 
-        // ЭРКРАН СПИСКА ЗАДАЧ
+//        // ЭРКРАН СПИСКА ЗАДАЧ
 //        let sectionEm = DIContainer.container.resolve(TaskSectionCoreDataManager.self)!
 //        let sections = sectionEm.getCustomSectionsWithOrder(isActive: true)
 //
@@ -31,7 +31,7 @@ final class AppCoordinator: BaseCoordinator {
 //            let tasksListCoordinator = TasksListCoordinator(
 //                parent: self,
 //                navigation: navigation,
-//                section: section,
+//                sectionId: section.id!,
 //                deleteAlertFactory: DIContainer.container.resolve(DeleteItemsAlertFactory.self)!
 //            )
 //
@@ -39,6 +39,7 @@ final class AppCoordinator: BaseCoordinator {
 //            tasksListCoordinator.start()
 //        } else {
 //            print("no sections")
+//            startTaskSectionsListFlow()
 //        }
 
         // ЭКРАН ЗАДАЧИ

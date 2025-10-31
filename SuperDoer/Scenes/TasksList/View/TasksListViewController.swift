@@ -38,12 +38,12 @@ class TasksListViewController: UIViewController {
         setupNavigationBar()
         viewModel.loadInitialData()
 
-        PIXEL_PERFECT_screen.createAndSetupInstance(
-            baseView: self.view,
-            imageName: "PIXEL_PERFECT_task_list",
-            controlsBottomSideOffset: 0,
-            imageScaleFactor: 3
-        )
+//        PIXEL_PERFECT_screen.createAndSetupInstance(
+//            baseView: self.view,
+//            imageName: "PIXEL_PERFECT_task_list",
+//            controlsBottomSideOffset: 0,
+//            imageScaleFactor: 3
+//        )
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -56,12 +56,11 @@ class TasksListViewController: UIViewController {
         }
     }
 
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
         selfView.endEditing(true)
     }
-    
+
 }
 
 private extension TasksListViewController {

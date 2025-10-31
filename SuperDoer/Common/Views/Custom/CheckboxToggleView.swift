@@ -1,7 +1,12 @@
 import UIKit
 import SnapKit
+import RxRelay
+import RxSwift
+import RxCocoa
 
-final class CheckboxButton: UIButton {
+final class CheckboxToggleView: UIView {
+
+    private let button = UIButton()
 
     private let checkImageView = UIImageView()
     private let imageViewContainer = UIView()
@@ -21,29 +26,28 @@ final class CheckboxButton: UIButton {
         }
     }
 
-    // MARK: - State
+    // MARK: - State / Rx
 
-    override var isHighlighted: Bool {
+    private let disposeBag = DisposeBag()
+
+    var value: Bool = false {
         didSet {
-            Self.animate(withDuration: 0.07, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction]) {
-                self.transform = self.isHighlighted ? .init(scaleX: 0.9, y: 0.9) : .identity
-            }
+            guard oldValue != value else { return }
+            setAppearanceForState(value)
         }
     }
-    
-    var isOn: Bool = false {
-        didSet {
-            guard oldValue != isOn else { return }
-            setAppearanceForState(isOn)
-        }
+
+    private var valueChangedRelay = PublishRelay<Bool>()
+    var valueChangedSignal: Signal<Bool> {
+        valueChangedRelay.distinctUntilChanged().asSignal(onErrorJustReturn: false)
     }
 
     // MARK: - Init
 
     init() {
         super.init(frame: .zero)
-
         setup()
+        setupBindings()
     }
 
     required init?(coder: NSCoder) {
@@ -54,18 +58,23 @@ final class CheckboxButton: UIButton {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        imageViewContainer.cornerRadius = imageViewContainer.bounds.width / 2
+        imageViewContainer.cornerRadius = (button.bounds.width - visibleAreaInsets * 2) / 2
     }
 
 }
 
-private extension CheckboxButton {
+private extension CheckboxToggleView {
 
     // MARK: - Setup
 
     func setup() {
-        addSubview(imageViewContainer)
+        addSubview(button)
+        button.addSubview(imageViewContainer)
         imageViewContainer.addSubview(checkImageView)
+
+        button.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
 
         imageViewContainer.snp.makeConstraints {
             self.visibleAreaInsetsConstraint = $0.edges
@@ -81,7 +90,28 @@ private extension CheckboxButton {
         imageViewContainer.isUserInteractionEnabled = false
         checkImageView.contentMode = .scaleAspectFill
 
-        setAppearanceForState(isOn)
+        setAppearanceForState(value)
+    }
+
+    func setupBindings() {
+        button.rx.tap
+            .subscribe(onNext: { [weak self] _ in
+                guard let self else { return }
+                self.value.toggle()
+                self.valueChangedRelay.accept(self.value)
+            })
+            .disposed(by: disposeBag)
+
+        Observable
+            .merge(
+                button.rx.controlEvent([.touchDown, .touchDragEnter]).map { true },
+                button.rx.controlEvent([.touchUpInside, .touchCancel, .touchDragExit]).map { false }
+            )
+            .distinctUntilChanged()
+            .subscribe(onNext: { [weak self] isHighlighted in
+                self?.animateImageViewContainer(for: isHighlighted)
+            })
+            .disposed(by: disposeBag)
     }
 
     // MARK: - Update view
@@ -100,6 +130,16 @@ private extension CheckboxButton {
             checkImageView.image = nil
         }
     }
+
+    func animateImageViewContainer(for isHighlighted: Bool) {
+        UIView.animate(
+            withDuration: 0.07,
+            delay: 0,
+            options: [.beginFromCurrentState, .allowUserInteraction]
+        ) {
+            self.imageViewContainer.transform = isHighlighted ? .init(scaleX: 0.9, y: 0.9) : .identity
+        }
+    }
 }
 
 // MARK: - Preview
@@ -107,13 +147,8 @@ private extension CheckboxButton {
 @available(iOS 17, *)
 #Preview {
      {
-        let btn = CheckboxButton()
+        let btn = CheckboxToggleView()
         btn.frame = .init(origin: .zero, size: .init(width: 40, height: 40))
         return btn
     }()
 }
-
-
-
-
-

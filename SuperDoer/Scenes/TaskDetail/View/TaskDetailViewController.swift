@@ -3,20 +3,21 @@ import RxSwift
 
 class TaskDetailViewController: UIViewController {
 
-    private let viewModel: TaskDetailViewModel
+    private let viewModel: TaskDetailViewModelInput & TaskDetailViewModelOutput
 
     private let disposeBag = DisposeBag()
 
     // MARK: - Subviews
 
-    private lazy var readyBarButtonItem = UIBarButtonItem(title: "Готово", style: .done, target: nil, action: nil)
-    private lazy var customView = TaskDetailView(viewModel: viewModel)
+    private let readyBarButtonItem = UIBarButtonItem(title: "Готово", style: .done, target: nil, action: nil)
+    private let selfView: TaskDetailView
 
     // MARK: - Init
 
-    init(viewModel: TaskDetailViewModel) {
+    init(viewModel: TaskDetailViewModelInput & TaskDetailViewModelOutput) {
         self.viewModel = viewModel
-        
+        self.selfView = TaskDetailView(viewModel: viewModel)
+
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -27,15 +28,15 @@ class TaskDetailViewController: UIViewController {
     // MARK: - Lifecycle
 
     override func loadView() {
-        view = customView
+        view = selfView
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         setupNavigation()
         setupBindings()
-        viewModel.loadInitialData()
+        viewModel.inputEvent.accept(.needLoadInitialData)
 
 //        PIXEL_PERFECT_screen.createAndSetupInstance(
 //            baseView: self.view,
@@ -56,32 +57,24 @@ private extension TaskDetailViewController {
     }
 
     func setupBindings() {
-        // V / VC -> V
+        // VM -> VC
         viewModel.fieldEditingStateDriver
             .distinctUntilChanged()
-            .emit(onNext: { [weak self] state in
+            .drive(onNext: { [weak self] state in
                 self?.handleFieldEditingState(state)
             })
             .disposed(by: disposeBag)
 
         // V / VC -> VM
         readyBarButtonItem.rx.tap
-            .subscribe(onNext:  { [weak self] in
-                self?.viewModel.setEditingState(nil)
-            })
-            .disposed(by: disposeBag)
-
-        // V -> VC
-        customView.answerSignal
-            .emit(onNext: { [weak self] userAnswer in
-                self?.handleTaskDetailView(userAnswer)
-            })
+            .map { .didTapTextEditingReadyBarButton }
+            .bind(to: viewModel.inputEvent)
             .disposed(by: disposeBag)
     }
 
     // MARK: - Handlers
 
-    func handleFieldEditingState(_ state: TaskDetailViewModel.FieldEditingState?) {
+    func handleFieldEditingState(_ state: TaskDetailViewModelFieldEditingState?) {
         switch state {
         case .taskTitleEditing, .subtaskAdding, .subtastEditing(_):
             navigationItem.setRightBarButton(readyBarButtonItem, animated: true)
@@ -90,32 +83,10 @@ private extension TaskDetailViewController {
         }
     }
 
-    func handleTaskDetailView(_ userAnswer: TaskDetailView.Answer) {
-        switch userAnswer {
-        case .didTapOpenDeadlineDateSetter:
-            viewModel.didTapOpenDeadlineDateSetter()
-            
-        case .didTapFileDelete(let indexPath):
-            startDeleteFileCoordinator(with: indexPath)
-        case .didTapOpenRepeatPeriodSetter:
-            break
-//            coordinator?.taskDetailVCRepeatPeriodSetterOpen()
-        case .didTapAddFile:
-            break
-//            coordinator?.taskDetailVCAddFileStart()
-        case .didTapOpenReminderDateSetter:
-            break
-//            coordinator?.taskDetailVCReminderDateSetterOpen()
-
-        case .didTapOpenDescriptionEditor:
-            viewModel.didTapOpenDescriptionEditor()
-        }
-    }
-
     // MARK: - Coordinator methods
 
     func startDeleteFileCoordinator(with fileCellIndexPath: IndexPath) {
-        guard let fileVM = viewModel.getFileDeletableViewModel(for: fileCellIndexPath) else { return }
+//        guard let fileVM = viewModel.getFileDeletableViewModel(for: fileCellIndexPath) else { return }
 //        coordinator?.taskDetailVCStartDeleteProcessFile(viewModel: fileVM)
     }
 

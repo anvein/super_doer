@@ -1,5 +1,5 @@
 import Foundation
 
-enum TaskDetailCoordinatorVmEvent {
+enum TaskDetailCoordinatorResult {
     case didCloseDescriptionEditor(NSAttributedString?)
 }

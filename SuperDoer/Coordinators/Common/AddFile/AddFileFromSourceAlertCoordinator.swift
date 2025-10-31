@@ -1,9 +1,8 @@
-
 import UIKit
 
-typealias SourceForAddingFile = AddFileToTaskSourceAlertCoordinator.Source
+typealias SourceForAddingFile = AddFileFromSourceAlertCoordinator.Source
 
-class AddFileToTaskSourceAlertCoordinator: BaseCoordinator {
+class AddFileFromSourceAlertCoordinator: BaseCoordinator {
     enum Source {
         case library
         case camera
@@ -11,13 +10,13 @@ class AddFileToTaskSourceAlertCoordinator: BaseCoordinator {
     }
     
     private var navigation: UINavigationController
-    private weak var delegate: AddFileToTaskSourceAlertCoordinatorDelegate?
+    private weak var delegate: AddFileToSourceAlertCoordinatorDelegate?
     
     // MARK: init
     init(
         parent: Coordinator,
         navigation: UINavigationController,
-        delegate: AddFileToTaskSourceAlertCoordinatorDelegate
+        delegate: AddFileToSourceAlertCoordinatorDelegate
     ) {
         self.navigation = navigation
         self.delegate = delegate
@@ -32,14 +31,14 @@ class AddFileToTaskSourceAlertCoordinator: BaseCoordinator {
 
 
 // MARK: delegate protocol
-protocol AddFileToTaskSourceAlertCoordinatorDelegate: AnyObject {
+protocol AddFileToSourceAlertCoordinatorDelegate: AnyObject {
     /// Был выбран источник для добавления файла
     func didChooseSourceForAddFile(_ source: SourceForAddingFile)
 }
 
 
 // MARK: coordinator methods for AddFileSourceAlertControllerCoordinator
-extension AddFileToTaskSourceAlertCoordinator: AddFileSourceAlertControllerCoordinator {
+extension AddFileFromSourceAlertCoordinator: AddFileSourceAlertControllerCoordinator {
     
     func didChooseAddFile(fromSource source: SourceForAddingFile) {
         delegate?.didChooseSourceForAddFile(source)

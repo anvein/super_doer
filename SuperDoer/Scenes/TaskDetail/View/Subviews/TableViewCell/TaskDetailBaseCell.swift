@@ -1,11 +1,9 @@
-
 import UIKit
 import SnapKit
 
-/// Базовый класс для "кнопки-ячейки" в таблице на странице "просмотра / редактирования задачи"
 class TaskDetailBaseCell: UITableViewCell {
 
-    weak var delegate: TaskDetailDataBaseCellDelegate?
+    weak var delegate: TaskDetailDataCellDelegate?
 
     // MARK: - Settings
 
@@ -144,6 +142,6 @@ class TaskDetailBaseCell: UITableViewCell {
 
 // MARK: - TaskDetailDataBaseCellDelegate
 
-protocol TaskDetailDataBaseCellDelegate: AnyObject {
+protocol TaskDetailDataCellDelegate: AnyObject {
     func taskDetailDataCellDidTapActionButton(cellIdentifier: String, cell: UITableViewCell)
 }
