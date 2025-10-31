@@ -13,11 +13,13 @@ final class AppCoordinator: BaseCoordinator {
     }
     
     override func start() {
+        super.start()
+
         window.rootViewController = navigation
         window.makeKeyAndVisible()
 
-//        startTaskSectionsListFlow()
-//        return
+        startTaskSectionsListFlow()
+        return
 
         // TODO: УДАЛИТЬ!!! КОД ДЛЯ РАЗРАБОТКИ!!!
         ///////////////////////////////////////////////////
@@ -42,25 +44,25 @@ final class AppCoordinator: BaseCoordinator {
 //            startTaskSectionsListFlow()
 //        }
 
-        // ЭКРАН ЗАДАЧИ
-        let sectionEm = DIContainer.container.resolve(TaskSectionCoreDataManager.self)!
-        let taskEm = DIContainer.container.resolve(TaskCoreDataManager.self)!
-        let sections = sectionEm.getCustomSectionsWithOrder(isActive: true)
-
-        navigation.pushViewController(.init(), animated: false)
-        if let section = sections[safe: 0], let task = section.tasks?.firstObject as? CDTask {
-
-            let tasksDetailCoordinator = TaskDetailCoordinator(
-                parent: self,
-                navigation: navigation,
-                taskId: task.id!
-            )
-            addChild(tasksDetailCoordinator)
-            tasksDetailCoordinator.start()
-        } else {
-            print("no sections / tasks in section")
-            startTaskSectionsListFlow()
-        }
+//        // ЭКРАН ЗАДАЧИ
+//        let sectionEm = DIContainer.container.resolve(TaskSectionCoreDataManager.self)!
+//        let taskEm = DIContainer.container.resolve(TaskCoreDataManager.self)!
+//        let sections = sectionEm.getCustomSectionsWithOrder(isActive: true)
+//
+//        navigation.pushViewController(.init(), animated: false)
+//        if let section = sections[safe: 0], let task = section.tasks?.firstObject as? CDTask {
+//
+//            let tasksDetailCoordinator = TaskDetailCoordinator(
+//                parent: self,
+//                navigation: navigation,
+//                taskId: task.id!
+//            )
+//            addChild(tasksDetailCoordinator)
+//            tasksDetailCoordinator.start()
+//        } else {
+//            print("no sections / tasks in section")
+//            startTaskSectionsListFlow()
+//        }
 
         ///////////////////////////////////////////////////
     }

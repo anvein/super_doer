@@ -28,6 +28,8 @@ class TextEditorCoordinator: BaseCoordinator, TextEditorCoordinatorType {
     }
     
     override func start() {
+        super.start()
+
         let vm = TextEditorViewModel(data: data)
         let vc = TextEditorViewController(viewModel: vm)
         viewModel = vm

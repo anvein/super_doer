@@ -19,6 +19,8 @@ class TaskDeadlineDateCustomCoordinator: BaseCoordinator {
     }
     
     override func start() {
+        super.start()
+
         let controller = CustomDateSetterViewController(
             viewModel: viewModel,
             coordinator: self,

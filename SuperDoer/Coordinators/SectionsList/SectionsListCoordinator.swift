@@ -23,6 +23,8 @@ final class SectionsListCoordinator: BaseCoordinator {
     }
 
     override func start() {
+        super.start()
+
         let vm = SectionsListViewModel(
             coordinator: self,
             sectionEm: DIContainer.container.resolve(TaskSectionCoreDataManager.self)!,

@@ -15,8 +15,9 @@ class NotificationsDisabledAlertCoordinator: BaseCoordinator {
     }
     
     override func start() {
+        super.start()
+
         let alertController = NotificationsDisabledAlertController(coordinator: self)
-        
         parentController.present(alertController, animated: true)
     }
 }

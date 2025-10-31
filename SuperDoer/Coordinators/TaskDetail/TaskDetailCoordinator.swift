@@ -23,9 +23,10 @@ final class TaskDetailCoordinator: BaseCoordinator {
     }
     
     override func start() {
+        super.start()
+
         let vm = TaskDetailViewModel(
             taskId: taskId,
-            //coodinator: self,
             taskEm: DIContainer.container.resolve(TaskCoreDataManager.self)!,
             taskFileEm: DIContainer.container.resolve(TaskFileEntityManager.self)!
         )
@@ -56,7 +57,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
             startRepeatPeriodSetter()
 
         case .openAddFile:
-            startAddFile()
+            startAddFileSourceSelect()
 
         case .openDeleteFileConfirmation(viewModel: let viewModel):
             startDeleteFileConfirmation(viewModel: viewModel)
@@ -120,22 +121,55 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
         coordinator.start()
     }
 
-    func startAddFile() {
-        let coordinator = AddFileFromSourceAlertCoordinator(
+    func startAddFileSourceSelect() {
+        guard let viewController else { return }
+        
+        let coordinator = AddFileSourceSelectCoordinator(
             parent: self,
-            navigation: navigation,
-            delegate: self
+            parentController: viewController,
+            alertFactory: DIContainer.container.resolve(AddFileSourceAlertFactory.self)!
         )
+
+        coordinator.didCloseResult.emit(onNext: { [weak self] source in
+            self?.handleDidSelectAddFileSource(source)
+        })
+        .disposed(by: coordinator.disposeBag)
+
         addChild(coordinator)
         coordinator.start()
     }
 
     func startDeleteFileConfirmation(viewModel: TaskFileDeletableViewModel) {
-        startFileDeleteCoordinator(viewModel: viewModel)
+        //        let coordinator = DeleteItemsConfirmCoordinator(
+        //            parent: self,
+        //            navigation: navigation,
+        //            viewModels: [viewModel],
+        //            delegate: self
+        //        )
+        //        addChild(coordinator)
+        //        coordinator.start()
     }
 
     func didCloseTaskDetail() {
         parent?.removeChild(self)
+    }
+
+    // MARK: - Result Handlers
+
+    func handleDidSelectAddFileSource(_ source: AddFileSourceAlertFactory.FileSource?) {
+        switch source {
+        case .camera:
+            startAddFileFromCameraCoordinator()
+
+        case .files:
+            startAddFileFromFilesCoordinator()
+
+        case .library:
+            startAddFileFromLibraryCoordinator()
+
+        default:
+            break
+        }
     }
 
     // MARK: - Start childs
@@ -178,7 +212,7 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
 //        coordinator.start()
     }
 
-    private func startAddFileToTaskFromLibraryCoordinator() {
+    private func startAddFileFromLibraryCoordinator() {
         let coordinator = AddFileToTaskFromLibraryCoordinator(
             parent: self,
             navigation: navigation,
@@ -189,7 +223,7 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
         coordinator.start()
     }
 
-    private func startAddFileToTaskFromCameraCoordinator() {
+    private func startAddFileFromCameraCoordinator() {
         let coordinator = AddFileToTaskFromLibraryCoordinator(
             parent: self,
             navigation: navigation,
@@ -200,7 +234,7 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
         coordinator.start()
     }
 
-    private func startAddFileToTaskFromFilesCoordinator() {
+    private func startAddFileFromFilesCoordinator() {
         let coordinator = AddFileToTaskFromFilesCoordinator(
             parent: self,
             navigation: navigation,
@@ -209,18 +243,6 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
         addChild(coordinator)
         coordinator.start()
     }
-
-    private func startFileDeleteCoordinator(viewModel: TaskFileDeletableViewModel) {
-//        let coordinator = DeleteItemsConfirmCoordinator(
-//            parent: self,
-//            navigation: navigation,
-//            viewModels: [viewModel],
-//            delegate: self
-//        )
-//        addChild(coordinator)
-//        coordinator.start()
-    }
-
 }
 
 
@@ -267,21 +289,6 @@ extension TaskDetailCoordinator: TaskDeadlineDateVariantsCoordinatorDelegate {
 extension TaskDetailCoordinator: TaskRepeatPeriodVariantsCoordinatorDelegate {
     func didChooseTaskRepeatPeriod(newPeriod: String?) {
 //        viewModel.updateTaskField(repeatPeriod: newPeriod)
-    }
-}
-
-extension TaskDetailCoordinator: AddFileToSourceAlertCoordinatorDelegate {
-    func didChooseSourceForAddFile(_ source: SourceForAddingFile) {
-        switch source {
-        case .library:
-            startAddFileToTaskFromLibraryCoordinator()
-            
-        case .camera:
-            startAddFileToTaskFromCameraCoordinator()
-        
-        case .files:
-            startAddFileToTaskFromFilesCoordinator()
-        }
     }
 }
 

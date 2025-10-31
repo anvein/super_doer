@@ -10,21 +10,25 @@ class BaseCoordinator: NSObject, Coordinator {
     }
     
     func start() {
-        fatalError("Child should implement func start")
+#if DEBUG
+        print("### START coordinator: \(self.description)")
+#endif
     }
 
     func finish() {
         parent?.removeChild(self)
+
+#if DEBUG
+        print("### FINISH coordinator: \(self.description)")
+#endif
     }
 
     func finishIfNavigationPop(_ vc: UIViewController, from navigation: UINavigationController) {
-        print("### FRM \(navigation.transitionCoordinator?.viewController(forKey: .from)?.description)")
         guard let fromVC = navigation.transitionCoordinator?.viewController(forKey: .from),
               !navigation.viewControllers.contains(fromVC) else { return }
 
         if fromVC === vc {
             finish()
-            print("### FINISH \(Self.description())")
         }
     }
 }

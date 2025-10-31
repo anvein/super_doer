@@ -21,6 +21,8 @@ final class TaskRepeatPeriodVariantsCoordinator: BaseCoordinator {
     }
     
     override func start() {
+        super.start()
+        
         let controller = TableVariantsViewController(
             viewModel: viewModel,
             coordinator: self,

@@ -20,6 +20,8 @@ class TaskRepeatPeriodCusomCoordinator: BaseCoordinator {
     }
     
     override func start() {
+        super.start()
+
         let viewController = CustomTaskRepeatPeriodSetterViewController(
             coordinator: self,
             viewModel: viewModel

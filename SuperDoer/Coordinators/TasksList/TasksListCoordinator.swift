@@ -26,6 +26,8 @@ final class TasksListCoordinator: BaseCoordinator {
     }
 
     override func start() {
+        super.start()
+
         let vm = TasksListViewModel(
             coordinator: self,
             repository: DIContainer.container.resolve(TasksListRepository.self, argument: sectionId)!,
