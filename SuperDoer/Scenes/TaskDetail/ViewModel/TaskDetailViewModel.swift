@@ -107,8 +107,10 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
             updateTaskField(descriptionText: text)
 
         case .didImportedImage(let imageData):
-            guard let imageData else { return }
-            createTaskFile(from: imageData)
+            imageData.map { self.createTaskFile(from: $0) }
+
+        case .didImportedFile(let fileUrl):
+            fileUrl.map { self.createTaskFile(from: $0) }
         }
     }
 
@@ -313,7 +315,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         addBindedCell(with: indexPath)
     }
     
-    private func createTaskFile(fromUrl url: URL) {
+    private func createTaskFile(from url: URL) {
         guard let task else { return }
 
         let taskFile = taskFileEm.createWith(

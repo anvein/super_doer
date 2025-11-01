@@ -32,7 +32,7 @@ class ImportImageFromLibraryCoordinator: BaseCoordinator {
 
     let disposeBag = DisposeBag()
 
-    private var navigation: UINavigationController
+    private var parentController: UIViewController
     private var mode: Mode
 
     private let finishResultRelay = PublishRelay<ImageDataResult?>()
@@ -40,15 +40,17 @@ class ImportImageFromLibraryCoordinator: BaseCoordinator {
 
     init(
         parent: Coordinator,
-        navigation: UINavigationController,
+        parentController: UIViewController,
         mode: Mode
     ) {
-        self.navigation = navigation
+        self.parentController = parentController
         self.mode = mode
         super.init(parent: parent)
     }
     
     override func start() {
+        super.start()
+
         // TODO: сделать нормальные проверки
         guard UIImagePickerController.isSourceTypeAvailable(mode.asSourceType) == true else {
             print("❌ Нет доступа к \(mode.title)")
@@ -70,7 +72,7 @@ class ImportImageFromLibraryCoordinator: BaseCoordinator {
             controller.sourceType = .camera
         }
         
-        navigation.present(controller, animated: true)
+        parentController.present(controller, animated: true)
     }
 
 }

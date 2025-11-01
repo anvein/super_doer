@@ -211,9 +211,11 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
     private func startImportImageFromLibrary(
         with mode: ImportImageFromLibraryCoordinator.Mode
     ) {
+        guard let viewController else { return }
+
         let coordinator = ImportImageFromLibraryCoordinator(
             parent: self,
-            navigation: navigation,
+            parentController: viewController,
             mode: mode
         )
 
@@ -229,11 +231,20 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
     }
 
     private func startImportFileFromFiles() {
+        guard let viewController else { return }
+
         let coordinator = ImportFileFromFilesCoordinator(
             parent: self,
-            navigation: navigation,
-            delegate: self
+            parentController: viewController
         )
+
+        coordinator.finishResult.emit { [weak self] fileUrl in
+            self?.viewModel?.coordinatorResult.accept(
+                .didImportedFile(fileUrl)
+            )
+        }
+        .disposed(by: coordinator.disposeBag)
+
         addChild(coordinator)
         coordinator.start()
     }
@@ -283,12 +294,6 @@ extension TaskDetailCoordinator: TaskDeadlineDateVariantsCoordinatorDelegate {
 extension TaskDetailCoordinator: TaskRepeatPeriodVariantsCoordinatorDelegate {
     func didChooseTaskRepeatPeriod(newPeriod: String?) {
 //        viewModel.updateTaskField(repeatPeriod: newPeriod)
-    }
-}
-
-extension TaskDetailCoordinator: ImportFileFromFilesCoordinatorDelegate {
-    func didFinishPickingFileFromLibrary(withUrl url: URL) {
-//        viewModel.createTaskFile(fromUrl: url)
     }
 }
 
