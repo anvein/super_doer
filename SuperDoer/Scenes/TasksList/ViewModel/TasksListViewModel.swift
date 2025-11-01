@@ -2,11 +2,10 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class TasksListViewModel: TasksListViewModelType {
+class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, TasksListCoordinatorResultHandler {
 
     private let repository: TasksListRepository
     private let sectionCDManager: TaskSectionCoreDataManager
-    private weak var coordinator: TasksListCoordinatorType?
 
     // MARK: - State / Rx
 
@@ -19,18 +18,21 @@ class TasksListViewModel: TasksListViewModelType {
     var tableUpdateEventsSignal: Signal<TaskListTableUpdateEvent> { tableUpdateEventsRelay.asSignal() }
 
     private let errorMessageRelay = PublishRelay<String>()
-    var errorMessageSignal: Signal<String> {
-        errorMessageRelay.asSignal()
-    }
+    var errorMessageSignal: Signal<String> { errorMessageRelay.asSignal() }
+
+    // MARK: - Navigation
+
+    var coordinatorResult = PublishRelay<TasksListCoordinatorResult>()
+
+    private let navigationEventRelay = PublishRelay<TasksListNavigationEvent>()
+    var navigationEvent: Signal<TasksListNavigationEvent> { navigationEventRelay.asSignal() }
 
     // MARK: - Init
 
     init(
-        coordinator: TasksListCoordinatorType,
         repository: TasksListRepository,
         sectionCDManager: TaskSectionCoreDataManager
     ) {
-        self.coordinator = coordinator
         self.repository = repository
         self.sectionCDManager = sectionCDManager
 
@@ -56,8 +58,8 @@ class TasksListViewModel: TasksListViewModelType {
             .disposed(by: disposeBag)
 
         // C -> VM
-        coordinator?.viewModelEventSignal
-            .emit { [weak self] event in
+        coordinatorResult
+            .subscribe { [weak self] event in
                 switch event {
                 case .onDeleteTasksConfirmed(let deletableTasks):
                     self?.handleConfirmDelete(deletableTasks)
@@ -93,27 +95,32 @@ class TasksListViewModel: TasksListViewModelType {
     func didTapOpenTask(with indexPath: IndexPath) {
         let task = repository.getTask(for: indexPath)
 
-        if let taskId = task.id {
-            coordinator?.startTaskDetailFlow(for: taskId)
-        }
+        guard let taskId = task.id else { return }
+        navigationEventRelay.accept(
+            .openTaskDetail(taskId: taskId)
+        )
     }
 
     func didTapDeleteTask(with indexPath: IndexPath) {
         let task = repository.getTask(for: indexPath)
-        let deletableItem = (task, indexPath)
+        let deletableViewModel = TaskDeletableViewModel(task: task, indexPath: indexPath)
 
-        coordinator?.startDeleteTasksConfirmation(for: [deletableItem])
+        navigationEventRelay.accept(
+            .openDeleteTasksConfirmation([deletableViewModel])
+        )
     }
 
     func didTapDeleteTasks(with indexPaths: [IndexPath]) {
-        let deletableItems = indexPaths.map { indexPath in
-            return (
-                repository.getTask(for: indexPath),
-                indexPath
+        let deletableTasksVMs = indexPaths.map { indexPath in
+            return TaskDeletableViewModel(
+                task: repository.getTask(for: indexPath),
+                indexPath: indexPath
             )
         }
 
-        coordinator?.startDeleteTasksConfirmation(for: deletableItems)
+        navigationEventRelay.accept(
+            .openDeleteTasksConfirmation(deletableTasksVMs)
+        )
     }
 
     func didToggleTaskInMyDay(with indexPath: IndexPath) {

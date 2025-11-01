@@ -44,25 +44,8 @@ final class SectionsListCoordinator: BaseCoordinator {
         navigation.pushViewController(vc, animated: false)
     }
 
-    // MARK: -
+    // MARK: - Start chlids
 
-    private func handleNavigationEvent(_ event: SectionsListNavigationEvent) {
-        switch event {
-        case .openDeleteSectionConfirmation(let sectionVM):
-            startDeleteSectionConfirmation(sectionVM)
-
-        case .openTasksListInCustomSection(let sectionId):
-            startTasksListInCustomSectionFlow(with: sectionId)
-
-        case .openTasksListInSystemSection:
-            startTasksListInSystemSectionFlow()
-        }
-    }
-}
-
-// MARK: - SectionsListCoordinatorType
-
-extension SectionsListCoordinator: SectionsListCoordinatorType {
     func startTasksListInSystemSectionFlow() {
         print("📋 Открыть системный список")
     }
@@ -92,6 +75,20 @@ extension SectionsListCoordinator: SectionsListCoordinatorType {
         navigation.present(alert, animated: true)
     }
 
+    // MARK: - Actions handlers
+
+    private func handleNavigationEvent(_ event: SectionsListNavigationEvent) {
+        switch event {
+        case .openDeleteSectionConfirmation(let sectionVM):
+            startDeleteSectionConfirmation(sectionVM)
+
+        case .openTasksListInCustomSection(let sectionId):
+            startTasksListInCustomSectionFlow(with: sectionId)
+
+        case .openTasksListInSystemSection:
+            startTasksListInSystemSectionFlow()
+        }
+    }
 }
 
 // MARK: - UINavigationControllerDelegate
