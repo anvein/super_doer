@@ -3,9 +3,9 @@ import RxRelay
 import RxCocoa
 import RxSwift
 
-typealias AddFileSource = AddFileSourceSelectCoordinator.Source
+typealias AddFileSource = ImportFileSourceSelectCoordinator.Source
 
-class AddFileSourceSelectCoordinator: BaseCoordinator {
+class ImportFileSourceSelectCoordinator: BaseCoordinator {
     enum Source {
         case library
         case camera
@@ -15,11 +15,11 @@ class AddFileSourceSelectCoordinator: BaseCoordinator {
     let disposeBag = DisposeBag()
 
     private var parentController: UIViewController
-    private let alertFactory: AddFileSourceAlertFactory
+    private let alertFactory: ImportFileSourceAlertFactory
 
-    private let didCloseResultRelay = PublishRelay<AddFileSourceAlertFactory.FileSource?>()
-    var didCloseResult: Signal<AddFileSourceAlertFactory.FileSource?> {
-        didCloseResultRelay.asSignal()
+    private let finishResultRelay = PublishRelay<ImportFileSourceAlertFactory.FileSource?>()
+    var finishResult: Signal<ImportFileSourceAlertFactory.FileSource?> {
+        finishResultRelay.asSignal()
     }
 
     // MARK: - Init
@@ -27,7 +27,7 @@ class AddFileSourceSelectCoordinator: BaseCoordinator {
     init(
         parent: Coordinator,
         parentController: UIViewController,
-        alertFactory: AddFileSourceAlertFactory
+        alertFactory: ImportFileSourceAlertFactory
     ) {
         self.parentController = parentController
         self.alertFactory = alertFactory
@@ -44,14 +44,14 @@ class AddFileSourceSelectCoordinator: BaseCoordinator {
 
 // MARK: - ImportFileSourceAlertDelegate
 
-extension AddFileSourceSelectCoordinator: AddFileSourceAlertDelegate {
-    func didChooseImportFileSource(_ source: AddFileSourceAlertFactory.FileSource) {
-        didCloseResultRelay.accept(source)
+extension ImportFileSourceSelectCoordinator: ImportFileSourceAlertDelegate {
+    func didChooseImportFileSource(_ source: ImportFileSourceAlertFactory.FileSource) {
+        finishResultRelay.accept(source)
         finish()
     }
 
     func didChooseImportFileSourceCancel() {
-        didCloseResultRelay.accept(nil)
+        finishResultRelay.accept(nil)
         finish()
     }
 }

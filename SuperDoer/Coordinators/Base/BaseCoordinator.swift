@@ -11,7 +11,7 @@ class BaseCoordinator: NSObject, Coordinator {
     
     func start() {
 #if DEBUG
-        print("### START coordinator: \(self.description)")
+        print("## START coordinator: \(self.description)")
 #endif
     }
 
@@ -19,7 +19,7 @@ class BaseCoordinator: NSObject, Coordinator {
         parent?.removeChild(self)
 
 #if DEBUG
-        print("### FINISH coordinator: \(self.description)")
+        print("## FINISH coordinator: \(self.description)")
 #endif
     }
 

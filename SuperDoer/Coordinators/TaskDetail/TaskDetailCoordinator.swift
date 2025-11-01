@@ -32,7 +32,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
         )
 
         vm.navigationEvent.emit { [weak self] event in
-            self?.handleTaskDetailViewModel(event)
+            self?.handleTaskDetailViewModelEvent(event)
         }
         .disposed(by: disposeBag)
 
@@ -45,7 +45,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
         navigation.pushViewController(vc, animated: true)
     }
 
-    private func handleTaskDetailViewModel(_ event: TaskDetailNavigationEvent) {
+    private func handleTaskDetailViewModelEvent(_ event: TaskDetailNavigationEvent) {
         switch event {
         case .openDeadlineDateSetter(let deadlineAt):
             startDeadlineDateSetter(deadlineAt: deadlineAt)
@@ -57,7 +57,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
             startRepeatPeriodSetter()
 
         case .openAddFile:
-            startAddFileSourceSelect()
+            startImportFileSourceSelect()
 
         case .openDeleteFileConfirmation(viewModel: let viewModel):
             startDeleteFileConfirmation(viewModel: viewModel)
@@ -76,9 +76,9 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
         guard let viewModel else { return }
         
         if !viewModel.isEnableNotifications {
-            startNotificationsDisableAlertCoordinator()
+            startNotificationsDisableAlert()
         } else {
-            startTaskReminderCustomDateCoordinator()
+            startTaskReminderCustomDate()
         }
     }
     
@@ -98,7 +98,7 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
     }
     
     func startRepeatPeriodSetter() {
-        startTaskRepeatPeriodVariantsCoordinator()
+        startTaskRepeatPeriodVariants()
     }
     
     func startDescriptionEditor(with data: TextEditorData) {
@@ -112,7 +112,7 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
 
         coordinator.didFinishWithResultSignal.emit(onNext: { [weak self] result in
             self?.viewModel?.coordinatorResult.accept(
-                .didCloseDescriptionEditor(result)
+                .didEnteredDescriptionEditorContent(result)
             )
         })
         .disposed(by: coordinator.disposeBag)
@@ -121,16 +121,16 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
         coordinator.start()
     }
 
-    func startAddFileSourceSelect() {
+    func startImportFileSourceSelect() {
         guard let viewController else { return }
         
-        let coordinator = AddFileSourceSelectCoordinator(
+        let coordinator = ImportFileSourceSelectCoordinator(
             parent: self,
             parentController: viewController,
-            alertFactory: DIContainer.container.resolve(AddFileSourceAlertFactory.self)!
+            alertFactory: DIContainer.container.resolve(ImportFileSourceAlertFactory.self)!
         )
 
-        coordinator.didCloseResult.emit(onNext: { [weak self] source in
+        coordinator.finishResult.emit(onNext: { [weak self] source in
             self?.handleDidSelectAddFileSource(source)
         })
         .disposed(by: coordinator.disposeBag)
@@ -150,22 +150,18 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
         //        coordinator.start()
     }
 
-    func didCloseTaskDetail() {
-        parent?.removeChild(self)
-    }
-
     // MARK: - Result Handlers
 
-    func handleDidSelectAddFileSource(_ source: AddFileSourceAlertFactory.FileSource?) {
+    private func handleDidSelectAddFileSource(_ source: ImportFileSourceAlertFactory.FileSource?) {
         switch source {
+        case .library:
+            startImportImageFromLibrary(with: .library)
+
         case .camera:
-            startAddFileFromCameraCoordinator()
+            startImportImageFromLibrary(with: .camera)
 
         case .files:
-            startAddFileFromFilesCoordinator()
-
-        case .library:
-            startAddFileFromLibraryCoordinator()
+            startImportFileFromFiles()
 
         default:
             break
@@ -174,7 +170,7 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
 
     // MARK: - Start childs
 
-    private func startNotificationsDisableAlertCoordinator() {
+    private func startNotificationsDisableAlert() {
         guard let viewController else { return }
         let coordinator = NotificationsDisabledAlertCoordinator(
             parent: self,
@@ -186,7 +182,7 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
         coordinator.start()
     }
 
-    private func startTaskReminderCustomDateCoordinator() {
+    private func startTaskReminderCustomDate() {
 //        let vm = viewModel?.getTaskReminderCustomDateViewModel()
 //
 //        let coordinator = TaskReminderCustomDateCoordinator(
@@ -199,7 +195,7 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
 //        coordinator.start()
     }
 
-    private func startTaskRepeatPeriodVariantsCoordinator() {
+    private func startTaskRepeatPeriodVariants() {
 //        let viewModel = viewModel.getTaskRepeatPeriodTableVariantsViewModel()
 //
 //        let coordinator = TaskRepeatPeriodVariantsCoordinator(
@@ -212,30 +208,28 @@ extension TaskDetailCoordinator: TaskDetailCoordinatorType {
 //        coordinator.start()
     }
 
-    private func startAddFileFromLibraryCoordinator() {
-        let coordinator = AddFileToTaskFromLibraryCoordinator(
+    private func startImportImageFromLibrary(
+        with mode: ImportImageFromLibraryCoordinator.Mode
+    ) {
+        let coordinator = ImportImageFromLibraryCoordinator(
             parent: self,
             navigation: navigation,
-            delegate: self,
-            mode: .library
+            mode: mode
         )
+
+        coordinator.finishResult.emit { [weak self] imageDataResult in
+            self?.viewModel?.coordinatorResult.accept(
+                .didImportedImage(imageDataResult)
+            )
+        }
+        .disposed(by: coordinator.disposeBag)
+
         addChild(coordinator)
         coordinator.start()
     }
 
-    private func startAddFileFromCameraCoordinator() {
-        let coordinator = AddFileToTaskFromLibraryCoordinator(
-            parent: self,
-            navigation: navigation,
-            delegate: self,
-            mode: .camera
-        )
-        addChild(coordinator)
-        coordinator.start()
-    }
-
-    private func startAddFileFromFilesCoordinator() {
-        let coordinator = AddFileToTaskFromFilesCoordinator(
+    private func startImportFileFromFiles() {
+        let coordinator = ImportFileFromFilesCoordinator(
             parent: self,
             navigation: navigation,
             delegate: self
@@ -265,12 +259,12 @@ extension TaskDetailCoordinator: UINavigationControllerDelegate {
 extension TaskDetailCoordinator: NotificationsDisabledAlertCoordinatorDelegate {
     func didChoosenEnableNotifications() {
         removeChild(withType: NotificationsDisabledAlertCoordinator.self)
-        startTaskReminderCustomDateCoordinator()
+        startTaskReminderCustomDate()
     }
 
     func didChoosenNotNowEnableNotification() {
         removeChild(withType: NotificationsDisabledAlertCoordinator.self)
-        startTaskReminderCustomDateCoordinator()
+        startTaskReminderCustomDate()
     }
 }
 
@@ -292,13 +286,7 @@ extension TaskDetailCoordinator: TaskRepeatPeriodVariantsCoordinatorDelegate {
     }
 }
 
-extension TaskDetailCoordinator: AddFileToTaskFromLibraryCoordinatorDelegate {
-    func didFinishPickingMediaFromLibrary(imageData: NSData) {
-//        viewModel.createTaskFile(fromImageData: imageData)
-    }
-}
-
-extension TaskDetailCoordinator: AddFileToTaskFromFilesCoordinatorDelegate {
+extension TaskDetailCoordinator: ImportFileFromFilesCoordinatorDelegate {
     func didFinishPickingFileFromLibrary(withUrl url: URL) {
 //        viewModel.createTaskFile(fromUrl: url)
     }

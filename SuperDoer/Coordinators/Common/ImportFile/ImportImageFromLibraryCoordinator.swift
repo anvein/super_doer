@@ -1,9 +1,14 @@
 import UIKit
+import RxCocoa
+import RxRelay
+import RxSwift
 
 ///  Координатор работает для загрузки файлов из:
 ///  - Галереи
 ///  - Камеры
-class AddFileToTaskFromLibraryCoordinator: NSObject, Coordinator {
+class ImportImageFromLibraryCoordinator: BaseCoordinator {
+    typealias ImageDataResult = Data
+
     enum Mode {
         case camera
         case library
@@ -19,35 +24,31 @@ class AddFileToTaskFromLibraryCoordinator: NSObject, Coordinator {
         
         var title: String {
             switch self {
-            case .camera:
-                return "камере"
-            case .library:
-                return "галерее"
+            case .camera:  "камере"
+            case .library: "галерее"
             }
         }
     }
-    
-    var childs: [Coordinator] = []
-    weak var parent: Coordinator?
-    
-    private var navigation: UINavigationController
-    private weak var delegate: AddFileToTaskFromLibraryCoordinatorDelegate?
 
+    let disposeBag = DisposeBag()
+
+    private var navigation: UINavigationController
     private var mode: Mode
-    
+
+    private let finishResultRelay = PublishRelay<ImageDataResult?>()
+    var finishResult: Signal<ImageDataResult?> { finishResultRelay.asSignal() }
+
     init(
         parent: Coordinator,
         navigation: UINavigationController,
-        delegate: AddFileToTaskFromLibraryCoordinatorDelegate,
         mode: Mode
     ) {
         self.navigation = navigation
-        self.delegate = delegate
-        self.parent = parent
         self.mode = mode
+        super.init(parent: parent)
     }
     
-    func start() {
+    override func start() {
         // TODO: сделать нормальные проверки
         guard UIImagePickerController.isSourceTypeAvailable(mode.asSourceType) == true else {
             print("❌ Нет доступа к \(mode.title)")
@@ -64,7 +65,7 @@ class AddFileToTaskFromLibraryCoordinator: NSObject, Coordinator {
         controller.delegate = self
         controller.presentationController?.delegate = self
         controller.mediaTypes = availableTypes ?? []
-        
+
         if mode == .camera {
             controller.sourceType = .camera
         }
@@ -72,39 +73,30 @@ class AddFileToTaskFromLibraryCoordinator: NSObject, Coordinator {
         navigation.present(controller, animated: true)
     }
 
-    func finish() {
-        parent?.removeChild(self)
-    }
 }
 
+// MARK: - UIImagePickerControllerDelegate & UINavigationControllerDelegate
 
-// MARK: - coordinator delegate protocol
-protocol AddFileToTaskFromLibraryCoordinatorDelegate: AnyObject {
-    func didFinishPickingMediaFromLibrary(imageData: NSData)
-}
+extension ImportImageFromLibraryCoordinator: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
-
-// MARK: - UIImagePicker
-extension AddFileToTaskFromLibraryCoordinator: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
     func imagePickerController(
         _ picker: UIImagePickerController,
         didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
     ) {
+        let originalImage = info[.originalImage] as? UIImage
+        let imageData = originalImage?.jpegData(compressionQuality: 1)
+
+        finishResultRelay.accept(imageData)
+
         picker.dismiss(animated: true)
-        guard let originalImage = info[.originalImage] as? UIImage else {
-            return
-        }
-        
-        let imgData = NSData(data: originalImage.jpegData(compressionQuality: 1)!)
-        
-        delegate?.didFinishPickingMediaFromLibrary(imageData: imgData)
-        parent?.removeChild(self)
+        finish()
     }
-    
-    // не срабатывает если закрыть контроллер свайпом вниз
+
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        parent?.removeChild(self)
+        finishResultRelay.accept(nil)
+
+        picker.dismiss(animated: true)
+        finish()
     }
 }
 
@@ -113,9 +105,9 @@ extension AddFileToTaskFromLibraryCoordinator: UIImagePickerControllerDelegate, 
 // didDismissImagePickerController срабатывает только когда пользователь нажимает на кнопку отмена
 // если же пользователь свайпом вниз (или как-то по другому) закроет UIImagePickerController, то didDismissImagePickerController не срабатывает
 // но помог делегат presentationController'а
-// TODO: эта функция тоже срабатывает не всегда (разобраться)
-extension AddFileToTaskFromLibraryCoordinator: UIAdaptivePresentationControllerDelegate {
+// TODO: эта функция тоже срабатывает не всегда на каких-то iOS (разобраться)
+extension ImportImageFromLibraryCoordinator: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        parent?.removeChild(self)
+        finish()
     }
 }

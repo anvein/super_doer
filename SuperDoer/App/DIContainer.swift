@@ -24,8 +24,8 @@ final class DIContainer {
             DeleteItemsAlertFactory()
         }.inObjectScope(.container)
 
-        Self.container.register(AddFileSourceAlertFactory.self) { _ in
-            AddFileSourceAlertFactory()
+        Self.container.register(ImportFileSourceAlertFactory.self) { _ in
+            ImportFileSourceAlertFactory()
         }.inObjectScope(.container)
 
         // MARK: - CoreData services

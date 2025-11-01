@@ -1,24 +1,21 @@
 import UIKit
 
-class AddFileToTaskFromFilesCoordinator: NSObject, Coordinator {
-    var childs: [Coordinator] = []
-    weak var parent: Coordinator?
+class ImportFileFromFilesCoordinator: BaseCoordinator {
     
     private var navigation: UINavigationController
-    private weak var delegate: AddFileToTaskFromFilesCoordinatorDelegate?
-
+    private weak var delegate: ImportFileFromFilesCoordinatorDelegate?
     
     init(
         parent: Coordinator,
         navigation: UINavigationController,
-        delegate: AddFileToTaskFromFilesCoordinatorDelegate
+        delegate: ImportFileFromFilesCoordinatorDelegate
     ) {
         self.navigation = navigation
         self.delegate = delegate
-        self.parent = parent
+        super.init(parent: parent)
     }
     
-    func start() {
+    override func start() {
         let documentPicker = UIDocumentPickerViewController(
             forOpeningContentTypes: [.jpeg, .pdf, .text]
         )
@@ -27,21 +24,16 @@ class AddFileToTaskFromFilesCoordinator: NSObject, Coordinator {
 
         navigation.present(documentPicker, animated: true)
     }
-
-    func finish() {
-        parent?.removeChild(self)
-    }
 }
 
-
 // MARK: - coordinator delegate protocol
-protocol AddFileToTaskFromFilesCoordinatorDelegate: AnyObject {
+protocol ImportFileFromFilesCoordinatorDelegate: AnyObject {
     func didFinishPickingFileFromLibrary(withUrl url: URL)
 }
 
 
 // MARK: - UIDocumentPickerDelegate
-extension AddFileToTaskFromFilesCoordinator: UIDocumentPickerDelegate {
+extension ImportFileFromFilesCoordinator: UIDocumentPickerDelegate {
     func documentPicker(
         _ controller: UIDocumentPickerViewController,
         didPickDocumentsAt urls: [URL]
@@ -52,11 +44,11 @@ extension AddFileToTaskFromFilesCoordinator: UIDocumentPickerDelegate {
             delegate?.didFinishPickingFileFromLibrary(withUrl: url)
             break
         }
-        parent?.removeChild(self)
+        finish()
     }
     
     // срабатывает даже при закрытии свайпом вниз
     func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
-        parent?.removeChild(self)
+        finish()
     }
 }

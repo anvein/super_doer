@@ -1,5 +1,6 @@
 import Foundation
 
 enum TaskDetailCoordinatorResult {
-    case didCloseDescriptionEditor(NSAttributedString?)
+    case didEnteredDescriptionEditorContent(NSAttributedString?)
+    case didImportedImage(Data?)
 }

@@ -5,8 +5,6 @@ protocol TaskDetailCoordinatorType: AnyObject {
     func startDeadlineDateSetter(deadlineAt: Date?)
     func startRepeatPeriodSetter()
     func startDescriptionEditor(with data: TextEditorData)
-    func startAddFileSourceSelect()
+    func startImportFileSourceSelect()
     func startDeleteFileConfirmation(viewModel: TaskFileDeletableViewModel)
-
-    func didCloseTaskDetail()
 }

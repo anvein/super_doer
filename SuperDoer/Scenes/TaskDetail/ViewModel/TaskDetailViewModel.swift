@@ -103,8 +103,12 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
 
     private func handleCoordinatorResultEvent(_ event: TaskDetailCoordinatorResult) {
         switch event {
-        case .didCloseDescriptionEditor(let text):
+        case .didEnteredDescriptionEditorContent(let text):
             updateTaskField(descriptionText: text)
+
+        case .didImportedImage(let imageData):
+            guard let imageData else { return }
+            createTaskFile(from: imageData)
         }
     }
 
@@ -294,12 +298,14 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         updateBindedCell(with: indexPath)
     }
     
-    private func createTaskFile(fromImageData imageData: NSData) {
+    private func createTaskFile(from imageData: Data) {
         guard let task else { return }
+
+        let nsImageData = NSData(data: imageData)
         let taskFile = taskFileEm.createWith(
-            fileName: "Фото размером \(imageData.count) kb",
+            fileName: "Фото размером \(nsImageData.count) kb",
             fileExtension: "jpg",
-            fileSize: imageData.count,
+            fileSize: nsImageData.count,
             task: task
         )
         
