@@ -9,7 +9,6 @@ protocol TaskDetailViewModelOutput: AnyObject {
     var tableUpdateSignal: Signal<TaskDetailTableUpdateEvent> { get }
 
     var countSections: Int { get }
-    var isEnableNotifications: Bool { get }
 
     func getCountRowsInSection(_ sectionIndex: Int) -> Int
     func getTableCellViewModel(for indexPath: IndexPath) -> TaskDetailDataCellViewModelType?

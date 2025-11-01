@@ -3,7 +3,7 @@ import UIKit
 
 class TaskReminderCustomDateCoordinator: BaseCoordinator {
     private var navigation: UINavigationController
-    private var viewModel: TaskReminderCustomDateViewModel
+    private var viewModel: TaskReminderCustomDateViewModel?
     private weak var delegate: TaskReminderCustomDateCoordinatorDelegate?
     
     private var currentNavigation: ContainerNavigationController?
@@ -11,11 +11,9 @@ class TaskReminderCustomDateCoordinator: BaseCoordinator {
     init(
         parent: Coordinator,
         navigation: UINavigationController,
-        viewModel: TaskReminderCustomDateViewModel,
         delegate: TaskReminderCustomDateCoordinatorDelegate
     ) {
         self.navigation = navigation
-        self.viewModel = viewModel
         self.delegate = delegate
         super.init(parent: parent)
     }
@@ -23,20 +21,22 @@ class TaskReminderCustomDateCoordinator: BaseCoordinator {
     override func start() {
         super.start()
 
-        let controller = CustomDateSetterViewController(
-            viewModel: viewModel,
-            coordinator: self,
-            datePickerMode: .dateAndTime
-        )
-        controller.title = "Напоминание"
-        
-        currentNavigation = ContainerNavigationController(
-            rootViewController: controller,
-            coordinator: self
-        )
-        
-        guard let currentNavigation else { return }
-        navigation.present(currentNavigation, animated: true)
+//        let vm = TaskReminderCustomDateViewModel(task: <#T##CDTask#>)
+//
+//        let controller = CustomDateSetterViewController(
+//            viewModel: viewModel,
+//            coordinator: self,
+//            datePickerMode: .dateAndTime
+//        )
+//        controller.title = "Напоминание"
+//        
+//        currentNavigation = ContainerNavigationController(
+//            rootViewController: controller,
+//            coordinator: self
+//        )
+//        
+//        guard let currentNavigation else { return }
+//        navigation.present(currentNavigation, animated: true)
     }
 }
 

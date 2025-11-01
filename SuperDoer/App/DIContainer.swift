@@ -28,6 +28,10 @@ final class DIContainer {
             ImportFileSourceAlertFactory()
         }.inObjectScope(.container)
 
+        Self.container.register(NotificationsDisabledAlertFactory.self) { _ in
+            NotificationsDisabledAlertFactory()
+        }.inObjectScope(.container)
+
         // MARK: - CoreData services
 
         Self.container.register(TaskSectionCoreDataManager.self, factory: { _ in

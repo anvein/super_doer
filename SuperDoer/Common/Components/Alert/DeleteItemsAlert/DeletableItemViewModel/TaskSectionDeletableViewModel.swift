@@ -9,11 +9,4 @@ class TaskSectionDeletableViewModel: BaseDeletableItemViewModel {
             manyVP: "списки"
         )
     }
-    
-    static func createFrom(section: CDTaskCustomSection, indexPath: IndexPath) -> TaskSectionDeletableViewModel {
-        return TaskSectionDeletableViewModel(
-            title: section.title ?? "",
-            indexPath: indexPath
-        )
-    }
 }

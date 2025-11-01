@@ -64,7 +64,6 @@ final class SectionsListCoordinator: BaseCoordinator {
 
     func startDeleteSectionConfirmation(_ sectionVM: TaskSectionDeletableViewModel) {
         let alert = deleteAlertFactory.makeAlert([sectionVM]) { [weak self] items in
-            guard let items = items as? [TaskSectionDeletableViewModel] else { return }
             self?.viewModel?.coordinatorResult.accept(
                 .onDeleteSectionConfirmed(items)
             )

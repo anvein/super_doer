@@ -43,11 +43,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
     }
     var tableUpdateSignal: Signal<TaskDetailTableUpdateEvent> { tableUpdateRelay.asSignal() }
     var countSections: Int { tableViewModel.countSections }
-    var isEnableNotifications: Bool {
-        // TODO: получить из сервиса, который вернет "включены ли уведомления"
-        return true
-    }
-
+    
     // MARK: - Navigation
 
     private let navigationEventRelay = PublishRelay<TaskDetailNavigationEvent>()

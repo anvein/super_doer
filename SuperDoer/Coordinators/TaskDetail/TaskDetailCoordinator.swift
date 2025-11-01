@@ -12,8 +12,12 @@ final class TaskDetailCoordinator: BaseCoordinator {
     private let deleteAlertFactory: DeleteItemsAlertFactory
 
     private var viewController: TaskDetailViewController?
-    private var viewModel: (TaskDetailCoordinatorResultHandler & TaskDetailViewModelOutput)?
+    private var viewModel: (TaskDetailCoordinatorResultHandler & TaskDetailNavigationEmittable)?
 
+    var isEnableNotifications: Bool {
+        // TODO: переделать на получение значения из сервиса
+        return true
+    }
 
     init(
         parent: Coordinator,
@@ -74,7 +78,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
         }
     }
 
-    private func handleDidSelectAddFileSource(_ source: ImportFileSourceAlertFactory.FileSource?) {
+    private func handleDidSelectAddFileSource(_ source: ImportFileSource?) {
         switch source {
         case .library:
             startImportImageFromLibrary(with: .library)
@@ -90,12 +94,22 @@ final class TaskDetailCoordinator: BaseCoordinator {
         }
     }
 
+    private func handleNotificationsDisabledAlertResult(
+        _ result: NotificationsDisabledAlertCoordinator.FinishResult
+    ) {
+        switch result {
+        case .didSelectNotificationsEnable, .didSelectNotNow:
+            startTaskReminderCustomDate()
+
+        case .didSelectCancel:
+            break
+        }
+    }
+
     // MARK: - Childs start
 
     private func startReminderDateSetter() {
-        guard let viewModel else { return }
-
-        if !viewModel.isEnableNotifications {
+        if !isEnableNotifications {
             startNotificationsDisableAlert()
         } else {
             startTaskReminderCustomDate()
@@ -173,23 +187,29 @@ final class TaskDetailCoordinator: BaseCoordinator {
 
     private func startNotificationsDisableAlert() {
         guard let viewController else { return }
+
         let coordinator = NotificationsDisabledAlertCoordinator(
             parent: self,
             parentController: viewController,
-            delegate: self
+            alertFactory: DIContainer.container.resolve(NotificationsDisabledAlertFactory.self)!
         )
+
+        coordinator.finishResult.emit(onNext: { [weak self] result in
+            self?.handleNotificationsDisabledAlertResult(result)
+        })
+        .disposed(by: coordinator.disposeBag)
 
         addChild(coordinator)
         coordinator.start()
     }
 
     private func startTaskReminderCustomDate() {
-//        let vm = viewModel?.getTaskReminderCustomDateViewModel()
-//
+        let alert = UIAlertController(title: "открыть установку напоминания", message: nil, preferredStyle: .alert)
+        alert.addAction(.init(title: "ok", style: .cancel))
+        navigation.present(alert, animated: true)
 //        let coordinator = TaskReminderCustomDateCoordinator(
 //            parent: self,
 //            navigation: navigation,
-//            viewModel: vm,
 //            delegate: self
 //        )
 //        addChild(coordinator)
@@ -267,18 +287,6 @@ extension TaskDetailCoordinator: UINavigationControllerDelegate {
 
 
 // MARK: - Delegates of child coordinators
-
-extension TaskDetailCoordinator: NotificationsDisabledAlertCoordinatorDelegate {
-    func didChoosenEnableNotifications() {
-        removeChild(withType: NotificationsDisabledAlertCoordinator.self)
-        startTaskReminderCustomDate()
-    }
-
-    func didChoosenNotNowEnableNotification() {
-        removeChild(withType: NotificationsDisabledAlertCoordinator.self)
-        startTaskReminderCustomDate()
-    }
-}
 
 extension TaskDetailCoordinator: TaskReminderCustomDateCoordinatorDelegate {
     func didChooseTaskReminderDate(newDate: Date?) {

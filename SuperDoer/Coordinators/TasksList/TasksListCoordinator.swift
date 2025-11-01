@@ -72,8 +72,6 @@ final class TasksListCoordinator: BaseCoordinator {
 
     private func startDeleteTasksConfirmation(for deletableTasksVMs: [TaskDeletableViewModel]) {
         let alert = deleteAlertFactory.makeAlert(deletableTasksVMs) { [weak self] deletableVM in
-            guard let deletableVM = deletableVM as? [TaskDeletableViewModel] else { return }
-
             self?.viewModel?.coordinatorResult.accept(
                 .onDeleteTasksConfirmed(deletableVM)
             )
