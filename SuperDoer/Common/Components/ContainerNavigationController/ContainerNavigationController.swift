@@ -1,4 +1,3 @@
-
 import UIKit
 
 /// Navigation контроллер, который должен использоваться как
@@ -7,9 +6,9 @@ class ContainerNavigationController: UINavigationController {
 
     /// Координатор, который является корневым для цепи контроллеров открытых как модалки
     private weak var coordinator: ContainerNavigationControllerCoordinator?
-    
-    
-    // MARK: init
+
+    // MARK: - Init
+
     init(
         rootViewController: UIViewController, 
         coordinator: ContainerNavigationControllerCoordinator?
@@ -21,9 +20,9 @@ class ContainerNavigationController: UINavigationController {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    
-    // MARK: life cycle
+
+    // MARK: - Lifecycle
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         

@@ -18,15 +18,14 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
     private var task: CDTask?
 
     // MARK: - State
-    /// Объект с массивом CellVM's на основании которого формируется таблица с "кнопками" и данными задачи
-    /// Прослойка между сущностью CDTask и таблицей с данными задачи
-    private var tableViewModel: TaskDetailTableViewModel = .init()
+
+    private let tableViewModel: TaskDetailTableViewModel = .init()
 
     private let titleRelay = BehaviorRelay<String>(value: "")
     private let isCompletedRelay = BehaviorRelay<Bool>(value: false)
     private let isPriorityRelay = BehaviorRelay<Bool>(value: false)
     private let fieldEditingStateRelay = BehaviorRelay<TaskDetailViewModelFieldEditingState?>(value: nil)
-    private let tableUpdateRelay = PublishRelay<TaskDetailTableUpdateEvent>()
+    
 
     // MARK: - Input
 
@@ -41,7 +40,9 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         // TODO: reentrancy!
         fieldEditingStateRelay.distinctUntilChanged().asDriver(onErrorJustReturn: nil)
     }
-    var tableUpdateSignal: Signal<TaskDetailTableUpdateEvent> { tableUpdateRelay.asSignal() }
+    var tableUpdateSignal: Signal<TaskDetailTableViewModel.UpdateEvent> {
+        tableViewModel.updateEvent
+    }
     var countSections: Int { tableViewModel.countSections }
     
     // MARK: - Navigation
@@ -73,7 +74,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         return tableViewModel.getCountRowsInSection(sectionIndex)
     }
 
-    func getTableCellViewModel(for indexPath: IndexPath) -> TaskDetailDataCellViewModelType? {
+    func getTableCellViewModel(for indexPath: IndexPath) -> TaskDetailTableCellViewModelType? {
         return tableViewModel.getCellVM(for: indexPath)
     }
 
@@ -223,7 +224,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         isCompletedRelay.accept(task.isCompleted)
         isPriorityRelay.accept(task.isPriority)
 
-        tableViewModel = TaskDetailTableViewModel(task)
+        tableViewModel.refill(from: task)
     }
 
     // MARK: - Model manipulations
@@ -249,9 +250,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
     private func updateTaskField(inMyDay: Bool) {
         guard let task else { return }
         taskEm.updateField(inMyDay: inMyDay, task: task)
-        
-        guard let indexPath = tableViewModel.fillAddToMyDay(from: task) else { return }
-        updateBindedCell(with: indexPath)
+        tableViewModel.updateAddToMyDay(task.inMyDay)
     }
     
     private func toggleValueTaskFieldInMyDay() {
@@ -264,37 +263,36 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         guard let task else { return }
         taskEm.updateField(deadlineDate: deadlineDate, task: task)
 
-        guard let indexPath = tableViewModel.fillDeadlineAt(from: task) else { return }
-        updateBindedCell(with: indexPath)
+        tableViewModel.updateDeadlineAt(task.deadlineDate)
     }
     
     private func updateTaskField(reminderDateTime: Date?) {
         guard let task else { return }
         taskEm.updateField(reminderDateTime: reminderDateTime, task: task)
 
-        guard let indexPath = tableViewModel.fillReminderDate(from: task) else { return }
-        updateBindedCell(with: indexPath)
+        tableViewModel.updateReminderDate(task.reminderDateTime)
     }
     
     private func updateTaskField(repeatPeriod: String?) {
         guard let task else { return }
         taskEm.updateField(repeatPeriod: repeatPeriod, task: task)
 
-        guard let indexPath = tableViewModel.fillRepeatPeriod(from: task) else { return }
-        updateBindedCell(with: indexPath)
+        tableViewModel.updateRepeatPeriod(task.repeatPeriod)
     }
     
     private func updateTaskField(descriptionText: NSAttributedString?) {
         guard let task else { return }
-        // TODO: конвертировать из NSAttributedString в хранимый string
+
         taskEm.updateFields(
             descriptionText: descriptionText,
             descriptionUpdatedAt: Date(),
             task: task
         )
 
-        guard let indexPath = tableViewModel.fillDescription(from: task) else { return }
-        updateBindedCell(with: indexPath)
+        tableViewModel.updateDescription(
+            text: task.descriptionTextAttributed,
+            updatedAt: task.descriptionUpdatedAt
+        )
     }
     
     private func createTaskFile(from imageData: Data) {
@@ -308,8 +306,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
             task: task
         )
         
-        guard let indexPath = tableViewModel.addFile(taskFile) else { return }
-        addBindedCell(with: indexPath)
+        tableViewModel.addFileCellVM(taskFile)
     }
     
     private func createTaskFile(from url: URL) {
@@ -322,8 +319,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
             task: task
         )
         
-        guard let indexPath = tableViewModel.addFile(taskFile) else { return }
-        addBindedCell(with: indexPath)
+        tableViewModel.addFileCellVM(taskFile)
     }
     
     private func deleteTaskFile(deletableVM: TaskFileDeletableViewModel) {
@@ -343,28 +339,6 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         
         taskFileEm.delete(file: taskFile)
         tableViewModel.deleteFile(with: indexPath)
-
-        tableUpdateRelay.accept(
-            .removeCells(with: [indexPath])
-        )
     }
 
-    // MARK: - UI methods
-
-    // TODO: перенести в TableViewModel -> VM (bind to) -> View
-    private func updateBindedCell(with indexPath: IndexPath) {
-        guard let cellVM = getTableCellViewModel(for: indexPath) else { return }
-
-        tableUpdateRelay.accept(
-            .updateCell(with: indexPath, cellVM: cellVM)
-        )
-    }
-    
-    private func addBindedCell(with indexPath: IndexPath) {
-        guard let cellVM = getTableCellViewModel(for: indexPath) else { return }
-
-        tableUpdateRelay.accept(
-            .addCell(to: indexPath, cellVM: cellVM)
-        )
-    }
 }

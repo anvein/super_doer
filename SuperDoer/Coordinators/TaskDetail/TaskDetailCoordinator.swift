@@ -305,14 +305,3 @@ extension TaskDetailCoordinator: TaskRepeatPeriodVariantsCoordinatorDelegate {
 //        viewModel.updateTaskField(repeatPeriod: newPeriod)
     }
 }
-
-//extension TaskDetailCoordinator: DeleteItemCoordinatorDelegate {
-//    func didConfirmDeleteItems(_ items: [DeletableItemViewModelType]) {
-//        if let items = items as? [TaskFileDeletableViewModel] {
-//            guard let item = items.first else { return }
-//            viewModel.deleteTaskFile(fileDeletableVM: item)
-//        } else {
-//            // удаление задачи
-//        }
-//    }
-//}

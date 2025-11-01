@@ -155,7 +155,7 @@ private extension TaskDetailView {
 
     // MARK: - Actions / Events handlers
 
-    func handleViewModelTableUpdate(event: TaskDetailTableUpdateEvent) {
+    func handleViewModelTableUpdate(event: TaskDetailTableViewModel.UpdateEvent) {
         switch event {
         case .addCell(let toIndexPath, _):
             taskDataTableView.insertRows(at: [toIndexPath], with: .fade)
@@ -165,16 +165,19 @@ private extension TaskDetailView {
 
         case .removeCells(let indexPaths):
             taskDataTableView.deleteRows(at: indexPaths, with: .fade)
+
+        case .refill:
+            taskDataTableView.reloadData()
         }
     }
 
     // MARK: - Helpers
 
-    func buildTableViewCellFor(_ cellViewModel: TaskDetailDataCellViewModelType) -> UITableViewCell {
+    func buildTableViewCellFor(_ cellViewModel: TaskDetailTableCellViewModelType) -> UITableViewCell {
         let cell: UITableViewCell?
 
         switch cellViewModel {
-        case _ as AddSubTaskCellViewModel:
+        case _ as CreateSubtaskCellViewModel:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailAddSubtaskCell.className)
             if let cell = cell as? TaskDetailAddSubtaskCell {
                 cell.titleTextField.delegate = self
@@ -208,7 +211,7 @@ private extension TaskDetailView {
                 cell.delegate = self
             }
 
-        case _ as AddFileCellVeiwModel:
+        case _ as ImportFileCellViewModel:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailAddFileCell.className)
 
         case let cellVM as FileCellViewModel:
@@ -233,11 +236,11 @@ private extension TaskDetailView {
         return cell ?? .init()
     }
 
-    func updateTableViewCell(with indexPath: IndexPath, cellVM: TaskDetailDataCellViewModelType) {
+    func updateTableViewCell(with indexPath: IndexPath, cellVM: TaskDetailTableCellViewModelType) {
         let cell = taskDataTableView.cellForRow(at: indexPath)
 
         switch cellVM {
-        case _ as AddSubTaskCellViewModel:
+        case _ as CreateSubtaskCellViewModel:
             break
 
         case let cellVM as AddToMyDayCellViewModel:
@@ -256,7 +259,7 @@ private extension TaskDetailView {
             guard let cell = cell as? TaskDetailRepeatPeriodCell else { return }
             cell.fillFrom(cellVM)
 
-        case _ as AddFileCellVeiwModel:
+        case _ as ImportFileCellViewModel:
             break
 
         case let cellVM as FileCellViewModel:
@@ -302,7 +305,7 @@ extension TaskDetailView: UITableViewDelegate {
         let cellVM = viewModel?.getTableCellViewModel(for: indexPath)
 
         switch cellVM {
-        case _ as AddSubTaskCellViewModel:
+        case _ as CreateSubtaskCellViewModel:
             return TaskDetailAddSubtaskCell.rowHeight.cgFloat
 
         case _ as AddToMyDayCellViewModel:
@@ -317,7 +320,7 @@ extension TaskDetailView: UITableViewDelegate {
         case _ as RepeatPeriodCellViewModel:
             return TaskDetailRepeatPeriodCell.rowHeight.cgFloat
 
-        case _ as AddFileCellVeiwModel:
+        case _ as ImportFileCellViewModel:
             return TaskDetailAddFileCell.rowHeight.cgFloat
 
         case _ as FileCellViewModel:

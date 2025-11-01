@@ -36,6 +36,7 @@ class TaskDetailViewController: UIViewController {
 
         setupNavigation()
         setupBindings()
+
         viewModel.inputEvent.accept(.needLoadInitialData)
 
 //        PIXEL_PERFECT_screen.createAndSetupInstance(
@@ -81,13 +82,6 @@ private extension TaskDetailViewController {
         case nil:
             navigationItem.setRightBarButton(nil, animated: true)
         }
-    }
-
-    // MARK: - Coordinator methods
-
-    func startDeleteFileCoordinator(with fileCellIndexPath: IndexPath) {
-//        guard let fileVM = viewModel.getFileDeletableViewModel(for: fileCellIndexPath) else { return }
-//        coordinator?.taskDetailVCStartDeleteProcessFile(viewModel: fileVM)
     }
 
 }

@@ -6,11 +6,11 @@ protocol TaskDetailViewModelOutput: AnyObject {
     var isCompletedDriver: Driver<Bool> { get }
     var isPriorityDriver: Driver<Bool> { get }
     var fieldEditingStateDriver: Driver<TaskDetailViewModelFieldEditingState?> { get }
-    var tableUpdateSignal: Signal<TaskDetailTableUpdateEvent> { get }
+    var tableUpdateSignal: Signal<TaskDetailTableViewModel.UpdateEvent> { get }
 
     var countSections: Int { get }
 
     func getCountRowsInSection(_ sectionIndex: Int) -> Int
-    func getTableCellViewModel(for indexPath: IndexPath) -> TaskDetailDataCellViewModelType?
+    func getTableCellViewModel(for indexPath: IndexPath) -> TaskDetailTableCellViewModelType?
     func canDeleteCell(with indexPath: IndexPath) -> Bool
 }
