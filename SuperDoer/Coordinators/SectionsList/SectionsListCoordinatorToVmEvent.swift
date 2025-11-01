@@ -1,4 +1,4 @@
-enum SectionsListCoordinatorToVmEvent {
+enum SectionsListCoordinatorResult {
     case onDeleteSectionConfirmed([TaskSectionDeletableViewModel])
     case onDeleteSectionCanceled
 }

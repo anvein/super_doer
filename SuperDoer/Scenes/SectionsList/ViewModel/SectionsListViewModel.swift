@@ -1,15 +1,23 @@
 import Foundation
 import RxSwift
+import RxRelay
+import RxCocoa
 
-final class SectionsListViewModel {
+final class SectionsListViewModel: SectionsListCoordinatorResultHandler, SectionsListNavigationEmittable {
 
     typealias SectionGroup = [[TaskSectionProtocol]]
 
-    private let disposeBag = DisposeBag()
+    let disposeBag = DisposeBag()
+
+    // MARK: - Navigation
+
+    var coordinatorResult = PublishRelay<SectionsListCoordinatorResult>()
+
+    private let navigationEventRelay = PublishRelay<SectionsListNavigationEvent>()
+    var navigationEvent: Signal<SectionsListNavigationEvent> { navigationEventRelay.asSignal() }
 
     // MARK: - Services
 
-    private weak var coordinator: (any SectionsListCoordinatorType)?
     private let sectionEm: TaskSectionCoreDataManager
     private let systemSectionsBuilder: SystemSectionsBuilder
 
@@ -24,17 +32,30 @@ final class SectionsListViewModel {
     // MARK: - Init
 
     required init(
-        coordinator: any SectionsListCoordinatorType,
         sectionEm: TaskSectionCoreDataManager,
         systemSectionsBuilder: SystemSectionsBuilder
     ) {
-        self.coordinator = coordinator
         self.sectionEm = sectionEm
         self.systemSectionsBuilder = systemSectionsBuilder
 
         self.sections = UIBox(SectionGroup())
 
         setupBindings()
+    }
+
+    // MARK: - Setup
+
+    private func setupBindings() {
+        coordinatorResult.subscribe(onNext: { [weak self] event in
+            switch event {
+            case .onDeleteSectionConfirmed(let deletableSections):
+                self?.handleConfirmDelete(deletableSections)
+
+            case .onDeleteSectionCanceled:
+                return
+            }
+        })
+        .disposed(by: disposeBag)
     }
 
 }
@@ -46,21 +67,6 @@ extension SectionsListViewModel: SectionsListViewModelType {
     // MARK: - Observable
 
     var sectionsObservable: UIBoxObservable<Sections> { sections.asObservable() }
-
-    // MARK: - Setup
-
-    private func setupBindings() {
-        coordinator?.viewModelEventSignal.emit(onNext: { [weak self] event in
-            switch event {
-            case .onDeleteSectionConfirmed(let deletableSections):
-                self?.handleConfirmDelete(deletableSections)
-
-            case .onDeleteSectionCanceled:
-                return
-            }
-        })
-        .disposed(by: disposeBag)
-    }
 
     // MARK: - Get data
 
@@ -106,7 +112,14 @@ extension SectionsListViewModel: SectionsListViewModelType {
         guard let section = sections.value[safe: indexPath.section]?[safe: indexPath.row],
               let customSection = section as? CDTaskCustomSection else { return }
 
-        coordinator?.startDeleteSectionConfirmation(customSection, indexPath)
+        let deletableSectionVM = TaskSectionDeletableViewModel(
+            title: customSection.title ?? "",
+            indexPath: indexPath
+        )
+
+        navigationEventRelay.accept(
+            .openDeleteSectionConfirmation(deletableSectionVM)
+        )
     }
 
     func didTapArchiveCustomSection(indexPath: IndexPath) {
@@ -123,10 +136,10 @@ extension SectionsListViewModel: SectionsListViewModelType {
         switch section {
         case let customSection as CDTaskCustomSection:
             guard let sectionId = customSection.id else { return }
-            coordinator?.startTasksListInCustomSectionFlow(with: sectionId)
+            navigationEventRelay.accept(.openTasksListInCustomSection(id: sectionId))
 
-        case let _ as TaskSystemSection:
-            coordinator?.startTasksListInSystemSectionFlow()
+        case _ as TaskSystemSection:
+            navigationEventRelay.accept(.openTasksListInSystemSection)
 
         default:
             return

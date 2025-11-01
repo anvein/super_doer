@@ -2,14 +2,16 @@ import UIKit
 import Foundation
 import RxRelay
 import RxCocoa
+import RxSwift
 
 final class SectionsListCoordinator: BaseCoordinator {
 
+    private let disposeBag = DisposeBag()
+
     private let navigation: UINavigationController
     private weak var viewController: SectionsListViewController?
+    private var viewModel: (SectionsListCoordinatorResultHandler & SectionsListNavigationEmittable)?
     private let deleteAlertFactory: DeleteItemsAlertFactory
-
-    private let viewModelEventRelay = PublishRelay<SectionsListCoordinatorToVmEvent>()
 
     init(
         parent: Coordinator,
@@ -26,24 +28,41 @@ final class SectionsListCoordinator: BaseCoordinator {
         super.start()
 
         let vm = SectionsListViewModel(
-            coordinator: self,
             sectionEm: DIContainer.container.resolve(TaskSectionCoreDataManager.self)!,
             systemSectionsBuilder: DIContainer.container.resolve(SystemSectionsBuilder.self)!
         )
         let vc = SectionsListViewController(viewModel: vm)
 
+        vm.navigationEvent.emit(onNext: { [weak self] event in
+            self?.handleNavigationEvent(event)
+        })
+        .disposed(by: disposeBag)
+
         self.viewController = vc
+        self.viewModel = vm
+
         navigation.pushViewController(vc, animated: false)
+    }
+
+    // MARK: -
+
+    private func handleNavigationEvent(_ event: SectionsListNavigationEvent) {
+        switch event {
+        case .openDeleteSectionConfirmation(let sectionVM):
+            startDeleteSectionConfirmation(sectionVM)
+
+        case .openTasksListInCustomSection(let sectionId):
+            startTasksListInCustomSectionFlow(with: sectionId)
+
+        case .openTasksListInSystemSection:
+            startTasksListInSystemSectionFlow()
+        }
     }
 }
 
 // MARK: - SectionsListCoordinatorType
 
 extension SectionsListCoordinator: SectionsListCoordinatorType {
-    var viewModelEventSignal: Signal<SectionsListCoordinatorToVmEvent> {
-        viewModelEventRelay.asSignal()
-    }
-
     func startTasksListInSystemSectionFlow() {
         print("📋 Открыть системный список")
     }
@@ -60,19 +79,14 @@ extension SectionsListCoordinator: SectionsListCoordinatorType {
         coordinator.start()
     }
 
-    func startDeleteSectionConfirmation(_ section: CDTaskCustomSection, _ indexPath: IndexPath) {
-        let deletableSectionVM = TaskSectionDeletableViewModel(
-            title: section.title ?? "",
-            indexPath: indexPath
-        )
-
-        let alert = deleteAlertFactory.makeAlert([deletableSectionVM]) { [weak self] items in
+    func startDeleteSectionConfirmation(_ sectionVM: TaskSectionDeletableViewModel) {
+        let alert = deleteAlertFactory.makeAlert([sectionVM]) { [weak self] items in
             guard let items = items as? [TaskSectionDeletableViewModel] else { return }
-            self?.viewModelEventRelay.accept(
+            self?.viewModel?.coordinatorResult.accept(
                 .onDeleteSectionConfirmed(items)
             )
         } onCancel: { [weak self] in
-            self?.viewModelEventRelay.accept(.onDeleteSectionCanceled)
+            self?.viewModel?.coordinatorResult.accept(.onDeleteSectionCanceled)
         }
 
         navigation.present(alert, animated: true)

@@ -32,7 +32,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
         )
 
         vm.navigationEvent.emit { [weak self] event in
-            self?.handleTaskDetailViewModelEvent(event)
+            self?.handleTaskDetailNavigationEvent(event)
         }
         .disposed(by: disposeBag)
 
@@ -45,7 +45,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
         navigation.pushViewController(vc, animated: true)
     }
 
-    private func handleTaskDetailViewModelEvent(_ event: TaskDetailNavigationEvent) {
+    private func handleTaskDetailNavigationEvent(_ event: TaskDetailNavigationEvent) {
         switch event {
         case .openDeadlineDateSetter(let deadlineAt):
             startDeadlineDateSetter(deadlineAt: deadlineAt)
