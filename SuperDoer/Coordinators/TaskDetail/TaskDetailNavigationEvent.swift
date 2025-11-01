@@ -6,5 +6,5 @@ enum TaskDetailNavigationEvent {
     case openRepeatPeriodSetter
     case openDescriptionEditor(TextEditorData)
     case openAddFile
-    case openDeleteFileConfirmation(viewModel: TaskFileDeletableViewModel)
+    case openDeleteFileConfirmation(TaskFileDeletableViewModel)
 }

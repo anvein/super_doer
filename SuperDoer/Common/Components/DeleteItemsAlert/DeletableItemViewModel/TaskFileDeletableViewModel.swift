@@ -1,4 +1,3 @@
-
 import Foundation
 
 class TaskFileDeletableViewModel: BaseDeletableItemViewModel {
@@ -8,13 +7,6 @@ class TaskFileDeletableViewModel: BaseDeletableItemViewModel {
             oneIP: "файл",
             oneVP: "файл",
             manyVP: "файлы"
-        )
-    }
-    
-    static func createFrom(fileCellViewModel: FileCellViewModel, indexPath: IndexPath) -> TaskFileDeletableViewModel {
-        return TaskFileDeletableViewModel(
-            title: fileCellViewModel.name,
-            indexPath: indexPath
         )
     }
 }

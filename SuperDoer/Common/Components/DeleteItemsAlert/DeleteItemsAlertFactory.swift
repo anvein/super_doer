@@ -2,10 +2,23 @@ import UIKit
 
 class DeleteItemsAlertFactory {
 
-    func makeAlert(
-        _ items: [DeletableItemViewModelType],
+    func makeAlert<T: DeletableItemViewModelType>(
+        _ item: T,
         message: String? = nil,
-        onConfirm: (([DeletableItemViewModelType]) -> Void)? = nil,
+        onConfirm: ((T) -> Void)? = nil,
+        onCancel: (() -> Void)? = nil
+    ) -> UIAlertController {
+        self.makeAlert([item], message: message) { _ in
+            onConfirm?(item)
+        } onCancel: {
+            onCancel?()
+        }
+    }
+
+    func makeAlert<T: DeletableItemViewModelType>(
+        _ items: [T],
+        message: String? = nil,
+        onConfirm: (([T]) -> Void)? = nil,
         onCancel: (() -> Void)? = nil
     ) -> UIAlertController {
 

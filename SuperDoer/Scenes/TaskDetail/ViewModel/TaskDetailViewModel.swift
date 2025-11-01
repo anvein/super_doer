@@ -38,6 +38,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
     var isCompletedDriver: Driver<Bool> { isCompletedRelay.asDriver() }
     var isPriorityDriver: Driver<Bool> { isPriorityRelay.asDriver() }
     var fieldEditingStateDriver: Driver<TaskDetailViewModelFieldEditingState?> {
+        // TODO: reentrancy!
         fieldEditingStateRelay.distinctUntilChanged().asDriver(onErrorJustReturn: nil)
     }
     var tableUpdateSignal: Signal<TaskDetailTableUpdateEvent> { tableUpdateRelay.asSignal() }
@@ -111,6 +112,12 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
 
         case .didImportedFile(let fileUrl):
             fileUrl.map { self.createTaskFile(from: $0) }
+
+        case .didDeleteTaskFileConfirmed(let taskFile):
+            deleteTaskFile(deletableVM: taskFile)
+
+        case .didDeleteTaskFileCanceled:
+            break
         }
     }
 
@@ -135,8 +142,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
             navigationEventRelay.accept(.openAddFile)
 
         case .didTapFileDelete(indexPath: let indexPath):
-//            navigationEventRelay.accept(.openDeleteFileConfirmation(viewModel: <#T##TaskFileDeletableViewModel#>))
-            break
+            handleTapFileDelete(with: indexPath)
 
         case .didTapOpenDescriptionEditor:
             handleTapOpenDescriptionEditor()
@@ -185,8 +191,19 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         )
     }
 
+    private func handleTapFileDelete(with indexPath: IndexPath) {
+        guard let cellVM = tableViewModel.getCellVM(for: indexPath),
+              let fileCellVM = cellVM as? FileCellViewModel else { return }
+
+        let fileDeletable =  TaskFileDeletableViewModel(
+            title: fileCellVM.titleForDelete,
+            indexPath: indexPath
+        )
+
+        navigationEventRelay.accept(.openDeleteFileConfirmation(fileDeletable))
+    }
+
     // MARK: - Children view models building
-    
 
 //    func getTaskDeadlineTableVariantsViewModel() -> TaskDeadlineTableVariantsViewModel {
 //        return TaskDeadlineTableVariantsViewModel(deadlineDate: task.deadlineDate)
@@ -198,22 +215,6 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
 //    
 //    func getTaskRepeatPeriodTableVariantsViewModel() -> TaskRepeatPeriodTableVariantsViewModel {
 //        return TaskRepeatPeriodTableVariantsViewModel(repeatPeriod: task.repeatPeriod)
-//    }
-//    
-//    func getFileCellViewModel(for indexPath: IndexPath) -> FileCellViewModel? {
-//        let fileCellVM = taskDataViewModels.getCellVM(for: indexPath)
-//        guard let fileCellVM = fileCellVM as? FileCellViewModel else { return nil }
-//        
-//        return fileCellVM
-//    }
-//    
-//    func getFileDeletableViewModel(for indexPath: IndexPath) -> TaskFileDeletableViewModel? {
-//        guard let fileCellVM = getFileCellViewModel(for: indexPath) else { return nil }
-//
-//        return TaskFileDeletableViewModel.createFrom(
-//            fileCellViewModel: fileCellVM,
-//            indexPath: indexPath
-//        )
 //    }
 
     // MARK: - Fetching Data
@@ -329,18 +330,16 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         addBindedCell(with: indexPath)
     }
     
-    private func deleteTaskFile(fileDeletableVM: TaskFileDeletableViewModel) {
-        guard let task else { return }
+    private func deleteTaskFile(deletableVM: TaskFileDeletableViewModel) {
+        guard let task, let indexPath = deletableVM.indexPath else { return }
 
-        guard let indexPath = fileDeletableVM.indexPath else { return }
-
-        let cellValue = tableViewModel.getCellVM(for: indexPath)
-        guard let fileCellValue = cellValue as? FileCellViewModel else {
+        let cellVM = tableViewModel.getCellVM(for: indexPath)
+        guard let fileCellVM = cellVM as? FileCellViewModel else {
             // TODO: показать сообщение об ошибке (файл не получилось удалить)
             return
         }
         
-        let taskFile = task.getFileBy(id: fileCellValue.id)
+        let taskFile = task.getFileBy(id: fileCellVM.id)
         guard let taskFile else  {
             // TODO: показать сообщение об ошибке (файл не получилось удалить)
             return
@@ -354,22 +353,9 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         )
     }
 
-    // MARK: Binding methods
+    // MARK: - UI methods
 
-//    private func updateSimpleObservablePropertiesFrom(_ task: CDTask) {
-//        if task.title != titleRelay.value {
-//            titleRelay.accept(task.titlePrepared)
-//        }
-//        
-//        if task.isCompleted != isCompletedRelay.value {
-//            isCompletedRelay.accept(task.isCompleted)
-//        }
-//        
-//        if task.isPriority != isPriorityRelay.value {
-//            isPriorityRelay.accept(task.isPriority)
-//        }
-//    }
-    
+    // TODO: перенести в TableViewModel -> VM (bind to) -> View
     private func updateBindedCell(with indexPath: IndexPath) {
         guard let cellVM = getTableCellViewModel(for: indexPath) else { return }
 

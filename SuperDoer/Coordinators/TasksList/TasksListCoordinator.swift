@@ -7,12 +7,12 @@ final class TasksListCoordinator: BaseCoordinator {
 
     private let disposeBag = DisposeBag()
 
-    private weak var viewController: TasksListViewController?
-    private weak var viewModel: (TasksListNavigationEmittable & TasksListCoordinatorResultHandler)?
-
     private let navigation: UINavigationController
     private let sectionId: UUID?
     private let deleteAlertFactory: DeleteItemsAlertFactory
+
+    private weak var viewController: TasksListViewController?
+    private weak var viewModel: (TasksListNavigationEmittable & TasksListCoordinatorResultHandler)?
 
     init(
         parent: Coordinator,
@@ -63,7 +63,8 @@ final class TasksListCoordinator: BaseCoordinator {
         let coordinator = TaskDetailCoordinator(
             parent: self,
             navigation: navigation,
-            taskId: taskId
+            taskId: taskId,
+            deleteAlertFactory: DIContainer.container.resolve(DeleteItemsAlertFactory.self)!
         )
         addChild(coordinator)
         coordinator.start()

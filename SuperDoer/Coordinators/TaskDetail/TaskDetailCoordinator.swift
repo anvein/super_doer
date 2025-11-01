@@ -5,20 +5,25 @@ import RxSwift
 
 final class TaskDetailCoordinator: BaseCoordinator {
 
+    private let disposeBag = DisposeBag()
+
     private let navigation: UINavigationController
     private let taskId: UUID
+    private let deleteAlertFactory: DeleteItemsAlertFactory
+
     private var viewController: TaskDetailViewController?
     private var viewModel: (TaskDetailCoordinatorResultHandler & TaskDetailViewModelOutput)?
 
-    private let disposeBag = DisposeBag()
 
     init(
         parent: Coordinator,
         navigation: UINavigationController,
-        taskId: UUID
+        taskId: UUID,
+        deleteAlertFactory: DeleteItemsAlertFactory
     ) {
         self.navigation = navigation
         self.taskId = taskId
+        self.deleteAlertFactory = deleteAlertFactory
         super.init(parent: parent)
     }
     
@@ -62,7 +67,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
             startImportFileSourceSelect()
 
         case .openDeleteFileConfirmation(viewModel: let viewModel):
-            startDeleteFileConfirmation(viewModel: viewModel)
+            startDeleteFileConfirmation(for: viewModel)
 
         case .openDescriptionEditor(let textEditorData):
             startDescriptionEditor(with: textEditorData)
@@ -154,15 +159,16 @@ final class TaskDetailCoordinator: BaseCoordinator {
         coordinator.start()
     }
 
-    private func startDeleteFileConfirmation(viewModel: TaskFileDeletableViewModel) {
-        //        let coordinator = DeleteItemsConfirmCoordinator(
-        //            parent: self,
-        //            navigation: navigation,
-        //            viewModels: [viewModel],
-        //            delegate: self
-        //        )
-        //        addChild(coordinator)
-        //        coordinator.start()
+    private func startDeleteFileConfirmation(for fileDeletable: TaskFileDeletableViewModel) {
+        let alert = deleteAlertFactory.makeAlert(fileDeletable) { [weak self] item in
+            self?.viewModel?.coordinatorResult.accept(
+                .didDeleteTaskFileConfirmed(item)
+            )
+        } onCancel: { [weak self] in
+            self?.viewModel?.coordinatorResult.accept(.didDeleteTaskFileCanceled)
+        }
+
+        navigation.present(alert, animated: true)
     }
 
     private func startNotificationsDisableAlert() {
