@@ -94,15 +94,13 @@ final class TasksListRepository: NSObject {
 
     // MARK: - Modify Task
 
-    func updateAndSwitchIsCompletedFieldWith(indexPath: IndexPath) {
+    func updateTaskField(isCompleted newValue: Bool, for indexPath: IndexPath) {
         let cdTask = getCDTask(at: indexPath)
-        let newValue = !cdTask.isCompleted
         taskCDManager.updateField(isCompleted: newValue, task: cdTask)
     }
 
-    func updateAndSwitchIsPriorityFieldWith(indexPath: IndexPath) {
+    func updateTaskField(isPriority newValue: Bool, for indexPath: IndexPath) {
         let cdTask = getCDTask(at: indexPath)
-        let newValue = !cdTask.isPriority
         taskCDManager.updateField(isPriority: newValue, task: cdTask)
     }
 

@@ -8,8 +8,8 @@ final class TasksListVCView: UIView {
 
     enum Answer {
         case onTapOpenTask(IndexPath)
-        case onTapIsDoneButton(IndexPath)
-        case onTapIsPriorityButton(IndexPath)
+        case onTapIsDoneButton(Bool, IndexPath)
+        case onTapIsPriorityButton(Bool, IndexPath)
         case onTapSwitchTaskInMyDay(IndexPath)
         case onTapDeleteTasks([IndexPath])
         case onTapDeleteTask(IndexPath)
@@ -291,11 +291,11 @@ private extension TasksListVCView {
 
     func handleTableCellAnswer(_ action: StandartTaskTableCell.Answer) {
         switch action {
-        case .onTapIsDoneButton(let indexPath):
-            answerRelay.accept(.onTapIsDoneButton(indexPath))
+        case .onTapIsDoneButton(let newValue, let indexPath):
+            answerRelay.accept(.onTapIsDoneButton(newValue, indexPath))
 
-        case .onTapIsPriorityButton(let indexPath):
-            answerRelay.accept(.onTapIsPriorityButton(indexPath))
+        case .onTapIsPriorityButton(let newValue, let indexPath):
+            answerRelay.accept(.onTapIsPriorityButton(newValue, indexPath))
         }
     }
 
@@ -426,7 +426,6 @@ extension TasksListVCView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
         return false
     }
-
 
     // MARK: Move row
 

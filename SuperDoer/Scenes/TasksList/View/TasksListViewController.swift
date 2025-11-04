@@ -36,7 +36,7 @@ class TasksListViewController: UIViewController {
         setupView()
         setupBindings()
         setupNavigationBar()
-        viewModel.loadInitialData()
+        viewModel.needLoadInitialData()
 
 //        PIXEL_PERFECT_screen.createAndSetupInstance(
 //            baseView: self.view,
@@ -138,11 +138,11 @@ private extension TasksListViewController {
         case .onTapOpenTask(let indexPath):
             viewModel.didTapOpenTask(with: indexPath)
 
-        case .onTapIsDoneButton(let indexPath):
-            viewModel.didToggleTaskIsCompleted(with: indexPath)
+        case .onTapIsDoneButton(let newValue, let indexPath):
+            viewModel.didTapTaskIsCompleted(newValue, with: indexPath)
 
-        case .onTapIsPriorityButton(let indexPath):
-            viewModel.didToggleTaskIsPriority(with: indexPath)
+        case .onTapIsPriorityButton(let newValue, let indexPath):
+            viewModel.didTapTaskIsPriority(newValue, with: indexPath)
 
         case .onTapSwitchTaskInMyDay(let indexPath):
             viewModel.didToggleTaskInMyDay(with: indexPath)

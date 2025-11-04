@@ -88,7 +88,7 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
 
     // MARK: - UI Actions
 
-    func loadInitialData() {
+    func needLoadInitialData() {
         repository.loadTasks()
     }
 
@@ -127,13 +127,14 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
         repository.switchAndUpdateInMyDayFieldWith(indexPath: indexPath)
     }
 
-    func didToggleTaskIsCompleted(with indexPath: IndexPath) {
-        repository.updateAndSwitchIsCompletedFieldWith(indexPath: indexPath)
+    func didTapTaskIsCompleted(_ newValue: Bool, with indexPath: IndexPath) {
+        repository.updateTaskField(isCompleted: newValue, for: indexPath)
     }
 
-    func didToggleTaskIsPriority(with indexPath: IndexPath) {
-        repository.updateAndSwitchIsPriorityFieldWith(indexPath: indexPath)
+    func didTapTaskIsPriority(_ newValue: Bool, with indexPath: IndexPath) {
+        repository.updateTaskField(isPriority: newValue, for: indexPath)
     }
+
 
     func didTapCreateTaskInCurrentSection(with data: TaskCreateData) {
         repository.createTaskInCurrentSectionWith(title: data.title)
