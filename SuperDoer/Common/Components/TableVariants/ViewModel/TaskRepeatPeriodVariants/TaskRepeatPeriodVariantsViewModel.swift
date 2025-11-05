@@ -1,104 +1,108 @@
-
 import Foundation
+import RxCocoa
 
-/// ViewModel для контроллера выбора предустановленного варианта периода повтора задачи
-/// для поля "Период" у задачи
-class TaskRepeatPeriodTableVariantsViewModel: TableVariantsViewModelType {
+class TaskRepeatPeriodVariantsViewModel: TableVariantsViewModelType {
 
-    // MARK: model data
+    // MARK: - State / Rx (Output properties)
+
     private var repeatPeriod: String? {
         didSet {
-            let cellViewModels = TaskRepeatPeriodTableVariantsViewModel.buildCellViewModels()
-            variantCellViewModels = UIBox(cellViewModels)
-
             // TODO: когда переделаю на нормальное значение сделать определение выбранного
             //refreshSelectionOfVariantCellValue(fromTask: task)
-            variantCellViewModels.forceUpdate()
         }
     }
-    
-    // MARK: state
-    var isShowReadyButton: UIBox<Bool> = UIBox(true)
-    var isShowDeleteButton: UIBox<Bool>
-    
-    var variantCellViewModels: UIBox<[BaseVariantCellViewModel]>
 
-    // MARK: - Observable
+    private var variantCellViewModels: [BaseVariantCellViewModel]
 
-    var isShowReadyButtonObservable: UIBoxObservable<Bool> { isShowReadyButton.asObservable() }
-    var isShowDeleteButtonObservable: UIBoxObservable<Bool>  { isShowDeleteButton.asObservable() }
-    var variantCellViewModelsObservable: UIBoxObservable<[BaseVariantCellViewModel]> {
-        return variantCellViewModels.asObservable()
-    }
+    private let tableNeedReloadRelay = PublishRelay<Void>()
+    var tableNeedReload: Signal<Void> { tableNeedReloadRelay.asSignal() }
 
+    private let isShowReadyButtonRelay = BehaviorRelay<Bool>(value: true)
+    var isShowReadyButton: Driver<Bool> { isShowReadyButtonRelay.asDriver() }
+
+    private let isShowDeleteButtonRelay = BehaviorRelay<Bool>(value: false)
+    var isShowDeleteButton: Driver<Bool> { isShowDeleteButtonRelay.asDriver() }
 
     // MARK: - Init
 
     init(repeatPeriod: String?) {
         self.repeatPeriod = repeatPeriod
         
-        variantCellViewModels = UIBox(TaskRepeatPeriodTableVariantsViewModel.buildCellViewModels())
-        isShowDeleteButton = UIBox(false)
-        
+        variantCellViewModels = Self.buildCellViewModels()
+
         // TODO: когда переделаю на нормальное значение сделать определение выбранного
         //refreshSelectionOfVariantCellViewModel(fromTask: task)
-        refreshIsShowDeleteButton(byRepeatPeriod: repeatPeriod)
+        isShowDeleteButtonRelay.accept(repeatPeriod != nil)
     }
-    
+
+    // MARK: - UI Actions
+
+    func didTapSelectVariant(with indexPath: IndexPath) {
+        print("did select tap with \(indexPath)")
+    }
+
+    func didTapDelete() {
+        print("did tap delete")
+    }
+
+    func didTapReady() {
+        print("did tap ready")
+    }
+
+    // MARK: - Get data
+
     func getCountVariants() -> Int {
-        return variantCellViewModels.value.count
+        return variantCellViewModels.count
     }
     
-    func getVariantCellViewModel(forIndexPath indexPath: IndexPath) -> BaseVariantCellViewModel {
-        return variantCellViewModels.value[indexPath.row]
+    func getVariantCellViewModel(for indexPath: IndexPath) -> BaseVariantCellViewModel? {
+        return variantCellViewModels[safe: indexPath.row]
     }
-    
-    
-    private func refreshIsShowDeleteButton(byRepeatPeriod repeatPeriod: String?) {
-        isShowDeleteButton.value = repeatPeriod != nil
-    }
-    
+
+    // MARK: - Factory
+    // TODO: вынести в фабрику
+
     private static func buildCellViewModels() -> [BaseVariantCellViewModel] {
         var cellViewModels = [BaseVariantCellViewModel]()
         
         cellViewModels.append(
             TaskRepeatPeriodVariantCellViewModel(
+                period: "1day",
                 imageSettings: DateVariantCellViewModel.ImageSettings(name: "clock.arrow.circlepath"),
-                title: "Каждый день",
-                period: "1day"
+                title: "Каждый день"
             )
         )
         
         let date = Date()
         cellViewModels.append(
             TaskRepeatPeriodVariantCellViewModel(
+                period: "1week[wed]",
                 imageSettings: DateVariantCellViewModel.ImageSettings(name: "square.grid.3x1.below.line.grid.1x2.fill"),
-                title: "Каждую неделю (\(date.formatWith(dateFormat: "EEEEEE").lowercased()))",
-                period: "1week[wed]"
+                title: "Каждую неделю (\(date.formatWith(dateFormat: "EEEEEE").lowercased()))"
             )
         )
         
         cellViewModels.append(
             TaskRepeatPeriodVariantCellViewModel(
+                period: "1week[mon,tue,wed,thu,fri]",
                 imageSettings: DateVariantCellViewModel.ImageSettings(name: "rectangle.stack.badge.person.crop"),
-                title: "Рабочие дни",
-                period: "1week[mon,tue,wed,thu,fri]"
+                title: "Рабочие дни"
             )
         )
         
         cellViewModels.append(
             TaskRepeatPeriodVariantCellViewModel(
+                period: "1month",
                 imageSettings: DateVariantCellViewModel.ImageSettings(name: "square.grid.3x3.topleft.filled"),
-                title: "Каждый месяц",
-                period: "1month"
+                title: "Каждый месяц"
             )
         )
         
         cellViewModels.append(
             TaskRepeatPeriodVariantCellViewModel(
+                period: "1year",
                 imageSettings: DateVariantCellViewModel.ImageSettings(name: "calendar.badge.clock"),
-                title: "Каждый год",
-                period: "1year"
+                title: "Каждый год"
             )
         )
         

@@ -5,6 +5,7 @@ import RxSwift
 
 final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOutput,
                                  TaskDetailNavigationEmittable, TaskDetailCoordinatorResultHandler {
+
     private let disposeBag = DisposeBag()
 
     // TODO: - Services
@@ -25,11 +26,6 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
     private let isCompletedRelay = BehaviorRelay<Bool>(value: false)
     private let isPriorityRelay = BehaviorRelay<Bool>(value: false)
     private let fieldEditingStateRelay = BehaviorRelay<TaskDetailViewModelFieldEditingState?>(value: nil)
-    
-
-    // MARK: - Input
-
-    let inputEvent = PublishRelay<TaskDetailViewModelInputEvent>()
 
     // MARK: - Output (properties)
 
@@ -44,7 +40,11 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         tableViewModel.updateEvent
     }
     var countSections: Int { tableViewModel.countSections }
-    
+
+    // MARK: - Input
+
+    let inputEvent = PublishRelay<TaskDetailViewModelInputEvent>()
+
     // MARK: - Navigation
 
     private let navigationEventRelay = PublishRelay<TaskDetailNavigationEvent>()
@@ -115,6 +115,9 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
 
         case .didDeleteTaskFileCanceled:
             break
+
+        case .didSelectDeadlineDate(let date):
+            updateTaskField(deadlineDate: date)
         }
     }
 
@@ -123,14 +126,12 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         case .needLoadInitialData:
             loadInitialData()
 
-        case .didTapOpenDeadlineDateSetter:
-            guard let task else { return }
-            navigationEventRelay.accept(
-                .openDeadlineDateSetter(deadlineAt: task.deadlineDate)
-            )
-
         case .didTapOpenReminderDateSetter:
             navigationEventRelay.accept(.openReminderDateSetter)
+
+        case .didTapOpenDeadlineDateSetter:
+            guard let task else { return }
+            navigationEventRelay.accept(.openDeadlineDateSetter(deadlineAt: task.deadlineDate))
 
         case .didTapOpenRepeatPeriodSetter:
             navigationEventRelay.accept(.openRepeatPeriodSetter)

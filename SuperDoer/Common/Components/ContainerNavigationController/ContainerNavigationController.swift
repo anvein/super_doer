@@ -5,21 +5,24 @@ import UIKit
 class ContainerNavigationController: UINavigationController {
 
     /// Координатор, который является корневым для цепи контроллеров открытых как модалки
-    private weak var coordinator: ContainerNavigationControllerCoordinator?
+    weak var coordinator: ContainerNavigationControllerCoordinator?
 
     // MARK: - Init
 
-    init(
-        rootViewController: UIViewController, 
-        coordinator: ContainerNavigationControllerCoordinator?
-    ) {
-        self.coordinator = coordinator
-        super.init(rootViewController: rootViewController)
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+//    init(
+//        rootViewController: UIViewController, 
+//        coordinator: ContainerNavigationControllerCoordinator?
+//    ) {
+//        self.coordinator = coordinator
+//        super.init(rootViewController: rootViewController)
+//    }
+//    init() {
+//        super.init()
+//    }
+//
+//    required init?(coder aDecoder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
 
     // MARK: - Lifecycle
 

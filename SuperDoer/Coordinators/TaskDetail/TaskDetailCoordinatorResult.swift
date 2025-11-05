@@ -6,4 +6,5 @@ enum TaskDetailCoordinatorResult {
     case didImportedFile(URL?)
     case didDeleteTaskFileConfirmed(TaskFileDeletableViewModel)
     case didDeleteTaskFileCanceled
+    case didSelectDeadlineDate(Date?)
 }

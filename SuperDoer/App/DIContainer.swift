@@ -32,6 +32,10 @@ final class DIContainer {
             NotificationsDisabledAlertFactory()
         }.inObjectScope(.container)
 
+        Self.container.register(TaskDeadlineVariantsFactory.self) { _ in
+            TaskDeadlineVariantsFactory()
+        }.inObjectScope(.container)
+
         // MARK: - CoreData services
 
         Self.container.register(TaskSectionCoreDataManager.self, factory: { _ in
@@ -45,22 +49,17 @@ final class DIContainer {
         Self.container.register(TaskFileEntityManager.self) { _ in
             return TaskFileEntityManager()
         }.inObjectScope(.container)
-        
-        
-        // MARK: Coordinators     
+
+        // MARK: - Coordinators
 
         Self.container.register(AppCoordinator.self) { r, window, navigation in
             return AppCoordinator(window: window, navigation: navigation)
         }.inObjectScope(.container)
-    
-        
-        // MARK: ViewController
-        
-        
-        
-        
-        // MARK: ViewModel
-     
+
+        // MARK: - ViewController
+
+        // MARK: - ViewModel
+
         // MARK: - Models
 
         Self.container.register(TasksListRepository.self) { r, arg1 in

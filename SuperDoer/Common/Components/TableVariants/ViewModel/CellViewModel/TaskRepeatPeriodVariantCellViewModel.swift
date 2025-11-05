@@ -1,13 +1,22 @@
-
 import Foundation
 
-class TaskRepeatPeriodVariantCellViewModel: BaseVariantCellViewModel {
+final class TaskRepeatPeriodVariantCellViewModel: BaseVariantCellViewModel {
     // TODO: переделать тип на объект периода
-    var period: String?
+    var period: String
     
-    init(imageSettings: ImageSettings, title: String, period: String?) {
+    init(
+        period: String,
+        imageSettings: BaseVariantCellViewModel.ImageSettings,
+        title: String,
+        additionalText: String? = nil,
+        isSelected: Bool = false
+    ) {
         self.period = period
-        
-        super.init(imageSettings: imageSettings, title: title)
+        super.init(
+            imageSettings: imageSettings,
+            title: title,
+            additionalText: additionalText,
+            isSelected: isSelected
+        )
     }
 }

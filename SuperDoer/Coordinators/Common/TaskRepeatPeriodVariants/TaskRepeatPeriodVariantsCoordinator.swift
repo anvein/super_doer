@@ -3,7 +3,7 @@ import UIKit
 
 final class TaskRepeatPeriodVariantsCoordinator: BaseCoordinator {
     private var navigation: UINavigationController
-    private var viewModel: TaskRepeatPeriodTableVariantsViewModel
+    private var viewModel: TaskRepeatPeriodVariantsViewModel
     private weak var delegate: TaskRepeatPeriodVariantsCoordinatorDelegate?
     
     private var currentNavigation: ContainerNavigationController?
@@ -11,7 +11,7 @@ final class TaskRepeatPeriodVariantsCoordinator: BaseCoordinator {
     init(
         parent: Coordinator?,
         navigation: UINavigationController,
-        viewModel: TaskRepeatPeriodTableVariantsViewModel,
+        viewModel: TaskRepeatPeriodVariantsViewModel,
         delegate: TaskRepeatPeriodVariantsCoordinatorDelegate
     ) {
         self.navigation = navigation
@@ -23,20 +23,20 @@ final class TaskRepeatPeriodVariantsCoordinator: BaseCoordinator {
     override func start() {
         super.start()
         
-        let controller = TableVariantsViewController(
-            viewModel: viewModel,
-            coordinator: self,
-            settingsCode: .taskRepeatPeriodVariants
-        )
-        controller.title = "Повтор"
-        
-        currentNavigation = ContainerNavigationController(
-            rootViewController: controller,
-            coordinator: self
-        )
-        guard let currentNavigation else { return }
-
-        navigation.present(currentNavigation, animated: true)
+//        let controller = TableVariantsViewController(
+//            viewModel: viewModel,
+//            coordinator: self,
+//            settingsCode: .taskRepeatPeriodVariants
+//        )
+//        controller.title = "Повтор"
+//        
+//        currentNavigation = ContainerNavigationController(
+//            rootViewController: controller,
+//            coordinator: self
+//        )
+//        guard let currentNavigation else { return }
+//
+//        navigation.present(currentNavigation, animated: true)
     }
     
     
@@ -63,20 +63,20 @@ protocol TaskRepeatPeriodVariantsCoordinatorDelegate: AnyObject {
 }
 
 
-// MARK: - coordinator methods for TableVariantsViewController
-extension TaskRepeatPeriodVariantsCoordinator: TableVariantsViewControllerCoordinator {
-    func didChooseTaskRepeatPeriodVariant(newRepeatPeriod: String?) {
-        delegate?.didChooseTaskRepeatPeriod(newPeriod: newRepeatPeriod)
-    }
-    
-    func didChooseCustomVariant() {
-        startCustomTaskRepeatPeriodCoordinator()
-    }
-    
-    func didChooseDeleteVariantButton() {
-        delegate?.didChooseTaskRepeatPeriod(newPeriod: nil)
-    }
-}
+//// MARK: - coordinator methods for TableVariantsViewController
+//extension TaskRepeatPeriodVariantsCoordinator: TableVariantsViewControllerCoordinator {
+//    func didChooseTaskRepeatPeriodVariant(newRepeatPeriod: String?) {
+//        delegate?.didChooseTaskRepeatPeriod(newPeriod: newRepeatPeriod)
+//    }
+//    
+//    func didChooseCustomVariant() {
+//        startCustomTaskRepeatPeriodCoordinator()
+//    }
+//    
+//    func didChooseDeleteVariantButton() {
+//        delegate?.didChooseTaskRepeatPeriod(newPeriod: nil)
+//    }
+//}
 
 
 // MARK: - coordinator methods for ContainerNavigationController

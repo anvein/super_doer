@@ -78,7 +78,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
         }
     }
 
-    private func handleDidSelectAddFileSource(_ source: ImportFileSource?) {
+    private func handleSelectAddFileSource(_ source: ImportFileSource?) {
         switch source {
         case .library:
             startImportImageFromLibrary(with: .library)
@@ -117,16 +117,19 @@ final class TaskDetailCoordinator: BaseCoordinator {
     }
 
     private func startDeadlineDateSetter(deadlineAt: Date?) {
-        let vm = TaskDeadlineTableVariantsViewModel(
-            deadlineDate: deadlineAt
+        guard let viewController else { return }
+
+        let coordinator = TaskDeadlineVariantsCoordinator(
+            parent: self,
+            navigationMethod: .presentWithNavigation(from: viewController),
+            value: deadlineAt
         )
 
-        let coordinator = TaskDeadlineDateVariantsCoordinator(
-            parent: self,
-            navigation: navigation,
-            viewModel: vm,
-            delegate: self
-        )
+        coordinator.finishResult.emit(onNext: { [weak self] resultValue in
+            self?.viewModel?.coordinatorResult.accept(.didSelectDeadlineDate(resultValue))
+        })
+        .disposed(by: coordinator.disposeBag)
+
         addChild(coordinator)
         coordinator.start()
     }
@@ -165,7 +168,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
         )
 
         coordinator.finishResult.emit(onNext: { [weak self] source in
-            self?.handleDidSelectAddFileSource(source)
+            self?.handleSelectAddFileSource(source)
         })
         .disposed(by: coordinator.disposeBag)
 
@@ -294,11 +297,11 @@ extension TaskDetailCoordinator: TaskReminderCustomDateCoordinatorDelegate {
     }
 }
 
-extension TaskDetailCoordinator: TaskDeadlineDateVariantsCoordinatorDelegate {
-    func didChooseTaskDeadlineDate(newDate: Date?) {
-//        viewModel.updateTaskField(deadlineDate: newDate)
-    }
-}
+//extension TaskDetailCoordinator: TaskDeadlineDateVariantsCoordinatorDelegate {
+//    func didChooseTaskDeadlineDate(newDate: Date?) {
+////        viewModel.updateTaskField(deadlineDate: newDate)
+//    }
+//}
 
 extension TaskDetailCoordinator: TaskRepeatPeriodVariantsCoordinatorDelegate {
     func didChooseTaskRepeatPeriod(newPeriod: String?) {

@@ -1,5 +1,4 @@
-
 import Foundation
 
-class CustomVariantCellViewModel: BaseVariantCellViewModel  {
+final class CustomVariantCellViewModel: BaseVariantCellViewModel  {
 }

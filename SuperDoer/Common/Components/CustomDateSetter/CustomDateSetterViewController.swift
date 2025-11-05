@@ -1,7 +1,5 @@
 import UIKit
 
-/// Контроллер  в виде PageSheet для выбора  кастомной даты
-/// Должен открываться всегда в рамках NavigationController
 class CustomDateSetterViewController: UIViewController {
     enum SupportedDatePickerMode {
         case date
@@ -23,8 +21,8 @@ class CustomDateSetterViewController: UIViewController {
     private var datePickerMode: SupportedDatePickerMode
     private lazy var datePicker = UIDatePicker(frame: .zero)
     
-    
-    // MARK: init
+    // MARK: - Init
+
     init(
         viewModel: CustomDateSetterViewModelType,
         coordinator: CustomDateSetterViewControllerCoordinator,
@@ -40,15 +38,14 @@ class CustomDateSetterViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    
-    // MARK: life-cycle
+
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
+        setupHierarchyAndConstraints()
         setupControls()
-        addControlsAsSubviews()
-        setupConstraints()
         setupBindings()
     }
     
@@ -61,7 +58,7 @@ class CustomDateSetterViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        setupNavigationBar()
+        setupNavigationBarDidAppear()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -71,9 +68,9 @@ class CustomDateSetterViewController: UIViewController {
             coordinator?.didGoBackCustomDateSetter?()
         }
     }
-    
-    
-    // MARK: action-handlers
+
+    // MARK: - Actions handlers
+
     @objc private func tapButtonReady() {
         coordinator?.didChooseCustomDateReady?(
             newDate: datePicker.date
@@ -87,14 +84,13 @@ class CustomDateSetterViewController: UIViewController {
     }
 }
 
-// MARK: - setup and layout
 extension CustomDateSetterViewController {
 
-    private func addControlsAsSubviews() {
+    // MARK: - Setup
+
+    private func setupHierarchyAndConstraints() {
         view.addSubview(datePicker)
-    }
-    
-    private func setupConstraints() {
+
         NSLayoutConstraint.activate([
             datePicker.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             datePicker.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
@@ -104,26 +100,21 @@ extension CustomDateSetterViewController {
     
     private func setupControls() {
         view.backgroundColor = .Common.white
-    
-        // sheetPresentationController
+
         if let sheet = sheetPresentationController {
             sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
             sheet.prefersGrabberVisible = true
             sheet.preferredCornerRadius = 15
         }
         
-        setupDatePicker()
-    }
-    
-    private func setupDatePicker() {
         datePicker.translatesAutoresizingMaskIntoConstraints = false
         datePicker.datePickerMode = datePickerMode.asUIDatePickerMode
         datePicker.preferredDatePickerStyle = .inline
         datePicker.tintColor = .Text.blue
         datePicker.locale = .current
     }
-    
-    private func setupNavigationBar() {
+
+    private func setupNavigationBarDidAppear() {
         // TODO: сконфигурировать кнопку удалить
         
         if navigationController?.navigationBar.backItem == nil {
@@ -161,11 +152,13 @@ extension CustomDateSetterViewController {
     private func updateDetent() {
         guard let sheet = sheetPresentationController else { return }
         let detent = self.buildDetentForDatePickerMode(self.datePickerMode)
-        sheet.detents = [
-            detent
-        ]
+        sheet.detents = [detent]
         
         // TODO: не дает анимировать detent из-за DatePicket - почему?
+//            sheet.animateChanges {
+//                sheet.selectedDetentIdentifier = detent.identifier
+//            }
+
         sheet.selectedDetentIdentifier = detent.identifier
     }
     

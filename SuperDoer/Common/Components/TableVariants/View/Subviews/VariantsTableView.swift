@@ -26,7 +26,7 @@ class VariantsTableView: UITableView {
         separatorStyle = .none
         backgroundColor = nil
         rowHeight = 50
-        
-        register(VariantTableViewCell.self, forCellReuseIdentifier: VariantTableViewCell.identifier)
+
+        registerCell(VariantTableViewCell.self)
     }
 }

@@ -1,15 +1,21 @@
-
 import Foundation
 
-class DateVariantCellViewModel: BaseVariantCellViewModel {
+final class DateVariantCellViewModel: BaseVariantCellViewModel {
     var date: Date
-    var additionalText: String?
-    
-    init(imageSettings: ImageSettings, title: String, date: Date, additionalText: String? = nil) {
+
+    init(
+        date: Date,
+        imageSettings: BaseVariantCellViewModel.ImageSettings,
+        title: String,
+        additionalText: String? = nil,
+        isSelected: Bool = false
+    ) {
         self.date = date
-        
-        super.init(imageSettings: imageSettings, title: title)
-        
-        self.additionalText = additionalText
+        super.init(
+            imageSettings: imageSettings,
+            title: title,
+            additionalText: additionalText,
+            isSelected: isSelected
+        )
     }
 }
