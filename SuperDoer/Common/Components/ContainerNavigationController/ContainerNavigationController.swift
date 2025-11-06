@@ -1,10 +1,7 @@
 import UIKit
 
-/// Navigation контроллер, который должен использоваться как
-/// контейнер для ViewController'ов открытых модально
 class ContainerNavigationController: UINavigationController {
 
-    /// Координатор, который является корневым для цепи контроллеров открытых как модалки
     weak var coordinator: ContainerNavigationControllerCoordinator?
 
     // MARK: - Init

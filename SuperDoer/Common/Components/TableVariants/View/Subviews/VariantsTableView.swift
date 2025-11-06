@@ -1,9 +1,7 @@
-
 import UIKit
 
-/// Таблица с вариантами чего либо
-class VariantsTableView: UITableView {
-    
+final class VariantsTableView: UITableView {
+
     convenience init() {
         self.init(frame: .zero, style: .plain)
     }

@@ -5,7 +5,7 @@ class TaskDeadlineVariantsViewModel: TableVariantsViewModelType, TaskDeadlineVar
 
     private let variantsFactory: TaskDeadlineVariantsFactory
 
-    // MARK: - State / Rx (Output properties)
+    // MARK: - State
 
     typealias Value = Date
     private var deadlineDate: Value? {
@@ -17,13 +17,14 @@ class TaskDeadlineVariantsViewModel: TableVariantsViewModelType, TaskDeadlineVar
     private var variantCellViewModels: [BaseVariantCellViewModel]
 
     private let tableNeedReloadRelay = PublishRelay<Void>()
-    var tableNeedReload: Signal<Void> { tableNeedReloadRelay.asSignal() }
-
     private let isShowReadyButtonRelay = BehaviorRelay<Bool>(value: true)
-    var isShowReadyButton: Driver<Bool> { isShowReadyButtonRelay.asDriver() }
-
     private let isShowDeleteButtonRelay = BehaviorRelay<Bool>(value: false)
+
+    // MARK: - Output
+
     var isShowDeleteButton: Driver<Bool> { isShowDeleteButtonRelay.asDriver() }
+    var isShowReadyButton: Driver<Bool> { isShowReadyButtonRelay.asDriver() }
+    var tableNeedReload: Signal<Void> { tableNeedReloadRelay.asSignal() }
 
     // MARK: - Navigation
 
@@ -36,6 +37,7 @@ class TaskDeadlineVariantsViewModel: TableVariantsViewModelType, TaskDeadlineVar
 
     init(deadlineDate: Value?, variantsFactory: TaskDeadlineVariantsFactory) {
         self.variantsFactory = variantsFactory
+        self.deadlineDate = deadlineDate
 
         variantCellViewModels = variantsFactory.buildCellViewModels()
         refreshSelectedVariant(by: deadlineDate)

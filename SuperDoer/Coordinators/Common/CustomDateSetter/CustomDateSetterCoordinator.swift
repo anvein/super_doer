@@ -1,58 +1,68 @@
 import UIKit
+import RxSwift
+import RxRelay
+import RxCocoa
 
 class CustomDateSetterCoordinator: BaseCoordinator {
-    private var navigation: UINavigationController
-    private var viewModel: TaskDeadlineDateCustomViewModel?
-    private weak var delegate: TaskDeadlineDateCustomCoordinatorDelegate?
+    enum FinishResult {
+        case didDeleteValue
+        case didSelectValue(Date)
+    }
 
-    private let value: Date?
+    private let disposeBag = DisposeBag()
+
+    private var navigation: UINavigationController
+    private var viewModel: CustomDateSetterNavigationEmittable?
+
+    private let initialValue: Date?
+
+    private let finishResultRelay = PublishRelay<FinishResult>()
+    var finishResult: Signal<FinishResult> { finishResultRelay.asSignal() }
 
     init(
         parent: Coordinator,
         navigation: UINavigationController,
-        delegate: TaskDeadlineDateCustomCoordinatorDelegate,
-        value: Date?
+        initialValue: Date?
     ) {
         self.navigation = navigation
-        self.delegate = delegate
-        self.value = value
+        self.initialValue = initialValue
         super.init(parent: parent)
     }
     
     override func start() {
         super.start()
 
-        let viewModel = TaskDeadlineDateCustomViewModel(taskDeadlineDate: value)
-
+        let viewModel = CustomDateSetterViewModel(date: initialValue, defaultDate: Date())
         let controller = CustomDateSetterViewController(
             viewModel: viewModel,
-            coordinator: self,
             datePickerMode: .date
         )
 
+        self.viewModel = viewModel
+        self.viewModel?.navigationEvent.emit(onNext: { [weak self] event in
+            self?.handleNavigationEvent(event)
+        })
+        .disposed(by: disposeBag)
+
         navigation.pushViewController(controller, animated: true)
     }
-    
+
+    // MARK: - Actions handlers
+
+    private func handleNavigationEvent(_ event: CustomDateSetterNavigationEvent) {
+        switch event {
+        case .didSelectValue(let date):
+            finishResultRelay.accept(.didSelectValue(date))
+
+        case .didDeleteValue:
+            finishResultRelay.accept(.didDeleteValue)
+        }
+
+        // TODO: закрыть VC в зависимости от того, как он был показан
+
+        finish()
+    }
+
 }
 
-
-// MARK: - delegate protocol
-protocol TaskDeadlineDateCustomCoordinatorDelegate: AnyObject {
-    func didChooseTaskDeadlineDate(newDate: Date?)
-}
-
-
-// MARK: - coordinator methods for CustomDateSetterViewController
-extension CustomDateSetterCoordinator: CustomDateSetterViewControllerCoordinator {
-    func didChooseCustomDateReady(newDate: Date?) {
-        delegate?.didChooseTaskDeadlineDate(newDate: newDate)
-    }
-    
-    func didChooseCustomDateDelete() {
-        delegate?.didChooseTaskDeadlineDate(newDate: nil)
-    }
-    
-    func didGoBackCustomDateSetter() {
-        parent?.removeChild(self)
-    }
-}
+// TODO: не обработан переход назад в Navigation

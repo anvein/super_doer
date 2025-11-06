@@ -119,19 +119,23 @@ final class TaskDetailCoordinator: BaseCoordinator {
     private func startDeadlineDateSetter(deadlineAt: Date?) {
         guard let viewController else { return }
 
-        let coordinator = TaskDeadlineVariantsCoordinator(
+        let targetCoordinator = TaskDeadlineVariantsCoordinator(
             parent: self,
-            navigationMethod: .presentWithNavigation(from: viewController),
+            navigationMethod: .presentModallyWithNav(navigation, from: viewController),
             value: deadlineAt
         )
 
-        coordinator.finishResult.emit(onNext: { [weak self] resultValue in
+        let navigationCoordinator = NavigationCoordinator(
+            targetCoordinator: targetCoordinator
+        )
+
+        targetCoordinator.finishResult.emit(onNext: { [weak self] resultValue in
             self?.viewModel?.coordinatorResult.accept(.didSelectDeadlineDate(resultValue))
         })
-        .disposed(by: coordinator.disposeBag)
+        .disposed(by: targetCoordinator.disposeBag)
 
-        addChild(coordinator)
-        coordinator.start()
+        addChild(navigationCoordinator)
+        navigationCoordinator.start()
     }
 
     private func startRepeatPeriodSetter() {

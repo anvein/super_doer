@@ -1,21 +1,10 @@
 import UIKit
+import RxSwift
 
 class CustomDateSetterViewController: UIViewController {
-    enum SupportedDatePickerMode {
-        case date
-        case dateAndTime
-        
-        var asUIDatePickerMode: UIDatePicker.Mode {
-            switch self {
-            case .date :
-                return UIDatePicker.Mode.date
-            case .dateAndTime :
-                return UIDatePicker.Mode.dateAndTime
-            }
-        }
-    }
-    
-    private weak var coordinator: CustomDateSetterViewControllerCoordinator?
+
+    private let disposeBag = DisposeBag()
+
     private var viewModel: CustomDateSetterViewModelType
     
     private var datePickerMode: SupportedDatePickerMode
@@ -25,11 +14,9 @@ class CustomDateSetterViewController: UIViewController {
 
     init(
         viewModel: CustomDateSetterViewModelType,
-        coordinator: CustomDateSetterViewControllerCoordinator,
         datePickerMode: SupportedDatePickerMode = .date
     ) {
         self.viewModel = viewModel
-        self.coordinator = coordinator
         self.datePickerMode = datePickerMode
         
         super.init(nibName: nil, bundle: nil)
@@ -45,19 +32,17 @@ class CustomDateSetterViewController: UIViewController {
         super.viewDidLoad()
 
         setupHierarchyAndConstraints()
-        setupControls()
+        setupView()
         setupBindings()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
         updateDetent()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-
         setupNavigationBarDidAppear()
     }
     
@@ -65,23 +50,10 @@ class CustomDateSetterViewController: UIViewController {
         super.viewDidDisappear(animated)
         
         if isMovingFromParent {
-            coordinator?.didGoBackCustomDateSetter?()
+//            coordinator?.didGoBackCustomDateSetter?()
         }
     }
 
-    // MARK: - Actions handlers
-
-    @objc private func tapButtonReady() {
-        coordinator?.didChooseCustomDateReady?(
-            newDate: datePicker.date
-        )
-        dismiss(animated: true)
-    }
-    
-    @objc private func tapButtonDelete() {
-        coordinator?.didChooseCustomDateDelete?()
-        dismiss(animated: true)
-    }
 }
 
 extension CustomDateSetterViewController {
@@ -98,7 +70,7 @@ extension CustomDateSetterViewController {
         ])
     }
     
-    private func setupControls() {
+    private func setupView() {
         view.backgroundColor = .Common.white
 
         if let sheet = sheetPresentationController {
@@ -108,19 +80,44 @@ extension CustomDateSetterViewController {
         }
         
         datePicker.translatesAutoresizingMaskIntoConstraints = false
-        datePicker.datePickerMode = datePickerMode.asUIDatePickerMode
+        datePicker.datePickerMode = datePickerMode.datePickerMode
         datePicker.preferredDatePickerStyle = .inline
         datePicker.tintColor = .Text.blue
         datePicker.locale = .current
     }
 
+    private func setupBindings() {
+        // V -> VM
+        datePicker.rx.date
+            .skip(1)
+            .subscribe(onNext: { [weak self] date in
+            self?.viewModel.inputEvents.accept(.didSelectDate(date))
+        })
+        .disposed(by: disposeBag)
+
+        // VM -> V
+        viewModel.date.drive(onNext: { [weak self] value in
+            guard let self, self.datePicker.date != value else { return }
+            self.datePicker.date = value
+        })
+        .disposed(by: disposeBag)
+
+        viewModel.isShowDeleteButton.drive(onNext: { [weak self] isShow in
+            self?.navigationItem.leftBarButtonItem?.isHidden = !isShow
+        })
+        .disposed(by: disposeBag)
+
+        viewModel.isShowReadyButton.drive(onNext: { [weak self] isShow in
+            self?.navigationItem.rightBarButtonItem?.isHidden = !isShow
+        })
+        .disposed(by: disposeBag)
+    }
+
     private func setupNavigationBarDidAppear() {
-        // TODO: сконфигурировать кнопку удалить
-        
         if navigationController?.navigationBar.backItem == nil {
             navigationItem.leftBarButtonItem = buildDeleteBarButton()
         }
-        
+
         navigationItem.rightBarButtonItem = buildReadyBarButton()
         navigationItem.title = title
     }
@@ -151,66 +148,56 @@ extension CustomDateSetterViewController {
     
     private func updateDetent() {
         guard let sheet = sheetPresentationController else { return }
-        let detent = self.buildDetentForDatePickerMode(self.datePickerMode)
+        let detent = datePickerMode.detent
         sheet.detents = [detent]
-        
-        // TODO: не дает анимировать detent из-за DatePicket - почему?
-//            sheet.animateChanges {
-//                sheet.selectedDetentIdentifier = detent.identifier
-//            }
-
         sheet.selectedDetentIdentifier = detent.identifier
     }
-    
-    private func buildDetentForDatePickerMode(_ mode: SupportedDatePickerMode) -> UISheetPresentationController.Detent {
-        switch mode {
-        case .date:
-            return .custom(identifier: .pageSheetCustomDate, resolver: { context in
-                return 410
-            })
-        case .dateAndTime:
-            return .custom(identifier: .pageSheetCustomDateAndTime, resolver: { context in
-                return 470
-            })
-        }
+
+    // MARK: - Actions handlers
+
+    @objc private func tapButtonReady() {
+        viewModel.inputEvents.accept(.didTapReady)
     }
-    
-    private func setupBindings() {
-        viewModel.deadlineDateObservable.bindAndUpdateValue { [weak self] date in
-            guard let defaultDate = self?.viewModel.defaultDate else { return }
-            self?.datePicker.date = date ?? defaultDate
-        }
-        
-        viewModel.isShowDeleteButtonObservable.bindAndUpdateValue { [weak self] isShowDeleteButton in
-            self?.navigationItem.leftBarButtonItem?.isHidden = !isShowDeleteButton
-        }
-        
-        viewModel.isShowReadyButtonObservable.bindAndUpdateValue { [weak self] isShowReadyButton in
-            self?.navigationItem.rightBarButtonItem?.isHidden = !isShowReadyButton
-        }
+
+    @objc private func tapButtonDelete() {
+        viewModel.inputEvents.accept(.didTapDelete)
     }
+
 }
 
-// MARK: - detent identifier for ViewController
+// MARK: - SupportedDatePickerMode
+
+extension CustomDateSetterViewController {
+    enum SupportedDatePickerMode {
+        case date
+        case dateAndTime
+
+        var datePickerMode: UIDatePicker.Mode {
+            switch self {
+            case .date :
+                return UIDatePicker.Mode.date
+            case .dateAndTime :
+                return UIDatePicker.Mode.dateAndTime
+            }
+        }
+
+        var detent: UISheetPresentationController.Detent {
+            switch self {
+            case .date:
+                return .custom(identifier: .pageSheetCustomDate) { _ in 410 }
+            case .dateAndTime:
+                return .custom(identifier: .pageSheetCustomDateAndTime) { _ in 470 }
+            }
+        }
+    }
+
+}
+
+// MARK: - Detent
+
 extension UISheetPresentationController.Detent.Identifier {
     typealias SheetDetentIdentifier = UISheetPresentationController.Detent.Identifier
-    
-    /// Для PageSheetCustomDateViewController (только date)
+
     static let pageSheetCustomDate: SheetDetentIdentifier = SheetDetentIdentifier("pageSheetCustomDate")
-    
-    /// Для PageSheetCustomDateViewController (date + time)
     static let pageSheetCustomDateAndTime: SheetDetentIdentifier = SheetDetentIdentifier("pageSheetCustomDateAndTime")
-}
-
-
-// MARK: - coordinator protocol for controller
-@objc protocol CustomDateSetterViewControllerCoordinator: AnyObject {
-    /// Была нажата кнопка "Готово" (установить) - выбрана дата
-    @objc optional func didChooseCustomDateReady(newDate: Date?)
-    
-    /// Была нажата кнопка "Удалить" (очистить)
-    @objc optional func didChooseCustomDateDelete()
-    
-    /// Вызывается, после того, как из контроллера перешли назад (на предыдущий контроллер)
-    @objc optional func didGoBackCustomDateSetter()
 }

@@ -48,19 +48,19 @@ protocol TaskReminderCustomDateCoordinatorDelegate: AnyObject {
 
 
 // MARK: - coordinator methods for CustomDateSetterViewController
-extension TaskReminderCustomDateCoordinator: CustomDateSetterViewControllerCoordinator {
-    func didChooseCustomDateReady(newDate: Date?) {
-        delegate?.didChooseTaskReminderDate(newDate: newDate)
-    }
-    
-    func didChooseCustomDateDelete() {
-        delegate?.didChooseTaskReminderDate(newDate: nil)
-    }
-    
-    func didGoBackCustomDateSetter() {
-        parent?.removeChild(self)
-    }
-}
+//extension TaskReminderCustomDateCoordinator: CustomDateSetterViewControllerCoordinator {
+//    func didChooseCustomDateReady(newDate: Date?) {
+//        delegate?.didChooseTaskReminderDate(newDate: newDate)
+//    }
+//    
+//    func didChooseCustomDateDelete() {
+//        delegate?.didChooseTaskReminderDate(newDate: nil)
+//    }
+//    
+//    func didGoBackCustomDateSetter() {
+//        parent?.removeChild(self)
+//    }
+//}
 
 
 // MARK: - coordinator methods for ContainerNavigationController

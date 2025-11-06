@@ -6,7 +6,6 @@ class TaskDeadlineVariantsCoordinator: BaseCoordinator {
     typealias Value = TaskDeadlineVariantsViewModel.Value
 
     private weak var viewModel: TaskDeadlineVariantsNavigationEmittable?
-    private var navigation: UINavigationController?
 
     private let navigationMethod: CoordinatorNavigationMethod
     private let value: Value?
@@ -44,19 +43,36 @@ class TaskDeadlineVariantsCoordinator: BaseCoordinator {
         // TODO: переделать на Router
         switch navigationMethod {
         case .push(let toNavigation, let withAnimation):
-            navigation = toNavigation
             toNavigation.pushViewController(vc, animated: withAnimation)
 
-        case .presentWithNavigation(let parentController):
-            let navigation = UINavigationController(rootViewController: vc)
-
+        case .presentModallyWithNav(let navigation, let parentController):
             navigation.view.backgroundColor = .white
+            navigation.setViewControllers([vc], animated: true)
             parentController.present(navigation, animated: true)
-            self.navigation = navigation
 
-        case .presentWithoutNavigation(let parentController):
+        case .presentModally(let parentController):
             parentController.present(vc, animated: true)
         }
+    }
+
+    // MARK: - Start childs
+
+    private func startCustomDateSetterCoordinator(with date: Date?) {
+        guard case .presentModallyWithNav(let navigation, _) = navigationMethod else { return }
+
+        let coordinator = CustomDateSetterCoordinator(
+            parent: self,
+            navigation: navigation,
+            initialValue: date
+        )
+
+        coordinator.finishResult.emit(onNext: { [weak self] result in
+            self?.handleCustomDateSetterResult(result)
+        })
+        .disposed(by: disposeBag)
+
+        addChild(coordinator)
+        coordinator.start()
     }
 
     // MARK: - Actions handlers
@@ -65,8 +81,7 @@ class TaskDeadlineVariantsCoordinator: BaseCoordinator {
         switch event {
         case .didSelectValue(let date), .didSelectReady(let date):
             // TODO: переделать на Router, который будет всем рулить
-            guard case .presentWithNavigation(_) = navigationMethod,
-                  let navigation else { return }
+            guard case .presentModallyWithNav(let navigation, _) = navigationMethod else { return }
 
             navigation.dismiss(animated: true)
             finishResultRelay.accept(date)
@@ -75,37 +90,25 @@ class TaskDeadlineVariantsCoordinator: BaseCoordinator {
         case .openCustomDateSetter(let date):
             startCustomDateSetterCoordinator(with: date)
         }
-
     }
 
-    // MARK: - Start childs
+    private func handleCustomDateSetterResult(
+        _ resultEvent: CustomDateSetterCoordinator.FinishResult
+    ) {
+        // TODO: переделать на Router, который будет всем рулить
+        guard case .presentModallyWithNav(let navigation, _) = navigationMethod else { return }
 
-    private func startCustomDateSetterCoordinator(with date: Date?) {
-        guard case .presentWithNavigation(_) = navigationMethod,
-              let navigation else { return }
+        switch resultEvent {
+        case .didDeleteValue:
+            finishResultRelay.accept(nil)
+            navigation.dismiss(animated: true)
 
-        let coordinator = CustomDateSetterCoordinator(
-            parent: self,
-            navigation: navigation,
-            delegate: self,
-            value: date
-        )
-        addChild(coordinator)
-        coordinator.start()
+        case .didSelectValue(let date):
+            finishResultRelay.accept(date)
+            navigation.dismiss(animated: true)
+        }
+
+        finish()
     }
-}
 
-//// MARK: - coordinator methods for ContainerNavigationController
-//extension TaskDeadlineDateVariantsCoordinator: ContainerNavigationControllerCoordinator {
-//    func didCloseContainerNavigation() {
-//        parent?.removeChild(self)
-//    }
-//}
-//
-//
-// MARK: - delegates of child coordinators
-extension TaskDeadlineVariantsCoordinator: TaskDeadlineDateCustomCoordinatorDelegate {
-    func didChooseTaskDeadlineDate(newDate: Date?) {
-//        self.delegate?.didChooseTaskDeadlineDate(newDate: newDate)
-    }
 }

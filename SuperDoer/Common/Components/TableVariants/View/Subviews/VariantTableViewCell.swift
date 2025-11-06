@@ -24,33 +24,8 @@ class VariantTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Setup
+    // MARK: - Update view
 
-    private func setup() {
-        backgroundColor = .Common.white
-        selectedBackgroundView = UIView()
-        selectedBackgroundView?.backgroundColor = .Common.lightBlueBg
-
-        textLabel?.textColor = .Text.black
-        textLabel?.font = UIFont.systemFont(ofSize: 16)
-        
-        detailTextLabel?.textColor = .Text.gray
-        detailTextLabel?.font = UIFont.systemFont(ofSize: 13)
-    }
-
-    private func configureForState(_ isSelected: Bool) {
-        if isSelected {
-            textLabel?.textColor = .Text.black
-            imageView?.tintColor = .Text.black
-            detailTextLabel?.textColor = .Text.gray
-        } else {
-            textLabel?.textColor = .Text.blue
-            imageView?.tintColor = .Text.blue
-            detailTextLabel?.textColor = .Text.blue
-        }
-    }
-    
-    
     func fill(from cellVM: BaseVariantCellViewModel) {
         textLabel?.text = cellVM.title
         detailTextLabel?.text = cellVM.additionalText
@@ -63,7 +38,34 @@ class VariantTableViewCell: UITableViewCell {
         accessoryType = cellVM is CustomVariantCellViewModel ? .disclosureIndicator : .none
 
         isSelectedValue = cellVM.isSelected
+    }
 
+    // MARK: - Setup
+
+    private func setup() {
+        backgroundColor = .Common.white
+        selectedBackgroundView = UIView()
+        selectedBackgroundView?.backgroundColor = .Common.lightBlueBg
+
+        textLabel?.textColor = .Text.black
+        textLabel?.font = UIFont.systemFont(ofSize: 16)
+        
+        detailTextLabel?.textColor = .Text.gray
+        detailTextLabel?.font = UIFont.systemFont(ofSize: 13)
+
+        configureForState(isSelectedValue)
+    }
+
+    private func configureForState(_ isSelected: Bool) {
+        if isSelected {
+            textLabel?.textColor = .Text.blue
+            imageView?.tintColor = .Text.blue
+            detailTextLabel?.textColor = .Text.blue
+        } else {
+            textLabel?.textColor = .Text.black
+            imageView?.tintColor = .Text.black
+            detailTextLabel?.textColor = .Text.gray
+        }
     }
     
     // MARK: - Helpers

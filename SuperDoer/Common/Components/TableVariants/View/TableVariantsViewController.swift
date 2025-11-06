@@ -40,7 +40,6 @@ final class TableVariantsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-    
         configureSheetPresentationController()
     }
     
@@ -51,25 +50,24 @@ private extension TableVariantsViewController {
     // MARK: - Setup
 
     func setupView() {
-        setupController()
-        setupNavigationBar()
-        setupVariantsTable()
-    }
-    
-    func setupController() {
         view.backgroundColor = .Common.white
         // TODO: заголовок (title) в ночном режиме не виден (он белый)
-        
+
         modalPresentationStyle = .pageSheet
-        
+
         if let sheet = sheetPresentationController {
             sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
             sheet.prefersGrabberVisible = true
             sheet.prefersEdgeAttachedInCompactHeight = true
             sheet.preferredCornerRadius = 15
         }
+
+        variantsTableView.dataSource = self
+        variantsTableView.delegate = self
+
+        setupNavigationBar()
     }
-    
+
     func configureSheetPresentationController() {
         guard let sheet = sheetPresentationController else { return }
         sheet.detents = [detent.detent]
@@ -95,12 +93,7 @@ private extension TableVariantsViewController {
             ]
         }
     }
-    
-    func setupVariantsTable() {
-        variantsTableView.dataSource = self
-        variantsTableView.delegate = self
-    }
-    
+
     func setupHierarchyAndConstraints() {
         view.addSubview(variantsTableView)
 
@@ -114,8 +107,8 @@ private extension TableVariantsViewController {
     
     func setupBindings() {
         // VM -> V
-        viewModel.tableNeedReload.emit(onNext: { [weak self] _ in
-            self?.variantsTableView.reloadData()
+        viewModel.tableNeedReload.emit(onNext: {/* [weak self]*/ _ in
+            self.variantsTableView.reloadData()
         })
         .disposed(by: disposeBag)
 
