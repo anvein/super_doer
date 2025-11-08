@@ -30,7 +30,8 @@ class ImportImageFromLibraryCoordinator: BaseCoordinator {
         }
     }
 
-    let disposeBag = DisposeBag()
+    override var rootViewController: UIViewController? { viewController }
+    private var viewController: UIImagePickerController?
 
     private var parentController: UIViewController
     private var mode: Mode
@@ -48,9 +49,7 @@ class ImportImageFromLibraryCoordinator: BaseCoordinator {
         super.init(parent: parent)
     }
     
-    override func start() {
-        super.start()
-
+    override func startCoordinator() {
         // TODO: сделать нормальные проверки
         guard UIImagePickerController.isSourceTypeAvailable(mode.asSourceType) == true else {
             print("❌ Нет доступа к \(mode.title)")
@@ -67,6 +66,8 @@ class ImportImageFromLibraryCoordinator: BaseCoordinator {
         controller.delegate = self
         controller.presentationController?.delegate = self
         controller.mediaTypes = availableTypes ?? []
+
+        viewController = controller
 
         if mode == .camera {
             controller.sourceType = .camera
@@ -89,16 +90,12 @@ extension ImportImageFromLibraryCoordinator: UIImagePickerControllerDelegate, UI
         let imageData = originalImage?.jpegData(compressionQuality: 1)
 
         finishResultRelay.accept(imageData)
-
         picker.dismiss(animated: true)
-        finish()
     }
 
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         finishResultRelay.accept(nil)
-
         picker.dismiss(animated: true)
-        finish()
     }
 }
 
@@ -107,9 +104,9 @@ extension ImportImageFromLibraryCoordinator: UIImagePickerControllerDelegate, UI
 // didDismissImagePickerController срабатывает только когда пользователь нажимает на кнопку отмена
 // если же пользователь свайпом вниз (или как-то по другому) закроет UIImagePickerController, то didDismissImagePickerController не срабатывает
 // но помог делегат presentationController'а
-// TODO: эта функция тоже срабатывает не всегда на каких-то iOS (разобраться)
+// p.s.: эта функция тоже срабатывает не всегда на каких-то iOS (разобраться)
 extension ImportImageFromLibraryCoordinator: UIAdaptivePresentationControllerDelegate {
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        finish()
+        // finish() вызовется сам
     }
 }

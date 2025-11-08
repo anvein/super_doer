@@ -39,12 +39,12 @@ class TextEditorViewController: UIViewController {
         setupConstraints()
         setupBindings()
     }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
 
         if isBeingDismissed || isMovingFromParent {
-            viewModel.didCloseRelay.accept(())
+            viewModel.didDisappearRelay.accept(())
         }
     }
     
@@ -160,7 +160,7 @@ private extension TextEditorViewController {
             textView.resignFirstResponder()
         }
 
-        dismiss(animated: true)
+        viewModel.didTapReadyRelay.accept(())
     }
     
 }

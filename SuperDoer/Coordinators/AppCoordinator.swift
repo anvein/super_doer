@@ -3,80 +3,42 @@ import UIKit
 final class AppCoordinator: BaseCoordinator {
     
     private var window: UIWindow
-    private var navigation: UINavigationController
-    
-    init(window: UIWindow, navigation: UINavigationController) {
+
+    private var navigation: UINavigationController?
+    override var rootViewController: UIViewController? { navigation }
+
+    init(window: UIWindow) {
         self.window = window
-        self.navigation = navigation
 
         super.init(parent: nil)
     }
     
-    override func start() {
-        super.start()
+    override func startCoordinator() {
+        let navigation = UINavigationController()
+        self.navigation = navigation
 
         window.rootViewController = navigation
         window.makeKeyAndVisible()
 
-        startTaskSectionsListFlow()
-        return
-
-        // TODO: УДАЛИТЬ!!! КОД ДЛЯ РАЗРАБОТКИ!!!
-        ///////////////////////////////////////////////////
-
-//        // ЭРКРАН СПИСКА ЗАДАЧ
-//        let sectionEm = DIContainer.container.resolve(TaskSectionCoreDataManager.self)!
-//        let sections = sectionEm.getCustomSectionsWithOrder(isActive: true)
-//
-//        navigation.pushViewController(.init(), animated: false)
-//        if let section = sections[safe: 0] {
-//            let tasksListCoordinator = TasksListCoordinator(
-//                parent: self,
-//                navigation: navigation,
-//                sectionId: section.id!,
-//                deleteAlertFactory: DIContainer.container.resolve(DeleteItemsAlertFactory.self)!
-//            )
-//
-//            addChild(tasksListCoordinator)
-//            tasksListCoordinator.start()
-//        } else {
-//            print("no sections")
-//            startTaskSectionsListFlow()
-//        }
-
-//        // ЭКРАН ЗАДАЧИ
-//        let sectionEm = DIContainer.container.resolve(TaskSectionCoreDataManager.self)!
-//        let taskEm = DIContainer.container.resolve(TaskCoreDataManager.self)!
-//        let sections = sectionEm.getCustomSectionsWithOrder(isActive: true)
-//
-//        navigation.pushViewController(.init(), animated: false)
-//        if let section = sections[safe: 0], let task = section.tasks?.firstObject as? CDTask {
-//
-//            let tasksDetailCoordinator = TaskDetailCoordinator(
-//                parent: self,
-//                navigation: navigation,
-//                taskId: task.id!
-//            )
-//            addChild(tasksDetailCoordinator)
-//            tasksDetailCoordinator.start()
-//        } else {
-//            print("no sections / tasks in section")
-//            startTaskSectionsListFlow()
-//        }
-
-        ///////////////////////////////////////////////////
+        startTaskSectionsListFlow(navigation: navigation)
     }
 
-    func startTaskSectionsListFlow() {
-        let sectionsListCoordinator = SectionsListCoordinator(
+    // MARK: - Start childs
+
+    private func startTaskSectionsListFlow(navigation: UINavigationController) {
+        let navCoordinator = NavigationCoordinator(
             parent: self,
+            navigation: navigation
+        )
+
+        let sectionsListCoordinator = SectionsListCoordinator(
+            parent: navCoordinator,
             navigation: navigation,
             deleteAlertFactory: DIContainer.container.resolve(DeleteItemsAlertFactory.self)!
         )
+        navCoordinator.setTargetCoordinator(sectionsListCoordinator)
 
-        addChild(sectionsListCoordinator)
-        sectionsListCoordinator.start()
+        startChild(navCoordinator)
     }
-
 
 }

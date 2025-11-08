@@ -6,12 +6,12 @@ import RxSwift
 
 final class SectionsListCoordinator: BaseCoordinator {
 
-    private let disposeBag = DisposeBag()
-
     private let navigation: UINavigationController
-    private weak var viewController: SectionsListViewController?
+    private var viewController: SectionsListViewController?
     private var viewModel: (SectionsListCoordinatorResultHandler & SectionsListNavigationEmittable)?
     private let deleteAlertFactory: DeleteItemsAlertFactory
+
+    override var rootViewController: UIViewController? { viewController }
 
     init(
         parent: Coordinator,
@@ -21,12 +21,9 @@ final class SectionsListCoordinator: BaseCoordinator {
         self.navigation = navigation
         self.deleteAlertFactory = deleteAlertFactory
         super.init(parent: parent)
-        self.navigation.delegate = self
     }
 
-    override func start() {
-        super.start()
-
+    override func startCoordinator() {
         let vm = SectionsListViewModel(
             sectionEm: DIContainer.container.resolve(TaskSectionCoreDataManager.self)!,
             systemSectionsBuilder: DIContainer.container.resolve(SystemSectionsBuilder.self)!
@@ -46,11 +43,11 @@ final class SectionsListCoordinator: BaseCoordinator {
 
     // MARK: - Start chlids
 
-    func startTasksListInSystemSectionFlow() {
+    private func startTasksListInSystemSectionFlow() {
         print("📋 Открыть системный список")
     }
 
-    func startTasksListInCustomSectionFlow(with sectionId: UUID) {
+    private func startTasksListInCustomSectionFlow(with sectionId: UUID) {
         let coordinator = TasksListCoordinator(
             parent: self,
             navigation: navigation,
@@ -58,11 +55,10 @@ final class SectionsListCoordinator: BaseCoordinator {
             deleteAlertFactory: DIContainer.container.resolve(DeleteItemsAlertFactory.self)!
         )
 
-        addChild(coordinator)
-        coordinator.start()
+        startChild(coordinator)
     }
 
-    func startDeleteSectionConfirmation(_ sectionVM: TaskSectionDeletableViewModel) {
+    private func startDeleteSectionConfirmation(_ sectionVM: TaskSectionDeletableViewModel) {
         let alert = deleteAlertFactory.makeAlert([sectionVM]) { [weak self] items in
             self?.viewModel?.coordinatorResult.accept(
                 .onDeleteSectionConfirmed(items)
@@ -87,18 +83,5 @@ final class SectionsListCoordinator: BaseCoordinator {
         case .openTasksListInSystemSection:
             startTasksListInSystemSectionFlow()
         }
-    }
-}
-
-// MARK: - UINavigationControllerDelegate
-
-extension SectionsListCoordinator: UINavigationControllerDelegate {
-    func navigationController(
-        _ navigationController: UINavigationController,
-        didShow viewController: UIViewController,
-        animated: Bool
-    ) {
-        guard let selfVC = self.viewController else { return }
-        finishIfNavigationPop(selfVC, from: navigationController)
     }
 }

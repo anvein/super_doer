@@ -3,27 +3,30 @@ import RxCocoa
 import RxRelay
 import RxSwift
 
-class ImportFileFromFilesCoordinator: BaseCoordinator {
-    let disposeBag = DisposeBag()
-
+final class ImportFileFromFilesCoordinator: BaseCoordinator {
     private var parentController: UIViewController
+
+    override var rootViewController: UIViewController? { viewController }
+    private var viewController: UIDocumentPickerViewController?
 
     private let finishResultRelay = PublishRelay<URL?>()
     var finishResult: Signal<URL?> { finishResultRelay.asSignal() }
+
+    override var isAutoFinishEnabled: Bool { false }
 
     init(parent: Coordinator, parentController: UIViewController) {
         self.parentController = parentController
         super.init(parent: parent)
     }
     
-    override func start() {
-        super.start()
-
+    override func startCoordinator() {
         let documentPicker = UIDocumentPickerViewController(
             forOpeningContentTypes: [.jpeg, .pdf, .text, .gif]
         )
         documentPicker.delegate = self
         documentPicker.allowsMultipleSelection = false
+
+        viewController = documentPicker
 
         parentController.present(documentPicker, animated: true)
     }
@@ -42,9 +45,10 @@ extension ImportFileFromFilesCoordinator: UIDocumentPickerDelegate {
             break
         }
 
-        controller.dismiss(animated: true)
         finishResultRelay.accept(resultFileUrl)
-        finish()
+        controller.dismiss(animated: true) { [weak self] in
+            self?.finish()
+        }
     }
     
     // срабатывает даже при закрытии свайпом вниз

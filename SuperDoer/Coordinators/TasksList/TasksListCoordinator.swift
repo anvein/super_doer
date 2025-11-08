@@ -5,14 +5,14 @@ import RxSwift
 
 final class TasksListCoordinator: BaseCoordinator {
 
-    private let disposeBag = DisposeBag()
-
     private let navigation: UINavigationController
     private let sectionId: UUID?
     private let deleteAlertFactory: DeleteItemsAlertFactory
 
-    private weak var viewController: TasksListViewController?
-    private weak var viewModel: (TasksListNavigationEmittable & TasksListCoordinatorResultHandler)?
+    private var viewController: TasksListViewController?
+    private var viewModel: (TasksListNavigationEmittable & TasksListCoordinatorResultHandler)?
+
+    override var rootViewController: UIViewController? { viewController }
 
     init(
         parent: Coordinator,
@@ -24,12 +24,9 @@ final class TasksListCoordinator: BaseCoordinator {
         self.sectionId = sectionId
         self.deleteAlertFactory = deleteAlertFactory
         super.init(parent: parent)
-        self.navigation.delegate = self
     }
 
-    override func start() {
-        super.start()
-
+    override func startCoordinator() {
         let vm = TasksListViewModel(
             repository: DIContainer.container.resolve(TasksListRepository.self, argument: sectionId)!,
             sectionCDManager: DIContainer.container.resolve(TaskSectionCoreDataManager.self)!
@@ -66,8 +63,7 @@ final class TasksListCoordinator: BaseCoordinator {
             taskId: taskId,
             deleteAlertFactory: DIContainer.container.resolve(DeleteItemsAlertFactory.self)!
         )
-        addChild(coordinator)
-        coordinator.start()
+        startChild(coordinator)
     }
 
     private func startDeleteTasksConfirmation(for deletableTasksVMs: [TaskDeletableViewModel]) {
@@ -82,19 +78,4 @@ final class TasksListCoordinator: BaseCoordinator {
         navigation.present(alert, animated: true)
     }
 
-}
-
-// MARK: - UINavigationControllerDelegate
-
-extension TasksListCoordinator: UINavigationControllerDelegate {
-    func navigationController(
-        _ navigationController: UINavigationController,
-        didShow viewController: UIViewController,
-        animated: Bool
-    ) {
-        // TODO: не срабатывает если перейти на деталку а потом назад в список задач -> список разделов
-        // потому что каждый координатор при создании устанавливает себя в navigation.delegate (а это один navigation)
-        guard let selfVC = self.viewController else { return }
-        finishIfNavigationPop(selfVC, from: navigation)
-    }
 }

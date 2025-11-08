@@ -5,7 +5,10 @@ import RxSwift
 class TaskDeadlineVariantsCoordinator: BaseCoordinator {
     typealias Value = TaskDeadlineVariantsViewModel.Value
 
-    private weak var viewModel: TaskDeadlineVariantsNavigationEmittable?
+    override var rootViewController: UIViewController? { viewController }
+    private var viewController: TableVariantsViewController?
+
+    private var viewModel: TaskDeadlineVariantsNavigationEmittable?
 
     private let navigationMethod: CoordinatorNavigationMethod
     private let value: Value?
@@ -13,17 +16,13 @@ class TaskDeadlineVariantsCoordinator: BaseCoordinator {
     private let finishResultRelay = PublishRelay<Value?>()
     var finishResult: Signal<Value?> { finishResultRelay.asSignal() }
 
-    let disposeBag = DisposeBag()
-
     init(parent: Coordinator, navigationMethod: CoordinatorNavigationMethod, value: Value?) {
         self.navigationMethod = navigationMethod
         self.value = value
         super.init(parent: parent)
     }
 
-    override func start() {
-        super.start()
-
+    override func startCoordinator() {
         let vm = TaskDeadlineVariantsViewModel(
             deadlineDate: value,
             variantsFactory: DIContainer.container.resolve(TaskDeadlineVariantsFactory.self)!
@@ -33,6 +32,8 @@ class TaskDeadlineVariantsCoordinator: BaseCoordinator {
             detent: .taskDeadlineVariants,
             title: "Срок"
         )
+
+        self.viewController = vc
         self.viewModel = vm
 
         self.viewModel?.navigationEvent.emit(onNext: { [weak self] event in
@@ -71,8 +72,7 @@ class TaskDeadlineVariantsCoordinator: BaseCoordinator {
         })
         .disposed(by: disposeBag)
 
-        addChild(coordinator)
-        coordinator.start()
+        startChild(coordinator)
     }
 
     // MARK: - Actions handlers
@@ -83,9 +83,8 @@ class TaskDeadlineVariantsCoordinator: BaseCoordinator {
             // TODO: переделать на Router, который будет всем рулить
             guard case .presentModallyWithNav(let navigation, _) = navigationMethod else { return }
 
-            navigation.dismiss(animated: true)
             finishResultRelay.accept(date)
-            finish()
+            navigation.dismiss(animated: true)
 
         case .openCustomDateSetter(let date):
             startCustomDateSetterCoordinator(with: date)
@@ -101,14 +100,10 @@ class TaskDeadlineVariantsCoordinator: BaseCoordinator {
         switch resultEvent {
         case .didDeleteValue:
             finishResultRelay.accept(nil)
-            navigation.dismiss(animated: true)
 
         case .didSelectValue(let date):
             finishResultRelay.accept(date)
-            navigation.dismiss(animated: true)
         }
-
-        finish()
     }
 
 }

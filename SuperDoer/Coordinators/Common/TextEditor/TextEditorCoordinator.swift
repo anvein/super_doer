@@ -4,18 +4,17 @@ import RxCocoa
 import RxSwift
 import Foundation
 
-class TextEditorCoordinator: BaseCoordinator, TextEditorCoordinatorType {
-    let disposeBag = DisposeBag()
-
+final class TextEditorCoordinator: BaseCoordinator, TextEditorCoordinatorType {
     private weak var parentController: UIViewController?
     private let data: TextEditorData
 
     private var viewModel: TextEditorNavigationEmittable?
 
-    private let didFinishWithResultRelay = PublishRelay<NSAttributedString?>()
-    var didFinishWithResultSignal: Signal<NSAttributedString?> {
-        didFinishWithResultRelay.asSignal()
-    }
+    private var viewController: UIViewController?
+    override var rootViewController: UIViewController? { viewController }
+
+    private let finishResultRelay = PublishRelay<NSAttributedString?>()
+    var finishResult: Signal<NSAttributedString?> { finishResultRelay.asSignal() }
 
     init(
         parent: Coordinator,
@@ -27,16 +26,16 @@ class TextEditorCoordinator: BaseCoordinator, TextEditorCoordinatorType {
         super.init(parent: parent)
     }
     
-    override func start() {
-        super.start()
-
+    override func startCoordinator() {
         let vm = TextEditorViewModel(data: data)
         let vc = TextEditorViewController(viewModel: vm)
         viewModel = vm
+        viewController = vc
 
-        viewModel?.didCloseWithSave.emit(onNext: { [weak self] result in
-            self?.didFinishWithResultRelay.accept(result)
-            self?.finish()
+        viewModel?.needSaveAndClose.emit(onNext: { [weak self] result in
+            guard let self else { return }
+            self.finishResultRelay.accept(result)
+            self.viewController?.dismiss(animated: true)
         })
         .disposed(by: disposeBag)
 

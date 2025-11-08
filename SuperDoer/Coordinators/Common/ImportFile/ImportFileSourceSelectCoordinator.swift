@@ -5,7 +5,8 @@ import RxSwift
 
 class ImportFileSourceSelectCoordinator: BaseCoordinator {
 
-    let disposeBag = DisposeBag()
+    override var rootViewController: UIViewController? { viewController }
+    private var viewController: UIAlertController?
 
     private var parentController: UIViewController
     private let alertFactory: ImportFileSourceAlertFactory
@@ -14,6 +15,8 @@ class ImportFileSourceSelectCoordinator: BaseCoordinator {
     var finishResult: Signal<ImportFileSource?> {
         finishResultRelay.asSignal()
     }
+
+    override var isAutoFinishEnabled: Bool { false }
 
     // MARK: - Init
 
@@ -27,12 +30,12 @@ class ImportFileSourceSelectCoordinator: BaseCoordinator {
         super.init(parent: parent)
     }
     
-    override func start() {
-        super.start()
-
+    override func startCoordinator() {
         let alert = alertFactory.makeAlert { [weak self] answer in
             self?.handleAlertAnswer(answer)
         }
+        viewController = alert
+
         parentController.present(alert, animated: true)
     }
 

@@ -1,11 +1,10 @@
-
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
-    var appCoordinator: AppCoordinator?
-    
+    private var appCoordinator: AppCoordinator?
+
     lazy var coreDataStack: CoreDataStack = .shared
 
 
@@ -15,12 +14,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         guard let window else { return }
 
-        let navigation = UINavigationController()
-
-        appCoordinator = DIContainer.container.resolve(
-            AppCoordinator.self,
-            arguments: window, navigation
-        )
+        appCoordinator = DIContainer.container.resolve(AppCoordinator.self, argument: window)
         appCoordinator?.start()
     }
 

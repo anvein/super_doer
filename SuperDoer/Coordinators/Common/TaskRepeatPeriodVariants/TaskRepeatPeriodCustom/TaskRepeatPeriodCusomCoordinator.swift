@@ -1,8 +1,10 @@
-
 import UIKit
 
 class TaskRepeatPeriodCusomCoordinator: BaseCoordinator {
-    
+
+    override var rootViewController: UIViewController? { viewController }
+    private var viewController: CustomTaskRepeatPeriodSetterViewController?
+
     private var navigation: UINavigationController
     private var viewModel:  CustomTaskRepeatPeriodSetterViewModel
     private weak var delegate: TaskRepeatPeriodCusomCoordinatorDelegate?
@@ -19,9 +21,7 @@ class TaskRepeatPeriodCusomCoordinator: BaseCoordinator {
         super.init(parent: parent)
     }
     
-    override func start() {
-        super.start()
-
+    override func startCoordinator() {
         let viewController = CustomTaskRepeatPeriodSetterViewController(
             coordinator: self,
             viewModel: viewModel

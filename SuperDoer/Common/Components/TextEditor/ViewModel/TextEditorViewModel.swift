@@ -12,21 +12,18 @@ class TextEditorViewModel: TextEditorViewModelType, TextEditorNavigationEmittabl
     let textRelay = BehaviorRelay<NSAttributedString?>(value: nil)
 
     private let titleRelay = BehaviorRelay<String?>(value: nil)
-    var titleDriver: Driver<String?> {
-        titleRelay.asDriver()
-    }
+    var titleDriver: Driver<String?> { titleRelay.asDriver() }
 
     private let subtitleRelay = BehaviorRelay<String?>(value: nil)
-    var subtitleDriver: Driver<String?> {
-        subtitleRelay.asDriver()
-    }
+    var subtitleDriver: Driver<String?> { subtitleRelay.asDriver() }
 
-    let didCloseRelay = PublishRelay<Void>()
+    let didTapReadyRelay = PublishRelay<Void>()
+    let didDisappearRelay = PublishRelay<Void>()
 
     // MARK: - Navigation
 
-    private let didCloseWithSaveRelay = PublishRelay<NSAttributedString?>()
-    var didCloseWithSave: Signal<NSAttributedString?> { didCloseWithSaveRelay.asSignal() }
+    private let needSaveAndCloseRelay = PublishRelay<NSAttributedString?>()
+    var needSaveAndClose: Signal<NSAttributedString?> { needSaveAndCloseRelay.asSignal() }
 
     // MARK: - Init
 
@@ -35,11 +32,18 @@ class TextEditorViewModel: TextEditorViewModelType, TextEditorNavigationEmittabl
         titleRelay.accept(data.title)
         subtitleRelay.accept(data.subtitle)
 
-        didCloseRelay
+        didTapReadyRelay
             .map { [weak self] in
                 self?.textRelay.value
             }
-            .bind(to: didCloseWithSaveRelay)
+            .bind(to: needSaveAndCloseRelay)
+            .disposed(by: disposeBag)
+
+        didDisappearRelay
+            .map { [weak self] in
+                self?.textRelay.value
+            }
+            .bind(to: needSaveAndCloseRelay)
             .disposed(by: disposeBag)
     }
 

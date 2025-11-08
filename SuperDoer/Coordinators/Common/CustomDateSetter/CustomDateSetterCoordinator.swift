@@ -3,16 +3,17 @@ import RxSwift
 import RxRelay
 import RxCocoa
 
-class CustomDateSetterCoordinator: BaseCoordinator {
+final class CustomDateSetterCoordinator: BaseCoordinator {
     enum FinishResult {
         case didDeleteValue
         case didSelectValue(Date)
     }
 
-    private let disposeBag = DisposeBag()
-
     private var navigation: UINavigationController
     private var viewModel: CustomDateSetterNavigationEmittable?
+
+    private var viewController: CustomDateSetterViewController?
+    override var rootViewController: UIViewController? { viewController }
 
     private let initialValue: Date?
 
@@ -29,15 +30,14 @@ class CustomDateSetterCoordinator: BaseCoordinator {
         super.init(parent: parent)
     }
     
-    override func start() {
-        super.start()
-
+    override func startCoordinator() {
         let viewModel = CustomDateSetterViewModel(date: initialValue, defaultDate: Date())
         let controller = CustomDateSetterViewController(
             viewModel: viewModel,
             datePickerMode: .date
         )
 
+        self.viewController = controller
         self.viewModel = viewModel
         self.viewModel?.navigationEvent.emit(onNext: { [weak self] event in
             self?.handleNavigationEvent(event)
@@ -58,11 +58,7 @@ class CustomDateSetterCoordinator: BaseCoordinator {
             finishResultRelay.accept(.didDeleteValue)
         }
 
-        // TODO: закрыть VC в зависимости от того, как он был показан
-
-        finish()
+        navigation.dismiss(animated: true)
     }
 
 }
-
-// TODO: не обработан переход назад в Navigation

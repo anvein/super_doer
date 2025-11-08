@@ -1,13 +1,16 @@
-
 import UIKit
 
 class TaskReminderCustomDateCoordinator: BaseCoordinator {
+
+    override var rootViewController: UIViewController? { viewController }
+    private var viewController: CustomDateSetterViewController?
+
     private var navigation: UINavigationController
     private var viewModel: TaskReminderCustomDateViewModel?
     private weak var delegate: TaskReminderCustomDateCoordinatorDelegate?
     
-    private var currentNavigation: ContainerNavigationController?
-    
+    private var currentNavigation: UINavigationController?
+
     init(
         parent: Coordinator,
         navigation: UINavigationController,
@@ -18,9 +21,7 @@ class TaskReminderCustomDateCoordinator: BaseCoordinator {
         super.init(parent: parent)
     }
     
-    override func start() {
-        super.start()
-
+    override func startCoordinator() {
 //        let vm = TaskReminderCustomDateViewModel(task: <#T##CDTask#>)
 //
 //        let controller = CustomDateSetterViewController(
@@ -61,12 +62,3 @@ protocol TaskReminderCustomDateCoordinatorDelegate: AnyObject {
 //        parent?.removeChild(self)
 //    }
 //}
-
-
-// MARK: - coordinator methods for ContainerNavigationController
-extension TaskReminderCustomDateCoordinator: ContainerNavigationControllerCoordinator {
-    func didCloseContainerNavigation() {
-        parent?.removeChild(self)
-    }
-}
-

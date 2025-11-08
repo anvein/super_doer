@@ -7,5 +7,6 @@ protocol TextEditorViewModelType {
     var titleDriver: Driver<String?> { get }
     var subtitleDriver: Driver<String?> { get }
 
-    var didCloseRelay: PublishRelay<Void> { get }
+    var didTapReadyRelay: PublishRelay<Void> { get }
+    var didDisappearRelay: PublishRelay<Void> { get }
 }

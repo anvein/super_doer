@@ -1,13 +1,16 @@
-
 import UIKit
 
 final class TaskRepeatPeriodVariantsCoordinator: BaseCoordinator {
+
+    override var rootViewController: UIViewController? { viewController }
+    private var viewController: TableVariantsViewController?
+
     private var navigation: UINavigationController
     private var viewModel: TaskRepeatPeriodVariantsViewModel
     private weak var delegate: TaskRepeatPeriodVariantsCoordinatorDelegate?
     
-    private var currentNavigation: ContainerNavigationController?
-    
+    private var currentNavigation: UINavigationController?
+
     init(
         parent: Coordinator?,
         navigation: UINavigationController,
@@ -20,9 +23,7 @@ final class TaskRepeatPeriodVariantsCoordinator: BaseCoordinator {
         super.init(parent: parent)
     }
     
-    override func start() {
-        super.start()
-        
+    override func startCoordinator() {
 //        let controller = TableVariantsViewController(
 //            viewModel: viewModel,
 //            coordinator: self,
@@ -51,8 +52,7 @@ final class TaskRepeatPeriodVariantsCoordinator: BaseCoordinator {
             viewModel: viewModel,
             delegate: self
         )
-        addChild(coordinator)
-        coordinator.start()
+        startChild(coordinator)
     }
 }
 
@@ -78,13 +78,6 @@ protocol TaskRepeatPeriodVariantsCoordinatorDelegate: AnyObject {
 //    }
 //}
 
-
-// MARK: - coordinator methods for ContainerNavigationController
-extension TaskRepeatPeriodVariantsCoordinator: ContainerNavigationControllerCoordinator {
-    func didCloseContainerNavigation() {
-        parent?.removeChild(self)
-    }
-}
 
 
 // MARK: - delegates of child coordinators

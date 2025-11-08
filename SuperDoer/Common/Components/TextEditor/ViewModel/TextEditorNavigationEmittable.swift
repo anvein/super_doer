@@ -2,5 +2,5 @@ import RxCocoa
 import Foundation
 
 protocol TextEditorNavigationEmittable {
-    var didCloseWithSave: Signal<NSAttributedString?> { get }
+    var needSaveAndClose: Signal<NSAttributedString?> { get }
 }
