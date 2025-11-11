@@ -52,8 +52,8 @@ final class DIContainer {
 
         // MARK: - Coordinators
 
-        Self.container.register(AppCoordinator.self) { r, window in
-            return AppCoordinator(window: window)
+        Self.container.register(AppCoordinator.self) { r in
+            return AppCoordinator()
         }.inObjectScope(.container)
 
         // MARK: - ViewController

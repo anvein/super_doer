@@ -1,5 +1,5 @@
 import RxRelay
 
-protocol TaskDetailCoordinatorResultHandler {
+protocol TaskDetailCoordinatorResultHandler: AnyObject {
     var coordinatorResult: PublishRelay<TaskDetailCoordinatorResult> { get }
 }

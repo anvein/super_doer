@@ -10,10 +10,13 @@ class NotificationsDisabledAlertCoordinator: BaseCoordinator {
         case didSelectCancel
     }
 
-    override var rootViewController: UIViewController? { viewController }
-    private var viewController: UIAlertController?
+    override var rootViewController: UIViewController { alertController }
+    private lazy var alertController: UIAlertController = { [unowned self] in
+        return self.alertFactory.makeAlert { [weak self] answer in
+            self?.handleAlertAnswer(answer)
+        }
+    }()
 
-    private var parentController: UIViewController
     private let alertFactory: NotificationsDisabledAlertFactory
 
     private let finishResultRelay = PublishRelay<FinishResult>()
@@ -23,21 +26,10 @@ class NotificationsDisabledAlertCoordinator: BaseCoordinator {
 
     init(
         parent: Coordinator,
-        parentController: UIViewController,
         alertFactory: NotificationsDisabledAlertFactory
     ) {
-        self.parentController = parentController
         self.alertFactory = alertFactory
         super.init(parent: parent)
-    }
-    
-    override func startCoordinator() {
-        let alertController = alertFactory.makeAlert { [weak self] answer in
-            self?.handleAlertAnswer(answer)
-        }
-        viewController = alertController
-
-        parentController.present(alertController, animated: true)
     }
 
     private func handleAlertAnswer(_ answer: NotificationsDisabledAlertAnswer) {

@@ -5,48 +5,40 @@ import RxSwift
 
 final class TaskDetailCoordinator: BaseCoordinator {
 
-    private let navigation: UINavigationController
-    private let taskId: UUID
     private let deleteAlertFactory: DeleteItemsAlertFactory
 
-    private var viewController: TaskDetailViewController?
-    private var viewModel: (TaskDetailCoordinatorResultHandler & TaskDetailNavigationEmittable)?
+    private weak var viewModel: (TaskDetailCoordinatorResultHandler & TaskDetailNavigationEmittable)?
+    private let viewController: TaskDetailViewController
 
-    override var rootViewController: UIViewController? { viewController }
+    override var rootViewController: UIViewController { viewController }
 
     // TODO: переделать на получение значения из сервиса
     private var isEnableNotifications: Bool { false }
 
     init(
         parent: Coordinator,
-        navigation: UINavigationController,
         taskId: UUID,
         deleteAlertFactory: DeleteItemsAlertFactory
     ) {
-        self.navigation = navigation
-        self.taskId = taskId
-        self.deleteAlertFactory = deleteAlertFactory
-        super.init(parent: parent)
-    }
-    
-    override func startCoordinator() {
         let vm = TaskDetailViewModel(
             taskId: taskId,
             taskEm: DIContainer.container.resolve(TaskCoreDataManager.self)!,
             taskFileEm: DIContainer.container.resolve(TaskFileEntityManager.self)!
         )
+        self.viewModel = vm
+        self.viewController = TaskDetailViewController(viewModel: vm)
 
-        vm.navigationEvent.emit { [weak self] event in
+        self.deleteAlertFactory = deleteAlertFactory
+        super.init(parent: parent)
+    }
+    
+    override func setup() {
+        super.setup()
+
+        viewModel?.navigationEvent.emit { [weak self] event in
             self?.handleTaskDetailNavigationEvent(event)
         }
         .disposed(by: disposeBag)
-
-        let vc = TaskDetailViewController(viewModel: vm)
-
-        viewModel = vm
-        viewController = vc
-
-        navigation.pushViewController(vc, animated: true)
     }
 
     // MARK: - Actions handlers
@@ -112,17 +104,9 @@ final class TaskDetailCoordinator: BaseCoordinator {
     }
 
     private func startDeadlineDateSetter(deadlineAt: Date?) {
-        guard let viewController  else { return }
-
-        let navigation = UINavigationController()
-        let navCoordinator = NavigationCoordinator(
-            parent: self,
-            navigation: navigation
-        )
-
+        let navCoordinator = NavigationCoordinator(parent: self)
         let targetCoordinator = TaskDeadlineVariantsCoordinator(
             parent: navCoordinator,
-            navigationMethod: .presentModallyWithNav(navigation, from: viewController),
             value: deadlineAt
         )
         navCoordinator.setTargetCoordinator(targetCoordinator)
@@ -132,7 +116,10 @@ final class TaskDetailCoordinator: BaseCoordinator {
         })
         .disposed(by: targetCoordinator.disposeBag)
 
-        startChild(navCoordinator)
+        startChild(navCoordinator) { [weak self] (navigation: UIViewController) in
+            navigation.view.backgroundColor = .Common.white
+            self?.rootViewController.present(navigation, animated: true)
+        }
     }
 
     private func startRepeatPeriodSetter() {
@@ -140,8 +127,6 @@ final class TaskDetailCoordinator: BaseCoordinator {
     }
 
     private func startDescriptionEditor(with data: TextEditorData) {
-        guard let viewController else { return }
-
         let coordinator = TextEditorCoordinator(
             parent: self,
             parentVC: viewController,
@@ -155,15 +140,14 @@ final class TaskDetailCoordinator: BaseCoordinator {
         })
         .disposed(by: coordinator.disposeBag)
 
-        startChild(coordinator)
+        startChild(coordinator) { [weak self] (controller: UIViewController) in
+            self?.rootViewController.present(controller, animated: true)
+        }
     }
 
     private func startImportFileSourceSelect() {
-        guard let viewController else { return }
-
         let coordinator = ImportFileSourceSelectCoordinator(
             parent: self,
-            parentController: viewController,
             alertFactory: DIContainer.container.resolve(ImportFileSourceAlertFactory.self)!
         )
 
@@ -172,7 +156,9 @@ final class TaskDetailCoordinator: BaseCoordinator {
         })
         .disposed(by: coordinator.disposeBag)
 
-        startChild(coordinator)
+        startChild(coordinator) { [weak self] (alert: UIViewController) in
+            self?.rootViewController.present(alert, animated: true)
+        }
     }
 
     private func startDeleteFileConfirmation(for fileDeletable: TaskFileDeletableViewModel) {
@@ -184,15 +170,12 @@ final class TaskDetailCoordinator: BaseCoordinator {
             self?.viewModel?.coordinatorResult.accept(.didDeleteTaskFileCanceled)
         }
 
-        navigation.present(alert, animated: true)
+        rootViewController.present(alert, animated: true)
     }
 
     private func startNotificationsDisableAlert() {
-        guard let viewController else { return }
-
         let coordinator = NotificationsDisabledAlertCoordinator(
             parent: self,
-            parentController: viewController,
             alertFactory: DIContainer.container.resolve(NotificationsDisabledAlertFactory.self)!
         )
 
@@ -201,13 +184,16 @@ final class TaskDetailCoordinator: BaseCoordinator {
         })
         .disposed(by: coordinator.disposeBag)
 
-        startChild(coordinator)
+        startChild(coordinator) { [weak self] (controller: UIViewController) in
+            self?.rootViewController.present(controller, animated: true)
+        }
     }
 
     private func startTaskReminderCustomDate() {
         let alert = UIAlertController(title: "открыть установку напоминания", message: nil, preferredStyle: .alert)
         alert.addAction(.init(title: "ok", style: .cancel))
-        navigation.present(alert, animated: true)
+        rootViewController.present(alert, animated: true)
+
 //        let coordinator = TaskReminderCustomDateCoordinator(
 //            parent: self,
 //            navigation: navigation,
@@ -230,16 +216,8 @@ final class TaskDetailCoordinator: BaseCoordinator {
 //        coordinator.start()
     }
 
-    private func startImportImageFromLibrary(
-        with mode: ImportImageFromLibraryCoordinator.Mode
-    ) {
-        guard let viewController else { return }
-
-        let coordinator = ImportImageFromLibraryCoordinator(
-            parent: self,
-            parentController: viewController,
-            mode: mode
-        )
+    private func startImportImageFromLibrary(with mode: ImportImageFromLibraryCoordinator.Mode) {
+        let coordinator = ImportImageFromLibraryCoordinator(parent: self, mode: mode)
 
         coordinator.finishResult.emit { [weak self] imageDataResult in
             self?.viewModel?.coordinatorResult.accept(
@@ -248,15 +226,15 @@ final class TaskDetailCoordinator: BaseCoordinator {
         }
         .disposed(by: coordinator.disposeBag)
 
-        startChild(coordinator)
+        startChild(coordinator) { [weak self] (controller: UIViewController) in
+            self?.rootViewController.present(controller, animated: true)
+        }
     }
 
     private func startImportFileFromFiles() {
-        guard let viewController else { return }
-
         let coordinator = ImportFileFromFilesCoordinator(
             parent: self,
-            parentController: viewController
+            types: [.jpeg, .pdf, .text, .gif]
         )
 
         coordinator.finishResult.emit { [weak self] fileUrl in
@@ -266,7 +244,9 @@ final class TaskDetailCoordinator: BaseCoordinator {
         }
         .disposed(by: coordinator.disposeBag)
 
-        startChild(coordinator)
+        startChild(coordinator) { [weak self] (controller: UIViewController) in
+            self?.rootViewController.present(controller, animated: true)
+        }
     }
 
 }

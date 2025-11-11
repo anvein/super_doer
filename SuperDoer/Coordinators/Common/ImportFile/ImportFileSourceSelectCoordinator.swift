@@ -5,38 +5,25 @@ import RxSwift
 
 class ImportFileSourceSelectCoordinator: BaseCoordinator {
 
-    override var rootViewController: UIViewController? { viewController }
-    private var viewController: UIAlertController?
+    override var rootViewController: UIViewController { alertController }
+    private lazy var alertController: UIAlertController = { [unowned self] in
+        return self.alertFactory.makeAlert { [weak self] answer in
+            self?.handleAlertAnswer(answer)
+        }
+    }()
 
-    private var parentController: UIViewController
     private let alertFactory: ImportFileSourceAlertFactory
 
     private let finishResultRelay = PublishRelay<ImportFileSource?>()
-    var finishResult: Signal<ImportFileSource?> {
-        finishResultRelay.asSignal()
-    }
+    var finishResult: Signal<ImportFileSource?> { finishResultRelay.asSignal() }
 
     override var isAutoFinishEnabled: Bool { false }
 
     // MARK: - Init
 
-    init(
-        parent: Coordinator,
-        parentController: UIViewController,
-        alertFactory: ImportFileSourceAlertFactory
-    ) {
-        self.parentController = parentController
+    init(parent: Coordinator, alertFactory: ImportFileSourceAlertFactory) {
         self.alertFactory = alertFactory
         super.init(parent: parent)
-    }
-    
-    override func startCoordinator() {
-        let alert = alertFactory.makeAlert { [weak self] answer in
-            self?.handleAlertAnswer(answer)
-        }
-        viewController = alert
-
-        parentController.present(alert, animated: true)
     }
 
     private func handleAlertAnswer(_ answer: ImportFileSourceAlertAnswer) {

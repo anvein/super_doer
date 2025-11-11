@@ -2,8 +2,18 @@ import UIKit
 
 class TaskRepeatPeriodCusomCoordinator: BaseCoordinator {
 
-    override var rootViewController: UIViewController? { viewController }
-    private var viewController: CustomTaskRepeatPeriodSetterViewController?
+    override var rootViewController: UIViewController { viewController }
+    private lazy var viewController: CustomTaskRepeatPeriodSetterViewController = { [weak self] in
+        let vm = CustomTaskRepeatPeriodSetterViewModel(repeatPeriod: "1d")
+        let viewController = CustomTaskRepeatPeriodSetterViewController(
+            coordinator: self!,
+            viewModel: vm
+        )
+        viewController.title = "Повторять каждые"
+        self?.viewModel = vm
+
+        return viewController
+    }()
 
     private var navigation: UINavigationController
     private var viewModel:  CustomTaskRepeatPeriodSetterViewModel
@@ -21,14 +31,8 @@ class TaskRepeatPeriodCusomCoordinator: BaseCoordinator {
         super.init(parent: parent)
     }
     
-    override func startCoordinator() {
-        let viewController = CustomTaskRepeatPeriodSetterViewController(
-            coordinator: self,
-            viewModel: viewModel
-        )
-        viewController.title = "Повторять каждые"
-        
-        navigation.pushViewController(viewController, animated: true)
+    override func setup() {
+        super.setup()
     }
     
 }

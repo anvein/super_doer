@@ -1,13 +1,16 @@
 import UIKit
 
 protocol Coordinator: AnyObject {
-    
+
     var childs: [Coordinator] { get set }
     var parent: Coordinator? { get set }
-    var rootViewController: UIViewController? { get }
+    var rootViewController: UIViewController { get }
 
-    func start()
-    func startCoordinator()
+    func start/*<RootController>*/(
+        onPresent: (_ coordinatorRootVC: UIViewController) -> Void
+    ) /*where RootController: UIViewController*/
+    func setup()
+    func navigate() 
     func finish()
 }
 

@@ -1,35 +1,30 @@
 import UIKit
+import UniformTypeIdentifiers
 import RxCocoa
 import RxRelay
 import RxSwift
 
 final class ImportFileFromFilesCoordinator: BaseCoordinator {
-    private var parentController: UIViewController
 
-    override var rootViewController: UIViewController? { viewController }
-    private var viewController: UIDocumentPickerViewController?
+    private let pickerController: UIDocumentPickerViewController
+    override var rootViewController: UIViewController { pickerController }
 
     private let finishResultRelay = PublishRelay<URL?>()
     var finishResult: Signal<URL?> { finishResultRelay.asSignal() }
 
     override var isAutoFinishEnabled: Bool { false }
 
-    init(parent: Coordinator, parentController: UIViewController) {
-        self.parentController = parentController
+    init(parent: Coordinator, types: [UTType]) {
+        self.pickerController = UIDocumentPickerViewController(forOpeningContentTypes: types)
         super.init(parent: parent)
     }
-    
-    override func startCoordinator() {
-        let documentPicker = UIDocumentPickerViewController(
-            forOpeningContentTypes: [.jpeg, .pdf, .text, .gif]
-        )
-        documentPicker.delegate = self
-        documentPicker.allowsMultipleSelection = false
 
-        viewController = documentPicker
-
-        parentController.present(documentPicker, animated: true)
+    override func setup() {
+        super.setup()
+        pickerController.allowsMultipleSelection = false
+        pickerController.delegate = self
     }
+
 }
 
 // MARK: - UIDocumentPickerDelegate

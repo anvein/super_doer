@@ -53,8 +53,6 @@ private extension TableVariantsViewController {
         view.backgroundColor = .Common.white
         // TODO: заголовок (title) в ночном режиме не виден (он белый)
 
-        modalPresentationStyle = .pageSheet
-
         if let sheet = sheetPresentationController {
             sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
             sheet.prefersGrabberVisible = true
