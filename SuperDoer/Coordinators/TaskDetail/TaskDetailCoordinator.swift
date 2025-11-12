@@ -129,7 +129,6 @@ final class TaskDetailCoordinator: BaseCoordinator {
     private func startDescriptionEditor(with data: TextEditorData) {
         let coordinator = TextEditorCoordinator(
             parent: self,
-            parentVC: viewController,
             data: data
         )
 

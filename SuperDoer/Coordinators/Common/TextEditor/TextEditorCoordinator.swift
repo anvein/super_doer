@@ -5,16 +5,9 @@ import RxSwift
 import Foundation
 
 final class TextEditorCoordinator: BaseCoordinator, TextEditorCoordinatorType {
-    private weak var parentController: UIViewController?
-    private let data: TextEditorData
-
     private var viewModel: TextEditorNavigationEmittable?
 
-    private lazy var viewController: UIViewController = { [weak self] in
-        let vm = TextEditorViewModel(data: self!.data)
-        self?.viewModel = vm
-        return TextEditorViewController(viewModel: vm)
-    }()
+    private let viewController: TextEditorViewController
     override var rootViewController: UIViewController { viewController }
 
     private let finishResultRelay = PublishRelay<NSAttributedString?>()
@@ -22,11 +15,11 @@ final class TextEditorCoordinator: BaseCoordinator, TextEditorCoordinatorType {
 
     init(
         parent: Coordinator,
-        parentVC: UIViewController,
         data: TextEditorData
     ) {
-        self.parentController = parentVC
-        self.data = data
+        let vm = TextEditorViewModel(data: data)
+        self.viewModel = vm
+        self.viewController = TextEditorViewController(viewModel: vm)
         super.init(parent: parent)
     }
     
