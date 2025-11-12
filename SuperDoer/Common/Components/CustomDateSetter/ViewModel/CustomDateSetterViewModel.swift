@@ -17,9 +17,7 @@ class CustomDateSetterViewModel: CustomDateSetterViewModelType, CustomDateSetter
 
     // MARK: - Output
 
-    var date: Driver<Value> {
-        dateRelay.asDriver()
-    }
+    var date: Driver<Value> { dateRelay.asDriver() }
     var isShowReadyButton: Driver<Bool> { isShowReadyButtonRelay.asDriver() }
     var isShowDeleteButton: Driver<Bool> { isShowDeleteButtonRelay.asDriver() }
 

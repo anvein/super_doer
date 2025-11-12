@@ -1,5 +1,5 @@
 import RxCocoa
 
-protocol TaskDetailNavigationEmittable {
+protocol TaskDetailNavigationEmittable: AnyObject {
     var navigationEvent: Signal<TaskDetailNavigationEvent> { get }
 }

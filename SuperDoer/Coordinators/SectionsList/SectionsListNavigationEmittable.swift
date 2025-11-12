@@ -1,5 +1,5 @@
 import RxCocoa
 
-protocol SectionsListNavigationEmittable {
+protocol SectionsListNavigationEmittable: AnyObject {
     var navigationEvent: Signal<SectionsListNavigationEvent> { get }
 }

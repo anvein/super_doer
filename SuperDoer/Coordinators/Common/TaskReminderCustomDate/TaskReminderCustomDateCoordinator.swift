@@ -2,8 +2,11 @@ import UIKit
 
 class TaskReminderCustomDateCoordinator: BaseCoordinator {
 
-    override var rootViewController: UIViewController? { viewController }
-    private var viewController: CustomDateSetterViewController?
+    override var rootViewController: UIViewController { viewController }
+    private lazy var viewController: CustomDateSetterViewController = { [weak self] in
+        let vm = TaskReminderCustomDateViewModel()
+        return .init(viewModel: vm)
+    }()
 
     private var navigation: UINavigationController
     private var viewModel: TaskReminderCustomDateViewModel?
@@ -21,7 +24,8 @@ class TaskReminderCustomDateCoordinator: BaseCoordinator {
         super.init(parent: parent)
     }
     
-    override func startCoordinator() {
+    override func setup() {
+        super.setup()
 //        let vm = TaskReminderCustomDateViewModel(task: <#T##CDTask#>)
 //
 //        let controller = CustomDateSetterViewController(
@@ -62,3 +66,6 @@ protocol TaskReminderCustomDateCoordinatorDelegate: AnyObject {
 //        parent?.removeChild(self)
 //    }
 //}
+
+
+

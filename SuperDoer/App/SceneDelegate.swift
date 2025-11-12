@@ -7,15 +7,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     lazy var coreDataStack: CoreDataStack = .shared
 
-
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
 
         window = UIWindow(windowScene: windowScene)
-        guard let window else { return }
 
-        appCoordinator = DIContainer.container.resolve(AppCoordinator.self, argument: window)
-        appCoordinator?.start()
+        appCoordinator = DIContainer.container.resolve(AppCoordinator.self)
+        appCoordinator?.start { [weak self] (rootController: UIViewController) in
+            guard let self, let window = self.window else { return }
+            window.rootViewController = rootController
+            window.makeKeyAndVisible()
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

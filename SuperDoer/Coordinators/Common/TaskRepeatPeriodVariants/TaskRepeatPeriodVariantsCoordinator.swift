@@ -2,7 +2,7 @@ import UIKit
 
 final class TaskRepeatPeriodVariantsCoordinator: BaseCoordinator {
 
-    override var rootViewController: UIViewController? { viewController }
+    override var rootViewController: UIViewController { .init() }
     private var viewController: TableVariantsViewController?
 
     private var navigation: UINavigationController
@@ -23,7 +23,8 @@ final class TaskRepeatPeriodVariantsCoordinator: BaseCoordinator {
         super.init(parent: parent)
     }
     
-    override func startCoordinator() {
+    override func setup() {
+        super.setup()
 //        let controller = TableVariantsViewController(
 //            viewModel: viewModel,
 //            coordinator: self,
@@ -52,7 +53,9 @@ final class TaskRepeatPeriodVariantsCoordinator: BaseCoordinator {
             viewModel: viewModel,
             delegate: self
         )
-        startChild(coordinator)
+        startChild(coordinator) { [weak self] controller in
+            self?.rootViewController.show(controller, sender: nil)
+        }
     }
 }
 

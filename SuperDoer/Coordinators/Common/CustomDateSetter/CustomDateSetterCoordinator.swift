@@ -9,42 +9,28 @@ final class CustomDateSetterCoordinator: BaseCoordinator {
         case didSelectValue(Date)
     }
 
-    private var navigation: UINavigationController
     private var viewModel: CustomDateSetterNavigationEmittable?
 
-    private var viewController: CustomDateSetterViewController?
-    override var rootViewController: UIViewController? { viewController }
-
-    private let initialValue: Date?
+    private let viewController: CustomDateSetterViewController
+    override var rootViewController: UIViewController { viewController }
 
     private let finishResultRelay = PublishRelay<FinishResult>()
     var finishResult: Signal<FinishResult> { finishResultRelay.asSignal() }
 
-    init(
-        parent: Coordinator,
-        navigation: UINavigationController,
-        initialValue: Date?
-    ) {
-        self.navigation = navigation
-        self.initialValue = initialValue
+    init(parent: Coordinator, initialValue: Date?) {
+        let vm = CustomDateSetterViewModel(date: initialValue, defaultDate: Date())
+        self.viewModel = vm
+        self.viewController = CustomDateSetterViewController(viewModel: vm, datePickerMode: .date)
         super.init(parent: parent)
     }
-    
-    override func startCoordinator() {
-        let viewModel = CustomDateSetterViewModel(date: initialValue, defaultDate: Date())
-        let controller = CustomDateSetterViewController(
-            viewModel: viewModel,
-            datePickerMode: .date
-        )
 
-        self.viewController = controller
-        self.viewModel = viewModel
+    override func setup() {
+        super.setup()
+
         self.viewModel?.navigationEvent.emit(onNext: { [weak self] event in
             self?.handleNavigationEvent(event)
         })
         .disposed(by: disposeBag)
-
-        navigation.pushViewController(controller, animated: true)
     }
 
     // MARK: - Actions handlers
@@ -58,7 +44,7 @@ final class CustomDateSetterCoordinator: BaseCoordinator {
             finishResultRelay.accept(.didDeleteValue)
         }
 
-        navigation.dismiss(animated: true)
+        rootViewController.dismiss(animated: true)
     }
 
 }

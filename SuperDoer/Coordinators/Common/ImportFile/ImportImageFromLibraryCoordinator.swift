@@ -12,7 +12,7 @@ class ImportImageFromLibraryCoordinator: BaseCoordinator {
     enum Mode {
         case camera
         case library
-        
+
         var asSourceType: UIImagePickerController.SourceType {
             switch self {
             case .camera:
@@ -21,7 +21,7 @@ class ImportImageFromLibraryCoordinator: BaseCoordinator {
                 return .photoLibrary
             }
         }
-        
+
         var title: String {
             switch self {
             case .camera:  "камере"
@@ -30,50 +30,43 @@ class ImportImageFromLibraryCoordinator: BaseCoordinator {
         }
     }
 
-    override var rootViewController: UIViewController? { viewController }
-    private var viewController: UIImagePickerController?
-
-    private var parentController: UIViewController
     private var mode: Mode
+
+    override var rootViewController: UIViewController { pickerController }
+    private let pickerController = UIImagePickerController()
 
     private let finishResultRelay = PublishRelay<ImageDataResult?>()
     var finishResult: Signal<ImageDataResult?> { finishResultRelay.asSignal() }
 
-    init(
-        parent: Coordinator,
-        parentController: UIViewController,
-        mode: Mode
-    ) {
-        self.parentController = parentController
+    init(parent: Coordinator, mode: Mode) {
         self.mode = mode
         super.init(parent: parent)
     }
-    
-    override func startCoordinator() {
+
+    override func setup() {
+        super.setup()
+
         // TODO: сделать нормальные проверки
         guard UIImagePickerController.isSourceTypeAvailable(mode.asSourceType) == true else {
             print("❌ Нет доступа к \(mode.title)")
+            // TODO: вернуть как finishResult
             return
         }
-        
+
         let availableTypes = UIImagePickerController.availableMediaTypes(for: mode.asSourceType)
         guard (availableTypes?.count ?? 0) > 0 else {
             print("❌ нет доступных форматов в \(mode.title)")
+            // TODO: вернуть как finishResult
             return
         }
-        
-        let controller = UIImagePickerController()
-        controller.delegate = self
-        controller.presentationController?.delegate = self
-        controller.mediaTypes = availableTypes ?? []
 
-        viewController = controller
+        pickerController.delegate = self
+        pickerController.presentationController?.delegate = self
+        pickerController.mediaTypes = availableTypes ?? []
 
         if mode == .camera {
-            controller.sourceType = .camera
+            pickerController.sourceType = .camera
         }
-        
-        parentController.present(controller, animated: true)
     }
 
 }

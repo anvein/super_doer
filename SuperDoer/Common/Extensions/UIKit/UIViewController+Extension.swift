@@ -46,3 +46,37 @@ extension UIViewController: DismissableController {
         return relay.asSignal()
     }
 }
+
+// MARK: - Navigation methods
+
+extension UIViewController {
+    func pushNav(_ vc: UIViewController, animated: Bool = true) {
+        navigationController?.pushNavigation(vc, animated: animated)
+    }
+
+    func backNav(animated: Bool = true) {
+        if navigationController?.popViewController(animated: animated) == nil {
+            dismissNav(animated: animated)
+        }
+    }
+
+    func dismissNav(animated: Bool = true) {
+        dismiss(animated: animated)
+    }
+
+    func backNavOrDismiss(animated: Bool = true) {
+        if navigationController?.popViewController(animated: animated) == nil {
+            dismissNav(animated: animated)
+        } else {
+            dismiss(animated: animated)
+        }
+    }
+
+    func replaceTopNav(_ vc: UIViewController, animated: Bool = true) {
+        guard let navigationController else { return }
+        var viewControllers = navigationController.viewControllers
+        viewControllers.removeLast()
+        viewControllers.append(vc)
+        navigationController.setViewControllers(viewControllers, animated: animated)
+    }
+}

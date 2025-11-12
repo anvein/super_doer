@@ -1,23 +1,15 @@
-
 import UIKit
 
-/// Контроллер  в виде PageSheet для выбора  кастомного периода повтора задачи
 class CustomTaskRepeatPeriodSetterViewController: UIViewController {
 
     private var viewModel: CustomTaskRepeatPeriodSetterViewModel
-    private weak var coordinator: CustomTaskRepeatPeriodSetterViewControllerCoordinator?
-    
     
     // MARK: controls
     private lazy var pickerView = UIPickerView()
     
 
     // MARK: init
-    init(
-        coordinator: CustomTaskRepeatPeriodSetterViewControllerCoordinator,
-        viewModel: CustomTaskRepeatPeriodSetterViewModel
-    ) {
-        self.coordinator = coordinator
+    init(viewModel: CustomTaskRepeatPeriodSetterViewModel) {
         self.viewModel = viewModel
         
         super.init(nibName: nil, bundle: nil)
@@ -48,7 +40,7 @@ class CustomTaskRepeatPeriodSetterViewController: UIViewController {
         super.viewDidDisappear(animated)
         
         if isMovingFromParent {
-            coordinator?.didGoBackCustomRepeatPeriodSetter()
+//            coordinator?.didGoBackCustomRepeatPeriodSetter()
         }
     }
     
@@ -68,7 +60,7 @@ class CustomTaskRepeatPeriodSetterViewController: UIViewController {
         guard let typeRowVM = typeRowVM as? TaskRepeatPeriodTypeRowViewModel else { return }
         
         let periodValue = "\(amountRowVM.value)\(typeRowVM.value.rawValue)"
-        coordinator?.didChooseCustomTaskRepeatPeriodReady(newPeriod: periodValue)
+//        coordinator?.didChooseCustomTaskRepeatPeriodReady(newPeriod: periodValue)
         dismiss(animated: true)
     }
 }
