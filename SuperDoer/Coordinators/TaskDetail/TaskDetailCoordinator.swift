@@ -13,7 +13,9 @@ final class TaskDetailCoordinator: BaseCoordinator {
     override var rootViewController: UIViewController { viewController }
 
     // TODO: переделать на получение значения из сервиса
-    private var isEnableNotifications: Bool { false }
+    private var isEnabledNotifications: Bool { true }
+
+    private var taskReminderDateTimeTemporary: Date?
 
     init(
         parent: Coordinator,
@@ -48,11 +50,11 @@ final class TaskDetailCoordinator: BaseCoordinator {
         case .openDeadlineDateSetter(let deadlineAt):
             startDeadlineDateSetter(deadlineAt: deadlineAt)
 
-        case .openReminderDateSetter:
-            startReminderDateSetter()
+        case .openReminderDateSetter(let dateTime):
+            startReminderDateSetter(with: dateTime)
 
-        case .openRepeatPeriodSetter:
-            startRepeatPeriodSetter()
+        case .openRepeatPeriodSetter(let repeatPeriod):
+            startTaskRepeatPeriodVariants(with: repeatPeriod)
 
         case .openAddFile:
             startImportFileSourceSelect()
@@ -86,20 +88,34 @@ final class TaskDetailCoordinator: BaseCoordinator {
     ) {
         switch result {
         case .didSelectNotificationsEnable, .didSelectNotNow:
-            startTaskReminderCustomDate()
+            startTaskReminderCustomDateSetter(with: taskReminderDateTimeTemporary)
+            taskReminderDateTimeTemporary = nil
 
         case .didSelectCancel:
             break
         }
     }
 
+    private func handleCustomDateTimeSetterResult(
+        _ result: CustomDateSetterCoordinator.FinishResult
+    ) {
+        switch result {
+        case .didDeleteValue:
+            viewModel?.coordinatorResult.accept(.didSelectReminderDateTime(nil))
+
+        case .didSelectValue(let dateTime):
+            viewModel?.coordinatorResult.accept(.didSelectReminderDateTime(dateTime))
+        }
+    }
+
     // MARK: - Childs start
 
-    private func startReminderDateSetter() {
-        if !isEnableNotifications {
+    private func startReminderDateSetter(with dateTime: Date?) {
+        if !isEnabledNotifications {
+            taskReminderDateTimeTemporary = dateTime
             startNotificationsDisableAlert()
         } else {
-            startTaskReminderCustomDate()
+            startTaskReminderCustomDateSetter(with: dateTime)
         }
     }
 
@@ -120,10 +136,6 @@ final class TaskDetailCoordinator: BaseCoordinator {
             navigation.view.backgroundColor = .Common.white
             self?.rootViewController.present(navigation, animated: true)
         }
-    }
-
-    private func startRepeatPeriodSetter() {
-        startTaskRepeatPeriodVariants()
     }
 
     private func startDescriptionEditor(with data: TextEditorData) {
@@ -188,31 +200,52 @@ final class TaskDetailCoordinator: BaseCoordinator {
         }
     }
 
-    private func startTaskReminderCustomDate() {
-        let alert = UIAlertController(title: "открыть установку напоминания", message: nil, preferredStyle: .alert)
-        alert.addAction(.init(title: "ok", style: .cancel))
-        rootViewController.present(alert, animated: true)
+    private func startTaskReminderCustomDateSetter(with dateTime: Date?) {
+        let navCoordinator = NavigationCoordinator(parent: self)
+        let dateSetterCoordinator = CustomDateSetterCoordinator(
+            parent: navCoordinator,
+            mode: .dateAndTime,
+            initialValue: dateTime,
+            defaultValue: .now.setComponents(hours: 21, minutes: 0, seconds: 0)
+        )
+        navCoordinator.setTargetCoordinator(dateSetterCoordinator)
 
-//        let coordinator = TaskReminderCustomDateCoordinator(
-//            parent: self,
-//            navigation: navigation,
-//            delegate: self
-//        )
-//        addChild(coordinator)
-//        coordinator.start()
+        dateSetterCoordinator.finishResult.emit(onNext: { [weak self] result in
+            self?.handleCustomDateTimeSetterResult(result)
+        })
+        .disposed(by: dateSetterCoordinator.disposeBag)
+
+        startChild(navCoordinator) { [weak self] controller in
+            self?.rootViewController.present(controller, animated: true)
+        }
     }
 
-    private func startTaskRepeatPeriodVariants() {
-//        let viewModel = viewModel.getTaskRepeatPeriodTableVariantsViewModel()
-//
-//        let coordinator = TaskRepeatPeriodVariantsCoordinator(
-//            parent: self,
-//            navigation: navigation,
-//            viewModel: viewModel,
-//            delegate: self
-//        )
-//        addChild(coordinator)
-//        coordinator.start()
+    private func startTaskRepeatPeriodVariants(with repeatPeriod: String?) {
+        let navCoordinator = NavigationCoordinator(parent: self)
+        let targetCoordinator = TaskRepeatPeriodVariantsCoordinator(
+            parent: navCoordinator,
+            initialValue: repeatPeriod
+        )
+        navCoordinator.setTargetCoordinator(targetCoordinator)
+
+        targetCoordinator.finishResult.emit(onNext: { [weak self] resultValue in
+            self?.viewModel?.coordinatorResult.accept(.didSelectRepeatPeriodValue(resultValue))
+        })
+        .disposed(by: targetCoordinator.disposeBag)
+
+        startChild(navCoordinator) { [unowned self] navController in
+            if let navController = navController as? UINavigationController {
+                navController.modalPresentationStyle = .pageSheet
+            }
+
+            if let sheet = navController.sheetPresentationController {
+                sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+                sheet.prefersGrabberVisible = true
+                sheet.preferredCornerRadius = 15
+            }
+
+            self.rootViewController.present(navController, animated: true)
+        }
     }
 
     private func startImportImageFromLibrary(with mode: ImportImageFromLibraryCoordinator.Mode) {
@@ -248,24 +281,4 @@ final class TaskDetailCoordinator: BaseCoordinator {
         }
     }
 
-}
-
-// MARK: - Delegates of child coordinators
-
-extension TaskDetailCoordinator: TaskReminderCustomDateCoordinatorDelegate {
-    func didChooseTaskReminderDate(newDate: Date?) {
-//        viewModel.updateTaskField(reminderDateTime: newDate)
-    }
-}
-
-//extension TaskDetailCoordinator: TaskDeadlineDateVariantsCoordinatorDelegate {
-//    func didChooseTaskDeadlineDate(newDate: Date?) {
-////        viewModel.updateTaskField(deadlineDate: newDate)
-//    }
-//}
-
-extension TaskDetailCoordinator: TaskRepeatPeriodVariantsCoordinatorDelegate {
-    func didChooseTaskRepeatPeriod(newPeriod: String?) {
-//        viewModel.updateTaskField(repeatPeriod: newPeriod)
-    }
 }

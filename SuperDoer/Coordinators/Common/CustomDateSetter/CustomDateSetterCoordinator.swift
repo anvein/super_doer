@@ -17,10 +17,18 @@ final class CustomDateSetterCoordinator: BaseCoordinator {
     private let finishResultRelay = PublishRelay<FinishResult>()
     var finishResult: Signal<FinishResult> { finishResultRelay.asSignal() }
 
-    init(parent: Coordinator, initialValue: Date?) {
-        let vm = CustomDateSetterViewModel(date: initialValue, defaultDate: Date())
+    init(
+        parent: Coordinator,
+        mode: CustomDateSetterViewController.SupportedDatePickerMode,
+        initialValue: Date?,
+        defaultValue: Date = .now
+    ) {
+        let vm = CustomDateSetterViewModel(
+            date: initialValue,
+            defaultDate: defaultValue
+        )
         self.viewModel = vm
-        self.viewController = CustomDateSetterViewController(viewModel: vm, datePickerMode: .date)
+        self.viewController = CustomDateSetterViewController(viewModel: vm, datePickerMode: mode)
         super.init(parent: parent)
     }
 

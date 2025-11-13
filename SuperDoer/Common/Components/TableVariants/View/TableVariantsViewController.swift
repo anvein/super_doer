@@ -6,7 +6,7 @@ final class TableVariantsViewController: UIViewController {
 
     private let disposeBag = DisposeBag()
 
-    private var viewModel: TableVariantsViewModelType
+    private var viewModel: any TableVariantsViewModelInputOutput
     private let detent: TableVariantsControllerDetent
 
     private lazy var variantsTableView = VariantsTableView()
@@ -14,7 +14,7 @@ final class TableVariantsViewController: UIViewController {
     // MARK: - Init
 
     init(
-        viewModel: TableVariantsViewModelType,
+        viewModel: any TableVariantsViewModelInputOutput,
         detent: TableVariantsControllerDetent,
         title: String?
     ) {
@@ -53,27 +53,12 @@ private extension TableVariantsViewController {
         view.backgroundColor = .Common.white
         // TODO: заголовок (title) в ночном режиме не виден (он белый)
 
-        if let sheet = sheetPresentationController {
-            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
-            sheet.prefersGrabberVisible = true
-            sheet.prefersEdgeAttachedInCompactHeight = true
-            sheet.preferredCornerRadius = 15
-        }
-
         variantsTableView.dataSource = self
         variantsTableView.delegate = self
 
         setupNavigationBar()
     }
 
-    func configureSheetPresentationController() {
-        guard let sheet = sheetPresentationController else { return }
-        sheet.detents = [detent.detent]
-        sheet.animateChanges {
-            sheet.selectedDetentIdentifier = detent.identifier
-        }
-    }
-    
     func setupNavigationBar() {
         let deleteBarButton = UIBarButtonItem(title: "Удалить", style: .done, target: self, action: #selector(tapButtonDelete))
         deleteBarButton.tintColor = .Text.red
@@ -92,6 +77,15 @@ private extension TableVariantsViewController {
         }
     }
 
+    func configureSheetPresentationController() {
+        guard let sheet = sheetPresentationController else { return }
+        sheet.detents = [detent.detent]
+        sheet.animateChanges {
+            sheet.selectedDetentIdentifier = detent.identifier
+        }
+    }
+
+
     func setupHierarchyAndConstraints() {
         view.addSubview(variantsTableView)
 
@@ -105,8 +99,8 @@ private extension TableVariantsViewController {
     
     func setupBindings() {
         // VM -> V
-        viewModel.tableNeedReload.emit(onNext: {/* [weak self]*/ _ in
-            self.variantsTableView.reloadData()
+        viewModel.tableNeedReload.emit(onNext: { [weak self] _ in
+            self?.variantsTableView.reloadData()
         })
         .disposed(by: disposeBag)
 
@@ -143,7 +137,7 @@ extension TableVariantsViewController: UITableViewDelegate, UITableViewDataSourc
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueCell(VariantTableViewCell.self) else { return .init() }
 
-        if let cellVM = viewModel.getVariantCellViewModel(for: indexPath) {
+        if let cellVM = viewModel.getVariantCellViewModel(for: indexPath)  {
             cell.fill(from: cellVM)
         }
 

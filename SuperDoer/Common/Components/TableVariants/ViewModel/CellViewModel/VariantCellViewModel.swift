@@ -1,24 +1,21 @@
 import Foundation
 import UIKit
 
-class BaseVariantCellViewModel {
-    struct ImageSettings {
-        var name: String
-        var size: Int = 18
-        var weight: UIImage.SymbolWeight = .medium
-    }
-
-    var imageSettings: ImageSettings
+class VariantCellViewModel<Value>: VariantCellViewModelProtocol {
+    var value: Value?
+    var imageSettings: VariantCellVMImageSettings
     var title: String
     var additionalText: String? = nil
     var isSelected: Bool = false
 
     init(
-        imageSettings: ImageSettings,
+        value: Value?,
+        imageSettings: VariantCellVMImageSettings,
         title: String,
         additionalText: String? = nil,
         isSelected: Bool = false
     ) {
+        self.value = value
         self.imageSettings = imageSettings
         self.title = title
         self.additionalText = additionalText

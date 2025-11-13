@@ -45,14 +45,6 @@ class CustomDateSetterViewController: UIViewController {
         super.viewDidAppear(animated)
         setupNavigationBarDidAppear()
     }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        if isMovingFromParent {
-//            coordinator?.didGoBackCustomDateSetter?()
-        }
-    }
 
 }
 

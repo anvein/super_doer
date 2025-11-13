@@ -1,8 +1,6 @@
-
 import Foundation
 
-/// ViewModel для строки с количеством
-class TaskRepeatPeriodAmountRowViewModel: TaskRepeatPeriodRowViewModelType {
+final class TaskRepeatPeriodAmountRowViewModel: TaskRepeatPeriodRowViewModelType {
     var visibleValue: String
     var value: Int
     var isSelected: Bool = false

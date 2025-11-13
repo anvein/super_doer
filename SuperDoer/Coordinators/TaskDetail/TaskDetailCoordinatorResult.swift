@@ -7,4 +7,6 @@ enum TaskDetailCoordinatorResult {
     case didDeleteTaskFileConfirmed(TaskFileDeletableViewModel)
     case didDeleteTaskFileCanceled
     case didSelectDeadlineDate(Date?)
+    case didSelectReminderDateTime(Date?)
+    case didSelectRepeatPeriodValue(String?)
 }

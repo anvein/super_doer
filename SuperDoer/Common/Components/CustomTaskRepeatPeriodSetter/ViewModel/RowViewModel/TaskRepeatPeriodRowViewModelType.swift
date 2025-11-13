@@ -1,6 +1,4 @@
-
 import Foundation
-
 
 protocol TaskRepeatPeriodRowViewModelType {
     var visibleValue: String { get set }

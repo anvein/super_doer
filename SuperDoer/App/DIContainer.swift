@@ -36,6 +36,18 @@ final class DIContainer {
             TaskDeadlineVariantsFactory()
         }.inObjectScope(.container)
 
+        Self.container.register(TaskDeadlineTableVariantFinder.self) { _ in
+            TaskDeadlineTableVariantFinder()
+        }.inObjectScope(.container)
+
+        Self.container.register(TaskRepeatPeriodVariantsFactory.self) { _ in
+            TaskRepeatPeriodVariantsFactory()
+        }.inObjectScope(.container)
+
+        Self.container.register(TaskRepeatPeriodTableVariantFinder.self) { _ in
+            TaskRepeatPeriodTableVariantFinder()
+        }.inObjectScope(.container)
+
         // MARK: - CoreData services
 
         Self.container.register(TaskSectionCoreDataManager.self, factory: { _ in

@@ -1,18 +1,17 @@
-
 import Foundation
 
-/// ViewModel для установки кастомного периода повтора задачи
-class CustomTaskRepeatPeriodSetterViewModel {
+class RepeatPeriodSelectorViewModel {
     typealias PeriodData = [String: [TaskRepeatPeriodRowViewModelType]]
-    
-    /// константы с индексами в которых лежат элементы (строки)
-    private static let amountIndex = "amount"
-    private static let typeIndex = "type"
+
+    private static let amountKey = "amount"
+    private static let typeKey = "type"
     
     weak var bindingDelegate: CustomTaskRepeatPeriodSetterViewModelBindingDelegate?
 
+    // MARK: - Output
+
     
-    // MARK: state
+
     var isShowReadyButton: Bool = true {
         didSet {
             bindingDelegate?.didUdpateIsShowReadyButton(newValue: isShowReadyButton)
@@ -34,8 +33,8 @@ class CustomTaskRepeatPeriodSetterViewModel {
     
     private var componentPeriodData: PeriodData
     
-    
-    // MARK: init
+    // MARK: - Init
+
     init(repeatPeriod: String?) {
         // TODO: когда в сущности будет правильный объект периода переделать заполнение self.repeatPeriod
         self.repeatPeriod = repeatPeriod
@@ -51,14 +50,11 @@ class CustomTaskRepeatPeriodSetterViewModel {
         return componentPeriodData.count
     }
     
-    func getComponentKey(byIndex index: Int) -> String {
+    private func getComponentKey(byIndex index: Int) -> String {
         switch index {
-        case 0:
-            return Self.amountIndex
-        case 1:
-            return Self.typeIndex
-        default:
-            return "undefined"
+        case 0:  Self.amountKey
+        case 1:  Self.typeKey
+        default: "undefined"
         }
     }
     
@@ -97,7 +93,7 @@ class CustomTaskRepeatPeriodSetterViewModel {
                 TaskRepeatPeriodAmountRowViewModel.init(value: index + 1)
             )
         }
-        periodData[Self.amountIndex] = amountData
+        periodData[Self.amountKey] = amountData
         
         var typeData = [TaskRepeatPeriodTypeRowViewModel]()
         for value in TaskRepeatPeriodTypeRowViewModel.TypeName.allCases {
@@ -105,16 +101,14 @@ class CustomTaskRepeatPeriodSetterViewModel {
                 TaskRepeatPeriodTypeRowViewModel.init(value: value)
             )
         }
-        periodData[Self.typeIndex] = typeData
+        periodData[Self.typeKey] = typeData
         
         return periodData
     }
     
 }
 
-
 // MARK: - CustomTaskRepeatPeriodSetterViewModelBindingDelegate
-/// Протокол с методами уведомляющими о том, что состояние полей ViewModel изменилось (для биндинга)
 protocol CustomTaskRepeatPeriodSetterViewModelBindingDelegate: AnyObject {
     func didUdpateIsShowReadyButton(newValue isShow: Bool)
     

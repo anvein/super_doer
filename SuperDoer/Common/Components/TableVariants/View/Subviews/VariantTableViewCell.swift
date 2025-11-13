@@ -26,7 +26,7 @@ class VariantTableViewCell: UITableViewCell {
 
     // MARK: - Update view
 
-    func fill(from cellVM: BaseVariantCellViewModel) {
+    func fill(from cellVM: VariantCellViewModelProtocol) {
         textLabel?.text = cellVM.title
         detailTextLabel?.text = cellVM.additionalText
         imageView?.image = createImage(
@@ -35,7 +35,7 @@ class VariantTableViewCell: UITableViewCell {
             weight: cellVM.imageSettings.weight
         )
         imageView?.tintColor = .Text.black
-        accessoryType = cellVM is CustomVariantCellViewModel ? .disclosureIndicator : .none
+        accessoryType = cellVM is CustomVariantCellViewModelProtocol ? .disclosureIndicator : .none
 
         isSelectedValue = cellVM.isSelected
     }

@@ -1,7 +1,5 @@
-
 import Foundation
 
-/// ViewModel для строки с типом периода
 class TaskRepeatPeriodTypeRowViewModel: TaskRepeatPeriodRowViewModelType {
     // TODO: вынести в модель
     enum TypeName: String, CaseIterable {
@@ -9,7 +7,6 @@ class TaskRepeatPeriodTypeRowViewModel: TaskRepeatPeriodRowViewModelType {
         case week
         case month
         case year
-        
         
         var visibleValue: String {
             switch self {

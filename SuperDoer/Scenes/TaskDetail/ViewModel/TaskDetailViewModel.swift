@@ -118,6 +118,12 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
 
         case .didSelectDeadlineDate(let date):
             updateTaskField(deadlineDate: date)
+
+        case .didSelectReminderDateTime(let dateTime):
+            updateTaskField(reminderDateTime: dateTime)
+
+        case .didSelectRepeatPeriodValue(let repeatPeriod):
+            updateTaskField(repeatPeriod: repeatPeriod)
         }
     }
 
@@ -127,14 +133,14 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
             loadInitialData()
 
         case .didTapOpenReminderDateSetter:
-            navigationEventRelay.accept(.openReminderDateSetter)
+            navigationEventRelay.accept(.openReminderDateSetter(dateTime: task?.reminderDateTime))
 
         case .didTapOpenDeadlineDateSetter:
             guard let task else { return }
             navigationEventRelay.accept(.openDeadlineDateSetter(deadlineAt: task.deadlineDate))
 
         case .didTapOpenRepeatPeriodSetter:
-            navigationEventRelay.accept(.openRepeatPeriodSetter)
+            navigationEventRelay.accept(.openRepeatPeriodSetter(repeatPeriod: task?.repeatPeriod))
 
         case .didTapAddFile:
             navigationEventRelay.accept(.openAddFile)
@@ -200,20 +206,6 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
 
         navigationEventRelay.accept(.openDeleteFileConfirmation(fileDeletable))
     }
-
-    // MARK: - Children view models building
-
-//    func getTaskDeadlineTableVariantsViewModel() -> TaskDeadlineTableVariantsViewModel {
-//        return TaskDeadlineTableVariantsViewModel(deadlineDate: task.deadlineDate)
-//    }
-//    
-//    func getTaskReminderCustomDateViewModel() -> TaskReminderCustomDateViewModel {
-//        return TaskReminderCustomDateViewModel(task: task)
-//    }
-//    
-//    func getTaskRepeatPeriodTableVariantsViewModel() -> TaskRepeatPeriodTableVariantsViewModel {
-//        return TaskRepeatPeriodTableVariantsViewModel(repeatPeriod: task.repeatPeriod)
-//    }
 
     // MARK: - Fetching Data
 

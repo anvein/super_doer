@@ -1,18 +1,16 @@
 import Foundation
 import RxCocoa
 
-protocol TableVariantsViewModelType {
-
+protocol TableVariantsViewModelInputOutput {
     var tableNeedReload: Signal<Void> { get }
 
     var isShowReadyButton: Driver<Bool> { get }
     var isShowDeleteButton: Driver<Bool> { get }
 
     func getCountVariants() -> Int
-    func getVariantCellViewModel(for indexPath: IndexPath) -> BaseVariantCellViewModel?
+    func getVariantCellViewModel(for indexPath: IndexPath) -> VariantCellViewModelProtocol?
 
     func didTapSelectVariant(with indexPath: IndexPath)
     func didTapDelete()
     func didTapReady()
-
 }
