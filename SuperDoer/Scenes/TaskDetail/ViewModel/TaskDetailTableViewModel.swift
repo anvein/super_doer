@@ -54,7 +54,7 @@ class TaskDetailTableViewModel {
 
         addReminderDateCellVM(task.reminderDateTime, withNotify: false)
         addDeadlineDateCellVM(task.deadlineDate, withNotify: false)
-        addRepeatPeriodCellVM(task.repeatPeriod, withNotify: false)
+        addRepeatPeriodCellVM(task.repeatPeriodStruct, withNotify: false)
 
         addImportFileCellVM(withNotify: false)
 
@@ -93,7 +93,7 @@ class TaskDetailTableViewModel {
 
     @discardableResult
     func updateReminderDate(_ value: Date?) -> IndexPath? {
-        updateUniqueCellVM(section: .fields) { (cellVM: ReminderDateCellViewModel) -> ReminderDateCellViewModel in
+        updateUniqueCellVM(section: .fields) { (cellVM: TaskDetailReminderDateCellViewModel) -> TaskDetailReminderDateCellViewModel in
             var updatedCellVM = cellVM
             updatedCellVM.dateTime = value
             return updatedCellVM
@@ -101,11 +101,9 @@ class TaskDetailTableViewModel {
     }
 
     @discardableResult
-    func updateRepeatPeriod(_ value: String?) -> IndexPath? {
-        updateUniqueCellVM(section: .fields) { (cellVM: RepeatPeriodCellViewModel) -> RepeatPeriodCellViewModel in
-            var updatedCellVM = cellVM
-            updatedCellVM.period = value
-            return updatedCellVM
+    func updateRepeatPeriod(_ value: TaskRepeatPeriod?) -> IndexPath? {
+        updateUniqueCellVM(section: .fields) { (cellVM: TaskDetailRepeatPeriodCellViewModel) -> TaskDetailRepeatPeriodCellViewModel in
+            return TaskDetailRepeatPeriodCellViewModel.buildFrom(value)
         }
     }
 
@@ -257,7 +255,7 @@ private extension TaskDetailTableViewModel {
     @discardableResult
     func addReminderDateCellVM(_ value: Date?, withNotify: Bool = true) -> IndexPath?  {
         addCellVM(
-            ReminderDateCellViewModel(dateTime: value),
+            TaskDetailReminderDateCellViewModel(dateTime: value),
             to: .fields,
             withNotify: withNotify
         )
@@ -273,9 +271,9 @@ private extension TaskDetailTableViewModel {
     }
 
     @discardableResult
-    func addRepeatPeriodCellVM(_ value: String?, withNotify: Bool = true) -> IndexPath? {
+    func addRepeatPeriodCellVM(_ value: TaskRepeatPeriod?, withNotify: Bool = true) -> IndexPath? {
         addCellVM(
-            RepeatPeriodCellViewModel(period: value),
+            TaskDetailRepeatPeriodCellViewModel.buildFrom(value),
             to: .fields,
             withNotify: withNotify
         )

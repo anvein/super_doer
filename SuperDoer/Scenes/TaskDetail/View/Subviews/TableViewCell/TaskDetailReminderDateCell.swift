@@ -1,4 +1,3 @@
-
 import UIKit
 
 /// Кнопка-ячейка "Установить напоминание для задачи"
@@ -9,7 +8,7 @@ class TaskDetailReminderDateCell: TaskDetailLabels2StatesButtonCell {
     }
     
     /// Управлять контентом и состоянием кнопки надо через этот метод
-    func fillFrom(_ cellValue: ReminderDateCellViewModel) {
+    func fillFrom(_ cellValue: TaskDetailReminderDateCellViewModel) {
         if let date = cellValue.dateTime {
             let dateFormatter = DateFormatter()
             dateFormatter.locale = Locale(identifier: "ru_RU")

@@ -2,7 +2,7 @@ import UIKit
 import RxCocoa
 
 final class TaskRepeatPeriodVariantsCoordinator: BaseCoordinator {
-    typealias Value = String
+    typealias Value = TaskRepeatPeriod
 
     private var viewModel: AnyTableVariantsNavigationEmittable<Value>
     private var viewController: TableVariantsViewController
@@ -41,16 +41,18 @@ final class TaskRepeatPeriodVariantsCoordinator: BaseCoordinator {
     // MARK: - Start childs
 
     private func startCustomTaskRepeatPeriodCoordinator(with value: Value?) {
-        let viewModel = RepeatPeriodSelectorViewModel(repeatPeriod: value)
-        let coordinator = TaskRepeatPeriodCusomSelectorCoordinator(parent: self)
+        let coordinator = TaskRepeatPeriodSelectorCoordinator(
+            parent: self,
+            initialValue: value
+        )
 
+        coordinator.finishResult.emit(onNext: { [weak self] result in
+            self?.finishResultRelay.accept(result)
+        })
+        .disposed(by: coordinator.disposeBag)
 
-//        (
-//            parent: self,
-//            viewModel: viewModel
-//        )
         startChild(coordinator) { [weak self] controller in
-            self?.rootViewController.show(controller, sender: nil)
+            self?.rootViewController.show(controller, sender: self)
         }
     }
 
@@ -60,7 +62,7 @@ final class TaskRepeatPeriodVariantsCoordinator: BaseCoordinator {
         switch event {
         case .didSelectValue(let value):
             finishResultRelay.accept(value)
-            rootViewController.dismissNav(animated: true)
+            rootViewController.dismissNav()
 
         case .didSelectCustomVariant(let value):
             startCustomTaskRepeatPeriodCoordinator(with: value)

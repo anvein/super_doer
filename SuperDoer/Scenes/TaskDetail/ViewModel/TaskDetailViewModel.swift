@@ -140,7 +140,9 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
             navigationEventRelay.accept(.openDeadlineDateSetter(deadlineAt: task.deadlineDate))
 
         case .didTapOpenRepeatPeriodSetter:
-            navigationEventRelay.accept(.openRepeatPeriodSetter(repeatPeriod: task?.repeatPeriod))
+            navigationEventRelay.accept(
+                .openRepeatPeriodSetter(repeatPeriod: task?.repeatPeriodStruct)
+            )
 
         case .didTapAddFile:
             navigationEventRelay.accept(.openAddFile)
@@ -266,11 +268,11 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         tableViewModel.updateReminderDate(task.reminderDateTime)
     }
     
-    private func updateTaskField(repeatPeriod: String?) {
+    private func updateTaskField(repeatPeriod: TaskRepeatPeriod?) {
         guard let task else { return }
         taskEm.updateField(repeatPeriod: repeatPeriod, task: task)
 
-        tableViewModel.updateRepeatPeriod(task.repeatPeriod)
+        tableViewModel.updateRepeatPeriod(task.repeatPeriodStruct)
     }
     
     private func updateTaskField(descriptionText: NSAttributedString?) {

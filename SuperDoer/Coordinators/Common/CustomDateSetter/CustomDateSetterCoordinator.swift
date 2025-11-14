@@ -52,7 +52,7 @@ final class CustomDateSetterCoordinator: BaseCoordinator {
             finishResultRelay.accept(.didDeleteValue)
         }
 
-        rootViewController.dismiss(animated: true)
+        rootViewController.dismissNav()
     }
 
 }

@@ -23,7 +23,7 @@ class CustomDateSetterViewModel: CustomDateSetterViewModelType, CustomDateSetter
 
     // MARK: - Input
 
-    var inputEvents = PublishRelay<CustomDateSetterInputEvent>()
+    var inputEvents = PublishRelay<CustomDateSetterViewModelInputEvent>()
 
     // MARK: - Navigation
 
@@ -51,7 +51,7 @@ class CustomDateSetterViewModel: CustomDateSetterViewModelType, CustomDateSetter
 
     // MARK: - Actions handlers
 
-    private func handleInputEvent(_ event: CustomDateSetterInputEvent) {
+    private func handleInputEvent(_ event: CustomDateSetterViewModelInputEvent) {
         switch event {
         case .didTapReady:
             navigationEventRelay.accept(.didSelectValue(dateRelay.value))

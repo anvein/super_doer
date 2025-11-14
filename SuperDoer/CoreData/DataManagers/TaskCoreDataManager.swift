@@ -83,8 +83,8 @@ class TaskCoreDataManager {
         coreDataStack.saveContext()
     }
     
-    func updateField(repeatPeriod: String?, task: CDTask) {
-        task.repeatPeriod = repeatPeriod
+    func updateField(repeatPeriod: TaskRepeatPeriod?, task: CDTask) {
+        task.repeatPeriodStruct = repeatPeriod
         coreDataStack.saveContext()
     }
     

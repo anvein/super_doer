@@ -1,4 +1,3 @@
-
 import Foundation
 import CoreData
 
@@ -50,6 +49,23 @@ extension CDTask {
                 withRootObject: newValue,
                 requiringSecureCoding: true
             )
+        }
+    }
+
+    var repeatPeriodStruct: TaskRepeatPeriod? {
+        get {
+            guard let jsonString = self.repeatPeriod,
+                  let data = jsonString.data(using: .utf8) else { return nil }
+            return try? JSONDecoder().decode(TaskRepeatPeriod.self, from: data)
+        }
+        set {
+            guard let newValue = newValue,
+                  let data = try? JSONEncoder().encode(newValue),
+                  let jsonString = String(data: data, encoding: .utf8) else {
+                self.repeatPeriod = nil
+                return
+            }
+            self.repeatPeriod = jsonString
         }
     }
 }

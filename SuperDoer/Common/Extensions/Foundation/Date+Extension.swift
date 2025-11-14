@@ -52,4 +52,9 @@ extension Date {
 
         return dateFormatter.string(from: self)
     }
+
+    var dayOfWeek: DayOfWeek? {
+        let weekday = Calendar.current.component(.weekday, from: self)
+        return .buildFrom(weekdayIndex: weekday)
+    }
 }

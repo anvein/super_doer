@@ -8,5 +8,5 @@ enum TaskDetailCoordinatorResult {
     case didDeleteTaskFileCanceled
     case didSelectDeadlineDate(Date?)
     case didSelectReminderDateTime(Date?)
-    case didSelectRepeatPeriodValue(String?)
+    case didSelectRepeatPeriodValue(TaskRepeatPeriod?)
 }

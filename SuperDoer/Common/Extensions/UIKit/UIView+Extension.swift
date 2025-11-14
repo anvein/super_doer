@@ -1,4 +1,3 @@
-
 import UIKit
 
 extension UIView {
@@ -61,3 +60,7 @@ extension UIView {
         UIView.ifAvailableiOS26(trueValue: trueValue, elseValue: elseValue)
     }
 }
+
+// MARK: - HasDisposeBag
+
+extension UIView: HasDisposeBag { }

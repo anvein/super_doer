@@ -1,4 +1,3 @@
-
 import UIKit
 
 /// Ячейка для кнопки с лэйблами и 2мя состояниями
@@ -56,8 +55,8 @@ class TaskDetailLabels2StatesButtonCell: TaskDetailLabelsButtonCell {
         }
     }
     
-    
-    // MARK: setup methods
+    // MARK: - Setup
+
     override func setupSubviews()
     {
         super.setupSubviews()

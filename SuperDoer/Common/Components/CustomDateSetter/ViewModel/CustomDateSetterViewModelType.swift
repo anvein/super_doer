@@ -8,6 +8,6 @@ protocol CustomDateSetterViewModelType: AnyObject {
 
     var date: Driver<Date> { get }
 
-    var inputEvents: PublishRelay<CustomDateSetterInputEvent> { get }
+    var inputEvents: PublishRelay<CustomDateSetterViewModelInputEvent> { get }
 }
 

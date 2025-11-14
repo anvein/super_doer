@@ -190,7 +190,7 @@ private extension TaskDetailView {
                 cell.delegate = self
             }
 
-        case let cellVM as ReminderDateCellViewModel:
+        case let cellVM as TaskDetailReminderDateCellViewModel:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailReminderDateCell.className)
             if let cell = cell as? TaskDetailReminderDateCell {
                 cell.fillFrom(cellVM)
@@ -204,7 +204,7 @@ private extension TaskDetailView {
                 cell.delegate = self
             }
 
-        case let cellVM as RepeatPeriodCellViewModel:
+        case let cellVM as TaskDetailRepeatPeriodCellViewModel:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailRepeatPeriodCell.className)
             if let cell = cell as? TaskDetailRepeatPeriodCell {
                 cell.fillFrom(cellVM)
@@ -247,7 +247,7 @@ private extension TaskDetailView {
             guard let cell = cell as? TaskDetailAddToMyDayCell else { return }
             cell.fillFrom(cellVM)
 
-        case let cellVM as ReminderDateCellViewModel:
+        case let cellVM as TaskDetailReminderDateCellViewModel:
             guard let cell = cell as? TaskDetailReminderDateCell else { return }
             cell.fillFrom(cellVM)
 
@@ -255,7 +255,7 @@ private extension TaskDetailView {
             guard let cell = cell as? TaskDetailDeadlineDateCell else { return }
             cell.fillFrom(cellVM)
 
-        case let cellVM as RepeatPeriodCellViewModel:
+        case let cellVM as TaskDetailRepeatPeriodCellViewModel:
             guard let cell = cell as? TaskDetailRepeatPeriodCell else { return }
             cell.fillFrom(cellVM)
 
@@ -311,13 +311,13 @@ extension TaskDetailView: UITableViewDelegate {
         case _ as AddToMyDayCellViewModel:
             return TaskDetailAddToMyDayCell.rowHeight.cgFloat
 
-        case _ as ReminderDateCellViewModel:
+        case _ as TaskDetailReminderDateCellViewModel:
             return TaskDetailReminderDateCell.rowHeight.cgFloat
 
         case _ as DeadlineDateCellViewModel:
             return TaskDetailDeadlineDateCell.rowHeight.cgFloat
 
-        case _ as RepeatPeriodCellViewModel:
+        case _ as TaskDetailRepeatPeriodCellViewModel:
             return TaskDetailRepeatPeriodCell.rowHeight.cgFloat
 
         case _ as ImportFileCellViewModel:

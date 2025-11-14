@@ -220,7 +220,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
         }
     }
 
-    private func startTaskRepeatPeriodVariants(with repeatPeriod: String?) {
+    private func startTaskRepeatPeriodVariants(with repeatPeriod: TaskRepeatPeriod?) {
         let navCoordinator = NavigationCoordinator(parent: self)
         let targetCoordinator = TaskRepeatPeriodVariantsCoordinator(
             parent: navCoordinator,

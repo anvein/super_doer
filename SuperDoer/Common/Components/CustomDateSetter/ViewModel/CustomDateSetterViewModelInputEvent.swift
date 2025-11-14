@@ -1,6 +1,6 @@
 import Foundation
 
-enum CustomDateSetterInputEvent {
+enum CustomDateSetterViewModelInputEvent {
     case didTapReady
     case didSelectDate(Date)
     case didTapDelete
