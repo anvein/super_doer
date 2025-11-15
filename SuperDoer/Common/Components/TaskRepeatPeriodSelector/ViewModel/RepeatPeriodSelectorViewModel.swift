@@ -18,7 +18,7 @@ final class RepeatPeriodSelectorViewModel: RepeatPeriodSelectorViewModelType, Re
     struct ComponentsData {
         let amount: [Int]
         let unit: [TaskRepeatPeriodUnit]
-        let daysOfWeak: [DayOfWeek]
+        let daysOfWeek: [DayOfWeek]
 
         static let defaultAmount: Int = 1
         static let defaultUnit: TaskRepeatPeriodUnit = .day
@@ -88,7 +88,7 @@ final class RepeatPeriodSelectorViewModel: RepeatPeriodSelectorViewModelType, Re
         return .init(
             amount: Array(1...999),
             unit: TaskRepeatPeriodUnit.allCases,
-            daysOfWeak: DayOfWeek.allCases
+            daysOfWeek: DayOfWeek.allCases
         )
     }
 
@@ -123,10 +123,10 @@ final class RepeatPeriodSelectorViewModel: RepeatPeriodSelectorViewModelType, Re
         component.rawValue
     }
 
-    func getDaysOfWeekData() -> [RepeatPeriodDayOfWeakViewModel] {
+    func getSelectedDaysOfWeekViewModels() -> [RepeatPeriodDayOfWeakViewModel] {
         let selectedValuesIndexes = daysOfWeekSelectedIndexesRelay.value
         var result = [RepeatPeriodDayOfWeakViewModel]()
-        for (index, value) in componentsData.daysOfWeak.enumerated() {
+        for (index, value) in componentsData.daysOfWeek.enumerated() {
             result.append(
                 .init(
                     index: index,
@@ -146,16 +146,16 @@ final class RepeatPeriodSelectorViewModel: RepeatPeriodSelectorViewModelType, Re
         case .onChangedPickerValue(let rowIndex, let componentIndex):
             handleOnChangedPickerValue(rowIndex: rowIndex, componentIndex: componentIndex)
 
-        case .didTapReadyButton:
-            navigationEvent.accept(.didSelectValue(repeatPeriodRelay.value))
-
         case .didTapDayOfWeek(let dayOfWeekVM):
             handleDidTapDayOfWeek(dayOfWeekVM)
+
+        case .didTapReadyButton:
+            navigationEvent.accept(.didSelectValue(repeatPeriodRelay.value))
         }
     }
 
     private func handleDidTapDayOfWeek(_ dayOfWeekVM: RepeatPeriodDayOfWeakViewModel) {
-        guard let tappedDayOfWeek = componentsData.daysOfWeak[safe: dayOfWeekVM.index] else { return }
+        guard let tappedDayOfWeek = componentsData.daysOfWeek[safe: dayOfWeekVM.index] else { return }
 
         var daysOfWeek = repeatPeriodRelay.value?.daysOfWeek ?? .init()
 
@@ -199,6 +199,11 @@ final class RepeatPeriodSelectorViewModel: RepeatPeriodSelectorViewModelType, Re
         repeatPeriodRelay.accept(newValue)
     }
 
+    // TODO: перенести логику по обновлению RepeatPeriod в сервис
+    // 1. при установке unit != week - удалять дни недели при сохранении
+    // 2. если нет даты дедлайна, то установить в нее сегодняшнюю дату
+    // 3. если дата дедлайна есть, то при уставновке периода "каждую неделю"
+    //    устанавливать тот день недели, который в DeadlineDate
     private func handleDidUpdatedRepeatPeriod(_ repeatPeriod: TaskRepeatPeriod?) {
         let amountIndex = componentsData.amount.firstIndex { $0 == repeatPeriod?.amount }
         amountSelectedIndexRelay.accept(amountIndex)
@@ -206,11 +211,11 @@ final class RepeatPeriodSelectorViewModel: RepeatPeriodSelectorViewModelType, Re
         let unitIndex = componentsData.unit.firstIndex { $0 == repeatPeriod?.unit }
         unitSelectedIndexRelay.accept(unitIndex)
 
-        let daysOfWeakIndexes = componentsData.daysOfWeak.enumerated()
+        let daysOfWeekIndexes = componentsData.daysOfWeek.enumerated()
             .compactMap { (index, element) in
                 repeatPeriod?.daysOfWeek.contains(element) == true ? index : nil
             }
-        daysOfWeekSelectedIndexesRelay.accept(Set(daysOfWeakIndexes))
+        daysOfWeekSelectedIndexesRelay.accept(Set(daysOfWeekIndexes))
 
         let needShowDaysOfWeak = repeatPeriod?.unit == .week
         isShowDaysOfWeakRelay.accept(needShowDaysOfWeak)

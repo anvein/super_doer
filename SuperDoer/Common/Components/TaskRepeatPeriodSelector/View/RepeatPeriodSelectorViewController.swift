@@ -82,7 +82,7 @@ private extension RepeatPeriodSelectorViewController {
         pickerView.delegate = self
 
         daysOfWeekSelectorView.clipsToBounds = true
-        daysOfWeekSelectorView.updateContent(values: viewModel.getDaysOfWeekData())
+        daysOfWeekSelectorView.updateContent(values: viewModel.getSelectedDaysOfWeekViewModels())
     }
 
     func updateDetent() {
@@ -115,12 +115,6 @@ private extension RepeatPeriodSelectorViewController {
         viewModel.isShowReadyButton.drive(onNext: { [weak self] isShow in
             guard let self else { return }
             self.navigationItem.rightBarButtonItem?.isHidden = !isShow
-            if isShow {
-                self.daysOfWeekSelectorView.updateContent(
-                    values: self.viewModel.getDaysOfWeekData(),
-                    force: true
-                )
-            }
         })
         .disposed(by: disposeBag)
 
@@ -138,6 +132,11 @@ private extension RepeatPeriodSelectorViewController {
         viewModel.unitSelectedIndex.drive(onNext: { [weak self] valueIndex in
             guard let componentIndex = self?.viewModel.getComponentIndex(.unit) else { return }
             self?.pickerView.selectRow(valueIndex ?? 0, inComponent: componentIndex, animated: true)
+        })
+        .disposed(by: disposeBag)
+
+        viewModel.daysOfWeekSelectedIndexes.drive(onNext: { [weak self] indexes in
+            self?.daysOfWeekSelectorView.updateSelectedValues(by: indexes)
         })
         .disposed(by: disposeBag)
     }
@@ -168,12 +167,6 @@ extension RepeatPeriodSelectorViewController: UIPickerViewDelegate {
 
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         return viewModel.getComponentRowTitle(forRow: row, forComponent: component)
-    }
-
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        viewModel.inputEventRelay.accept(
-            .onChangedPickerValue(rowIndex: row, componentIndex: component)
-        )
     }
 }
 

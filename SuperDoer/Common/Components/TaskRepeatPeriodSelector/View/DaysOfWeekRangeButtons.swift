@@ -10,7 +10,6 @@ final class DaysOfWeekRangeButtons: UIView {
     // MARK: - State
 
     var selectedColor: UIColor = .Common.blue
-    //    var minSpacing: CGFloat = 5
     var buttonsSize: CGFloat = 44
     private(set) var values: [RepeatPeriodDayOfWeakViewModel] = []
 
@@ -72,7 +71,7 @@ final class DaysOfWeekRangeButtons: UIView {
                         buttonValue.isSelected.toggle()
                         self.values[index] = buttonValue
                         self.onTapButtonRelay.accept(buttonValue)
-                        self.updateSelectedValues()
+                        self.updateButtonsState()
                     }
                 })
                 .disposed(by: button.disposeBag)
@@ -89,19 +88,28 @@ final class DaysOfWeekRangeButtons: UIView {
 
     // MARK: - Update view
 
-    func updateContent(values: [RepeatPeriodDayOfWeakViewModel], force: Bool = false) {
-        let selfOnlyIndexes = self.values.map { $0.index }
+    func updateContent(values: [RepeatPeriodDayOfWeakViewModel], fullRebuild: Bool = false) {
+        let beforeOnlyIndexes = self.values.map { $0.index }
         let newOnlyIndexes = values.map { $0.index }
+        self.values = values
 
-        if self.values.isEmpty || selfOnlyIndexes != newOnlyIndexes || force {
-            self.values = values
+        if beforeOnlyIndexes.isEmpty || beforeOnlyIndexes != newOnlyIndexes || fullRebuild {
             buildButtons()
         }
 
-        updateSelectedValues()
+        updateButtonsState()
     }
 
-    private func updateSelectedValues() {
+    func updateSelectedValues(by selectedIndexes: Set<Int>) {
+        for (arrayIndex, dayVM) in values.enumerated() {
+            var updatedDayVM = dayVM
+            updatedDayVM.isSelected = selectedIndexes.contains(dayVM.index)
+            values[arrayIndex] = updatedDayVM
+        }
+        updateButtonsState()
+    }
+
+    private func updateButtonsState() {
         values.enumerated().forEach { index, valueItem in
             guard let button = buttons[safe: index] else { return }
 

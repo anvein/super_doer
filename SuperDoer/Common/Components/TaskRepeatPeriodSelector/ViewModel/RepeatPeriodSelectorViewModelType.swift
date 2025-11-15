@@ -21,5 +21,5 @@ protocol RepeatPeriodSelectorViewModelType {
     func getRowsCountInComponent(with index: Int) -> Int
     func getComponentRowTitle(forRow rowIndex: Int, forComponent componentIndex: Int) -> String?
     func getComponentIndex(_ component: RepeatPeriodSelectorViewModel.Component) -> Int
-    func getDaysOfWeekData() -> [RepeatPeriodDayOfWeakViewModel]
+    func getSelectedDaysOfWeekViewModels() -> [RepeatPeriodDayOfWeakViewModel]
 }
