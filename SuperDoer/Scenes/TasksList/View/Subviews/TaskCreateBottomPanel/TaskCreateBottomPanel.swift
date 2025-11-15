@@ -55,7 +55,6 @@ final class TaskCreateBottomPanel: UIView {
     }
 }
 
-
 private extension TaskCreateBottomPanel {
 
     // MARK: - Setup
@@ -144,7 +143,6 @@ private extension TaskCreateBottomPanel {
         textField.updateAppearanceFor(state: state)
     }
 
-
     // MARK: - Actions handlers
 
     func changeAppearance() {
@@ -194,17 +192,17 @@ extension TaskCreateBottomPanel: UITextFieldDelegate {
         guard currentStateValue != .editable else { return }
         currentStateRelay.accept(.editable)
     }
-    
+
     func textFieldDidEndEditing(_ textField: UITextField) {
         guard currentStateValue != .base else { return }
         currentStateRelay.accept(.base)
     }
-    
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField === self.textField {
             handleTapReadyButton()
         }
-        
+
         return false
     }
 }

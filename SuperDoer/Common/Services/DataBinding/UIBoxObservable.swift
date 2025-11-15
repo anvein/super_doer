@@ -1,4 +1,3 @@
-
 class UIBoxObservable<T> {
 
     private let uiBox: UIBox<T>
@@ -21,4 +20,3 @@ class UIBoxObservable<T> {
     }
 
 }
-

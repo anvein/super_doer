@@ -148,10 +148,9 @@ private extension RepeatPeriodSelectorViewController {
     }
 }
 
-
 // MARK: - UIPickerViewDataSource
 
-extension RepeatPeriodSelectorViewController: UIPickerViewDataSource  {
+extension RepeatPeriodSelectorViewController: UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return viewModel.getComponentsCount()
     }

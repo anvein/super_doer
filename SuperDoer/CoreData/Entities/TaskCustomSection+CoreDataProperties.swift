@@ -9,7 +9,6 @@
 import Foundation
 import CoreData
 
-
 extension CDTaskCustomSection {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<CDTaskCustomSection> {
@@ -63,6 +62,6 @@ extension CDTaskCustomSection {
 
 }
 
-extension CDTaskCustomSection : Identifiable {
+extension CDTaskCustomSection: Identifiable {
 
 }

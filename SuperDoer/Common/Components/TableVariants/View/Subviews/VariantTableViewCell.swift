@@ -16,10 +16,10 @@ class VariantTableViewCell: UITableViewCell {
             style: UITableViewCell.CellStyle.value1,
             reuseIdentifier: String(describing: Self.self)
         )
-        
+
         setup()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -49,7 +49,7 @@ class VariantTableViewCell: UITableViewCell {
 
         textLabel?.textColor = .Text.black
         textLabel?.font = UIFont.systemFont(ofSize: 16)
-        
+
         detailTextLabel?.textColor = .Text.gray
         detailTextLabel?.font = UIFont.systemFont(ofSize: 13)
 
@@ -67,7 +67,7 @@ class VariantTableViewCell: UITableViewCell {
             detailTextLabel?.textColor = .Text.gray
         }
     }
-    
+
     // MARK: - Helpers
 
     private func createImage(with imageName: String, pointSize: Float, weight: UIImage.SymbolWeight) -> UIImage? {

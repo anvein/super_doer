@@ -21,10 +21,10 @@ class TextEditorViewController: UIViewController {
 
     init(viewModel: TextEditorViewModel) {
         self.viewModel = viewModel
-        
+
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -47,7 +47,7 @@ class TextEditorViewController: UIViewController {
             viewModel.didDisappearRelay.accept(())
         }
     }
-    
+
 }
 
 private extension TextEditorViewController {
@@ -64,7 +64,7 @@ private extension TextEditorViewController {
     func setupNavigationBar() {
         navigationBar.translatesAutoresizingMaskIntoConstraints = false
         navigationBar.delegate = self
-        
+
         navigationBar.backgroundColor = .Common.white
         navigationBar.isTranslucent = false
         navigationBar.layer.borderWidth = 0.5
@@ -76,7 +76,7 @@ private extension TextEditorViewController {
         navigationBar.topItem?.rightBarButtonItem = readyBarButton
         self.readyBarButton = readyBarButton
     }
-    
+
     func setupTaskDescriptionTextView() {
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.delegate = self
@@ -84,7 +84,7 @@ private extension TextEditorViewController {
         textView.textColor = .Text.black
         textView.font = UIFont.systemFont(ofSize: 18)
     }
-    
+
     func setupToolbar() {
 
         toolbar.sizeToFit()
@@ -96,15 +96,15 @@ private extension TextEditorViewController {
 //        boldBarButtonItem.tintColor = .Text.gray
 //
 //        toolbar.setItems([boldBarButtonItem], animated: false)
-        
+
         textView.inputAccessoryView = toolbar
     }
-    
+
     func setupHierarchy() {
         view.addSubview(navigationBar)
         view.addSubview(textView)
     }
-    
+
     func setupConstraints() {
         NSLayoutConstraint.activate([
             navigationBar.topAnchor.constraint(equalTo: view.topAnchor, constant: -1),
@@ -119,7 +119,7 @@ private extension TextEditorViewController {
             textView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
-    
+
     func setupBindings() {
         // VM -> V
         viewModel.titleDriver.drive(onNext: { [weak self] value in
@@ -162,7 +162,7 @@ private extension TextEditorViewController {
 
         viewModel.didTapReadyRelay.accept(())
     }
-    
+
 }
 
 // MARK: - UITextViewDelegate
@@ -171,14 +171,13 @@ extension TextEditorViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         return true
     }
-    
+
     func textViewDidBeginEditing(_ textView: UITextView) {
     }
-    
+
     func textViewDidEndEditing(_ textView: UITextView) {
     }
 }
-
 
 // MARK: - UINavigationBarDelegate
 

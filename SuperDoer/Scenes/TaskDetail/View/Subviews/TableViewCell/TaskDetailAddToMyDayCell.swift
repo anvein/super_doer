@@ -1,4 +1,3 @@
-
 import UIKit
 
 class TaskDetailAddToMyDayCell: TaskDetailLabelsButtonCell {
@@ -16,32 +15,31 @@ class TaskDetailAddToMyDayCell: TaskDetailLabelsButtonCell {
             configureForState(isOn)
         }
     }
-    
+
     // MARK: - Setup
 
-    override func setupSubviews()
-    {
+    override func setupSubviews() {
         super.setupSubviews()
         labelsStackView.spacing = 0
         configureForState(isOn)
     }
-    
+
     func configureForState(_ isOn: State) {
         actionButton.isHidden = !isOn
-        
+
         if isOn {
             mainTextLabel.text = "Добавлено в \"Мой день\""
             mainTextLabel.textColor = .Text.blue
-            
+
             leftImageView.tintColor = .Text.blue
         } else {
             mainTextLabel.text = "Добавить в \"Мой день\""
             mainTextLabel.textColor = .Text.gray
-            
+
             leftImageView.tintColor = .Text.gray
         }
     }
-    
+
     func fillFrom(_ cellViewModel: AddToMyDayCellViewModel) {
         self.isOn = cellViewModel.inMyDay
     }
@@ -50,10 +48,10 @@ class TaskDetailAddToMyDayCell: TaskDetailLabelsButtonCell {
 
     override func createLeftButtonImage() -> UIImage {
         let symbolConfig = UIImage.SymbolConfiguration(weight: .semibold)
-        
+
         return .SfSymbol.sunMax
             .withConfiguration(symbolConfig)
             .withRenderingMode(.alwaysTemplate)
     }
-    
+
 }

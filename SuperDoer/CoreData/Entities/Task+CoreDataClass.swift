@@ -14,15 +14,15 @@ public class CDTask: NSManagedObject {
     // MARK: -
 
     func getFileBy(id: UUID) -> TaskFile? {
-        
+
         for file in files ?? [] {
             guard let file = file as? TaskFile else { continue}
-            
+
             if file.id?.uuidString == id.uuidString {
                 return file
             }
         }
-        
+
         return nil
     }
 }

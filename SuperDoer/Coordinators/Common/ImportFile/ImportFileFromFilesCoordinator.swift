@@ -45,7 +45,7 @@ extension ImportFileFromFilesCoordinator: UIDocumentPickerDelegate {
             self?.finish()
         }
     }
-    
+
     // срабатывает даже при закрытии свайпом вниз
     func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
         finishResultRelay.accept(nil)

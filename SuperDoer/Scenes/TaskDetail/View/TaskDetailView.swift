@@ -31,7 +31,7 @@ final class TaskDetailView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
 }
 
 private extension TaskDetailView {
@@ -119,7 +119,7 @@ private extension TaskDetailView {
         viewModel.fieldEditingStateDriver
             .distinctUntilChanged()
             .filter { $0 == nil }
-            .drive(onNext: { [weak self] state in
+            .drive(onNext: { [weak self] _ in
                 self?.endEditing(true)
             })
             .disposed(by: disposeBag)
@@ -135,18 +135,18 @@ private extension TaskDetailView {
             .map { .didBeginTaskTitleEditing }
             .bind(to: viewModel.inputEvent)
             .disposed(by: disposeBag)
-        
+
         titleTextView.rx.didEndEditing
             .withLatestFrom(titleTextView.rx.text)
             .map { .didEndTaskTitleEditing(newValue: $0) }
             .bind(to: viewModel.inputEvent)
             .disposed(by: disposeBag)
-        
+
         isCompletedTaskCheckbox.valueChangedSignal
             .map { .didChangeIsCompleted(newValue: $0) }
             .emit(to: viewModel.inputEvent)
             .disposed(by: disposeBag)
-        
+
         isPriorityToggle.valueChangedSignal
             .map { .didChangeIsPriority(newValue: $0) }
             .emit(to: viewModel.inputEvent)
@@ -228,7 +228,7 @@ private extension TaskDetailView {
                 cell.fillFrom(cellVM)
             }
 
-        default :
+        default:
             cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailLabelsButtonCell.className)
             // TODO: залогировать
         }
@@ -331,7 +331,7 @@ extension TaskDetailView: UITableViewDelegate {
             ? TaskDetailDescriptionCell.emptyHeight.cgFloat
             : TaskDetailDescriptionCell.maxHeight.cgFloat
 
-        default :
+        default:
             return TaskDetailBaseCell.rowHeight.cgFloat
         }
     }
@@ -469,7 +469,7 @@ extension TaskDetailView: TaskDetailDataCellDelegate {
         case TaskDetailRepeatPeriodCell.className:
             viewModel?.inputEvent.accept(.didTapResetValueRepeatPeriod)
 
-        case TaskDetailFileCell.className :
+        case TaskDetailFileCell.className:
             guard let indexPath = taskDataTableView.indexPath(for: cell) else { return }
             viewModel?.inputEvent.accept(.didTapFileDelete(indexPath: indexPath))
 

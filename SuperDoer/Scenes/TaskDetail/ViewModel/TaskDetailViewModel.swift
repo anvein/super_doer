@@ -90,7 +90,6 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         })
         .disposed(by: disposeBag)
 
-
         coordinatorResult.subscribe(onNext: { [weak self] event in
             self?.handleCoordinatorResultEvent(event)
         })
@@ -229,13 +228,13 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         taskEm.updateField(title: title, task: task)
         titleRelay.accept(task.titlePrepared)
     }
-    
+
     private func updateTaskField(isCompleted: Bool) {
         guard let task else { return }
         taskEm.updateField(isCompleted: isCompleted, task: task)
         isCompletedRelay.accept(task.isCompleted)
     }
-    
+
     private func updateTaskField(isPriority: Bool) {
         guard let task else { return }
         taskEm.updateField(isPriority: isPriority, task: task)
@@ -247,34 +246,34 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         taskEm.updateField(inMyDay: inMyDay, task: task)
         tableViewModel.updateAddToMyDay(task.inMyDay)
     }
-    
+
     private func toggleValueTaskFieldInMyDay() {
         guard let task else { return }
         let newValue = !task.inMyDay
         updateTaskField(inMyDay: newValue)
     }
-    
+
     private func updateTaskField(deadlineDate: Date?) {
         guard let task else { return }
         taskEm.updateField(deadlineDate: deadlineDate, task: task)
 
         tableViewModel.updateDeadlineAt(task.deadlineDate)
     }
-    
+
     private func updateTaskField(reminderDateTime: Date?) {
         guard let task else { return }
         taskEm.updateField(reminderDateTime: reminderDateTime, task: task)
 
         tableViewModel.updateReminderDate(task.reminderDateTime)
     }
-    
+
     private func updateTaskField(repeatPeriod: TaskRepeatPeriod?) {
         guard let task else { return }
         taskEm.updateField(repeatPeriod: repeatPeriod, task: task)
 
         tableViewModel.updateRepeatPeriod(task.repeatPeriodStruct)
     }
-    
+
     private func updateTaskField(descriptionText: NSAttributedString?) {
         guard let task else { return }
 
@@ -289,7 +288,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
             updatedAt: task.descriptionUpdatedAt
         )
     }
-    
+
     private func createTaskFile(from imageData: Data) {
         guard let task else { return }
 
@@ -300,10 +299,10 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
             fileSize: nsImageData.count,
             task: task
         )
-        
+
         tableViewModel.addFileCellVM(taskFile)
     }
-    
+
     private func createTaskFile(from url: URL) {
         guard let task else { return }
 
@@ -313,10 +312,10 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
             fileSize: 0,
             task: task
         )
-        
+
         tableViewModel.addFileCellVM(taskFile)
     }
-    
+
     private func deleteTaskFile(deletableVM: TaskFileDeletableViewModel) {
         guard let task, let indexPath = deletableVM.indexPath else { return }
 
@@ -325,13 +324,13 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
             // TODO: показать сообщение об ошибке (файл не получилось удалить)
             return
         }
-        
+
         let taskFile = task.getFileBy(id: fileCellVM.id)
-        guard let taskFile else  {
+        guard let taskFile else {
             // TODO: показать сообщение об ошибке (файл не получилось удалить)
             return
         }
-        
+
         taskFileEm.delete(file: taskFile)
         tableViewModel.deleteFile(with: indexPath)
     }

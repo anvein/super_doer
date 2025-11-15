@@ -3,7 +3,7 @@ import UserNotifications
 
 final class DIContainer {
     static let container = Container()
-    
+
     private init() { }
 
     static func registerDependencies() {
@@ -53,18 +53,18 @@ final class DIContainer {
         Self.container.register(TaskSectionCoreDataManager.self, factory: { _ in
             return TaskSectionCoreDataManager()
         }).inObjectScope(.container)
-        
+
         Self.container.register(TaskCoreDataManager.self, factory: { _ in
             return TaskCoreDataManager()
         }).inObjectScope(.container)
-        
+
         Self.container.register(TaskFileEntityManager.self) { _ in
             return TaskFileEntityManager()
         }.inObjectScope(.container)
 
         // MARK: - Coordinators
 
-        Self.container.register(AppCoordinator.self) { r in
+        Self.container.register(AppCoordinator.self) { _ in
             return AppCoordinator()
         }.inObjectScope(.container)
 
@@ -82,5 +82,5 @@ final class DIContainer {
             )
         }.inObjectScope(.graph)
     }
-    
+
 }

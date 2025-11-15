@@ -33,7 +33,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
         self.deleteAlertFactory = deleteAlertFactory
         super.init(parent: parent)
     }
-    
+
     override func setup() {
         super.setup()
 

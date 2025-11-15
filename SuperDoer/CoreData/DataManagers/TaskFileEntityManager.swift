@@ -1,8 +1,7 @@
-
 import Foundation
 
 class TaskFileEntityManager {
-    
+
     private let coreDataStack: CoreDataStack
 
     // MARK: - Init
@@ -19,12 +18,12 @@ class TaskFileEntityManager {
         file.fileExtension = fileExtension
         file.fileSize = Int32(fileSize)
         file.task = task
-        
+
         coreDataStack.saveContext()
 
         return file
     }
-    
+
     // MARK: delete
     func delete(file: TaskFile) {
         coreDataStack.viewContext.delete(file)

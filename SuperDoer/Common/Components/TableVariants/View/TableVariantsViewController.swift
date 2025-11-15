@@ -10,7 +10,7 @@ final class TableVariantsViewController: UIViewController {
     private let detent: TableVariantsControllerDetent
 
     private lazy var variantsTableView = VariantsTableView()
-    
+
     // MARK: - Init
 
     init(
@@ -23,7 +23,7 @@ final class TableVariantsViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         self.title = title
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -37,12 +37,12 @@ final class TableVariantsViewController: UIViewController {
         setupView()
         setupBindings()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         configureSheetPresentationController()
     }
-    
+
 }
 
 private extension TableVariantsViewController {
@@ -72,7 +72,7 @@ private extension TableVariantsViewController {
             naviBar.standardAppearance.backgroundColor = .Common.white
             naviBar.titleTextAttributes = [
                 .font: UIFont.systemFont(ofSize: 18, weight: .semibold),
-                .foregroundColor: UIColor.Text.black
+                .foregroundColor: UIColor.Text.black,
             ]
         }
     }
@@ -85,7 +85,6 @@ private extension TableVariantsViewController {
         }
     }
 
-
     func setupHierarchyAndConstraints() {
         view.addSubview(variantsTableView)
 
@@ -96,7 +95,7 @@ private extension TableVariantsViewController {
             variantsTableView.leftAnchor.constraint(equalTo: view.leftAnchor),
         ])
     }
-    
+
     func setupBindings() {
         // VM -> V
         viewModel.tableNeedReload.emit(onNext: { [weak self] _ in
@@ -133,11 +132,11 @@ extension TableVariantsViewController: UITableViewDelegate, UITableViewDataSourc
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.getCountVariants()
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueCell(VariantTableViewCell.self) else { return .init() }
 
-        if let cellVM = viewModel.getVariantCellViewModel(for: indexPath)  {
+        if let cellVM = viewModel.getVariantCellViewModel(for: indexPath) {
             cell.fill(from: cellVM)
         }
 

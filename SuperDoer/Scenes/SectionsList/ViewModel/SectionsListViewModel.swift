@@ -82,7 +82,7 @@ extension SectionsListViewModel: SectionsListViewModelType {
         let section = sections.value[safe: indexPath.section]?[safe: indexPath.row]
 
         switch section {
-        case let taskSectionCustom as CDTaskCustomSection :
+        case let taskSectionCustom as CDTaskCustomSection:
             return SectionCustomListTableCellVM(section: taskSectionCustom)
 
         case let taskSectionSystem as TaskSystemSection:

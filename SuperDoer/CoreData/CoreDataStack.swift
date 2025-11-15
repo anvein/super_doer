@@ -7,7 +7,7 @@ final class CoreDataStack {
 
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "SuperDoer")
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+        container.loadPersistentStores(completionHandler: { (_, error) in
             if let error = error as NSError? {
                 // TODO: обработать ошибку нормально
                 fatalError("Unresolved error \(error), \(error.userInfo)")

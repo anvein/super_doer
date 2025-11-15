@@ -30,7 +30,7 @@ final class TaskDeadlineVariantsCoordinator: BaseCoordinator {
 
     override func setup() {
         super.setup()
-        
+
         viewModel.navigationEvent.emit(onNext: { [weak self] event in
             self?.handleNavigationEvent(event)
         })

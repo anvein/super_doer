@@ -81,7 +81,7 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
         return repository.getTasksCountIn(in: index)
     }
 
-    func getTableCellVM(for indexPath: IndexPath) -> TaskTableCellViewModelType  {
+    func getTableCellVM(for indexPath: IndexPath) -> TaskTableCellViewModelType {
         let task = repository.getTask(for: indexPath)
         return TaskTableViewCellViewModel(task: task)
     }
@@ -134,7 +134,6 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
     func didTapTaskIsPriority(_ newValue: Bool, with indexPath: IndexPath) {
         repository.updateTaskField(isPriority: newValue, for: indexPath)
     }
-
 
     func didTapCreateTaskInCurrentSection(with data: TaskCreateData) {
         repository.createTaskInCurrentSectionWith(title: data.title)

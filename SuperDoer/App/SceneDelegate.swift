@@ -51,6 +51,4 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         coreDataStack.saveContext()
     }
 
-
 }
-

@@ -5,7 +5,7 @@ extension TaskCreateBottomPanel {
 
         private let leftImageView: UIImageView = {
             let symbolConfig = UIImage.SymbolConfiguration(pointSize: 0, weight: .medium, scale: .large)
-            
+
             $0.image = UIImage.init(systemName: "plus", withConfiguration: symbolConfig)?
                 .withRenderingMode(.alwaysTemplate)
 

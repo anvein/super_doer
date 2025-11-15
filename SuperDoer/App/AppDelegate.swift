@@ -1,4 +1,3 @@
-
 import UIKit
 import CoreData
 import Swinject
@@ -9,9 +8,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: life cycle
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        
+
         DIContainer.registerDependencies()
-        
+
         return true
     }
 

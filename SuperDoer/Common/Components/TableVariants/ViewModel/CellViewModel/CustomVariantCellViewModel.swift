@@ -1,4 +1,4 @@
-final class CustomVariantCellViewModel<Value>: VariantCellViewModel<Value>, CustomVariantCellViewModelProtocol  {
+final class CustomVariantCellViewModel<Value>: VariantCellViewModel<Value>, CustomVariantCellViewModelProtocol {
 
     init(
         imageSettings: VariantCellVMImageSettings,

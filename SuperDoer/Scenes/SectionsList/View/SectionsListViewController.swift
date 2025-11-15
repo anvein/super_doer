@@ -18,7 +18,7 @@ class SectionsListViewController: UIViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -27,9 +27,9 @@ class SectionsListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         title = "Списки"
-        
+
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .never
 
@@ -49,14 +49,14 @@ class SectionsListViewController: UIViewController {
 private extension SectionsListViewController {
 
     // MARK: - Setup
-    
+
     func setupView() {
         view.backgroundColor = .white
-        
+
         sectionsTableView.delegate = self
         sectionsTableView.dataSource = self
     }
-    
+
     func setupHierarchyAndConstraints() {
         view.addSubviews(sectionsTableView, createSectionPanelView)
 
@@ -66,7 +66,7 @@ private extension SectionsListViewController {
             sectionsTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             sectionsTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
         ])
-        
+
         let bottomPanelHeightConstraint = createSectionPanelView.heightAnchor.constraint(
             equalToConstant: CreateSectionPanelView.State.base.params.panelHeight.cgFloat
         )
@@ -78,7 +78,7 @@ private extension SectionsListViewController {
             createSectionPanelView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
         ])
     }
-    
+
     func setupBinding() {
         // V -> VM
         createSectionPanelView.answerSignal
@@ -88,9 +88,8 @@ private extension SectionsListViewController {
             }
             .disposed(by: disposeBag)
 
-
         // VM -> V
-        viewModel.sectionsObservable.bindAndUpdateValue { [weak self] sections in
+        viewModel.sectionsObservable.bindAndUpdateValue { [weak self] _ in
             guard let self else { return }
             UIView.transition(
                 with: self.sectionsTableView,
@@ -106,11 +105,11 @@ private extension SectionsListViewController {
 // MARK: - UITableViewDataSource
 
 extension SectionsListViewController: UITableViewDataSource {
-    
+
     func numberOfSections(in tableView: UITableView) -> Int {
         return viewModel.getCountOfTableSections()
     }
-    
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.getCountTaskSectionsInTableSection(with: section)
     }
@@ -122,16 +121,16 @@ extension SectionsListViewController: UITableViewDataSource {
         let sectionCellVM = viewModel.getTaskSectionTableCellVM(for: indexPath)
 
         switch sectionCellVM {
-        case let sectionCustomCellVM as SectionCustomListTableCellVM :
+        case let sectionCustomCellVM as SectionCustomListTableCellVM:
             cell.viewModel = sectionCustomCellVM
-            
+
         case let sectionSystemCellVM as SectionSystemListTableCellVM:
             cell.viewModel = sectionSystemCellVM
-            
+
         default:
             break
         }
-        
+
         return cell
     }
 
@@ -162,7 +161,7 @@ extension SectionsListViewController: UITableViewDelegate {
         deleteAction.image = UIImage(systemName: "trash")?
             .withConfiguration(symbolConfig)
 
-        let archiveAction = UIContextualAction(style: .normal, title: "Архивировать") { [unowned self] _,_,completionHandler in
+        let archiveAction = UIContextualAction(style: .normal, title: "Архивировать") { [unowned self] _, _, completionHandler in
             self.viewModel.didTapArchiveCustomSection(indexPath: indexPath)
             completionHandler(true)
         }

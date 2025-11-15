@@ -154,7 +154,7 @@ extension TasksListRepository: NSFetchedResultsControllerDelegate {
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         modelUpdatedSubject.onNext(.modelBeginUpdates)
     }
-    
+
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         modelUpdatedSubject.onNext(.modelEndUpdates)
     }
@@ -179,7 +179,7 @@ extension TasksListRepository: NSFetchedResultsControllerDelegate {
 
         case .update:
             if let indexPath,
-               let cdTask = anObject as? CDTask{
+               let cdTask = anObject as? CDTask {
                 let taskItem = TasksListItemEntity(cdTask: cdTask)
                 modelUpdatedSubject.onNext(.taskDidUpdate(indexPath: indexPath, taskItem: taskItem))
             }

@@ -1,11 +1,10 @@
-
 import Foundation
 
 class UIBox<T> {
-    typealias Listener = (T) -> ()
-    
+    typealias Listener = (T) -> Void
+
     private var listener: Listener?
-    
+
     var value: T {
         didSet {
             Task { @MainActor in
@@ -13,7 +12,7 @@ class UIBox<T> {
             }
         }
     }
-    
+
     init(_ value: T) {
         self.value = value
     }

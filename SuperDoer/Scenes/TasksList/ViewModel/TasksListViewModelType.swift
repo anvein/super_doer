@@ -2,7 +2,7 @@ import Foundation
 import RxCocoa
 
 protocol TasksListViewModelType {
-    
+
     var sectionTitleDriver: Driver<String> { get }
     var tableUpdateEventsSignal: Signal<TaskListTableUpdateEvent> { get }
     var errorMessageSignal: Signal<String> { get }

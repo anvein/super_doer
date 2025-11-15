@@ -21,10 +21,10 @@ final class CreateSectionPanelView: UIView {
     enum State {
         case base
         case editable
-        
+
         var params: PanelParams {
             switch self {
-            case .base :
+            case .base:
                 return .init(
                     panelHeight: 48,
                     createButtonCenterYConstant: 85,
@@ -32,8 +32,8 @@ final class CreateSectionPanelView: UIView {
                     textFieldPlaceholderColor: .Text.blue,
                     textFieldPlaceholderWeight: .medium
                 )
-                
-            case .editable :
+
+            case .editable:
                 return .init(
                     panelHeight: 68,
                     createButtonCenterYConstant: 0,
@@ -58,8 +58,7 @@ final class CreateSectionPanelView: UIView {
     var answerSignal: Signal<Answer> {
         answerRelay.asSignal()
     }
-    
-    
+
     // MARK: - Subviews
 
     private lazy var textField = CreateSectionPanelTextField()
@@ -76,14 +75,14 @@ final class CreateSectionPanelView: UIView {
             panelHeightConstraint?.constant = panelHeight.cgFloat
         }
     }
-    
+
     /// Констрэинт смещения кнопки "Создать раздел (список)" относительно self.centerYAnchor
     /// Обновление нужно производить через свойство createButtonCenterYConstant
     private var createButtonCenterYConstraint: NSLayoutConstraint?
     private var createButtonCenterYConstant: Float = State.base.params.createButtonCenterYConstant {
         didSet {
             createButtonCenterYConstraint?.constant = createButtonCenterYConstant.cgFloat
-            
+
             let duration = createButtonCenterYConstant < oldValue ? 0.3 : 0.2
             UIView.animate(withDuration: duration) {
                 self.layoutIfNeeded()
@@ -95,13 +94,13 @@ final class CreateSectionPanelView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
+
         setupViews()
         setupHierarchyAndConstraints()
         setupBindings()
         updateAppearaceFor(state: .base)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -133,15 +132,14 @@ private extension CreateSectionPanelView {
             textField.trailingAnchor.constraint(equalTo: createButton.leadingAnchor, constant: -16),
         ])
 
-
         let createButtonCenterYConstraint = createButton.centerYAnchor.constraint(equalTo: self.centerYAnchor)
         self.createButtonCenterYConstraint = createButtonCenterYConstraint
 
         NSLayoutConstraint.activate([
             createButton.heightAnchor.constraint(equalToConstant: 50),
             createButton.widthAnchor.constraint(equalToConstant: 50),
-            createButton.trailingAnchor.constraint(equalTo: self.trailingAnchor,constant: -16),
-            createButtonCenterYConstraint
+            createButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16),
+            createButtonCenterYConstraint,
         ])
     }
 
@@ -215,16 +213,16 @@ extension CreateSectionPanelView: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         currentStateRelay.accept(.editable)
     }
-    
+
     func textFieldDidEndEditing(_ textField: UITextField) {
         currentStateRelay.accept(.base)
     }
-    
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if self.textField === textField {
             handleTapCreateButton()
         }
-        
+
         return false
     }
 }

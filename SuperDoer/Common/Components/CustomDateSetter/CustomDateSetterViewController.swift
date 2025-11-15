@@ -6,10 +6,10 @@ class CustomDateSetterViewController: UIViewController {
     private let disposeBag = DisposeBag()
 
     private var viewModel: CustomDateSetterViewModelType
-    
+
     private var datePickerMode: SupportedDatePickerMode
     private lazy var datePicker = UIDatePicker(frame: .zero)
-    
+
     // MARK: - Init
 
     init(
@@ -18,10 +18,10 @@ class CustomDateSetterViewController: UIViewController {
     ) {
         self.viewModel = viewModel
         self.datePickerMode = datePickerMode
-        
+
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -35,12 +35,12 @@ class CustomDateSetterViewController: UIViewController {
         setupView()
         setupBindings()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateDetent()
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         setupNavigationBarDidAppear()
@@ -61,7 +61,7 @@ extension CustomDateSetterViewController {
             datePicker.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
         ])
     }
-    
+
     private func setupView() {
         view.backgroundColor = .Common.white
 
@@ -70,7 +70,7 @@ extension CustomDateSetterViewController {
             sheet.prefersGrabberVisible = true
             sheet.preferredCornerRadius = 15
         }
-        
+
         datePicker.translatesAutoresizingMaskIntoConstraints = false
         datePicker.datePickerMode = datePickerMode.datePickerMode
         datePicker.preferredDatePickerStyle = .inline
@@ -113,7 +113,7 @@ extension CustomDateSetterViewController {
         navigationItem.rightBarButtonItem = buildReadyBarButton()
         navigationItem.title = title
     }
-    
+
     private func buildReadyBarButton() -> UIBarButtonItem {
         let readyBarButton = UIBarButtonItem(
             title: "Установить",
@@ -122,10 +122,10 @@ extension CustomDateSetterViewController {
             action: #selector(tapButtonReady)
         )
         readyBarButton.tintColor = .Text.blue
-        
+
         return readyBarButton
     }
-    
+
     private func buildDeleteBarButton() -> UIBarButtonItem {
         let deleteBarButton = UIBarButtonItem(
             title: "Удалить",
@@ -137,7 +137,7 @@ extension CustomDateSetterViewController {
 
         return deleteBarButton
     }
-    
+
     private func updateDetent() {
         guard let sheet = sheetPresentationController else { return }
         let detent = datePickerMode.detent
@@ -166,9 +166,9 @@ extension CustomDateSetterViewController {
 
         var datePickerMode: UIDatePicker.Mode {
             switch self {
-            case .date :
+            case .date:
                 return UIDatePicker.Mode.date
-            case .dateAndTime :
+            case .dateAndTime:
                 return UIDatePicker.Mode.dateAndTime
             }
         }

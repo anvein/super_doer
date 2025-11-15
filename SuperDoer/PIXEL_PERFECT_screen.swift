@@ -1,6 +1,7 @@
 import UIKit
 import Foundation
 
+// swiftlint:disable all
 class PIXEL_PERFECT_screen {
 
     // MARK: - Services
@@ -1803,3 +1804,4 @@ extension PIXEL_PERFECT_screen {
         }
     }
 }
+// swiftlint:enable all

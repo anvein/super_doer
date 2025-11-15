@@ -1,11 +1,9 @@
-
-
 import UIKit
 
 /// Ячейка для кнопки с лэйблами
 class TaskDetailLabelsButtonCell: TaskDetailBaseCell {
 
-    // MARK:-  Settings
+    // MARK: - Settings
 
     var leftImageViewSize: CGFloat { 23 }
 
@@ -20,13 +18,13 @@ class TaskDetailLabelsButtonCell: TaskDetailBaseCell {
 
     override func addSubviews() {
         super.addSubviews()
-    
+
         contentView.addSubviews(leftImageView, labelsStackView)
 
         labelsStackView.addArrangedSubview(mainTextLabel)
         labelsStackView.addArrangedSubview(additionalTextLabel)
     }
-    
+
     override func setupSubviews() {
         super.setupSubviews()
 
@@ -41,11 +39,11 @@ class TaskDetailLabelsButtonCell: TaskDetailBaseCell {
 
         mainTextLabel.numberOfLines = 1
         mainTextLabel.font = mainTextLabel.font.withSize(16)
-        
+
         additionalTextLabel.numberOfLines = 1
         additionalTextLabel.font = additionalTextLabel.font.withSize(14)
     }
-    
+
     override func setupConstraints() {
         super.setupConstraints()
 
@@ -68,5 +66,5 @@ class TaskDetailLabelsButtonCell: TaskDetailBaseCell {
     func createLeftButtonImage() -> UIImage? {
         return nil
     }
-    
+
 }

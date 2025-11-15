@@ -1,4 +1,3 @@
-
 import Foundation
 
 class TaskTableViewCellViewModel: TaskTableCellViewModelType {
@@ -18,11 +17,11 @@ class TaskTableViewCellViewModel: TaskTableCellViewModelType {
     var isCompleted: Bool {
         return task.isCompleted
     }
-    
+
     var isPriority: Bool {
         return task.isPriority
     }
-    
+
     var title: String {
         return task.title
     }

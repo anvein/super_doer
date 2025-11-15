@@ -1,4 +1,3 @@
-
 import CoreData
 
 class TaskCoreDataManager {
@@ -26,7 +25,7 @@ class TaskCoreDataManager {
 
     func getAllTasks() -> [CDTask] {
         let fetchRequest = NSFetchRequest<CDTask>(entityName: CDTask.entityName)
-        
+
         do {
             let tasks = try coreDataStack.viewContext.fetch(fetchRequest)
             return tasks
@@ -34,15 +33,15 @@ class TaskCoreDataManager {
             fatalError("getAllTasks error - \(error)")
         }
     }
-    
+
     func getTasks(for taskSection: CDTaskCustomSection?) -> [CDTask] {
         let fetchRequest = CDTask.fetchRequest()
-        
+
         if let safeTaskSection = taskSection {
             let listPredicate = NSPredicate(format: "section == %@", safeTaskSection)
             fetchRequest.predicate = listPredicate
         }
-    
+
         do {
             return try coreDataStack.viewContext.fetch(fetchRequest)
         } catch let error as NSError {
@@ -50,44 +49,43 @@ class TaskCoreDataManager {
         }
     }
 
-    
     // MARK: - Update
 
     func updateField(title: String?, task: CDTask) {
         task.title = title
         coreDataStack.saveContext()
     }
-    
+
     func updateField(isCompleted: Bool, task: CDTask) {
         task.isCompleted = isCompleted
         coreDataStack.saveContext()
     }
-    
+
     func updateField(isPriority: Bool, task: CDTask) {
         task.isPriority = isPriority
         coreDataStack.saveContext()
     }
-    
+
     func updateField(inMyDay: Bool, task: CDTask) {
         task.inMyDay = inMyDay
         coreDataStack.saveContext()
     }
-    
+
     func updateField(deadlineDate: Date?, task: CDTask) {
         task.deadlineDate = deadlineDate
         coreDataStack.saveContext()
     }
-    
+
     func updateField(reminderDateTime: Date?, task: CDTask) {
         task.reminderDateTime = reminderDateTime
         coreDataStack.saveContext()
     }
-    
+
     func updateField(repeatPeriod: TaskRepeatPeriod?, task: CDTask) {
         task.repeatPeriodStruct = repeatPeriod
         coreDataStack.saveContext()
     }
-    
+
     func updateFields(
         descriptionText: NSAttributedString?,
         descriptionUpdatedAt: Date,
@@ -95,11 +93,10 @@ class TaskCoreDataManager {
     ) {
         task.descriptionTextAttributed = descriptionText
         task.descriptionUpdatedAt = descriptionUpdatedAt
-        
+
         coreDataStack.saveContext()
     }
-    
-    
+
     // MARK: - Insert
 
     @discardableResult
@@ -114,8 +111,7 @@ class TaskCoreDataManager {
 
         return task
     }
-    
-    
+
     // MARK: - Delete
 
     func delete(tasks: [CDTask]) {

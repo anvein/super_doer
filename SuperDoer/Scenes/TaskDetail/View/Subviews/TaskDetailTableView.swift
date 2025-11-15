@@ -1,4 +1,3 @@
-
 import UIKit
 
 final class TaskDetailTableView: UITableView {
@@ -18,10 +17,10 @@ final class TaskDetailTableView: UITableView {
     private func setup() {
         delaysContentTouches = false
         sectionHeaderTopPadding = 0
-        
+
         separatorStyle = .none
         backgroundColor = nil
-        
+
         register(TaskDetailAddSubtaskCell.self, forCellReuseIdentifier: TaskDetailAddSubtaskCell.className)
         register(TaskDetailAddToMyDayCell.self, forCellReuseIdentifier: TaskDetailAddToMyDayCell.className)
         register(TaskDetailReminderDateCell.self, forCellReuseIdentifier: TaskDetailReminderDateCell.className)
@@ -32,5 +31,5 @@ final class TaskDetailTableView: UITableView {
         register(TaskDetailDescriptionCell.self, forCellReuseIdentifier: TaskDetailDescriptionCell.className)
         register(TaskDetailLabelsButtonCell.self, forCellReuseIdentifier: TaskDetailLabelsButtonCell.className)
     }
-    
+
 }

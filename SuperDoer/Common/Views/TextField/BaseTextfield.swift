@@ -9,7 +9,7 @@ class BaseTextFeild: UITextField {
     var textPadding: UIEdgeInsets = .init()
 
     /// placeholderAttributes use instead attributedPlaceholder
-    var placeholderAttributes: [NSAttributedString.Key : Any] = [:] {
+    var placeholderAttributes: [NSAttributedString.Key: Any] = [:] {
         didSet {
             placeholder = super.placeholder
         }
@@ -57,12 +57,12 @@ class BaseTextFeild: UITextField {
 
     // MARK: - Helpers
 
-    func setImageToLeftView(image: UIImage, insets: UIEdgeInsets = .init())  {
+    func setImageToLeftView(image: UIImage, insets: UIEdgeInsets = .init()) {
         let imageView = UIImageView(image: image)
         setImageViewToLeftView(imageView: imageView, insets: insets)
     }
 
-    func setImageViewToLeftView(imageView: UIImageView, insets: UIEdgeInsets = .init())  {
+    func setImageViewToLeftView(imageView: UIImageView, insets: UIEdgeInsets = .init()) {
         let containerView = UIView()
         containerView.addSubview(imageView)
         imageView.snp.makeConstraints {

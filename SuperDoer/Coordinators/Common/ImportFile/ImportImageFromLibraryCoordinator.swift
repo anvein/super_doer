@@ -77,7 +77,7 @@ extension ImportImageFromLibraryCoordinator: UIImagePickerControllerDelegate, UI
 
     func imagePickerController(
         _ picker: UIImagePickerController,
-        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
     ) {
         let originalImage = info[.originalImage] as? UIImage
         let imageData = originalImage?.jpegData(compressionQuality: 1)

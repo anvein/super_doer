@@ -7,7 +7,7 @@ final class TaskRepeatPeriodTableVariantFinder: TableVariantSelectedFinder {
     func findSelectedIndex(of value: Value?, in items: [Item]) -> Int? {
         guard let value else { return nil }
 
-        var resultIndex: Int? = items.firstIndex { $0.value == value}
+        var resultIndex: Int? = items.firstIndex { $0.value == value }
 
         // если ни один из вариантов не определен как выбранный,
         // и у "Задачи" указан repeatPeriod, то выбран последний вариант (кастомный)

@@ -22,7 +22,7 @@ final class TextEditorCoordinator: BaseCoordinator, TextEditorCoordinatorType {
         self.viewController = TextEditorViewController(viewModel: vm)
         super.init(parent: parent)
     }
-    
+
     override func setup() {
         super.setup()
         viewModel?.needSaveAndClose.emit(onNext: { [weak self] result in

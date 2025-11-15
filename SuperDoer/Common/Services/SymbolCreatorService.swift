@@ -1,4 +1,3 @@
-
 import UIKit
 
 final class SymbolCreatorService {
@@ -27,7 +26,7 @@ final class SymbolCreatorService {
 
         let renderer = UIGraphicsImageRenderer(size: totalSize)
 
-        let image = renderer.image { context in
+        let image = renderer.image { _ in
             let rect1 = CGRect(x: 0, y: 0, width: totalWidth, height: totalHeight)
             symbolImage1.draw(in: rect1)
 

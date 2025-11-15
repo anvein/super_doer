@@ -1,11 +1,8 @@
-
 import UserNotifications
 
 final class NotificationsService {
 
-
     private let notificationCenter: UNUserNotificationCenter
-
 
     init(notificationCenter: UNUserNotificationCenter) {
         self.notificationCenter = notificationCenter
@@ -14,9 +11,9 @@ final class NotificationsService {
     func requestNotification() {
 
         notificationCenter.requestAuthorization(
-            options: [.badge, .sound, .alert]) { granted, error in
+            options: [.badge, .sound, .alert]) { granted, _ in
                 if granted {
-                    
+
                 }
             }
     }
@@ -45,6 +42,5 @@ final class NotificationsService {
 ////            }
 ////        }
 //    }
-
 
 }

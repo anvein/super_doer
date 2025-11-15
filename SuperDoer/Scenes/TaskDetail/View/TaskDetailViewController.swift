@@ -20,11 +20,11 @@ class TaskDetailViewController: UIViewController {
 
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     // MARK: - Lifecycle
 
     override func loadView() {
@@ -77,7 +77,7 @@ private extension TaskDetailViewController {
 
     func handleFieldEditingState(_ state: TaskDetailViewModelFieldEditingState?) {
         switch state {
-        case .taskTitleEditing, .subtaskAdding, .subtastEditing(_):
+        case .taskTitleEditing, .subtaskAdding, .subtastEditing:
             navigationItem.setRightBarButton(readyBarButtonItem, animated: true)
         case nil:
             navigationItem.setRightBarButton(nil, animated: true)

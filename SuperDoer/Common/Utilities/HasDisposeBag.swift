@@ -2,7 +2,7 @@ import Foundation
 import RxSwift
 import ObjectiveC
 
-fileprivate var disposeBagContext: UInt8 = 0
+private var disposeBagContext: UInt8 = 0
 
 /// each HasDisposeBag offers a unique RxSwift DisposeBag instance
 public protocol HasDisposeBag: AnyObject {
@@ -39,6 +39,3 @@ extension HasDisposeBag {
         }
     }
 }
-
-
-

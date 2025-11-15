@@ -11,11 +11,11 @@ class TaskSystemSection: TaskSectionProtocol {
         case completed
         case withoutSection
     }
-    
+
     var type: SectionType
     var title: String
     var tasksCount: Int
-    
+
     init(type: SectionType, title: String, tasksCount: Int = 0) {
         self.type = type
         self.title = title

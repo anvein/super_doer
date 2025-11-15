@@ -10,4 +10,3 @@ protocol CustomDateSetterViewModelType: AnyObject {
 
     var inputEvents: PublishRelay<CustomDateSetterViewModelInputEvent> { get }
 }
-

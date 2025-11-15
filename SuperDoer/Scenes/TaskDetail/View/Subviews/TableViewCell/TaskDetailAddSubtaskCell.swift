@@ -1,4 +1,3 @@
-
 import UIKit
 import SnapKit
 
@@ -42,7 +41,7 @@ final class TaskDetailAddSubtaskCell: TaskDetailBaseCell {
 
     override init(style: UITableViewCell.CellStyle = .default, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
+
         addSubviews()
         setupSubviews()
         setupConstraints()
@@ -77,7 +76,7 @@ final class TaskDetailAddSubtaskCell: TaskDetailBaseCell {
         super.addSubviews()
         contentView.addSubviews(leftImageView, titleTextField)
     }
-    
+
     override func setupConstraints() {
         super.setupConstraints()
 
@@ -95,7 +94,7 @@ final class TaskDetailAddSubtaskCell: TaskDetailBaseCell {
             $0.trailing.equalToSuperview().inset(64)
         }
     }
-    
+
     func configureCellForState(_ isEditing: State) {
         if isEditing {
             setSubtaskFieldPlaceholderStyle(color: .Text.gray)

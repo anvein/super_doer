@@ -27,31 +27,30 @@ class TaskDetailBaseCell: UITableViewCell {
     private lazy var bottomSeparator: UIView = .init()
 
     // MARK: - Init
-    
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
+
         addSubviews()
         setupSubviews()
         setupConstraints()
         setupHandlers()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    
+
     // MARK: - Subviews
 
     /// Override if needed
     func addSubviews() {
         contentView.addSubview(actionButton)
-        
+
         if showTopSeparator {
             contentView.addSubview(topSeparator)
         }
-        
+
         if showBottomSeparator {
             contentView.addSubview(bottomSeparator)
         }
@@ -62,17 +61,17 @@ class TaskDetailBaseCell: UITableViewCell {
         // setup cell
         backgroundColor = nil
         backgroundView = UIView()
-        
+
         setupSelectedBackground()
-        
+
         // setup content subviews
         actionButton.setImage(createActionButtonImage(), for: .normal)
         actionButton.tintColor = .Text.gray
-        
+
         if showTopSeparator {
             topSeparator.backgroundColor = .Common.lightGraySeparator
         }
-        
+
         if showBottomSeparator {
             bottomSeparator.backgroundColor = .Common.lightGraySeparator
         }
@@ -114,12 +113,11 @@ class TaskDetailBaseCell: UITableViewCell {
     /// Override if needed
     func setupSelectedBackground() {
         let selectedBgView = UIView()
-        
+
         selectedBgView.backgroundColor = .Common.lightBlueBg
         selectedBackgroundView = selectedBgView
     }
-    
-    
+
     // MARK: - Actions handlers
 
     @objc private func handleTapActionButton(actionButton: UIButton) {
@@ -128,12 +126,12 @@ class TaskDetailBaseCell: UITableViewCell {
             cell: self
         )
     }
-    
+
     // MARK: - Helpers
 
     func createActionButtonImage() -> UIImage? {
         let symbolConfig = UIImage.SymbolConfiguration(pointSize: 12, weight: .regular)
-        
+
         return UIImage(systemName: "xmark")?
             .withConfiguration(symbolConfig)
             .withRenderingMode(.alwaysTemplate)

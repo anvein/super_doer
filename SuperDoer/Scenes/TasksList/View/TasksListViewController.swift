@@ -7,7 +7,7 @@ class TasksListViewController: UIViewController {
     private let disposeBag = DisposeBag()
 
     private var viewModel: TasksListViewModelType
-    
+
     // MARK: - Subviews
 
     private lazy var selfView: TasksListVCView = .init()
@@ -16,10 +16,10 @@ class TasksListViewController: UIViewController {
 
     init(viewModel: TasksListViewModelType) {
         self.viewModel = viewModel
-        
+
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -48,7 +48,7 @@ class TasksListViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+
         navigationController?.navigationBar.tintColor = .Common.white
 
         if selfView.hasTasksInTable {
@@ -79,7 +79,6 @@ private extension TasksListViewController {
         navigationBar.shadowImage = UIImage()
         navigationBar.isTranslucent = true
         navigationBar.backgroundColor = .clear
-
 
 //        navigationItem.titleView?.tintColor = .white
 //        //        navigationController?.navigationBar.prefersLargeTitles = true
@@ -116,13 +115,12 @@ private extension TasksListViewController {
         viewModel.sectionTitleDriver
             .drive(selfView.sectionTitleBinder)
             .disposed(by: disposeBag)
-        
+
         viewModel.tableUpdateEventsSignal
             .emit(onNext: { [weak self] updateEvent in
                 self?.selfView.updateTasksTable(for: updateEvent)
             })
             .disposed(by: disposeBag)
-
 
         viewModel.errorMessageSignal
             .emit(onNext: { [weak self] message in

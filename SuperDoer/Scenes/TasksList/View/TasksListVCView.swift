@@ -78,7 +78,7 @@ final class TasksListVCView: UIView {
         setupView()
         setupBindings()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -380,7 +380,7 @@ extension TasksListVCView: UITableViewDelegate {
 
         guard let cellVM = tableDataSource?.getCellViewModel(for: indexPath) else { return .init() }
 
-        var symbolImage: UIImage? = nil
+        var symbolImage: UIImage?
         if cellVM.isInMyDay {
             symbolImage = symbolCreator.combineSymbols(symbolName1: "sun.max", symbolName2: "line.diagonal", pointSize: 15, weight1: .bold)
             symbolImage = symbolImage?.withTintColor(.white, renderingMode: .alwaysOriginal)
@@ -507,7 +507,6 @@ extension TasksListVCView: UITableViewDropDelegate {
     }
 
     func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
-
 
     }
 

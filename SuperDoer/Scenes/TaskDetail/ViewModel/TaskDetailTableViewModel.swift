@@ -20,7 +20,7 @@ class TaskDetailTableViewModel {
 
         static var sectionsCount: Int = 4
     }
-    
+
     private var viewModels: [[TaskDetailTableCellViewModelType]] = Array(
         repeating: [],
         count: Section.sectionsCount
@@ -58,7 +58,7 @@ class TaskDetailTableViewModel {
 
         addImportFileCellVM(withNotify: false)
 
-        for file in task.files ?? []  {
+        for file in task.files ?? [] {
             guard let file = file as? TaskFile else { continue }
 
             addFileCellVM(file, withNotify: false)
@@ -102,7 +102,7 @@ class TaskDetailTableViewModel {
 
     @discardableResult
     func updateRepeatPeriod(_ value: TaskRepeatPeriod?) -> IndexPath? {
-        updateUniqueCellVM(section: .fields) { (cellVM: TaskDetailRepeatPeriodCellViewModel) -> TaskDetailRepeatPeriodCellViewModel in
+        updateUniqueCellVM(section: .fields) { (_: TaskDetailRepeatPeriodCellViewModel) -> TaskDetailRepeatPeriodCellViewModel in
             return TaskDetailRepeatPeriodCellViewModel.buildFrom(value)
         }
     }
@@ -144,7 +144,7 @@ private extension TaskDetailTableViewModel {
 
     @inline(__always)
     func getSectionCells(_ section: Section) -> [TaskDetailTableCellViewModelType]? {
-        return viewModels[safe: section.rawValue] ?? nil
+        return viewModels[safe: section.rawValue]
     }
 
     // MARK: Helpers Universal
@@ -244,7 +244,7 @@ private extension TaskDetailTableViewModel {
     }
 
     @discardableResult
-    func addInToMyDayCellVM(_ value: Bool, withNotify: Bool = true) -> IndexPath?  {
+    func addInToMyDayCellVM(_ value: Bool, withNotify: Bool = true) -> IndexPath? {
         addCellVM(
             AddToMyDayCellViewModel(inMyDay: value),
             to: .fields,
@@ -253,7 +253,7 @@ private extension TaskDetailTableViewModel {
     }
 
     @discardableResult
-    func addReminderDateCellVM(_ value: Date?, withNotify: Bool = true) -> IndexPath?  {
+    func addReminderDateCellVM(_ value: Date?, withNotify: Bool = true) -> IndexPath? {
         addCellVM(
             TaskDetailReminderDateCellViewModel(dateTime: value),
             to: .fields,
