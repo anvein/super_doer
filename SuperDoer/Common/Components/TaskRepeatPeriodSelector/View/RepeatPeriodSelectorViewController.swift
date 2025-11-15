@@ -1,5 +1,5 @@
-import UIKit
 import RxSwift
+import UIKit
 
 class RepeatPeriodSelectorViewController: UIViewController {
 
@@ -40,11 +40,11 @@ class RepeatPeriodSelectorViewController: UIViewController {
     }
 }
 
-private extension RepeatPeriodSelectorViewController {
+extension RepeatPeriodSelectorViewController {
 
     // MARK: - Setup
 
-    func setupHierarchyAndConstraints() {
+    fileprivate func setupHierarchyAndConstraints() {
         view.addSubviews(pickerView, daysOfWeekSelectorView)
 
         pickerView.translatesAutoresizingMaskIntoConstraints = false
@@ -56,17 +56,22 @@ private extension RepeatPeriodSelectorViewController {
 
         daysOfWeekSelectorView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            daysOfWeekSelectorView.topAnchor.constraint(equalTo: pickerView.bottomAnchor, constant: 20),
+            daysOfWeekSelectorView.topAnchor.constraint(
+                equalTo: pickerView.bottomAnchor,
+                constant: 20
+            ),
             daysOfWeekSelectorView.leadingAnchor
                 .constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             daysOfWeekSelectorView.trailingAnchor
                 .constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            daysOfWeekSelectorView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            daysOfWeekSelectorView.bottomAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.bottomAnchor
+            ),
             daysOfWeekSelectorView.heightAnchor.constraint(equalToConstant: 50),
         ])
     }
 
-    func setupView() {
+    fileprivate func setupView() {
         view.backgroundColor = .Common.white
 
         let readyBarButton = UIBarButtonItem(
@@ -85,18 +90,18 @@ private extension RepeatPeriodSelectorViewController {
         daysOfWeekSelectorView.updateContent(values: viewModel.getSelectedDaysOfWeekViewModels())
     }
 
-    func updateDetent() {
+    fileprivate func updateDetent() {
         guard let sheet = sheetPresentationController else { return }
 
         sheet.detents = [
-            .custom(identifier: .pageSheetCustomTaskRepeatPeriod) { _ in 360 },
+            .custom(identifier: .pageSheetCustomTaskRepeatPeriod) { _ in 360 }
         ]
         sheet.animateChanges {
             sheet.selectedDetentIdentifier = .pageSheetCustomTaskRepeatPeriod
         }
     }
 
-    func setupBindings() {
+    fileprivate func setupBindings() {
         // V -> VM
         pickerView.rx.itemSelected
             .subscribe(onNext: { [weak self] (row: Int, component: Int) in
@@ -164,7 +169,11 @@ extension RepeatPeriodSelectorViewController: UIPickerViewDataSource {
 
 extension RepeatPeriodSelectorViewController: UIPickerViewDelegate {
 
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+    func pickerView(
+        _ pickerView: UIPickerView,
+        titleForRow row: Int,
+        forComponent component: Int
+    ) -> String? {
         return viewModel.getComponentRowTitle(forRow: row, forComponent: component)
     }
 }
@@ -172,5 +181,7 @@ extension RepeatPeriodSelectorViewController: UIPickerViewDelegate {
 // MARK: - Detent
 
 extension UISheetPresentationController.Detent.Identifier {
-    static let pageSheetCustomTaskRepeatPeriod: SheetDetentIdentifier = SheetDetentIdentifier("pageSheetCustomTaskRepeatPeriod")
+    static let pageSheetCustomTaskRepeatPeriod = SheetDetentIdentifier(
+        "pageSheetCustomTaskRepeatPeriod"
+    )
 }

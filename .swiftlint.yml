@@ -6,25 +6,27 @@ excluded:
   - SuperDoer/Config
 
 disabled_rules:
-  - type_body_length
-  - function_body_length
   - todo
+  - empty_count
+  - closure_parameter_position
+  - for_where
 #  - cyclomatic_complexity
 
 opt_in_rules:
-  - empty_count
   - closure_spacing
   - discouraged_direct_init
   - multiline_arguments
   - multiline_parameters
   - redundant_nil_coalescing
-#  - trailing_whitespace
+  - trailing_whitespace
 
 # Настройки отдельных правил
 line_length:
   warning: 120
   error: 160
   ignores_urls: true
+  ignores_comments: true
+  ignores_interpolated_strings: true
 
 type_name:
   min_length: 3
@@ -45,5 +47,9 @@ trailing_comma:
 file_length:
   warning: 600
   error: 1000
+
+large_tuple:
+  warning: 3
+  error: 5
 
 reporter: "xcode"

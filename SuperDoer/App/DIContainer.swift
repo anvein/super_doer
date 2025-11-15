@@ -1,6 +1,8 @@
 import Swinject
 import UserNotifications
 
+// swiftlint:disable identifier_name
+
 final class DIContainer {
     static let container = Container()
 
@@ -84,3 +86,5 @@ final class DIContainer {
     }
 
 }
+
+// swiftlint: enable identifier_name

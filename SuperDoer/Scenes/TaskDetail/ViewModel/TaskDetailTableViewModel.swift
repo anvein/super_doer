@@ -1,6 +1,6 @@
 import Foundation
-import RxRelay
 import RxCocoa
+import RxRelay
 
 class TaskDetailTableViewModel {
 
@@ -75,7 +75,8 @@ class TaskDetailTableViewModel {
 
     @discardableResult
     func updateAddToMyDay(_ value: Bool) -> IndexPath? {
-        updateUniqueCellVM(section: .fields) { (cellVM: AddToMyDayCellViewModel) -> AddToMyDayCellViewModel in
+        updateUniqueCellVM(section: .fields) {
+            (cellVM: AddToMyDayCellViewModel) -> AddToMyDayCellViewModel in
             var updatedCellVM = cellVM
             updatedCellVM.inMyDay = value
             return updatedCellVM
@@ -84,7 +85,8 @@ class TaskDetailTableViewModel {
 
     @discardableResult
     func updateDeadlineAt(_ value: Date?) -> IndexPath? {
-        updateUniqueCellVM(section: .fields) { (cellVM: DeadlineDateCellViewModel) -> DeadlineDateCellViewModel in
+        updateUniqueCellVM(section: .fields) {
+            (cellVM: DeadlineDateCellViewModel) -> DeadlineDateCellViewModel in
             var updatedCellVM = cellVM
             updatedCellVM.date = value
             return updatedCellVM
@@ -93,7 +95,8 @@ class TaskDetailTableViewModel {
 
     @discardableResult
     func updateReminderDate(_ value: Date?) -> IndexPath? {
-        updateUniqueCellVM(section: .fields) { (cellVM: TaskDetailReminderDateCellViewModel) -> TaskDetailReminderDateCellViewModel in
+        updateUniqueCellVM(section: .fields) {
+            (cellVM: TaskDetailReminderDateCellViewModel) -> TaskDetailReminderDateCellViewModel in
             var updatedCellVM = cellVM
             updatedCellVM.dateTime = value
             return updatedCellVM
@@ -102,7 +105,8 @@ class TaskDetailTableViewModel {
 
     @discardableResult
     func updateRepeatPeriod(_ value: TaskRepeatPeriod?) -> IndexPath? {
-        updateUniqueCellVM(section: .fields) { (_: TaskDetailRepeatPeriodCellViewModel) -> TaskDetailRepeatPeriodCellViewModel in
+        updateUniqueCellVM(section: .fields) {
+            (_: TaskDetailRepeatPeriodCellViewModel) -> TaskDetailRepeatPeriodCellViewModel in
             return TaskDetailRepeatPeriodCellViewModel.buildFrom(value)
         }
     }
@@ -140,16 +144,16 @@ class TaskDetailTableViewModel {
 
 // MARK: - Private Helpers
 
-private extension TaskDetailTableViewModel {
+extension TaskDetailTableViewModel {
 
     @inline(__always)
-    func getSectionCells(_ section: Section) -> [TaskDetailTableCellViewModelType]? {
+    fileprivate func getSectionCells(_ section: Section) -> [TaskDetailTableCellViewModelType]? {
         return viewModels[safe: section.rawValue]
     }
 
     // MARK: Helpers Universal
 
-    func addCellVM(
+    fileprivate func addCellVM(
         _ cellVM: TaskDetailTableCellViewModelType,
         to sectionIndex: Section,
         withNotify: Bool = true
@@ -167,15 +171,17 @@ private extension TaskDetailTableViewModel {
         if let resultIndexPath, withNotify {
             updateEventRelay.accept(.addCell(to: resultIndexPath, cellVM: cellVM))
         } else if resultIndexPath == nil {
-#if DEBUG
-            print("## Не удалось добавить ячейку в TaskDetailTable: \(sectionIndex), \(cellVM))")
-#endif
+            #if DEBUG
+                print(
+                    "## Не удалось добавить ячейку в TaskDetailTable: \(sectionIndex), \(cellVM))"
+                )
+            #endif
         }
 
         return resultIndexPath
     }
 
-    func updateUniqueCellVM<T: TaskDetailTableCellViewModelType>(
+    fileprivate func updateUniqueCellVM<T: TaskDetailTableCellViewModelType>(
         section: Section,
         updateCellVM: (T) -> T
     ) -> IndexPath? {
@@ -204,21 +210,21 @@ private extension TaskDetailTableViewModel {
                 .updateCell(with: result.indexPath, cellVM: result.cellVM)
             )
         } else {
-#if DEBUG
-            print("## Не удалось обновить ячейку TaskDetailTable: \(section), \(T.self))")
-#endif
+            #if DEBUG
+                print("## Не удалось обновить ячейку TaskDetailTable: \(section), \(T.self))")
+            #endif
         }
 
         return result?.indexPath
     }
 
-    func deleteCellVM(with indexPath: IndexPath, from section: Section) -> IndexPath? {
+    fileprivate func deleteCellVM(with indexPath: IndexPath, from section: Section) -> IndexPath? {
         let sectionIndex = section.rawValue
         let deletingRowIndex = indexPath.row
 
         var resultIndexPath: IndexPath?
         if viewModels.hasIndex(sectionIndex),
-           viewModels[sectionIndex].hasIndex(deletingRowIndex) {
+            viewModels[sectionIndex].hasIndex(deletingRowIndex) {
             viewModels[sectionIndex].remove(at: deletingRowIndex)
             resultIndexPath = IndexPath(row: deletingRowIndex, section: sectionIndex)
         }
@@ -228,9 +234,11 @@ private extension TaskDetailTableViewModel {
                 .removeCells(with: [resultIndexPath])
             )
         } else {
-#if DEBUG
-            print("## Не удалось удалить ячейку в TaskDetailTable: \(sectionIndex), \(indexPath))")
-#endif
+            #if DEBUG
+                print(
+                    "## Не удалось удалить ячейку в TaskDetailTable: \(sectionIndex), \(indexPath))"
+                )
+            #endif
         }
 
         return resultIndexPath
@@ -239,12 +247,12 @@ private extension TaskDetailTableViewModel {
     // MARK: Helpers Wrappers
 
     @discardableResult
-    func addCreateSubtaskCellVM(withNotify: Bool = true) -> IndexPath? {
+    fileprivate func addCreateSubtaskCellVM(withNotify: Bool = true) -> IndexPath? {
         addCellVM(CreateSubtaskCellViewModel(), to: .subtasks, withNotify: withNotify)
     }
 
     @discardableResult
-    func addInToMyDayCellVM(_ value: Bool, withNotify: Bool = true) -> IndexPath? {
+    fileprivate func addInToMyDayCellVM(_ value: Bool, withNotify: Bool = true) -> IndexPath? {
         addCellVM(
             AddToMyDayCellViewModel(inMyDay: value),
             to: .fields,
@@ -253,7 +261,7 @@ private extension TaskDetailTableViewModel {
     }
 
     @discardableResult
-    func addReminderDateCellVM(_ value: Date?, withNotify: Bool = true) -> IndexPath? {
+    fileprivate func addReminderDateCellVM(_ value: Date?, withNotify: Bool = true) -> IndexPath? {
         addCellVM(
             TaskDetailReminderDateCellViewModel(dateTime: value),
             to: .fields,
@@ -271,7 +279,10 @@ private extension TaskDetailTableViewModel {
     }
 
     @discardableResult
-    func addRepeatPeriodCellVM(_ value: TaskRepeatPeriod?, withNotify: Bool = true) -> IndexPath? {
+    fileprivate func addRepeatPeriodCellVM(
+        _ value: TaskRepeatPeriod?,
+        withNotify: Bool = true
+    ) -> IndexPath? {
         addCellVM(
             TaskDetailRepeatPeriodCellViewModel.buildFrom(value),
             to: .fields,
@@ -280,7 +291,7 @@ private extension TaskDetailTableViewModel {
     }
 
     @discardableResult
-    func addImportFileCellVM(withNotify: Bool = true) -> IndexPath? {
+    fileprivate func addImportFileCellVM(withNotify: Bool = true) -> IndexPath? {
         addCellVM(
             ImportFileCellViewModel(),
             to: .files,
@@ -289,7 +300,7 @@ private extension TaskDetailTableViewModel {
     }
 
     @discardableResult
-    func addDescriptionCellVM(
+    fileprivate func addDescriptionCellVM(
         text: NSAttributedString?,
         dateUpdatedAt: Date?,
         withNotify: Bool = true

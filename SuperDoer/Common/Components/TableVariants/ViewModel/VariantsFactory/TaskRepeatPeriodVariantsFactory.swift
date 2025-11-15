@@ -3,6 +3,7 @@ import Foundation
 final class TaskRepeatPeriodVariantsFactory: TableVariantsFactory {
     typealias CellValueType = TaskRepeatPeriod
 
+    // swiftlint:disable function_body_length
     func buildCellViewModels() -> [VariantCellViewModel<CellValueType>] {
         var cellViewModels = [VariantCellViewModel<CellValueType>]()
 
@@ -64,4 +65,5 @@ final class TaskRepeatPeriodVariantsFactory: TableVariantsFactory {
 
         return cellViewModels
     }
+    // swiftlint:enable function_body_length
 }

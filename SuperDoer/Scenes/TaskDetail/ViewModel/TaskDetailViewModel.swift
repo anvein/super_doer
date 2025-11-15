@@ -126,6 +126,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         }
     }
 
+    // swiftlint:disable cyclomatic_complexity
     private func handleInputEvent(_ event: TaskDetailViewModelInputEvent) {
         switch event {
         case .needLoadInitialData:
@@ -184,6 +185,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
             toggleValueTaskFieldInMyDay()
         }
     }
+    // swiftlint:enable cyclomatic_complexity
 
     private func handleTapOpenDescriptionEditor() {
         guard let task else { return }

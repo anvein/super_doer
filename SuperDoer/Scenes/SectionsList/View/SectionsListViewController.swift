@@ -1,5 +1,5 @@
-import UIKit
 import RxSwift
+import UIKit
 
 class SectionsListViewController: UIViewController {
 
@@ -38,33 +38,37 @@ class SectionsListViewController: UIViewController {
         setupBinding()
         viewModel.loadInitialData()
 
-//        // TODO: УДАЛИТЬ!!! КОД ДЛЯ РАЗРАБОТКИ!!!
-//        PIXEL_PERFECT_screen.createAndSetupInstance(
-//            baseView: self.view,
-//            imageName: "PIXEL_PERFECT_home"
-//        )
+        //        // TODO: УДАЛИТЬ!!! КОД ДЛЯ РАЗРАБОТКИ!!!
+        //        PIXEL_PERFECT_screen.createAndSetupInstance(
+        //            baseView: self.view,
+        //            imageName: "PIXEL_PERFECT_home"
+        //        )
     }
 }
 
-private extension SectionsListViewController {
+extension SectionsListViewController {
 
     // MARK: - Setup
 
-    func setupView() {
+    fileprivate func setupView() {
         view.backgroundColor = .white
 
         sectionsTableView.delegate = self
         sectionsTableView.dataSource = self
     }
 
-    func setupHierarchyAndConstraints() {
+    fileprivate func setupHierarchyAndConstraints() {
         view.addSubviews(sectionsTableView, createSectionPanelView)
 
         NSLayoutConstraint.activate([
             sectionsTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             sectionsTableView.bottomAnchor.constraint(equalTo: createSectionPanelView.topAnchor),
-            sectionsTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            sectionsTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            sectionsTableView.leadingAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.leadingAnchor
+            ),
+            sectionsTableView.trailingAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.trailingAnchor
+            ),
         ])
 
         let bottomPanelHeightConstraint = createSectionPanelView.heightAnchor.constraint(
@@ -75,11 +79,13 @@ private extension SectionsListViewController {
             bottomPanelHeightConstraint,
             createSectionPanelView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             createSectionPanelView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            createSectionPanelView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+            createSectionPanelView.bottomAnchor.constraint(
+                equalTo: view.keyboardLayoutGuide.topAnchor
+            ),
         ])
     }
 
-    func setupBinding() {
+    fileprivate func setupBinding() {
         // V -> VM
         createSectionPanelView.answerSignal
             .emit { [weak self] answer in
@@ -115,8 +121,12 @@ extension SectionsListViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: TaskSectionTableCell.identifier),
-              let cell = cell as? TaskSectionTableCell else { return .init() }
+        guard
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: TaskSectionTableCell.identifier
+            ),
+            let cell = cell as? TaskSectionTableCell
+        else { return .init() }
 
         let sectionCellVM = viewModel.getTaskSectionTableCellVM(for: indexPath)
 
@@ -150,7 +160,10 @@ extension SectionsListViewController: UITableViewDelegate {
 
     // MARK: Swipe actions
 
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+    func tableView(
+        _ tableView: UITableView,
+        trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: "Удалить") {
             [weak self] _, _, completionHandler in
             self?.viewModel.didTapDeleteCustomSection(with: indexPath)
@@ -161,7 +174,8 @@ extension SectionsListViewController: UITableViewDelegate {
         deleteAction.image = UIImage(systemName: "trash")?
             .withConfiguration(symbolConfig)
 
-        let archiveAction = UIContextualAction(style: .normal, title: "Архивировать") { [unowned self] _, _, completionHandler in
+        let archiveAction = UIContextualAction(style: .normal, title: "Архивировать") {
+            [unowned self] _, _, completionHandler in
             self.viewModel.didTapArchiveCustomSection(indexPath: indexPath)
             completionHandler(true)
         }

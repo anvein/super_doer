@@ -6,7 +6,7 @@ extension UILabel {
         let mutableAttributedText = NSMutableAttributedString(attributedString: attributedText)
 
         mutableAttributedText.addAttributes(
-            [.kern: NSNumber(floatLiteral: Double(kern))],
+            [.kern: NSNumber(value: Double(kern))],
             range: NSRange(location: 0, length: mutableAttributedText.length)
         )
 

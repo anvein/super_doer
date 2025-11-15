@@ -6,7 +6,13 @@ extension Date {
         let selfDateComponents = Calendar.current.dateComponents([.year, .month, .day], from: self)
         let date2Components = Calendar.current.dateComponents([.year, .month, .day], from: date2)
 
-        guard let selfDay = selfDateComponents.day, let selfMonth = selfDateComponents.month, let selfYear = selfDateComponents.year, let date2Day = date2Components.day, let date2Month = date2Components.month, let date2Year = date2Components.year else {
+        guard let selfDay = selfDateComponents.day,
+            let selfMonth = selfDateComponents.month,
+            let selfYear = selfDateComponents.year,
+            let date2Day = date2Components.day,
+            let date2Month = date2Components.month,
+            let date2Year = date2Components.year
+        else {
             return false
         }
 
@@ -14,21 +20,34 @@ extension Date {
     }
 
     func setComponents(hours: Int, minutes: Int, seconds: Int) -> Date {
-        var components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: self)
+        var components = Calendar.current.dateComponents(
+            [.year, .month, .day, .hour, .minute],
+            from: self
+        )
         components.hour = hours
         components.minute = minutes
         components.second = seconds
 
         let date = Calendar.current.date(from: components)
         guard let safeDate = date else {
-            fatalError("Ошибка создания даты") //  TODO: переработать ошибку
+            fatalError("Ошибка создания даты")  //  TODO: переработать ошибку
         }
 
         return safeDate
     }
 
-    func add(years: Int = 0, months: Int = 0, days: Int = 0, hours: Int = 0, minutes: Int = 0, seconds: Int = 0) -> Date {
-        var components  = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: self)
+    func add(
+        years: Int = 0,
+        months: Int = 0,
+        days: Int = 0,
+        hours: Int = 0,
+        minutes: Int = 0,
+        seconds: Int = 0
+    ) -> Date {
+        var components = Calendar.current.dateComponents(
+            [.year, .month, .day, .hour, .minute, .second],
+            from: self
+        )
         components.year = (components.year ?? 0) + years
         components.month = (components.month ?? 0) + months
         components.day = (components.day ?? 0) + days
@@ -38,7 +57,7 @@ extension Date {
 
         let newDate = Calendar.current.date(from: components)
         guard let safeNewDate = newDate else {
-            fatalError("Ошибка создания даты") //  TODO: переработать ошибку
+            fatalError("Ошибка создания даты")  //  TODO: переработать ошибку
         }
 
         return safeNewDate

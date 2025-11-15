@@ -1,5 +1,5 @@
-import UIKit
 import SnapKit
+import UIKit
 
 final class TaskDetailAddSubtaskCell: TaskDetailBaseCell {
 
@@ -66,8 +66,16 @@ final class TaskDetailAddSubtaskCell: TaskDetailBaseCell {
         titleTextField.textColor = .Text.black
         titleTextField.returnKeyType = .done
 
-        titleTextField.addTarget(self, action: #selector(subtaskTextFieldEditingDidBegin(textField:)), for: .editingDidBegin)
-        titleTextField.addTarget(self, action: #selector(subtaskTextFieldEditingDidEnd(textField:)), for: .editingDidEnd)
+        titleTextField.addTarget(
+            self,
+            action: #selector(subtaskTextFieldEditingDidBegin(textField:)),
+            for: .editingDidBegin
+        )
+        titleTextField.addTarget(
+            self,
+            action: #selector(subtaskTextFieldEditingDidEnd(textField:)),
+            for: .editingDidEnd
+        )
 
         configureCellForState(isEdit)
     }
@@ -82,8 +90,10 @@ final class TaskDetailAddSubtaskCell: TaskDetailBaseCell {
 
         leftImageView.snp.makeConstraints { [weak self] in
             // почему-то без изменения приоритета при обновлении размера был конфликт констрэинтов
-            self?.leftImageWidthConstraint = $0.width.equalTo(Self.plusWidth).priority(.high).constraint
-            self?.leftImageHeightConstraint = $0.height.equalTo(Self.plusHeight).priority(.high).constraint
+            self?.leftImageWidthConstraint =
+                $0.width.equalTo(Self.plusWidth).priority(.high).constraint
+            self?.leftImageHeightConstraint =
+                $0.height.equalTo(Self.plusHeight).priority(.high).constraint
             $0.leading.equalToSuperview().offset(20)
             $0.centerY.equalToSuperview()
         }
@@ -110,29 +120,30 @@ final class TaskDetailAddSubtaskCell: TaskDetailBaseCell {
     }
 }
 
-private extension TaskDetailAddSubtaskCell {
+extension TaskDetailAddSubtaskCell {
 
     // MARK: - Actions handlers
 
-    @objc func subtaskTextFieldEditingDidBegin(textField: UITextField) {
+    @objc fileprivate func subtaskTextFieldEditingDidBegin(textField: UITextField) {
         isEdit = true
         configureCellForState(isEdit)
     }
 
-    @objc func subtaskTextFieldEditingDidEnd(textField: UITextField) {
+    @objc fileprivate func subtaskTextFieldEditingDidEnd(textField: UITextField) {
         isEdit = false
         configureCellForState(isEdit)
     }
 
     // MARK: - Update view
 
-    func updateLeftImageSize(width: CGFloat, height: CGFloat) {
+    fileprivate func updateLeftImageSize(width: CGFloat, height: CGFloat) {
         leftImageWidthConstraint?.update(offset: width)
         leftImageHeightConstraint?.update(offset: height)
     }
 
-    func setSubtaskFieldPlaceholderStyle(color: UIColor) {
-        if let attributedPlaceholder = titleTextField.attributedPlaceholder?.mutableCopy() as? NSMutableAttributedString {
+    fileprivate func setSubtaskFieldPlaceholderStyle(color: UIColor) {
+        if let attributedPlaceholder = titleTextField.attributedPlaceholder?.mutableCopy()
+            as? NSMutableAttributedString {
             attributedPlaceholder.setAttributes(
                 [.foregroundColor: color],
                 range: NSRange(location: 0, length: attributedPlaceholder.length)
@@ -144,7 +155,7 @@ private extension TaskDetailAddSubtaskCell {
 
     // MARK: - Helpers
 
-    static func createPlusImage() -> UIImage? {
+    fileprivate static func createPlusImage() -> UIImage? {
         let symbolConfig = UIImage.SymbolConfiguration(weight: .regular)
 
         return UIImage(systemName: "plus")?
@@ -152,7 +163,7 @@ private extension TaskDetailAddSubtaskCell {
             .withTintColor(.Text.blue, renderingMode: .alwaysOriginal)
     }
 
-    static func createCircleImage() -> UIImage? {
+    fileprivate static func createCircleImage() -> UIImage? {
         let symbolConfig = UIImage.SymbolConfiguration(weight: .regular)
 
         return UIImage(systemName: "circle")?

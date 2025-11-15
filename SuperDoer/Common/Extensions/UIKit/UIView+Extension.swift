@@ -47,7 +47,12 @@ extension UIView {
     private func convertCornersToMask(_ corners: UIRectCorner) -> CACornerMask {
         var cornerMask = CACornerMask()
 
-        if corners.contains(.allCorners) { cornerMask.insert([.layerMinXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMinYCorner, .layerMaxXMaxYCorner]) }
+        if corners.contains(.allCorners) {
+            cornerMask.insert([
+                .layerMinXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMinYCorner,
+                .layerMaxXMaxYCorner,
+            ])
+        }
         if corners.contains(.topLeft) { cornerMask.insert(.layerMinXMinYCorner) }
         if corners.contains(.topRight) { cornerMask.insert(.layerMaxXMinYCorner) }
         if corners.contains(.bottomLeft) { cornerMask.insert(.layerMinXMaxYCorner) }
@@ -63,4 +68,4 @@ extension UIView {
 
 // MARK: - HasDisposeBag
 
-extension UIView: HasDisposeBag { }
+extension UIView: HasDisposeBag {}

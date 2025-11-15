@@ -29,7 +29,7 @@ public class CDTask: NSManagedObject {
 
 extension CDTask {
     var titlePrepared: String {
-        get { title ?? "No title" }
+        title ?? "No title"
     }
 
     var descriptionTextAttributed: NSAttributedString? {

@@ -1,7 +1,7 @@
-import UIKit
-import SnapKit
-import RxSwift
 import RxCocoa
+import RxSwift
+import SnapKit
+import UIKit
 
 final class TaskDetailView: UIView {
     private weak var viewModel: (TaskDetailViewModelInput & TaskDetailViewModelOutput)?
@@ -34,11 +34,11 @@ final class TaskDetailView: UIView {
 
 }
 
-private extension TaskDetailView {
+extension TaskDetailView {
 
     // MARK: - Setup
 
-    func setupView() {
+    fileprivate func setupView() {
         backgroundColor = .Common.white
 
         isCompletedTaskCheckbox.visibleAreaInsets = 4
@@ -57,9 +57,13 @@ private extension TaskDetailView {
         taskDataTableView.delegate = self
     }
 
-    func setupHierarchyAndConstraints() {
+    fileprivate func setupHierarchyAndConstraints() {
         addSubviews(topControlsContainerView, taskDataTableView)
-        topControlsContainerView.addSubviews(isCompletedTaskCheckbox, titleTextView, isPriorityToggle)
+        topControlsContainerView.addSubviews(
+            isCompletedTaskCheckbox,
+            titleTextView,
+            isPriorityToggle
+        )
 
         topControlsContainerView.snp.makeConstraints {
             $0.top.equalTo(self.safeAreaLayoutGuide).offset(18)
@@ -91,7 +95,7 @@ private extension TaskDetailView {
         }
     }
 
-    func setupBindings() {
+    fileprivate func setupBindings() {
         guard let viewModel else { return }
 
         // VM -> V
@@ -155,7 +159,7 @@ private extension TaskDetailView {
 
     // MARK: - Actions / Events handlers
 
-    func handleViewModelTableUpdate(event: TaskDetailTableViewModel.UpdateEvent) {
+    fileprivate func handleViewModelTableUpdate(event: TaskDetailTableViewModel.UpdateEvent) {
         switch event {
         case .addCell(let toIndexPath, _):
             taskDataTableView.insertRows(at: [toIndexPath], with: .fade)
@@ -173,70 +177,77 @@ private extension TaskDetailView {
 
     // MARK: - Helpers
 
-    func buildTableViewCellFor(_ cellViewModel: TaskDetailTableCellViewModelType) -> UITableViewCell {
+    // swiftlint:disable cyclomatic_complexity
+    fileprivate func buildTableViewCellFor(
+        _ cellViewModel: TaskDetailTableCellViewModelType
+    ) -> UITableViewCell {
         let cell: UITableViewCell?
 
         switch cellViewModel {
         case _ as CreateSubtaskCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailAddSubtaskCell.className)
+            cell = taskDataTableView.dequeueCell(TaskDetailAddSubtaskCell.self)
             if let cell = cell as? TaskDetailAddSubtaskCell {
                 cell.titleTextField.delegate = self
             }
 
         case let cellVM as AddToMyDayCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailAddToMyDayCell.className)
+            cell = taskDataTableView.dequeueCell(TaskDetailAddToMyDayCell.self)
             if let cell = cell as? TaskDetailAddToMyDayCell {
                 cell.isOn = cellVM.inMyDay
                 cell.delegate = self
             }
 
         case let cellVM as TaskDetailReminderDateCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailReminderDateCell.className)
+            cell = taskDataTableView.dequeueCell(TaskDetailReminderDateCell.self)
             if let cell = cell as? TaskDetailReminderDateCell {
                 cell.fillFrom(cellVM)
                 cell.delegate = self
             }
 
         case let cellVM as DeadlineDateCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailDeadlineDateCell.className)
+            cell = taskDataTableView.dequeueCell(TaskDetailDeadlineDateCell.self)
             if let cell = cell as? TaskDetailDeadlineDateCell {
                 cell.fillFrom(cellVM)
                 cell.delegate = self
             }
 
         case let cellVM as TaskDetailRepeatPeriodCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailRepeatPeriodCell.className)
+            cell = taskDataTableView.dequeueCell(TaskDetailRepeatPeriodCell.self)
             if let cell = cell as? TaskDetailRepeatPeriodCell {
                 cell.fillFrom(cellVM)
                 cell.delegate = self
             }
 
         case _ as ImportFileCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailAddFileCell.className)
+            cell = taskDataTableView.dequeueCell(TaskDetailAddFileCell.self)
 
         case let cellVM as FileCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailFileCell.className)
+            cell = taskDataTableView.dequeueCell(TaskDetailFileCell.self)
+
             if let cell = cell as? TaskDetailFileCell {
                 cell.delegate = self
                 cell.fillFrom(cellValue: cellVM)
             }
 
         case let cellVM as DescriptionCellViewModel:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailDescriptionCell.className)
+            cell = taskDataTableView.dequeueCell(TaskDetailDescriptionCell.self)
             if let cell = cell as? TaskDetailDescriptionCell {
                 cell.delegate = self
                 cell.fillFrom(cellVM)
             }
 
         default:
-            cell = taskDataTableView.dequeueReusableCell(withIdentifier: TaskDetailLabelsButtonCell.className)
-            // TODO: залогировать
+            cell = taskDataTableView.dequeueCell(TaskDetailLabelsButtonCell.self)
         }
 
         return cell ?? .init()
     }
+    // swiftlint:enable cyclomatic_complexity
 
-    func updateTableViewCell(with indexPath: IndexPath, cellVM: TaskDetailTableCellViewModelType) {
+    fileprivate func updateTableViewCell(
+        with indexPath: IndexPath,
+        cellVM: TaskDetailTableCellViewModelType
+    ) {
         let cell = taskDataTableView.cellForRow(at: indexPath)
 
         switch cellVM {
@@ -328,8 +339,8 @@ extension TaskDetailView: UITableViewDelegate {
 
         case let cellVM as DescriptionCellViewModel:
             return cellVM.text == nil
-            ? TaskDetailDescriptionCell.emptyHeight.cgFloat
-            : TaskDetailDescriptionCell.maxHeight.cgFloat
+                ? TaskDetailDescriptionCell.emptyHeight.cgFloat
+                : TaskDetailDescriptionCell.maxHeight.cgFloat
 
         default:
             return TaskDetailBaseCell.rowHeight.cgFloat
@@ -373,7 +384,10 @@ extension TaskDetailView: UITableViewDelegate {
 
     // MARK: swipes actions
 
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+    func tableView(
+        _ tableView: UITableView,
+        trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(
             style: .destructive,
             title: "Удалить"
@@ -400,11 +414,17 @@ extension TaskDetailView: UITableViewDelegate {
         return false
     }
 
-    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+    func tableView(
+        _ tableView: UITableView,
+        editingStyleForRowAt indexPath: IndexPath
+    ) -> UITableViewCell.EditingStyle {
         return .none
     }
 
-    func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
+    func tableView(
+        _ tableView: UITableView,
+        shouldIndentWhileEditingRowAt indexPath: IndexPath
+    ) -> Bool {
         return false
     }
 
@@ -413,7 +433,11 @@ extension TaskDetailView: UITableViewDelegate {
 // MARK: - UITextViewDelegate (taskTitle)
 
 extension TaskDetailView: UITextViewDelegate {
-    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+    func textView(
+        _ textView: UITextView,
+        shouldChangeTextIn range: NSRange,
+        replacementText text: String
+    ) -> Bool {
         if text == "\n" {
             textView.resignFirstResponder()
             return false
@@ -430,20 +454,20 @@ extension TaskDetailView: UITextViewDelegate {
 extension TaskDetailView: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         // TODO: определять верный ли textField
-//        showSubtaskAddNavigationItemReady()
-//        textFieldEditing = textField
+        //        showSubtaskAddNavigationItemReady()
+        //        textFieldEditing = textField
     }
 
-//    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-//        // TODO: определять верный ли textField
-////        if textFieldEditing === textField {
-////            textField.resignFirstResponder()
-//////            navigationItem.setRightBarButton(nil, animated: true)
-////            textFieldEditing = nil
-////        }
-//
-//        return false
-//    }
+    //    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    //        // TODO: определять верный ли textField
+    ////        if textFieldEditing === textField {
+    ////            textField.resignFirstResponder()
+    //////            navigationItem.setRightBarButton(nil, animated: true)
+    ////            textFieldEditing = nil
+    ////        }
+    //
+    //        return false
+    //    }
 }
 
 // MARK: - cell delegates, child controllers delegates

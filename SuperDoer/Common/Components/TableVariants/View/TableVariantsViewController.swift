@@ -1,6 +1,6 @@
-import UIKit
 import Foundation
 import RxSwift
+import UIKit
 
 final class TableVariantsViewController: UIViewController {
 
@@ -45,11 +45,11 @@ final class TableVariantsViewController: UIViewController {
 
 }
 
-private extension TableVariantsViewController {
+extension TableVariantsViewController {
 
     // MARK: - Setup
 
-    func setupView() {
+    fileprivate func setupView() {
         view.backgroundColor = .Common.white
         // TODO: заголовок (title) в ночном режиме не виден (он белый)
 
@@ -59,12 +59,22 @@ private extension TableVariantsViewController {
         setupNavigationBar()
     }
 
-    func setupNavigationBar() {
-        let deleteBarButton = UIBarButtonItem(title: "Удалить", style: .done, target: self, action: #selector(tapButtonDelete))
+    fileprivate func setupNavigationBar() {
+        let deleteBarButton = UIBarButtonItem(
+            title: "Удалить",
+            style: .done,
+            target: self,
+            action: #selector(tapButtonDelete)
+        )
         deleteBarButton.tintColor = .Text.red
         navigationItem.leftBarButtonItem = deleteBarButton
 
-        let readyBarButton = UIBarButtonItem(title: "Готово", style: .done, target: self, action: #selector(tapButtonReady))
+        let readyBarButton = UIBarButtonItem(
+            title: "Готово",
+            style: .done,
+            target: self,
+            action: #selector(tapButtonReady)
+        )
         readyBarButton.tintColor = .Text.blue
         navigationItem.rightBarButtonItem = readyBarButton
 
@@ -77,7 +87,7 @@ private extension TableVariantsViewController {
         }
     }
 
-    func configureSheetPresentationController() {
+    fileprivate func configureSheetPresentationController() {
         guard let sheet = sheetPresentationController else { return }
         sheet.detents = [detent.detent]
         sheet.animateChanges {
@@ -85,18 +95,20 @@ private extension TableVariantsViewController {
         }
     }
 
-    func setupHierarchyAndConstraints() {
+    fileprivate func setupHierarchyAndConstraints() {
         view.addSubview(variantsTableView)
 
         NSLayoutConstraint.activate([
             variantsTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            variantsTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            variantsTableView.bottomAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.bottomAnchor
+            ),
             variantsTableView.rightAnchor.constraint(equalTo: view.rightAnchor),
             variantsTableView.leftAnchor.constraint(equalTo: view.leftAnchor),
         ])
     }
 
-    func setupBindings() {
+    fileprivate func setupBindings() {
         // VM -> V
         viewModel.tableNeedReload.emit(onNext: { [weak self] _ in
             self?.variantsTableView.reloadData()
@@ -116,11 +128,11 @@ private extension TableVariantsViewController {
 
     // MARK: - Actions handlers
 
-    @objc func tapButtonReady() {
+    @objc fileprivate func tapButtonReady() {
         viewModel.didTapReady()
     }
 
-    @objc func tapButtonDelete() {
+    @objc fileprivate func tapButtonDelete() {
         viewModel.didTapDelete()
     }
 

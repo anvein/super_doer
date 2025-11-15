@@ -1,8 +1,8 @@
-import UIKit
-import SnapKit
-import RxSwift
-import RxRelay
 import RxCocoa
+import RxRelay
+import RxSwift
+import SnapKit
+import UIKit
 
 final class TasksListVCView: UIView {
 
@@ -110,11 +110,13 @@ final class TasksListVCView: UIView {
             )
 
         case .updateTask(let indexPath, let taskCellVM):
-            guard let cell = tasksTableView.cellForRow(at: indexPath) as? StandartTaskTableCell else { return }
+            guard let cell = tasksTableView.cellForRow(at: indexPath) as? StandartTaskTableCell
+            else { return }
             cell.fillFrom(viewModel: taskCellVM)
 
         case .moveTask(let fromIndexPath, let toIndexPath, let taskCellVM):
-            guard let cell = tasksTableView.cellForRow(at: fromIndexPath) as? StandartTaskTableCell else { return }
+            guard let cell = tasksTableView.cellForRow(at: fromIndexPath) as? StandartTaskTableCell
+            else { return }
             cell.fillFrom(viewModel: taskCellVM)
             tasksTableView.moveRow(at: fromIndexPath, to: toIndexPath)
 
@@ -146,11 +148,11 @@ final class TasksListVCView: UIView {
 
 }
 
-private extension TasksListVCView {
+extension TasksListVCView {
 
     // MARK: - Setup
 
-    func setupView() {
+    fileprivate func setupView() {
         sectionTitleTextView.textColor = .white
         sectionTitleTextView.tintColor = .white
         sectionTitleTextView.font = .systemFont(ofSize: 32, weight: .bold)
@@ -176,7 +178,10 @@ private extension TasksListVCView {
         tableContainerView.clipsToBounds = true
         tableContainerView.layer.zPosition = 1
 
-        tasksTableView.register(StandartTaskTableCell.self, forCellReuseIdentifier: StandartTaskTableCell.className)
+        tasksTableView.register(
+            StandartTaskTableCell.self,
+            forCellReuseIdentifier: StandartTaskTableCell.className
+        )
         tasksTableView.delegate = self
         tasksTableView.dataSource = self
         tasksTableView.dragDelegate = self
@@ -188,10 +193,10 @@ private extension TasksListVCView {
         backgroundImageView.image = .bgList
         backgroundImageView.contentMode = .scaleAspectFill
         backgroundImageView.clipsToBounds = true
-        backgroundImageView .layer.zPosition = 0
+        backgroundImageView.layer.zPosition = 0
     }
 
-    func setupHierarchy() {
+    fileprivate func setupHierarchy() {
         addSubviews(
             tableContainerView,
             backgroundImageView,
@@ -200,7 +205,7 @@ private extension TasksListVCView {
         tableContainerView.addSubview(tasksTableView)
     }
 
-    func setupConstraints() {
+    fileprivate func setupConstraints() {
         backgroundImageView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
@@ -220,21 +225,24 @@ private extension TasksListVCView {
             $0.centerX.equalToSuperview()
             panelHeightConstraint = $0.height.equalTo(panelState.panelHeight).constraint
 
-            panelTopPaddingConstraint = $0.top.equalTo(tasksTableView.snp.bottom)
+            panelTopPaddingConstraint =
+                $0.top.equalTo(tasksTableView.snp.bottom)
                 .offset(panelState.panelTopPadding)
                 .constraint
 
-            panelBottomPaddingConstraint = $0.bottom.equalTo(keyboardLayoutGuide.snp.top)
+            panelBottomPaddingConstraint =
+                $0.bottom.equalTo(keyboardLayoutGuide.snp.top)
                 .offset(-panelState.panelBottomPadding)
                 .constraint
 
-            panelHorizontalPaddingsConstraint = $0.horizontalEdges.equalToSuperview()
+            panelHorizontalPaddingsConstraint =
+                $0.horizontalEdges.equalToSuperview()
                 .inset(panelState.panelHorizontalSidesPadding)
                 .constraint
         }
     }
 
-    func setupBindings() {
+    fileprivate func setupBindings() {
         taskCreatePanel.answerSignal
             .emit { [weak self] answer in
                 self?.handleTaskCreatePanelAnswer(answer)
@@ -264,7 +272,7 @@ private extension TasksListVCView {
 
     // MARK: - Update view
 
-    func setTableHeaderVisible(_ visible: Bool) {
+    fileprivate func setTableHeaderVisible(_ visible: Bool) {
         guard let tableHeader = tasksTableView.tableHeaderView else { return }
 
         UIView.transition(
@@ -276,7 +284,7 @@ private extension TasksListVCView {
         }
     }
 
-    func updatePanelForState(_ newState: TaskCreateBottomPanel.State) {
+    fileprivate func updatePanelForState(_ newState: TaskCreateBottomPanel.State) {
         panelHeightConstraint?.update(offset: newState.panelHeight)
         panelTopPaddingConstraint?.update(offset: newState.panelTopPadding)
         panelBottomPaddingConstraint?.update(offset: -newState.panelBottomPadding)
@@ -289,7 +297,7 @@ private extension TasksListVCView {
 
     // MARK: - Actions Handlers
 
-    func handleTableCellAnswer(_ action: StandartTaskTableCell.Answer) {
+    fileprivate func handleTableCellAnswer(_ action: StandartTaskTableCell.Answer) {
         switch action {
         case .onTapIsDoneButton(let newValue, let indexPath):
             answerRelay.accept(.onTapIsDoneButton(newValue, indexPath))
@@ -299,7 +307,7 @@ private extension TasksListVCView {
         }
     }
 
-    func handleTaskCreatePanelAnswer(_ answer: TaskCreateBottomPanel.Answer) {
+    fileprivate func handleTaskCreatePanelAnswer(_ answer: TaskCreateBottomPanel.Answer) {
         switch answer {
         case .onChangedState(let newState):
             updatePanelForState(newState)
@@ -324,9 +332,11 @@ extension TasksListVCView: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: StandartTaskTableCell.className
-        ) as? StandartTaskTableCell else { return .init() }
+        guard
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: StandartTaskTableCell.className
+            ) as? StandartTaskTableCell
+        else { return .init() }
 
         if let cellVM = tableDataSource?.getCellViewModel(for: indexPath) {
             cell.fillFrom(viewModel: cellVM)
@@ -355,10 +365,13 @@ extension TasksListVCView: UITableViewDelegate {
 
     // MARK: Swipe actions
 
-    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+    func tableView(
+        _ tableView: UITableView,
+        trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
         // TODO: доработать, чтобы SwipeAction отображались внутри ячейки (или были со скругленными краями)
         let cell = tableView.cellForRow(at: indexPath)
-        guard let _ = cell?.contentView else {
+        guard cell?.contentView != nil else {
             return nil
         }
 
@@ -375,14 +388,22 @@ extension TasksListVCView: UITableViewDelegate {
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 
-    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+    func tableView(
+        _ tableView: UITableView,
+        leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
         var actions: [UIContextualAction] = []
 
         guard let cellVM = tableDataSource?.getCellViewModel(for: indexPath) else { return .init() }
 
         var symbolImage: UIImage?
         if cellVM.isInMyDay {
-            symbolImage = symbolCreator.combineSymbols(symbolName1: "sun.max", symbolName2: "line.diagonal", pointSize: 15, weight1: .bold)
+            symbolImage = symbolCreator.combineSymbols(
+                symbolName1: "sun.max",
+                symbolName2: "line.diagonal",
+                pointSize: 15,
+                weight1: .bold
+            )
             symbolImage = symbolImage?.withTintColor(.white, renderingMode: .alwaysOriginal)
         } else {
             let symbolConfig = UIImage.SymbolConfiguration(pointSize: 13, weight: .bold)
@@ -408,7 +429,10 @@ extension TasksListVCView: UITableViewDelegate {
 
     // MARK: delete row
 
-    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+    func tableView(
+        _ tableView: UITableView,
+        editingStyleForRowAt indexPath: IndexPath
+    ) -> UITableViewCell.EditingStyle {
         if !tableView.isEditing {
             return .delete
         }
@@ -416,20 +440,27 @@ extension TasksListVCView: UITableViewDelegate {
         return .none
     }
 
-//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-//        if editingStyle == .delete {
-//            tasksArray.remove(at: indexPath.row)
-//            tableView.deleteRows(at: [indexPath], with: .fade)
-//        }
-//    }
+    //    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+    //        if editingStyle == .delete {
+    //            tasksArray.remove(at: indexPath.row)
+    //            tableView.deleteRows(at: [indexPath], with: .fade)
+    //        }
+    //    }
 
-    func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
+    func tableView(
+        _ tableView: UITableView,
+        shouldIndentWhileEditingRowAt indexPath: IndexPath
+    ) -> Bool {
         return false
     }
 
     // MARK: Move row
 
-    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+    func tableView(
+        _ tableView: UITableView,
+        moveRowAt sourceIndexPath: IndexPath,
+        to destinationIndexPath: IndexPath
+    ) {
         answerRelay.accept(
             .onMoveEndTask(from: sourceIndexPath, to: destinationIndexPath)
         )
@@ -455,17 +486,27 @@ extension TasksListVCView: UITableViewDelegate {
 // MARK: - UITableViewDragDelegate
 
 extension TasksListVCView: UITableViewDragDelegate {
-    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+    func tableView(
+        _ tableView: UITableView,
+        itemsForBeginning session: UIDragSession,
+        at indexPath: IndexPath
+    ) -> [UIDragItem] {
         let dragItem = UIDragItem(itemProvider: .init())
         dragItem.localObject = indexPath
         return [dragItem]
     }
 
-    func tableView(_ tableView: UITableView, dragSessionIsRestrictedToDraggingApplication session: UIDragSession) -> Bool {
+    func tableView(
+        _ tableView: UITableView,
+        dragSessionIsRestrictedToDraggingApplication session: UIDragSession
+    ) -> Bool {
         return true
     }
 
-    func tableView(_ tableView: UITableView, dragPreviewParametersForRowAt indexPath: IndexPath) -> UIDragPreviewParameters? {
+    func tableView(
+        _ tableView: UITableView,
+        dragPreviewParametersForRowAt indexPath: IndexPath
+    ) -> UIDragPreviewParameters? {
         guard let cell = tableView.cellForRow(at: indexPath) else { return nil }
 
         let preview = UIDragPreviewParameters()
@@ -496,24 +537,30 @@ extension TasksListVCView: UITableViewDropDelegate {
         withDestinationIndexPath destinationIndexPath: IndexPath?
     ) -> UITableViewDropProposal {
         if let item = session.items.first,
-           let fromIndexPath = item.localObject as? IndexPath,
-           let toIndexPath = destinationIndexPath,
-           fromIndexPath.section == toIndexPath.section,
-           toIndexPath.row <= tableView.numberOfRows(inSection: 0) {
+            let fromIndexPath = item.localObject as? IndexPath,
+            let toIndexPath = destinationIndexPath,
+            fromIndexPath.section == toIndexPath.section,
+            toIndexPath.row <= tableView.numberOfRows(inSection: 0) {
             return .init(operation: .move, intent: .insertAtDestinationIndexPath)
         } else {
             return .init(operation: .cancel)
         }
     }
 
-    func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
+    func tableView(
+        _ tableView: UITableView,
+        performDropWith coordinator: UITableViewDropCoordinator
+    ) {
 
     }
 
     func tableView(_ tableView: UITableView, dropSessionDidEnd session: UIDropSession) {
     }
 
-    func tableView(_ tableView: UITableView, dropPreviewParametersForRowAt indexPath: IndexPath) -> UIDragPreviewParameters? {
+    func tableView(
+        _ tableView: UITableView,
+        dropPreviewParametersForRowAt indexPath: IndexPath
+    ) -> UIDragPreviewParameters? {
         guard let cell = tableView.cellForRow(at: indexPath) else { return nil }
 
         let preview = UIDragPreviewParameters()
