@@ -1,8 +1,8 @@
-import UIKit
-import RxRelay
-import RxCocoa
-import RxSwift
 import Foundation
+import RxCocoa
+import RxRelay
+import RxSwift
+import UIKit
 
 final class TextEditorCoordinator: BaseCoordinator, TextEditorCoordinatorType {
     private var viewModel: TextEditorNavigationEmittable?

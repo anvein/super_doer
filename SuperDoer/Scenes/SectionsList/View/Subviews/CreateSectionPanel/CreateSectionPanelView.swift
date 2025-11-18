@@ -1,7 +1,7 @@
-import UIKit
-import RxRelay
 import RxCocoa
+import RxRelay
 import RxSwift
+import UIKit
 
 final class CreateSectionPanelView: UIView {
 

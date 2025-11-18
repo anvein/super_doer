@@ -1,7 +1,7 @@
-import UIKit
 import RxCocoa
 import RxRelay
 import RxSwift
+import UIKit
 
 ///  Координатор работает для загрузки файлов из:
 ///  - Галереи
@@ -24,7 +24,7 @@ class ImportImageFromLibraryCoordinator: BaseCoordinator {
 
         var title: String {
             switch self {
-            case .camera:  "камере"
+            case .camera: "камере"
             case .library: "галерее"
             }
         }

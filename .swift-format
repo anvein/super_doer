@@ -2,7 +2,7 @@
   "fileScopedDeclarationPrivacy" : {
     "accessLevel" : "private"
   },
-  "indentConditionalCompilationBlocks" : true,
+  "indentConditionalCompilationBlocks" : false,
   "indentSwitchCaseLabels" : false,
   "indentation" : {
     "spaces" : 4
@@ -15,7 +15,7 @@
   "lineBreakBetweenDeclarationAttributes" : false,
   "lineLength" : 120,
   "maximumBlankLines" : 1,
-  "multiElementCollectionTrailingCommas" : false,
+  "multiElementCollectionTrailingCommas" : true,
   "noAssignmentInExpressions" : {
     "allowedFunctions" : [
       "XCTAssertNoThrow"

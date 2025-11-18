@@ -1,5 +1,5 @@
-import UIKit
 import RxSwift
+import UIKit
 
 class CustomDateSetterViewController: UIViewController {
 
@@ -83,9 +83,9 @@ extension CustomDateSetterViewController {
         datePicker.rx.date
             .skip(1)
             .subscribe(onNext: { [weak self] date in
-            self?.viewModel.inputEvents.accept(.didSelectDate(date))
-        })
-        .disposed(by: disposeBag)
+                self?.viewModel.inputEvents.accept(.didSelectDate(date))
+            })
+            .disposed(by: disposeBag)
 
         // VM -> V
         viewModel.date.drive(onNext: { [weak self] value in

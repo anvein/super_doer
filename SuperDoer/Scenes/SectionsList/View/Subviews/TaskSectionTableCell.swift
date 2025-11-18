@@ -46,7 +46,7 @@ final class TaskSectionTableCell: UITableViewCell {
     // TODO: надо ли тут weak???
     // вроде цикла сильных ссылок быть не должно быть
     weak var viewModel: SectionListTableCellVMType? {
-        willSet (newViewModel) {
+        willSet(newViewModel) {
             if let newViewModel {
                 self.textLabel?.text = newViewModel.title
                 self.detailTextLabel?.text = newViewModel.tasksCount

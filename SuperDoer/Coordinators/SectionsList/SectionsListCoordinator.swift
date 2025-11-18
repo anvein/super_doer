@@ -1,8 +1,8 @@
-import UIKit
 import Foundation
-import RxRelay
 import RxCocoa
+import RxRelay
 import RxSwift
+import UIKit
 
 final class SectionsListCoordinator: BaseCoordinator {
 

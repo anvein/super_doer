@@ -12,9 +12,8 @@ final class SymbolCreatorService {
         let configuration2 = UIImage.SymbolConfiguration(pointSize: pointSize, weight: weight2)
 
         guard let symbolImage1 = UIImage(systemName: symbolName1, withConfiguration: configuration1),
-              let symbolImage2 = UIImage(systemName: symbolName2, withConfiguration: configuration2) else {
-            return nil
-        }
+            let symbolImage2 = UIImage(systemName: symbolName2, withConfiguration: configuration2)
+        else { return nil }
 
         let symbol1Size = symbolImage1.size
         let symbol2Size = symbolImage2.size

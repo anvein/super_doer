@@ -1,8 +1,8 @@
-import UIKit
-import SnapKit
+import RxCocoa
 import RxRelay
 import RxSwift
-import RxCocoa
+import SnapKit
+import UIKit
 
 final class CheckboxToggleView: UIView {
 
@@ -146,7 +146,7 @@ private extension CheckboxToggleView {
 
 @available(iOS 17, *)
 #Preview {
-     {
+    {
         let btn = CheckboxToggleView()
         btn.frame = .init(origin: .zero, size: .init(width: 40, height: 40))
         return btn

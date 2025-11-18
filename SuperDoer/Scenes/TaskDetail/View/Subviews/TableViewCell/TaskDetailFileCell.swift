@@ -1,5 +1,5 @@
-import UIKit
 import SnapKit
+import UIKit
 
 class TaskDetailFileCell: TaskDetailLabelsButtonCell {
 
@@ -37,7 +37,7 @@ class TaskDetailFileCell: TaskDetailLabelsButtonCell {
         mainTextLabel.textColor = .Text.black
         additionalTextLabel.textColor = .Text.gray
 
-//        actionButton.addTarget(self, action: #selector(actionButtonTapHandle), for: .touchUpInside)
+        //        actionButton.addTarget(self, action: #selector(actionButtonTapHandle), for: .touchUpInside)
     }
 
     override func setupConstraints() {
@@ -69,13 +69,13 @@ class TaskDetailFileCell: TaskDetailLabelsButtonCell {
 
     }
 
-//    // MARK: target-action handlers
-//    @objc private func actionButtonTapHandle() {
-//        let tableView = superview
-//        guard let buttonsTableView = tableView else {
-//            return
-//        }
-//
-//    }
+    //    // MARK: target-action handlers
+    //    @objc private func actionButtonTapHandle() {
+    //        let tableView = superview
+    //        guard let buttonsTableView = tableView else {
+    //            return
+    //        }
+    //
+    //    }
 
 }

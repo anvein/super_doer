@@ -1,5 +1,5 @@
-import UIKit
 import RxSwift
+import UIKit
 
 class TaskDetailViewController: UIViewController {
 
@@ -39,12 +39,12 @@ class TaskDetailViewController: UIViewController {
 
         viewModel.inputEvent.accept(.needLoadInitialData)
 
-//        PIXEL_PERFECT_screen.createAndSetupInstance(
-//            baseView: self.view,
-//            imageName: "PIXEL_PERFECT_detail1",
-//            controlsBottomSideOffset: 0,
-//            imageScaleFactor: 3
-//        )
+        //        PIXEL_PERFECT_screen.createAndSetupInstance(
+        //            baseView: self.view,
+        //            imageName: "PIXEL_PERFECT_detail1",
+        //            controlsBottomSideOffset: 0,
+        //            imageScaleFactor: 3
+        //        )
     }
 }
 

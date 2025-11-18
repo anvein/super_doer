@@ -6,9 +6,9 @@ protocol Coordinator: AnyObject {
     var parent: Coordinator? { get set }
     var rootViewController: UIViewController { get }
 
-    func start/*<RootController>*/(
+    func start(
         onPresent: (_ coordinatorRootVC: UIViewController) -> Void
-    ) /*where RootController: UIViewController*/
+    )
     func setup()
     func navigate()
     func finish()

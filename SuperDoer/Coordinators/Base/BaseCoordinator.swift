@@ -1,6 +1,6 @@
 import Foundation
-import UIKit
 import RxSwift
+import UIKit
 
 /// BaseCoordinator
 ///
@@ -41,9 +41,9 @@ class BaseCoordinator: NSObject, Coordinator {
         ConsoleLogger.log("## Deinit: \(self.description)")
     }
 
-    final func start/*<RootController>*/(
+    final func start(
         onPresent: (_ rootController: UIViewController) -> Void
-    ) /*where RootController: UIViewController*/ {
+    ) {
         setup()
         onPresent(rootViewController)
         logStartCompleted()
@@ -62,7 +62,7 @@ class BaseCoordinator: NSObject, Coordinator {
 
     /// Метод, который должен содержать логику навигации
     /// Выполняется после старта текущего координатора, его настройки и показа
-    func navigate() { }
+    func navigate() {}
 
     /// Этот метод вызывать не надо самому в большинстве случаев
     /// надо только если isAutoFinishEnabled == false

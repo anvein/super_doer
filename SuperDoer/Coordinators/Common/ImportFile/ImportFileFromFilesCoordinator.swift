@@ -1,8 +1,8 @@
-import UIKit
-import UniformTypeIdentifiers
 import RxCocoa
 import RxRelay
 import RxSwift
+import UIKit
+import UniformTypeIdentifiers
 
 final class ImportFileFromFilesCoordinator: BaseCoordinator {
 

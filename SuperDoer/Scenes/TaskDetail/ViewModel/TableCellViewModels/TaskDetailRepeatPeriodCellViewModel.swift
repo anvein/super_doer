@@ -12,8 +12,7 @@ struct TaskDetailRepeatPeriodCellViewModel: TaskDetailTableCellViewModelType {
             return .init(
                 state: .filled(
                     periodTitle: repeatPeriod.detailTitle,
-                    daysOfWeek: sortedDaysOfWeek
-                        .map { $0.shortTitle.lowercased() }
+                    daysOfWeek: sortedDaysOfWeek.map { $0.shortTitle.lowercased() }
                         .joined(separator: ", ")
                 )
             )

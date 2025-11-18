@@ -1,5 +1,5 @@
-import Foundation
 import CoreData
+import Foundation
 
 class TaskSectionCoreDataManager {
     private let coreDataStack: CoreDataStack
@@ -27,8 +27,8 @@ class TaskSectionCoreDataManager {
         }
 
         let sortByOrder = NSSortDescriptor(key: "order", ascending: false)
-//        let sortByTitle = NSSortDescriptor(key: "title", ascending: true)
-        fetchRequest.sortDescriptors = [sortByOrder, /*sortByTitle*/]
+        // let sortByTitle = NSSortDescriptor(key: "title", ascending: true)
+        fetchRequest.sortDescriptors = [sortByOrder /*sortByTitle*/]
 
         do {
             let sections = try coreDataStack.viewContext.fetch(fetchRequest)

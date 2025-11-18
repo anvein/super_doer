@@ -1,12 +1,12 @@
 import Swinject
 import UserNotifications
 
-// swiftlint:disable force_unwrapping
+// swiftlint:disable force_unwrapping function_body_length
 
 final class DIContainer {
     static let container = Container()
 
-    private init() { }
+    private init() {}
 
     static func registerDependencies() {
 
@@ -52,13 +52,17 @@ final class DIContainer {
 
         // MARK: - CoreData services
 
-        Self.container.register(TaskSectionCoreDataManager.self, factory: { _ in
+        Self.container.register(TaskSectionCoreDataManager.self) { _ in
             return TaskSectionCoreDataManager()
-        }).inObjectScope(.container)
+        }
+        .inObjectScope(.container)
 
-        Self.container.register(TaskCoreDataManager.self, factory: { _ in
-            return TaskCoreDataManager()
-        }).inObjectScope(.container)
+        Self.container.register(
+            TaskCoreDataManager.self,
+            factory: { _ in
+                return TaskCoreDataManager()
+            }
+        ).inObjectScope(.container)
 
         Self.container.register(TaskFileEntityManager.self) { _ in
             return TaskFileEntityManager()
@@ -87,4 +91,4 @@ final class DIContainer {
 
 }
 
-// swiftlint:enable force_unwrapping
+// swiftlint:enable force_unwrapping function_body_length

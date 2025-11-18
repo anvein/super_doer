@@ -2,8 +2,8 @@ import Foundation
 import RxCocoa
 
 final class TableVariantsViewModel<Value, Factory: TableVariantsFactory, Finder: TableVariantSelectedFinder>:
-    TableVariantsViewModelInputOutput,
-    TableVariantsNavigationEmittable where Factory.CellValueType == Value, Finder.Value == Value {
+    TableVariantsViewModelInputOutput, TableVariantsNavigationEmittable
+where Factory.CellValueType == Value, Finder.Value == Value {
     typealias NavigationValue = Value
 
     private let selectedVariantFinder: Finder

@@ -146,7 +146,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         case .didTapAddFile:
             navigationEventRelay.accept(.openAddFile)
 
-        case .didTapFileDelete(indexPath: let indexPath):
+        case .didTapFileDelete(let indexPath):
             handleTapFileDelete(with: indexPath)
 
         case .didTapOpenDescriptionEditor:
@@ -198,8 +198,9 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
 
     private func handleTapFileDelete(with indexPath: IndexPath) {
         guard let cellVM = tableViewModel.getCellVM(for: indexPath),
-              let fileCellVM = cellVM as? FileCellViewModel,
-              case .data(let fileData) = fileCellVM.state else {
+            let fileCellVM = cellVM as? FileCellViewModel,
+            case .data(let fileData) = fileCellVM.state
+        else {
             // TODO: показать alert что не получится удалить файл
             return
         }
@@ -325,7 +326,8 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
 
         let cellVM = tableViewModel.getCellVM(for: indexPath)
         guard let fileCellVM = cellVM as? FileCellViewModel,
-              case .data(let fileData) = fileCellVM.state else {
+            case .data(let fileData) = fileCellVM.state
+        else {
             // TODO: показать сообщение об ошибке (файл не получилось удалить)
             return
         }

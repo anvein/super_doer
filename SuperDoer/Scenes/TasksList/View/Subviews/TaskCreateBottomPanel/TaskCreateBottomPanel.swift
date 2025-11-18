@@ -1,7 +1,7 @@
-import UIKit
+import RxCocoa
 import RxRelay
 import RxSwift
-import RxCocoa
+import UIKit
 
 final class TaskCreateBottomPanel: UIView {
 

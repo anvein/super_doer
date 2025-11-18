@@ -1,6 +1,6 @@
-import UIKit
-import SnapKit
 import RxSwift
+import SnapKit
+import UIKit
 
 class TasksListViewController: UIViewController {
 
@@ -38,12 +38,12 @@ class TasksListViewController: UIViewController {
         setupNavigationBar()
         viewModel.needLoadInitialData()
 
-//        PIXEL_PERFECT_screen.createAndSetupInstance(
-//            baseView: self.view,
-//            imageName: "PIXEL_PERFECT_task_list",
-//            controlsBottomSideOffset: 0,
-//            imageScaleFactor: 3
-//        )
+        //        PIXEL_PERFECT_screen.createAndSetupInstance(
+        //            baseView: self.view,
+        //            imageName: "PIXEL_PERFECT_task_list",
+        //            controlsBottomSideOffset: 0,
+        //            imageScaleFactor: 3
+        //        )
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -72,7 +72,7 @@ private extension TasksListViewController {
 
         navigationBar.tintColor = .white
         navigationBar.titleTextAttributes = [
-            .foregroundColor: UIColor.clear,
+            .foregroundColor: UIColor.clear
         ]
 
         navigationBar.setBackgroundImage(UIImage(), for: .default)
@@ -80,14 +80,14 @@ private extension TasksListViewController {
         navigationBar.isTranslucent = true
         navigationBar.backgroundColor = .clear
 
-//        navigationItem.titleView?.tintColor = .white
-//        //        navigationController?.navigationBar.prefersLargeTitles = true
-//        navigationItem.largeTitleDisplayMode = .always
-//        //        navigationController?.navigationBar.scrollEdgeAppearance = .
-//
-//        //        navigationController?.navigationBar.topItem?.rightBarButtonItem
-//        let editItem = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(didTapEditTableButton))
-//        navigationItem.rightBarButtonItems = [editItem]
+        //        navigationItem.titleView?.tintColor = .white
+        //        //        navigationController?.navigationBar.prefersLargeTitles = true
+        //        navigationItem.largeTitleDisplayMode = .always
+        //        //        navigationController?.navigationBar.scrollEdgeAppearance = .
+        //
+        //        //        navigationController?.navigationBar.topItem?.rightBarButtonItem
+        //        let editItem = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(didTapEditTableButton))
+        //        navigationItem.rightBarButtonItems = [editItem]
 
         //        navigationController?.navigationBar.setBackgroundImage(UIImage(named: "bgList"), for: UIBarMetrics.compact)
         //        navigationController?.navigationBar.isOpaque = true

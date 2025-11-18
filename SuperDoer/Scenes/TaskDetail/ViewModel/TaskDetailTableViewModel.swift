@@ -170,9 +170,7 @@ extension TaskDetailTableViewModel {
             updateEventRelay.accept(.addCell(to: resultIndexPath, cellVM: cellVM))
         } else if resultIndexPath == nil {
             #if DEBUG
-                print(
-                    "## Не удалось добавить ячейку в TaskDetailTable: \(sectionIndex), \(cellVM))"
-                )
+            print("## Не удалось добавить ячейку в TaskDetailTable: \(sectionIndex), \(cellVM))")
             #endif
         }
 
@@ -209,7 +207,7 @@ extension TaskDetailTableViewModel {
             )
         } else {
             #if DEBUG
-                print("## Не удалось обновить ячейку TaskDetailTable: \(section), \(T.self))")
+            print("## Не удалось обновить ячейку TaskDetailTable: \(section), \(T.self))")
             #endif
         }
 
@@ -233,9 +231,7 @@ extension TaskDetailTableViewModel {
             )
         } else {
             #if DEBUG
-                print(
-                    "## Не удалось удалить ячейку в TaskDetailTable: \(sectionIndex), \(indexPath))"
-                )
+            print("## Не удалось удалить ячейку в TaskDetailTable: \(sectionIndex), \(indexPath))")
             #endif
         }
 

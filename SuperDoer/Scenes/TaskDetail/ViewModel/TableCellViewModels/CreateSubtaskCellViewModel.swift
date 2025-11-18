@@ -1,1 +1,1 @@
-struct CreateSubtaskCellViewModel: TaskDetailTableCellViewModelType { }
+struct CreateSubtaskCellViewModel: TaskDetailTableCellViewModelType {}

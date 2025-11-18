@@ -1,7 +1,7 @@
-import UIKit
-import RxRelay
 import RxCocoa
+import RxRelay
 import RxSwift
+import UIKit
 
 class NotificationsDisabledAlertCoordinator: BaseCoordinator {
     enum FinishResult {

@@ -1,5 +1,5 @@
-import Foundation
 import CoreData
+import Foundation
 import RxSwift
 
 final class TasksListRepository: NSObject {
@@ -178,21 +178,17 @@ extension TasksListRepository: NSFetchedResultsControllerDelegate {
             }
 
         case .update:
-            if let indexPath,
-               let cdTask = anObject as? CDTask {
+            if let indexPath, let cdTask = anObject as? CDTask {
                 let taskItem = TasksListItemEntity(cdTask: cdTask)
                 modelUpdatedSubject.onNext(.taskDidUpdate(indexPath: indexPath, taskItem: taskItem))
             }
 
         case .move:
-            if let indexPath, let newIndexPath,
-               let cdTask = anObject as? CDTask {
+            if let indexPath, let newIndexPath, let cdTask = anObject as? CDTask {
                 let taskItem = TasksListItemEntity(cdTask: cdTask)
-                modelUpdatedSubject.onNext(.taskDidMove(
-                    fromIndexPath: indexPath,
-                    toIndexPath: newIndexPath,
-                    taskItem: taskItem
-                ))
+                modelUpdatedSubject.onNext(
+                    .taskDidMove(fromIndexPath: indexPath, toIndexPath: newIndexPath, taskItem: taskItem)
+                )
             }
 
         @unknown default:

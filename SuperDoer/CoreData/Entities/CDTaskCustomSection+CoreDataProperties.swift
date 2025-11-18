@@ -1,13 +1,5 @@
-//
-//  TaskSectionCustom+CoreDataProperties.swift
-//  SuperDoer
-//
-//  Created by Виталий Нохрин on 23.02.2024.
-//
-//
-
-import Foundation
 import CoreData
+import Foundation
 
 extension CDTaskCustomSection {
 

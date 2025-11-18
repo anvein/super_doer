@@ -1,7 +1,7 @@
-import UIKit
 import RxCocoa
 import RxRelay
 import RxSwift
+import UIKit
 
 final class TaskDetailCoordinator: BaseCoordinator {
 
@@ -59,7 +59,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
         case .openAddFile:
             startImportFileSourceSelect()
 
-        case .openDeleteFileConfirmation(viewModel: let viewModel):
+        case .openDeleteFileConfirmation(let viewModel):
             startDeleteFileConfirmation(for: viewModel)
 
         case .openDescriptionEditor(let textEditorData):

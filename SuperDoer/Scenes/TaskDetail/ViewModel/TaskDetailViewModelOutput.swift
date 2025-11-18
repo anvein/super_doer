@@ -1,5 +1,5 @@
-import RxCocoa
 import Foundation
+import RxCocoa
 
 protocol TaskDetailViewModelOutput: AnyObject {
     var titleDriver: Driver<String> { get }

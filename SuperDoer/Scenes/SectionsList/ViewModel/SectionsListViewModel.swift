@@ -1,7 +1,7 @@
 import Foundation
-import RxSwift
-import RxRelay
 import RxCocoa
+import RxRelay
+import RxSwift
 
 final class SectionsListViewModel: SectionsListCoordinatorResultHandler, SectionsListNavigationEmittable {
 
@@ -93,9 +93,9 @@ extension SectionsListViewModel: SectionsListViewModelType {
         }
     }
 
-//    func getTasksCountInSection(withSectionId id: Int) -> Int {
-//        return Int.random(in: 0...11)
-//    }
+    //    func getTasksCountInSection(withSectionId id: Int) -> Int {
+    //        return Int.random(in: 0...11)
+    //    }
 
     // MARK: - UI Actions
 
@@ -110,7 +110,8 @@ extension SectionsListViewModel: SectionsListViewModelType {
 
     func didTapDeleteCustomSection(with indexPath: IndexPath) {
         guard let section = sections.value[safe: indexPath.section]?[safe: indexPath.row],
-              let customSection = section as? CDTaskCustomSection else { return }
+            let customSection = section as? CDTaskCustomSection
+        else { return }
 
         let deletableSectionVM = TaskSectionDeletableViewModel(
             title: customSection.title ?? "",
@@ -124,7 +125,8 @@ extension SectionsListViewModel: SectionsListViewModelType {
 
     func didTapArchiveCustomSection(indexPath: IndexPath) {
         guard let section = sections.value[safe: Self.customSectionsId]?[safe: indexPath.row],
-              let customSection = section as? CDTaskCustomSection else { return }
+            let customSection = section as? CDTaskCustomSection
+        else { return }
 
         sectionEm.updateCustomSectionField(isArchive: true, section: customSection)
         sections.value[Self.customSectionsId].remove(at: indexPath.item)
@@ -155,9 +157,9 @@ extension SectionsListViewModel: SectionsListViewModelType {
 
     private func handleConfirmDelete(_ deletableViewModels: [TaskSectionDeletableViewModel]) {
         guard let deletableVM = deletableViewModels.first,
-        let indexPath = deletableVM.indexPath,
-        let section = sections.value[safe: Self.customSectionsId]?[safe: indexPath.row],
-        let customSection = section as? CDTaskCustomSection
+            let indexPath = deletableVM.indexPath,
+            let section = sections.value[safe: Self.customSectionsId]?[safe: indexPath.row],
+            let customSection = section as? CDTaskCustomSection
         else { return }
 
         sectionEm.deleteSection(customSection)

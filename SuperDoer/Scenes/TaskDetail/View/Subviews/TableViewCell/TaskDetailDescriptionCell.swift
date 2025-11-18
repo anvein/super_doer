@@ -94,7 +94,7 @@ final class TaskDetailDescriptionCell: UITableViewCell {
             infoLabel.isHidden = true
             openButton.isHidden = true
 
-//            contentViewHeightConstraint?.isActive = true
+        //            contentViewHeightConstraint?.isActive = true
 
         case .textFilled:
             infoLabel.isHidden = false
@@ -109,15 +109,15 @@ final class TaskDetailDescriptionCell: UITableViewCell {
 
     private func setupConstraints() {
         // contentView
-//        contentView.heightAnchor.constraint(equalToConstant: DescriptionButtonCell.emptyHeight.cgFloat)
-//            .isActive = true
+        //        contentView.heightAnchor.constraint(equalToConstant: DescriptionButtonCell.emptyHeight.cgFloat)
+        //            .isActive = true
 
         // mainTextLabel
         NSLayoutConstraint.activate([
             mainTextLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 15),
             mainTextLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 16),
             mainTextLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -16),
-//            mainTextLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 120),
+            //            mainTextLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 120),
         ])
 
         // infoLabel

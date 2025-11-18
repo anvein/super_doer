@@ -1,5 +1,5 @@
-import UIKit
 import RxSwift
+import UIKit
 
 class TextEditorViewController: UIViewController {
 
@@ -182,7 +182,7 @@ extension TextEditorViewController: UITextViewDelegate {
 // MARK: - UINavigationBarDelegate
 
 extension TextEditorViewController: UINavigationBarDelegate {
-//    func position(for bar: UIBarPositioning) -> UIBarPosition {
-//        return .topAttached
-//    }
+    //    func position(for bar: UIBarPositioning) -> UIBarPosition {
+    //        return .topAttached
+    //    }
 }

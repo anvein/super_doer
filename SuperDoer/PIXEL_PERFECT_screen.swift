@@ -220,7 +220,7 @@ private extension PIXEL_PERFECT_screen {
 
         NSLayoutConstraint.activate([
             isVisibleScreenSwitch.leftAnchor.constraint(equalTo: baseView.leftAnchor, constant: 20),
-            switchBottomConstraint
+            switchBottomConstraint,
         ])
         self.controlsBottomConstraint = switchBottomConstraint
 
@@ -231,7 +231,7 @@ private extension PIXEL_PERFECT_screen {
             actionsMenuButton.leadingAnchor.constraint(equalTo: isVisibleScreenSwitch.leadingAnchor),
             actionsMenuButton.bottomAnchor.constraint(equalTo: isVisibleScreenSwitch.topAnchor, constant: -10),
             actionsMenuButton.heightAnchor.constraint(equalToConstant: PPConstants.menuButtonSize),
-            actionsMenuButton.widthAnchor.constraint(equalToConstant: PPConstants.menuButtonSize)
+            actionsMenuButton.widthAnchor.constraint(equalToConstant: PPConstants.menuButtonSize),
         ])
     }
 
@@ -298,7 +298,7 @@ private extension PIXEL_PERFECT_screen {
                 imageWidthConstraint,
                 screenImageView.heightAnchor.constraint(
                     equalToConstant: screenImage.size.height / CGFloat(imageScaleFactor)
-                )
+                ),
             ])
         }
 
@@ -342,7 +342,7 @@ private extension PIXEL_PERFECT_screen {
         NSLayoutConstraint.activate([
             slider.leftAnchor.constraint(equalTo: isVisibleScreenSwitch.rightAnchor, constant: 20),
             slider.rightAnchor.constraint(equalTo: baseView.safeAreaLayoutGuide.rightAnchor, constant: -20),
-            bottomConstraint
+            bottomConstraint,
         ])
 
         slider.addTarget(self, action: #selector(sliderDoubleTap(slider:)), for: .touchDownRepeat)
@@ -398,7 +398,7 @@ private extension PIXEL_PERFECT_screen {
             leadingAnchorToLineConstraint,
             lineView.topAnchor.constraint(equalTo: baseView.topAnchor),
             lineView.bottomAnchor.constraint(equalTo: baseView.bottomAnchor),
-            lineView.widthAnchor.constraint(equalToConstant: 15)
+            lineView.widthAnchor.constraint(equalToConstant: 15),
         ])
         lineView.leadingAnchorLineConstraint = leadingAnchorToLineConstraint
         lineView.addInfoLabelTrailingConstraintRelatively(baseView: baseView)
@@ -439,7 +439,7 @@ private extension PIXEL_PERFECT_screen {
             topAnchorLineConstraint,
             lineView.leadingAnchor.constraint(equalTo: baseView.leadingAnchor),
             lineView.trailingAnchor.constraint(equalTo: baseView.trailingAnchor),
-            lineView.heightAnchor.constraint(equalToConstant: 15)
+            lineView.heightAnchor.constraint(equalToConstant: 15),
         ])
         lineView.addInfoLabelBottomConstraintRelatively(baseView: baseView)
         lineView.topAnchorLineConstraint = topAnchorLineConstraint
@@ -616,7 +616,7 @@ private extension PIXEL_PERFECT_screen {
                 layoutGuideTopConstraint,
                 layoutGuideBottomConstraint,
                 layoutGuideForSpacingLine.leadingAnchor.constraint(equalTo: baseView.leadingAnchor),
-                layoutGuideForSpacingLine.trailingAnchor.constraint(equalTo: baseView.trailingAnchor)
+                layoutGuideForSpacingLine.trailingAnchor.constraint(equalTo: baseView.trailingAnchor),
             ])
         }
     }
@@ -686,7 +686,7 @@ private extension PIXEL_PERFECT_screen {
                 layoutGuideLeadingConstraint,
                 layoutGuideTrailingConstraint,
                 layoutGuideForSpacingLine.topAnchor.constraint(equalTo: baseView.topAnchor),
-                layoutGuideForSpacingLine.bottomAnchor.constraint(equalTo: baseView.bottomAnchor)
+                layoutGuideForSpacingLine.bottomAnchor.constraint(equalTo: baseView.bottomAnchor),
             ])
         }
     }
@@ -1089,7 +1089,7 @@ private extension PIXEL_PERFECT_screen {
                 submenuLinesSpacings,
                 submenuImageLeadingOffset,
                 submenuImageTopOffset,
-                submenuOthers
+                submenuOthers,
             ]
         )
 
@@ -1200,7 +1200,7 @@ extension PIXEL_PERFECT_screen {
             addSubview(label)
             NSLayoutConstraint.activate([
                 label.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: 10),
-                label.bottomAnchor.constraint(equalTo: self.centerYAnchor, constant: 5)
+                label.bottomAnchor.constraint(equalTo: self.centerYAnchor, constant: 5),
             ])
         }
 
@@ -1272,7 +1272,7 @@ extension PIXEL_PERFECT_screen {
                 lineView.heightAnchor.constraint(equalToConstant: 1),
                 lineView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
                 lineView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                lineView.centerYAnchor.constraint(equalTo: self.centerYAnchor)
+                lineView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
             ])
 
             // moveButton
@@ -1287,7 +1287,7 @@ extension PIXEL_PERFECT_screen {
                 moveButton.bottomAnchor.constraint(equalTo: self.bottomAnchor),
                 moveButton.widthAnchor.constraint(equalTo: moveButton.heightAnchor),
                 buttonTrailingConstraint,
-                moveButton.centerYAnchor.constraint(equalTo: self.centerYAnchor)
+                moveButton.centerYAnchor.constraint(equalTo: self.centerYAnchor),
             ])
 
             moveButton.addGestureRecognizer(
@@ -1305,7 +1305,7 @@ extension PIXEL_PERFECT_screen {
             NSLayoutConstraint.activate([
                 infoLabelTrailingConstraint,
                 infoLabelTopConstraint,
-                infoLabel.leadingAnchor.constraint(greaterThanOrEqualTo: self.leadingAnchor, constant: 3)
+                infoLabel.leadingAnchor.constraint(greaterThanOrEqualTo: self.leadingAnchor, constant: 3),
             ])
         }
 
@@ -1458,7 +1458,7 @@ extension PIXEL_PERFECT_screen {
                 lineView.widthAnchor.constraint(equalToConstant: 1),
                 lineView.topAnchor.constraint(equalTo: self.topAnchor),
                 lineView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-                lineView.centerXAnchor.constraint(equalTo: self.centerXAnchor)
+                lineView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             ])
 
             addSubview(moveButton)
@@ -1471,7 +1471,7 @@ extension PIXEL_PERFECT_screen {
                 buttonBottomConstraint,
                 moveButton.leadingAnchor.constraint(equalTo: self.leadingAnchor),
                 moveButton.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                moveButton.heightAnchor.constraint(equalTo: moveButton.widthAnchor)
+                moveButton.heightAnchor.constraint(equalTo: moveButton.widthAnchor),
             ])
 
             let moveGesture = UIPanGestureRecognizer(target: self, action: #selector(lineDidMovedByPanGesture(_:)))
@@ -1485,7 +1485,7 @@ extension PIXEL_PERFECT_screen {
             infoLabelLeadingConstraint.priority = .defaultLow
             NSLayoutConstraint.activate([
                 infoLabel.topAnchor.constraint(equalTo: moveButton.bottomAnchor, constant: 2),
-                infoLabelLeadingConstraint
+                infoLabelLeadingConstraint,
             ])
         }
 
@@ -1628,7 +1628,7 @@ extension PIXEL_PERFECT_screen {
             NSLayoutConstraint.activate([
                 infoLabel.topAnchor.constraint(equalTo: self.topAnchor),
                 infoLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-                infoLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor)
+                infoLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             ])
 
             addSubview(arrowsImageView)
@@ -1637,7 +1637,7 @@ extension PIXEL_PERFECT_screen {
                 arrowsImageView.widthAnchor.constraint(equalToConstant: 9),
                 arrowsImageView.leadingAnchor.constraint(equalTo: infoLabel.trailingAnchor, constant: 5),
                 arrowsImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-                arrowsImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+                arrowsImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             ])
         }
 
@@ -1675,7 +1675,7 @@ extension PIXEL_PERFECT_screen {
             NSLayoutConstraint.activate([
                 centerYAnchorConstraint,
                 trailingAnchor.constraint(equalTo: externalLayoutGuide.trailingAnchor, constant: -10),
-                bottomAnchor.constraint(lessThanOrEqualTo: externalLayoutGuide.bottomAnchor, constant: -2)
+                bottomAnchor.constraint(lessThanOrEqualTo: externalLayoutGuide.bottomAnchor, constant: -2),
             ])
         }
 
@@ -1730,7 +1730,7 @@ extension PIXEL_PERFECT_screen {
                 arrowsImageView.topAnchor.constraint(equalTo: self.topAnchor),
                 arrowsImageView.heightAnchor.constraint(equalToConstant: 15),
                 arrowsImageView.widthAnchor.constraint(equalToConstant: 16),
-                arrowsImageView.centerXAnchor.constraint(equalTo: self.centerXAnchor)
+                arrowsImageView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             ])
 
             addSubview(infoLabel)
@@ -1738,7 +1738,7 @@ extension PIXEL_PERFECT_screen {
                 infoLabel.topAnchor.constraint(equalTo: arrowsImageView.bottomAnchor),
                 infoLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
                 infoLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                infoLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+                infoLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             ])
         }
 
@@ -1777,7 +1777,7 @@ extension PIXEL_PERFECT_screen {
             NSLayoutConstraint.activate([
                 centerXAnchorConstraint,
                 bottomAnchor.constraint(equalTo: externalLayoutGuide.bottomAnchor, constant: -190),
-                trailingAnchor.constraint(lessThanOrEqualTo: externalLayoutGuide.trailingAnchor, constant: -2)
+                trailingAnchor.constraint(lessThanOrEqualTo: externalLayoutGuide.trailingAnchor, constant: -2),
             ])
         }
 

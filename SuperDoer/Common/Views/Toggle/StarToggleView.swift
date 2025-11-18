@@ -1,8 +1,8 @@
-import UIKit
-import SnapKit
+import RxCocoa
 import RxRelay
 import RxSwift
-import RxCocoa
+import SnapKit
+import UIKit
 
 final class StarToggleView: UIView {
 

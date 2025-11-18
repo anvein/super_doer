@@ -1,5 +1,5 @@
-import UIKit
 import RxCocoa
+import UIKit
 
 final class TaskRepeatPeriodSelectorCoordinator: BaseCoordinator {
 

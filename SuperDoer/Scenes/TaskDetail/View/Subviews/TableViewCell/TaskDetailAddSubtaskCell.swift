@@ -142,8 +142,8 @@ extension TaskDetailAddSubtaskCell {
     }
 
     fileprivate func setSubtaskFieldPlaceholderStyle(color: UIColor) {
-        if let attributedPlaceholder = titleTextField.attributedPlaceholder?.mutableCopy()
-            as? NSMutableAttributedString {
+        let attributedPlaceholder = titleTextField.attributedPlaceholder?.mutableCopy() as? NSMutableAttributedString
+        if let attributedPlaceholder {
             attributedPlaceholder.setAttributes(
                 [.foregroundColor: color],
                 range: NSRange(location: 0, length: attributedPlaceholder.length)

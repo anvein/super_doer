@@ -1,1 +1,1 @@
-protocol TaskDetailTableCellViewModelType { }
+protocol TaskDetailTableCellViewModelType {}

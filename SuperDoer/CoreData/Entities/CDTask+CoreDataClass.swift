@@ -1,5 +1,5 @@
-import Foundation
 import CoreData
+import Foundation
 
 @objc(Task)
 public class CDTask: NSManagedObject {
@@ -16,7 +16,7 @@ public class CDTask: NSManagedObject {
     func getFileBy(id: UUID) -> CDTaskFile? {
 
         for file in files ?? [] {
-            guard let file = file as? CDTaskFile else { continue}
+            guard let file = file as? CDTaskFile else { continue }
 
             if file.id?.uuidString == id.uuidString {
                 return file
@@ -55,13 +55,15 @@ extension CDTask {
     var repeatPeriodStruct: TaskRepeatPeriod? {
         get {
             guard let jsonString = self.repeatPeriod,
-                  let data = jsonString.data(using: .utf8) else { return nil }
+                let data = jsonString.data(using: .utf8)
+            else { return nil }
             return try? JSONDecoder().decode(TaskRepeatPeriod.self, from: data)
         }
         set {
             guard let newValue = newValue,
-                  let data = try? JSONEncoder().encode(newValue),
-                  let jsonString = String(data: data, encoding: .utf8) else {
+                let data = try? JSONEncoder().encode(newValue),
+                let jsonString = String(data: data, encoding: .utf8)
+            else {
                 self.repeatPeriod = nil
                 return
             }

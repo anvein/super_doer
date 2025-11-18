@@ -102,7 +102,7 @@ final class RepeatPeriodSelectorViewModel: RepeatPeriodSelectorViewModelType, Re
         switch index {
         case Component.amount.rawValue: componentsData.amount.count
         case Component.unit.rawValue: componentsData.unit.count
-        default:  0
+        default: 0
         }
     }
 

@@ -1,6 +1,6 @@
 import Foundation
-import RxSwift
 import ObjectiveC
+import RxSwift
 
 private var disposeBagContext: UInt8 = 0
 
@@ -13,7 +13,7 @@ public protocol HasDisposeBag: AnyObject {
 
 extension HasDisposeBag {
 
-    func synchronizedBag<T>( _ action: () -> T) -> T {
+    func synchronizedBag<T>(_ action: () -> T) -> T {
         objc_sync_enter(self)
         let result = action()
         objc_sync_exit(self)

@@ -1,1 +1,1 @@
-struct ImportFileCellViewModel: TaskDetailTableCellViewModelType { }
+struct ImportFileCellViewModel: TaskDetailTableCellViewModelType {}

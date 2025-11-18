@@ -16,4 +16,4 @@ final class CustomVariantCellViewModel<Value>: VariantCellViewModel<Value>, Cust
     }
 }
 
-protocol CustomVariantCellViewModelProtocol { }
+protocol CustomVariantCellViewModelProtocol {}

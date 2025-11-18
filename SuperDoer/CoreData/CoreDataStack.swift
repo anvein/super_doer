@@ -12,7 +12,7 @@ final class CoreDataStack {
                 // TODO: обработать ошибку нормально
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             } else {
-//                print("DB url - \(storeDescription.url?.absoluteString ?? "undefined")")
+                // print("DB url - \(storeDescription.url?.absoluteString ?? "undefined")")
             }
         })
         return container
@@ -22,7 +22,7 @@ final class CoreDataStack {
         return persistentContainer.viewContext
     }
 
-    func saveContext () {
+    func saveContext() {
         if viewContext.hasChanges {
             do {
                 try viewContext.save()

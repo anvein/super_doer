@@ -42,7 +42,7 @@ final class TaskCellAttributesFormatterService {
 private extension TaskCellAttributesFormatterService {
 
     func formatDeadlineAt(date: Date?) -> NSAttributedString? {
-        guard let date else { return nil}
+        guard let date else { return nil }
 
         var dealineDateFormatted = dateFormatter.formatDealineAtInTaskList(date: date)
 
@@ -100,7 +100,8 @@ private extension TaskCellAttributesFormatterService {
             attributes: [
                 .foregroundColor: UIColor.Text.gray,
                 .font: UIFont.systemFont(ofSize: 14),
-            ])
+            ]
+        )
         resultAttrString.append(textAttrString)
 
         return resultAttrString

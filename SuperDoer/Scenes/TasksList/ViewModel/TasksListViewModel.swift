@@ -1,6 +1,6 @@
 import Foundation
-import RxSwift
 import RxCocoa
+import RxSwift
 
 class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, TasksListCoordinatorResultHandler {
 
@@ -46,10 +46,12 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
     private func setupBindings() {
         // M -> VM
         repository.modelUpdatedObservable
-            .scan((
-                nil as TasksListRepository.UpdatedEvent?,
-                nil as TasksListRepository.UpdatedEvent?
-            )) { accumulator, current in
+            .scan(
+                (
+                    nil as TasksListRepository.UpdatedEvent?,
+                    nil as TasksListRepository.UpdatedEvent?
+                )
+            ) { accumulator, current in
                 (accumulator.1, current)
             }
             .subscribe(onNext: { [weak self] prevEvent, newEvent in
@@ -140,16 +142,17 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
     }
 
     func didMoveEndTasksInCurrentSection(from: IndexPath, to toPath: IndexPath) {
-//        let moveElement = tasks[fromPath.row]
-//        tasks[fromPath.row] = tasks[toPath.row]
-//        tasks[toPath.row] = moveElement
+        //        let moveElement = tasks[fromPath.row]
+        //        tasks[fromPath.row] = tasks[toPath.row]
+        //        tasks[toPath.row] = moveElement
 
         // TODO: реализовать перемещение в CoreData
     }
 
     func didConfirmRenameSectionTitle(_ title: String) {
         guard let titlePrepared = title.normalizedWhitespaceOrNil(),
-              let section = repository.taskSection as? CDTaskCustomSection else {
+            let section = repository.taskSection as? CDTaskCustomSection
+        else {
             sectionTitleRelay.accept(repository.getSectionTitle() ?? "")
             errorMessageRelay.accept("Не удалось изменить название")
 
@@ -176,23 +179,27 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
             tableUpdateEventsRelay.accept(.insertTask(indexPath))
 
         case (_, .taskDidUpdate(let indexPath, let taskItem)):
-            tableUpdateEventsRelay.accept(.updateTask(
-                indexPath,
-                TaskTableViewCellViewModel(task: taskItem)
-            ))
+            tableUpdateEventsRelay.accept(
+                .updateTask(
+                    indexPath,
+                    TaskTableViewCellViewModel(task: taskItem)
+                )
+            )
 
         case (.sectionDidDelete(_), .taskDidMove(let fromIndexPath, let toIndexPath, _)),
-             (.sectionDidInsert(_), .taskDidMove(let fromIndexPath, let toIndexPath, _)):
+            (.sectionDidInsert(_), .taskDidMove(let fromIndexPath, let toIndexPath, _)):
 
             tableUpdateEventsRelay.accept(.deleteTask(fromIndexPath, withEditSection: true))
             tableUpdateEventsRelay.accept(.insertTask(toIndexPath, withEditSection: true))
 
         case (_, .taskDidMove(let fromIndexPath, let toIndexPath, let taskItem)):
-            tableUpdateEventsRelay.accept(.moveTask(
-                fromIndexPath,
-                toIndexPath,
-                TaskTableViewCellViewModel(task: taskItem)
-            ))
+            tableUpdateEventsRelay.accept(
+                .moveTask(
+                    fromIndexPath,
+                    toIndexPath,
+                    TaskTableViewCellViewModel(task: taskItem)
+                )
+            )
 
         case (_, .taskDidDelete(let indexPath)):
             tableUpdateEventsRelay.accept(.deleteTask(indexPath))

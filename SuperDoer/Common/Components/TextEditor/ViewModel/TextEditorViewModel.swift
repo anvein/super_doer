@@ -1,6 +1,6 @@
 import Foundation
-import RxRelay
 import RxCocoa
+import RxRelay
 import RxSwift
 
 class TextEditorViewModel: TextEditorViewModelType, TextEditorNavigationEmittable {
