@@ -1,5 +1,5 @@
-import UIKit
 import Foundation
+import UIKit
 
 // swiftlint:disable all
 class PIXEL_PERFECT_screen {
@@ -148,7 +148,9 @@ class PIXEL_PERFECT_screen {
         }
 
         guard let lastInstance = instances[lastInstanceKey] else {
-            Self.printError("lastInstance с ключом \(lastInstanceKey) не найден - слайдер \(config.titleForPrint) не добавлен")
+            Self.printError(
+                "lastInstance с ключом \(lastInstanceKey) не найден - слайдер \(config.titleForPrint) не добавлен"
+            )
             return
         }
 
@@ -183,7 +185,11 @@ private extension PIXEL_PERFECT_screen {
         )
 
         // screenIsVisibleSwitch
-        isVisibleScreenSwitch.addTarget(self, action: #selector(screenIsVisibleSwitchValueChange(tdSwitch: event:)), for: .valueChanged)
+        isVisibleScreenSwitch.addTarget(
+            self,
+            action: #selector(screenIsVisibleSwitchValueChange(tdSwitch:event:)),
+            for: .valueChanged
+        )
 
         // menuButton
         addControlsMovePanGestureRecognizerTo(view: actionsMenuButton)
@@ -225,7 +231,7 @@ private extension PIXEL_PERFECT_screen {
             actionsMenuButton.leadingAnchor.constraint(equalTo: isVisibleScreenSwitch.leadingAnchor),
             actionsMenuButton.bottomAnchor.constraint(equalTo: isVisibleScreenSwitch.topAnchor, constant: -10),
             actionsMenuButton.heightAnchor.constraint(equalToConstant: PPConstants.menuButtonSize),
-            actionsMenuButton.widthAnchor.constraint(equalToConstant: PPConstants.menuButtonSize),
+            actionsMenuButton.widthAnchor.constraint(equalToConstant: PPConstants.menuButtonSize)
         ])
     }
 
@@ -282,7 +288,7 @@ private extension PIXEL_PERFECT_screen {
             self.screenLeadingConstraint = leadingAnchorConstraint
 
             let imageWidthConstraint = screenImageView.widthAnchor.constraint(
-                equalToConstant:  screenImage.size.width / CGFloat(imageScaleFactor)
+                equalToConstant: screenImage.size.width / CGFloat(imageScaleFactor)
             )
             self.screenWidthConstraint = imageWidthConstraint
 
@@ -292,7 +298,7 @@ private extension PIXEL_PERFECT_screen {
                 imageWidthConstraint,
                 screenImageView.heightAnchor.constraint(
                     equalToConstant: screenImage.size.height / CGFloat(imageScaleFactor)
-                ),
+                )
             ])
         }
 
@@ -346,10 +352,13 @@ private extension PIXEL_PERFECT_screen {
             for: [.touchUpInside, .touchUpOutside]
         )
 
-        slider.addAction(UIAction(handler: { [weak self] action in
-            guard let slider = action.sender as? PPSlider else { return }
-            self?.sliderValueChanged(slider: slider, handler: config.handler)
-        }), for: .valueChanged)
+        slider.addAction(
+            UIAction(handler: { [weak self] action in
+                guard let slider = action.sender as? PPSlider else { return }
+                self?.sliderValueChanged(slider: slider, handler: config.handler)
+            }),
+            for: .valueChanged
+        )
 
         addControlsMovePanGestureRecognizerTo(view: slider)
 
@@ -389,7 +398,7 @@ private extension PIXEL_PERFECT_screen {
             leadingAnchorToLineConstraint,
             lineView.topAnchor.constraint(equalTo: baseView.topAnchor),
             lineView.bottomAnchor.constraint(equalTo: baseView.bottomAnchor),
-            lineView.widthAnchor.constraint(equalToConstant: 15),
+            lineView.widthAnchor.constraint(equalToConstant: 15)
         ])
         lineView.leadingAnchorLineConstraint = leadingAnchorToLineConstraint
         lineView.addInfoLabelTrailingConstraintRelatively(baseView: baseView)
@@ -430,7 +439,7 @@ private extension PIXEL_PERFECT_screen {
             topAnchorLineConstraint,
             lineView.leadingAnchor.constraint(equalTo: baseView.leadingAnchor),
             lineView.trailingAnchor.constraint(equalTo: baseView.trailingAnchor),
-            lineView.heightAnchor.constraint(equalToConstant: 15),
+            lineView.heightAnchor.constraint(equalToConstant: 15)
         ])
         lineView.addInfoLabelBottomConstraintRelatively(baseView: baseView)
         lineView.topAnchorLineConstraint = topAnchorLineConstraint
@@ -514,7 +523,7 @@ private extension PIXEL_PERFECT_screen {
     func sortHorizontalLines() -> Bool {
         let sortedHorizontalLines = horizontalLines.sorted { lineView1, lineView2 in
             guard let lineView1TopConstant = lineView1.topAnchorLineConstraint?.constant,
-                  let lineView2TopConstant = lineView2.topAnchorLineConstraint?.constant
+                let lineView2TopConstant = lineView2.topAnchorLineConstraint?.constant
             else { return false }
 
             return lineView1TopConstant < lineView2TopConstant
@@ -530,7 +539,7 @@ private extension PIXEL_PERFECT_screen {
     func sortVerticalLines() -> Bool {
         let sortedVerticalLines = verticalLines.sorted { lineView1, lineView2 in
             guard let lineView1LeadingConstant = lineView1.leadingAnchorLineConstraint?.constant,
-                  let lineView2LeadingConstant = lineView2.leadingAnchorLineConstraint?.constant
+                let lineView2LeadingConstant = lineView2.leadingAnchorLineConstraint?.constant
             else { return false }
 
             return lineView1LeadingConstant < lineView2LeadingConstant
@@ -557,8 +566,8 @@ private extension PIXEL_PERFECT_screen {
                 let nextLine = horizontalLines[index + 1]
 
                 guard let nextLineTopAnchorConstraint = nextLine.topAnchorLineConstraint,
-                      let currentLineTopAnchorConstraint = line.topAnchorLineConstraint else { continue
-                }
+                    let currentLineTopAnchorConstraint = line.topAnchorLineConstraint
+                else { continue }
 
                 let spacing: CGFloat = nextLineTopAnchorConstraint.constant - currentLineTopAnchorConstraint.constant
                 guard spacing > 0 else { continue }
@@ -591,17 +600,23 @@ private extension PIXEL_PERFECT_screen {
             baseView.addLayoutGuide(layoutGuideForSpacingLine)
             spacingLine.externalLayoutGuide = layoutGuideForSpacingLine
 
-            let layoutGuideTopConstraint = layoutGuideForSpacingLine.topAnchor.constraint(equalTo: prevLineAnchorY, constant: 3)
+            let layoutGuideTopConstraint = layoutGuideForSpacingLine.topAnchor.constraint(
+                equalTo: prevLineAnchorY,
+                constant: 3
+            )
             layoutGuideTopConstraint.priority = .defaultLow
 
-            let layoutGuideBottomConstraint = layoutGuideForSpacingLine.bottomAnchor.constraint(equalTo: nextAnchorY, constant: -3)
+            let layoutGuideBottomConstraint = layoutGuideForSpacingLine.bottomAnchor.constraint(
+                equalTo: nextAnchorY,
+                constant: -3
+            )
             layoutGuideBottomConstraint.priority = .defaultLow
 
             NSLayoutConstraint.activate([
                 layoutGuideTopConstraint,
                 layoutGuideBottomConstraint,
                 layoutGuideForSpacingLine.leadingAnchor.constraint(equalTo: baseView.leadingAnchor),
-                layoutGuideForSpacingLine.trailingAnchor.constraint(equalTo: baseView.trailingAnchor),
+                layoutGuideForSpacingLine.trailingAnchor.constraint(equalTo: baseView.trailingAnchor)
             ])
         }
     }
@@ -621,8 +636,8 @@ private extension PIXEL_PERFECT_screen {
                 let nextLine = verticalLines[index + 1]
 
                 guard let currentLineLeadingAnchor = line.leadingAnchorLineConstraint,
-                      let nextLineLeadingAnchor = nextLine.leadingAnchorLineConstraint else { continue
-                }
+                    let nextLineLeadingAnchor = nextLine.leadingAnchorLineConstraint
+                else { continue }
 
                 let spacing: CGFloat = nextLineLeadingAnchor.constant - currentLineLeadingAnchor.constant
                 guard spacing > 0 else { continue }
@@ -655,10 +670,16 @@ private extension PIXEL_PERFECT_screen {
             baseView.addLayoutGuide(layoutGuideForSpacingLine)
             spacingLine.externalLayoutGuide = layoutGuideForSpacingLine
 
-            let layoutGuideLeadingConstraint = layoutGuideForSpacingLine.leadingAnchor.constraint(equalTo: prevLineAnchorX, constant: 2)
+            let layoutGuideLeadingConstraint = layoutGuideForSpacingLine.leadingAnchor.constraint(
+                equalTo: prevLineAnchorX,
+                constant: 2
+            )
             layoutGuideLeadingConstraint.priority = .defaultLow
 
-            let layoutGuideTrailingConstraint = layoutGuideForSpacingLine.trailingAnchor.constraint(equalTo: nextAnchorX, constant: -2)
+            let layoutGuideTrailingConstraint = layoutGuideForSpacingLine.trailingAnchor.constraint(
+                equalTo: nextAnchorX,
+                constant: -2
+            )
             layoutGuideTrailingConstraint.priority = .defaultLow
 
             NSLayoutConstraint.activate([
@@ -718,11 +739,12 @@ private extension PIXEL_PERFECT_screen {
 
     @objc func imagePanGestureHandler(_ sender: UIPanGestureRecognizer) {
         guard let senderView = sender.view,
-              let superview = senderView.superview else { return }
+            let superview = senderView.superview
+        else { return }
 
         let location = sender.location(in: senderView)
 
-        if location.y < senderView.bounds.height  / 4 {
+        if location.y < senderView.bounds.height / 4 {
             changeImageLeftOffset(superview, sender)
         } else if location.x > senderView.bounds.width / 3 {
             changeImageAlpha(superview, sender)
@@ -945,7 +967,7 @@ private extension PIXEL_PERFECT_screen {
         let addHorizontalLineItem = UIAction(
             title: "Add Horizontal line",
             image: UIImage(systemName: "equal")
-        ) { [weak self]  (_) in
+        ) { [weak self] (_) in
             self?.addHorizontalLineMenuItemDidSelect()
         }
 
@@ -1067,7 +1089,7 @@ private extension PIXEL_PERFECT_screen {
                 submenuLinesSpacings,
                 submenuImageLeadingOffset,
                 submenuImageTopOffset,
-                submenuOthers,
+                submenuOthers
             ]
         )
 
@@ -1207,7 +1229,10 @@ extension PIXEL_PERFECT_screen {
 
         private lazy var moveButton: UIButton = {
             $0.translatesAutoresizingMaskIntoConstraints = false
-            $0.setImage(UIImage(systemName: "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right.fill"), for: .normal)
+            $0.setImage(
+                UIImage(systemName: "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right.fill"),
+                for: .normal
+            )
             $0.tintColor = color
             $0.transform = .init(rotationAngle: CGFloat.pi / 2)
             $0.menu = buildActionsMenu()
@@ -1247,7 +1272,7 @@ extension PIXEL_PERFECT_screen {
                 lineView.heightAnchor.constraint(equalToConstant: 1),
                 lineView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
                 lineView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                lineView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+                lineView.centerYAnchor.constraint(equalTo: self.centerYAnchor)
             ])
 
             // moveButton
@@ -1262,7 +1287,7 @@ extension PIXEL_PERFECT_screen {
                 moveButton.bottomAnchor.constraint(equalTo: self.bottomAnchor),
                 moveButton.widthAnchor.constraint(equalTo: moveButton.heightAnchor),
                 buttonTrailingConstraint,
-                moveButton.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+                moveButton.centerYAnchor.constraint(equalTo: self.centerYAnchor)
             ])
 
             moveButton.addGestureRecognizer(
@@ -1280,7 +1305,7 @@ extension PIXEL_PERFECT_screen {
             NSLayoutConstraint.activate([
                 infoLabelTrailingConstraint,
                 infoLabelTopConstraint,
-                infoLabel.leadingAnchor.constraint(greaterThanOrEqualTo: self.leadingAnchor, constant: 3),
+                infoLabel.leadingAnchor.constraint(greaterThanOrEqualTo: self.leadingAnchor, constant: 3)
             ])
         }
 
@@ -1306,28 +1331,28 @@ extension PIXEL_PERFECT_screen {
                 title: "Remove line",
                 image: UIImage(systemName: "trash"),
                 attributes: .destructive
-            ) { [weak self]  (_) in
+            ) { [weak self] (_) in
                 self?.removeLineMenuItemDidSelect()
             }
 
             let setRedColor = UIAction(
                 title: "Set red color",
                 image: UIImage(systemName: "paintpalette")
-            ) { [weak self]  (_) in
+            ) { [weak self] (_) in
                 self?.changeColorMenuItemDidSelect(.systemRed)
             }
 
             let setBlueColor = UIAction(
                 title: "Set blue color",
                 image: UIImage(systemName: "paintpalette")
-            ) { [weak self]  (_) in
+            ) { [weak self] (_) in
                 self?.changeColorMenuItemDidSelect(.blue)
             }
 
             let setBlackColor = UIAction(
                 title: "Set black color",
                 image: UIImage(systemName: "paintpalette")
-            ) { [weak self]  (_) in
+            ) { [weak self] (_) in
                 self?.changeColorMenuItemDidSelect(.black)
             }
 
@@ -1342,7 +1367,6 @@ extension PIXEL_PERFECT_screen {
             guard let moveButtonTrailingConstant = moveButtonTrailingConstraint?.constant else { return }
 
             let translationPoint = sender.translation(in: superview)
-
 
             let translationPointY = CGFloat(round(translationPoint.y))
             if translationPointY != 0 {
@@ -1393,7 +1417,10 @@ extension PIXEL_PERFECT_screen {
 
         private lazy var moveButton: UIButton = {
             $0.translatesAutoresizingMaskIntoConstraints = false
-            $0.setImage(UIImage(systemName: "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right.fill"), for: .normal)
+            $0.setImage(
+                UIImage(systemName: "arrowtriangle.left.and.line.vertical.and.arrowtriangle.right.fill"),
+                for: .normal
+            )
             $0.tintColor = color
             $0.menu = buildActionsMenu()
             return $0
@@ -1431,7 +1458,7 @@ extension PIXEL_PERFECT_screen {
                 lineView.widthAnchor.constraint(equalToConstant: 1),
                 lineView.topAnchor.constraint(equalTo: self.topAnchor),
                 lineView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-                lineView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+                lineView.centerXAnchor.constraint(equalTo: self.centerXAnchor)
             ])
 
             addSubview(moveButton)
@@ -1444,18 +1471,21 @@ extension PIXEL_PERFECT_screen {
                 buttonBottomConstraint,
                 moveButton.leadingAnchor.constraint(equalTo: self.leadingAnchor),
                 moveButton.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                moveButton.heightAnchor.constraint(equalTo: moveButton.widthAnchor),
+                moveButton.heightAnchor.constraint(equalTo: moveButton.widthAnchor)
             ])
 
             let moveGesture = UIPanGestureRecognizer(target: self, action: #selector(lineDidMovedByPanGesture(_:)))
             moveButton.addGestureRecognizer(moveGesture)
 
             addSubview(infoLabel)
-            let infoLabelLeadingConstraint = infoLabel.leadingAnchor.constraint(equalTo: lineView.trailingAnchor, constant: 3)
+            let infoLabelLeadingConstraint = infoLabel.leadingAnchor.constraint(
+                equalTo: lineView.trailingAnchor,
+                constant: 3
+            )
             infoLabelLeadingConstraint.priority = .defaultLow
             NSLayoutConstraint.activate([
                 infoLabel.topAnchor.constraint(equalTo: moveButton.bottomAnchor, constant: 2),
-                infoLabelLeadingConstraint,
+                infoLabelLeadingConstraint
             ])
         }
 
@@ -1470,7 +1500,10 @@ extension PIXEL_PERFECT_screen {
 
         func addInfoLabelTrailingConstraintRelatively(baseView: UIView) {
             NSLayoutConstraint.activate([
-                infoLabel.trailingAnchor.constraint(lessThanOrEqualToSystemSpacingAfter: baseView.trailingAnchor, multiplier: -2),
+                infoLabel.trailingAnchor.constraint(
+                    lessThanOrEqualToSystemSpacingAfter: baseView.trailingAnchor,
+                    multiplier: -2
+                )
             ])
         }
 
@@ -1481,28 +1514,28 @@ extension PIXEL_PERFECT_screen {
                 title: "Remove line",
                 image: UIImage(systemName: "trash"),
                 attributes: .destructive
-            ) { [weak self]  (_) in
+            ) { [weak self] (_) in
                 self?.removeLineMenuItemDidSelect()
             }
 
             let setRedColor = UIAction(
                 title: "Set red color",
                 image: UIImage(systemName: "paintpalette")
-            ) { [weak self]  (_) in
+            ) { [weak self] (_) in
                 self?.changeColorMenuItemDidSelect(.systemRed)
             }
 
             let setBlueColor = UIAction(
                 title: "Set blue color",
                 image: UIImage(systemName: "paintpalette")
-            ) { [weak self]  (_) in
+            ) { [weak self] (_) in
                 self?.changeColorMenuItemDidSelect(.blue)
             }
 
             let setBlackColor = UIAction(
                 title: "Set black color",
                 image: UIImage(systemName: "paintpalette")
-            ) { [weak self]  (_) in
+            ) { [weak self] (_) in
                 self?.changeColorMenuItemDidSelect(.black)
             }
 
@@ -1595,7 +1628,7 @@ extension PIXEL_PERFECT_screen {
             NSLayoutConstraint.activate([
                 infoLabel.topAnchor.constraint(equalTo: self.topAnchor),
                 infoLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-                infoLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+                infoLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor)
             ])
 
             addSubview(arrowsImageView)
@@ -1604,7 +1637,7 @@ extension PIXEL_PERFECT_screen {
                 arrowsImageView.widthAnchor.constraint(equalToConstant: 9),
                 arrowsImageView.leadingAnchor.constraint(equalTo: infoLabel.trailingAnchor, constant: 5),
                 arrowsImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-                arrowsImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+                arrowsImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
             ])
         }
 
@@ -1620,9 +1653,7 @@ extension PIXEL_PERFECT_screen {
         }
 
         func updateSpacingByAboveAndBelowLinesOrBottom() {
-            guard let aboveLineTopAnchorConstant = aboveLine?.topAnchorLineConstraint?.constant else {
-                return
-            }
+            guard let aboveLineTopAnchorConstant = aboveLine?.topAnchorLineConstraint?.constant else { return }
 
             var spacing: CGFloat?
             if let belowLineTopAnchorConstant = belowLine?.topAnchorLineConstraint?.constant {
@@ -1699,7 +1730,7 @@ extension PIXEL_PERFECT_screen {
                 arrowsImageView.topAnchor.constraint(equalTo: self.topAnchor),
                 arrowsImageView.heightAnchor.constraint(equalToConstant: 15),
                 arrowsImageView.widthAnchor.constraint(equalToConstant: 16),
-                arrowsImageView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+                arrowsImageView.centerXAnchor.constraint(equalTo: self.centerXAnchor)
             ])
 
             addSubview(infoLabel)
@@ -1707,7 +1738,7 @@ extension PIXEL_PERFECT_screen {
                 infoLabel.topAnchor.constraint(equalTo: arrowsImageView.bottomAnchor),
                 infoLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
                 infoLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                infoLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+                infoLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor)
             ])
         }
 
@@ -1723,9 +1754,7 @@ extension PIXEL_PERFECT_screen {
         }
 
         func updateSpacingByLeftAndRightLinesOrRight() {
-            guard let leftLineLeadingAnchorConstant = leftLine?.leadingAnchorLineConstraint?.constant else {
-                return
-            }
+            guard let leftLineLeadingAnchorConstant = leftLine?.leadingAnchorLineConstraint?.constant else { return }
 
             var spacing: CGFloat?
             if let rightLineLeadingAnchorConstant = rightLine?.leadingAnchorLineConstraint?.constant {
@@ -1748,7 +1777,7 @@ extension PIXEL_PERFECT_screen {
             NSLayoutConstraint.activate([
                 centerXAnchorConstraint,
                 bottomAnchor.constraint(equalTo: externalLayoutGuide.bottomAnchor, constant: -190),
-                trailingAnchor.constraint(lessThanOrEqualTo: externalLayoutGuide.trailingAnchor, constant: -2),
+                trailingAnchor.constraint(lessThanOrEqualTo: externalLayoutGuide.trailingAnchor, constant: -2)
             ])
         }
 
