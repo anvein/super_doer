@@ -9,13 +9,13 @@ final class NotificationsService {
     }
 
     func requestNotification() {
-
         notificationCenter.requestAuthorization(
-            options: [.badge, .sound, .alert]) { granted, _ in
-                if granted {
+            options: [.badge, .sound, .alert]
+        ) { granted, _ in
+            if granted {
 
-                }
             }
+        }
     }
 
 //    func currentAuthStatus() async {

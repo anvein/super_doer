@@ -1,4 +1,4 @@
-final class ConsoleLogger {
+enum ConsoleLogger {
     enum LogLevel {
         case debug, info, warning, error
         var symbol: String {
@@ -12,9 +12,9 @@ final class ConsoleLogger {
     }
 
     static func log(_ message: String, level: LogLevel = .info) {
-#if DEBUG
+        #if DEBUG
         print("\(level.symbol) [\(level)] \(message)")
-#endif
+        #endif
     }
 
     static func warning(_ message: String) {

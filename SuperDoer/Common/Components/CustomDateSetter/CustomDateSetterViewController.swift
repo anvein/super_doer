@@ -190,6 +190,6 @@ extension CustomDateSetterViewController {
 extension UISheetPresentationController.Detent.Identifier {
     typealias SheetDetentIdentifier = UISheetPresentationController.Detent.Identifier
 
-    static let pageSheetCustomDate: SheetDetentIdentifier = SheetDetentIdentifier("pageSheetCustomDate")
-    static let pageSheetCustomDateAndTime: SheetDetentIdentifier = SheetDetentIdentifier("pageSheetCustomDateAndTime")
+    static let pageSheetCustomDate = SheetDetentIdentifier("pageSheetCustomDate")
+    static let pageSheetCustomDateAndTime = SheetDetentIdentifier("pageSheetCustomDateAndTime")
 }

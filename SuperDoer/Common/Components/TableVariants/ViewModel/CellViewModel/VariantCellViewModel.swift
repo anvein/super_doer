@@ -6,7 +6,7 @@ class VariantCellViewModel<Value>: VariantCellViewModelProtocol {
     var imageSettings: VariantCellVMImageSettings
     var title: String
     var additionalText: String?
-    var isSelected: Bool = false
+    var isSelected = false
 
     init(
         value: Value?,

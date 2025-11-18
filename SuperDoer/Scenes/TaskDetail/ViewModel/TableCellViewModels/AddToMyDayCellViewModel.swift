@@ -1,3 +1,3 @@
 struct AddToMyDayCellViewModel: TaskDetailTableCellViewModelType {
-    var inMyDay: Bool = false
+    var inMyDay = false
 }

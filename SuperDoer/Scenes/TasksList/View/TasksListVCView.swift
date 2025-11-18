@@ -30,9 +30,7 @@ final class TasksListVCView: UIView {
     private let disposeBag = DisposeBag()
 
     private let answerRelay: PublishRelay<Answer> = .init()
-    var answerSignal: Signal<Answer> {
-        answerRelay.asSignal()
-    }
+    var answerSignal: Signal<Answer> { answerRelay.asSignal() }
 
     var sectionTitleBinder: Binder<String> {
         Binder(self) { view, text in

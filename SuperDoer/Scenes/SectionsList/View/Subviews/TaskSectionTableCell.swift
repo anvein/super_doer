@@ -1,6 +1,12 @@
 import UIKit
 
-class TaskSectionTableCell: UITableViewCell {
+final class TaskSectionTableCell: UITableViewCell {
+    struct SystemSectionViewSetting {
+        var imageName: String
+        var imageColor: UIColor
+        var imageSize: Float = 18.5
+    }
+
     static let identifier: String = "TaskSectionTableViewCell"
     static let cellHeight = 48.4
 
@@ -114,10 +120,4 @@ class TaskSectionTableCell: UITableViewCell {
         imageView?.tintColor = viewConfig.imageColor
     }
 
-}
-
-struct SystemSectionViewSetting {
-    var imageName: String
-    var imageColor: UIColor
-    var imageSize: Float = 18.5
 }

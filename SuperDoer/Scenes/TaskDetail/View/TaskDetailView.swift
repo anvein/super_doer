@@ -177,7 +177,6 @@ extension TaskDetailView {
 
     // MARK: - Helpers
 
-    // swiftlint:disable cyclomatic_complexity
     fileprivate func buildTableViewCellFor(
         _ cellViewModel: TaskDetailTableCellViewModelType
     ) -> UITableViewCell {
@@ -242,7 +241,6 @@ extension TaskDetailView {
 
         return cell ?? .init()
     }
-    // swiftlint:enable cyclomatic_complexity
 
     fileprivate func updateTableViewCell(
         with indexPath: IndexPath,

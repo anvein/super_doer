@@ -1,4 +1,4 @@
 struct SubtaskCellViewModel: TaskDetailTableCellViewModelType {
-    var isCompleted: Bool = false
+    var isCompleted = false
     var title: String
 }

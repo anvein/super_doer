@@ -34,7 +34,7 @@ class StandartTaskTableCell: UITableViewCell {
 
     // MARK: - State
 
-    var isLast: Bool = false {
+    var isLast = false {
         didSet {
             bottomInsetConstraint?.update(inset: !isLast ? 2 : 0)
         }

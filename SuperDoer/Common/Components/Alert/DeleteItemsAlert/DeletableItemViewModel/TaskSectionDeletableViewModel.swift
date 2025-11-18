@@ -2,7 +2,7 @@ import Foundation
 
 class TaskSectionDeletableViewModel: BaseDeletableItemViewModel {
 
-    class override var typeName: ItemTypeName {
+    override class var typeName: ItemTypeName {
         return ItemTypeName(
             oneIP: "список",
             oneVP: "список",

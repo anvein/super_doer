@@ -4,7 +4,7 @@ import RxRelay
 import RxSwift
 
 final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOutput,
-                                 TaskDetailNavigationEmittable, TaskDetailCoordinatorResultHandler {
+    TaskDetailNavigationEmittable, TaskDetailCoordinatorResultHandler {
 
     private let disposeBag = DisposeBag()
 
@@ -126,7 +126,6 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         }
     }
 
-    // swiftlint:disable cyclomatic_complexity
     private func handleInputEvent(_ event: TaskDetailViewModelInputEvent) {
         switch event {
         case .needLoadInitialData:
@@ -185,7 +184,6 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
             toggleValueTaskFieldInMyDay()
         }
     }
-    // swiftlint:enable cyclomatic_complexity
 
     private func handleTapOpenDescriptionEditor() {
         guard let task else { return }
@@ -200,10 +198,14 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
 
     private func handleTapFileDelete(with indexPath: IndexPath) {
         guard let cellVM = tableViewModel.getCellVM(for: indexPath),
-              let fileCellVM = cellVM as? FileCellViewModel else { return }
+              let fileCellVM = cellVM as? FileCellViewModel,
+              case .data(let fileData) = fileCellVM.state else {
+            // TODO: показать alert что не получится удалить файл
+            return
+        }
 
-        let fileDeletable =  TaskFileDeletableViewModel(
-            title: fileCellVM.titleForDelete,
+        let fileDeletable = TaskFileDeletableViewModel(
+            title: fileData.titleForDelete,
             indexPath: indexPath
         )
 
@@ -322,12 +324,13 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
         guard let task, let indexPath = deletableVM.indexPath else { return }
 
         let cellVM = tableViewModel.getCellVM(for: indexPath)
-        guard let fileCellVM = cellVM as? FileCellViewModel else {
+        guard let fileCellVM = cellVM as? FileCellViewModel,
+              case .data(let fileData) = fileCellVM.state else {
             // TODO: показать сообщение об ошибке (файл не получилось удалить)
             return
         }
 
-        let taskFile = task.getFileBy(id: fileCellVM.id)
+        let taskFile = task.getFileBy(id: fileData.id)
         guard let taskFile else {
             // TODO: показать сообщение об ошибке (файл не получилось удалить)
             return

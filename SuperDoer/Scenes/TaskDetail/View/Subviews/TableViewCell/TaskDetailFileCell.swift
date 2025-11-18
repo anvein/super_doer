@@ -1,17 +1,12 @@
 import UIKit
 import SnapKit
 
-/// Кнопка-ячейка "Прикрепленный файл" (к задаче)
 class TaskDetailFileCell: TaskDetailLabelsButtonCell {
 
     // MARK: - Settings
 
     override class var rowHeight: Int { 70 }
     override var leftImageViewSize: CGFloat { 36 }
-
-    // MARK: - Data
-
-    var fileId: UUID?
 
     // MARK: - Subviews
 
@@ -63,11 +58,15 @@ class TaskDetailFileCell: TaskDetailLabelsButtonCell {
     // MARK: - Update view
 
     func fillFrom(cellValue: FileCellViewModel) {
-        fileId = cellValue.id
+        if case .data(let fileData) = cellValue.state {
+            mainTextLabel.text = fileData.name
+            extensionLabel.text = fileData.fileExtension.uppercased()
+            additionalTextLabel.text = "\(fileData.size) КБ"
+        } else {
+            mainTextLabel.text = "No file data"
+            extensionLabel.text = "?"
+        }
 
-        mainTextLabel.text = cellValue.name
-        extensionLabel.text = cellValue.fileExtension.uppercased()
-        additionalTextLabel.text = "\(cellValue.size) КБ"
     }
 
 //    // MARK: target-action handlers

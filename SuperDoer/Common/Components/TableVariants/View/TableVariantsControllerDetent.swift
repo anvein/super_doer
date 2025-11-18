@@ -25,6 +25,6 @@ enum TableVariantsControllerDetent {
 }
 
 extension UISheetPresentationController.Detent.Identifier {
-    static let taskDeadlineVariants: SheetDetentIdentifier = SheetDetentIdentifier("taskDeadlineVariants")
-    static let taskRepeatPeriodVariants: SheetDetentIdentifier = SheetDetentIdentifier("taskRepeatPeriodVariants")
+    static let taskDeadlineVariants = SheetDetentIdentifier("taskDeadlineVariants")
+    static let taskRepeatPeriodVariants = SheetDetentIdentifier("taskRepeatPeriodVariants")
 }

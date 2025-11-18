@@ -184,7 +184,7 @@ private extension CreateSectionPanelView {
     // MARK: - Actions handlers
 
     func handleTapCreateButton() {
-        if let text = textField.text, text.count != 0 {
+        if let text = textField.text, !text.isEmpty {
             answerRelay.accept(
                 .onConfirmCreate(.init(title: text))
             )

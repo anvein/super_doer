@@ -12,9 +12,9 @@ final class NotificationsDisabledAlertFactory {
         let alert = UIAlertController(
             title: title ?? "Уведомления выключены",
             message: message ?? """
-                                Нам нужно ваше разрешение для напоминаний.
-                                Включите уведомления в разделе "Параметры" > "Уведомления"
-                                """,
+                Нам нужно ваше разрешение для напоминаний.
+                Включите уведомления в разделе "Параметры" > "Уведомления"
+                """,
             preferredStyle: .actionSheet
         )
 

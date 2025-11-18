@@ -1,7 +1,7 @@
 import UIKit
 
 extension TaskCreateBottomPanel {
-    class TextField: BaseTextFeild {
+    class TextField: BaseTextField {
 
         private let leftImageView: UIImageView = {
             let symbolConfig = UIImage.SymbolConfiguration(pointSize: 0, weight: .medium, scale: .large)

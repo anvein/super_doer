@@ -28,7 +28,7 @@ final class StarToggleView: UIView {
 
     private let disposeBag = DisposeBag()
 
-    var value: Bool = false {
+    var value = false {
         didSet {
             guard oldValue != value else { return }
             setAppearanceForValue(value)

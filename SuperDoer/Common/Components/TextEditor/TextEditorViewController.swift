@@ -92,10 +92,10 @@ private extension TextEditorViewController {
         toolbar.isOpaque = true
         toolbar.isTranslucent = true
 
-//        boldBarButtonItem.image = UIImage(systemName: "bold")
-//        boldBarButtonItem.tintColor = .Text.gray
-//
-//        toolbar.setItems([boldBarButtonItem], animated: false)
+        //        boldBarButtonItem.image = UIImage(systemName: "bold")
+        //        boldBarButtonItem.tintColor = .Text.gray
+        //
+        //        toolbar.setItems([boldBarButtonItem], animated: false)
 
         textView.inputAccessoryView = toolbar
     }

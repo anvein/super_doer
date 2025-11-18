@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24299" systemVersion="24G231" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24411" systemVersion="24G325" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
     <entity name="CDTask" representedClassName=".CDTask" syncable="YES" codeGenerationType="category">
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="deadlineDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -12,7 +12,7 @@
         <attribute name="reminderDateTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="repeatPeriod" optional="YES" attributeType="String"/>
         <attribute name="title" attributeType="String" maxValueString="100" spotlightIndexingEnabled="YES"/>
-        <relationship name="files" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="TaskFile" inverseName="task" inverseEntity="TaskFile"/>
+        <relationship name="files" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="CDTaskFile" inverseName="task" inverseEntity="CDTaskFile"/>
         <relationship name="section" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDTaskCustomSection" inverseName="tasks" inverseEntity="CDTaskCustomSection"/>
     </entity>
     <entity name="CDTaskCustomSection" representedClassName=".CDTaskCustomSection" syncable="YES">
@@ -30,7 +30,7 @@
         <attribute name="titleEmoji" optional="YES" attributeType="String"/>
         <relationship name="tasks" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="CDTask" inverseName="section" inverseEntity="CDTask"/>
     </entity>
-    <entity name="TaskFile" representedClassName=".TaskFile" syncable="YES" codeGenerationType="category">
+    <entity name="CDTaskFile" representedClassName=".CDTaskFile" syncable="YES" codeGenerationType="category">
         <attribute name="fileExtension" attributeType="String" maxValueString="10"/>
         <attribute name="fileName" attributeType="String" maxValueString="100"/>
         <attribute name="fileSize" attributeType="Integer 32" usesScalarValueType="YES"/>

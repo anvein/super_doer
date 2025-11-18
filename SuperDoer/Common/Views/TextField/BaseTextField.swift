@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-class BaseTextFeild: UITextField {
+class BaseTextField: UITextField {
 
     // MARK: - Custom settings
 

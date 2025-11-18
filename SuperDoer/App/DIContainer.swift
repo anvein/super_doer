@@ -1,7 +1,7 @@
 import Swinject
 import UserNotifications
 
-// swiftlint:disable identifier_name
+// swiftlint:disable force_unwrapping
 
 final class DIContainer {
     static let container = Container()
@@ -87,4 +87,4 @@ final class DIContainer {
 
 }
 
-// swiftlint: enable identifier_name
+// swiftlint:enable force_unwrapping

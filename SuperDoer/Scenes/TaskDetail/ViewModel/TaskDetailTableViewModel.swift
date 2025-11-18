@@ -59,7 +59,7 @@ class TaskDetailTableViewModel {
         addImportFileCellVM(withNotify: false)
 
         for file in task.files ?? [] {
-            guard let file = file as? TaskFile else { continue }
+            guard let file = file as? CDTaskFile else { continue }
 
             addFileCellVM(file, withNotify: false)
         }
@@ -112,14 +112,12 @@ class TaskDetailTableViewModel {
     }
 
     @discardableResult
-    func addFileCellVM(_ file: TaskFile, withNotify: Bool = true) -> IndexPath? {
-        let fileCellVM = FileCellViewModel(
-            id: file.id!,
-            name: file.fileName!,
-            fileExtension: file.fileExtension!,
-            size: Int(file.fileSize)
+    func addFileCellVM(_ file: CDTaskFile, withNotify: Bool = true) -> IndexPath? {
+        let indexPath = addCellVM(
+            FileCellViewModel(file: file),
+            to: .files,
+            withNotify: withNotify
         )
-        let indexPath = addCellVM(fileCellVM, to: .files, withNotify: withNotify)
 
         return indexPath
     }
