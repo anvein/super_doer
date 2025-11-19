@@ -1,8 +1,8 @@
 import UIKit
 
-class SystemSectionsBuilder {
+class SystemSectionsFactory {
     func buildSections() -> [TaskSystemSection] {
-        // TODO: предусмотреть, чтобы в случае скрывания списков они не создавались (настройки брать в UserDefaults)
+        // TODO: предусмотреть, чтобы в случае скрывания списков они не создавались (настройки брать в UserDefaults / CoreData)
 
         var systemSections = [TaskSystemSection]()
         systemSections.append(

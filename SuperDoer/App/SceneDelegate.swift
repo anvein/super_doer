@@ -5,6 +5,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     private var appCoordinator: AppCoordinator?
 
+    private var di: AppDI? {
+        (UIApplication.shared.delegate as? AppDelegate)?.di
+    }
+
     lazy var coreDataStack: CoreDataStack = .shared
 
     func scene(
@@ -12,13 +16,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
     ) {
-        guard let windowScene = (scene as? UIWindowScene) else { return }
+        guard let windowScene = (scene as? UIWindowScene), let di else { return }
 
         window = UIWindow(windowScene: windowScene)
 
-        appCoordinator = DIContainer.container.resolve(AppCoordinator.self)
+        appCoordinator = AppCoordinator(di: di)
         appCoordinator?.start { [weak self] (rootController: UIViewController) in
-            guard let self, let window = self.window else { return }
+            guard let window = self?.window else { return }
             window.rootViewController = rootController
             window.makeKeyAndVisible()
         }

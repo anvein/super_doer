@@ -1,7 +1,7 @@
 import CoreData
 import Foundation
 
-class TaskSectionCoreDataManager {
+final class TaskSectionCoreDataManager {
     private let coreDataStack: CoreDataStack
 
     // MARK: - Init

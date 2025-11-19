@@ -5,39 +5,30 @@ import UIKit
 
 final class TaskDetailCoordinator: BaseCoordinator {
 
-    private let deleteAlertFactory: DeleteItemsAlertFactory
+    private let factory: TaskDetailDependencyFactoryType
+    private let dependency: TaskDetailDependency
 
-    private weak var viewModel: (TaskDetailCoordinatorResultHandler & TaskDetailNavigationEmittable)?
-    private let viewController: TaskDetailViewController
-
-    override var rootViewController: UIViewController { viewController }
+    override var rootViewController: UIViewController { dependency.viewController }
 
     // TODO: переделать на получение значения из сервиса
-    private var isEnabledNotifications: Bool { true }
+    private var isEnabledNotifications: Bool { false }
 
     private var taskReminderDateTimeTemporary: Date?
 
     init(
         parent: Coordinator,
         taskId: UUID,
-        deleteAlertFactory: DeleteItemsAlertFactory
+        factory: TaskDetailDependencyFactoryType
     ) {
-        let vm = TaskDetailViewModel(
-            taskId: taskId,
-            taskEm: DIContainer.container.resolve(TaskCoreDataManager.self)!,
-            taskFileEm: DIContainer.container.resolve(TaskFileEntityManager.self)!
-        )
-        self.viewModel = vm
-        self.viewController = TaskDetailViewController(viewModel: vm)
-
-        self.deleteAlertFactory = deleteAlertFactory
+        self.factory = factory
+        self.dependency = factory.makeDependency(taskId: taskId)
         super.init(parent: parent)
     }
 
     override func setup() {
         super.setup()
 
-        viewModel?.navigationEvent.emit { [weak self] event in
+        dependency.viewModel.navigationEvent.emit { [weak self] event in
             self?.handleTaskDetailNavigationEvent(event)
         }
         .disposed(by: disposeBag)
@@ -101,10 +92,10 @@ final class TaskDetailCoordinator: BaseCoordinator {
     ) {
         switch result {
         case .didDeleteValue:
-            viewModel?.coordinatorResult.accept(.didSelectReminderDateTime(nil))
+            dependency.viewModel.coordinatorResult.accept(.didSelectReminderDateTime(nil))
 
         case .didSelectValue(let dateTime):
-            viewModel?.coordinatorResult.accept(.didSelectReminderDateTime(dateTime))
+            dependency.viewModel.coordinatorResult.accept(.didSelectReminderDateTime(dateTime))
         }
     }
 
@@ -123,12 +114,13 @@ final class TaskDetailCoordinator: BaseCoordinator {
         let navCoordinator = NavigationCoordinator(parent: self)
         let targetCoordinator = TaskDeadlineVariantsCoordinator(
             parent: navCoordinator,
-            value: deadlineAt
+            value: deadlineAt,
+            factory: factory.taskDeadlineVariantsFactory
         )
         navCoordinator.setTargetCoordinator(targetCoordinator)
 
         targetCoordinator.finishResult.emit(onNext: { [weak self] resultValue in
-            self?.viewModel?.coordinatorResult.accept(.didSelectDeadlineDate(resultValue))
+            self?.dependency.viewModel.coordinatorResult.accept(.didSelectDeadlineDate(resultValue))
         })
         .disposed(by: targetCoordinator.disposeBag)
 
@@ -145,7 +137,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
         )
 
         coordinator.finishResult.emit(onNext: { [weak self] result in
-            self?.viewModel?.coordinatorResult.accept(
+            self?.dependency.viewModel.coordinatorResult.accept(
                 .didEnteredDescriptionEditorContent(result)
             )
         })
@@ -159,7 +151,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
     private func startImportFileSourceSelect() {
         let coordinator = ImportFileSourceSelectCoordinator(
             parent: self,
-            alertFactory: DIContainer.container.resolve(ImportFileSourceAlertFactory.self)!
+            alertFactory: factory.importFileSourceAlertFactory
         )
 
         coordinator.finishResult.emit(onNext: { [weak self] source in
@@ -173,12 +165,12 @@ final class TaskDetailCoordinator: BaseCoordinator {
     }
 
     private func startDeleteFileConfirmation(for fileDeletable: TaskFileDeletableViewModel) {
-        let alert = deleteAlertFactory.makeAlert(fileDeletable) { [weak self] item in
-            self?.viewModel?.coordinatorResult.accept(
+        let alert = dependency.deleteAlertFactory.makeAlert(fileDeletable) { [weak self] item in
+            self?.dependency.viewModel.coordinatorResult.accept(
                 .didDeleteTaskFileConfirmed(item)
             )
         } onCancel: { [weak self] in
-            self?.viewModel?.coordinatorResult.accept(.didDeleteTaskFileCanceled)
+            self?.dependency.viewModel.coordinatorResult.accept(.didDeleteTaskFileCanceled)
         }
 
         rootViewController.present(alert, animated: true)
@@ -187,7 +179,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
     private func startNotificationsDisableAlert() {
         let coordinator = NotificationsDisabledAlertCoordinator(
             parent: self,
-            alertFactory: DIContainer.container.resolve(NotificationsDisabledAlertFactory.self)!
+            alertFactory: factory.notificationsDisabledAlertFactory
         )
 
         coordinator.finishResult.emit(onNext: { [weak self] result in
@@ -224,12 +216,13 @@ final class TaskDetailCoordinator: BaseCoordinator {
         let navCoordinator = NavigationCoordinator(parent: self)
         let targetCoordinator = TaskRepeatPeriodVariantsCoordinator(
             parent: navCoordinator,
-            initialValue: repeatPeriod
+            initialValue: repeatPeriod,
+            factory: factory.taskRepeatPeriodVariantsFactory
         )
         navCoordinator.setTargetCoordinator(targetCoordinator)
 
         targetCoordinator.finishResult.emit(onNext: { [weak self] resultValue in
-            self?.viewModel?.coordinatorResult.accept(.didSelectRepeatPeriodValue(resultValue))
+            self?.dependency.viewModel.coordinatorResult.accept(.didSelectRepeatPeriodValue(resultValue))
         })
         .disposed(by: targetCoordinator.disposeBag)
 
@@ -252,7 +245,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
         let coordinator = ImportImageFromLibraryCoordinator(parent: self, mode: mode)
 
         coordinator.finishResult.emit { [weak self] imageDataResult in
-            self?.viewModel?.coordinatorResult.accept(
+            self?.dependency.viewModel.coordinatorResult.accept(
                 .didImportedImage(imageDataResult)
             )
         }
@@ -270,7 +263,7 @@ final class TaskDetailCoordinator: BaseCoordinator {
         )
 
         coordinator.finishResult.emit { [weak self] fileUrl in
-            self?.viewModel?.coordinatorResult.accept(
+            self?.dependency.viewModel.coordinatorResult.accept(
                 .didImportedFile(fileUrl)
             )
         }

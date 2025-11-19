@@ -2,10 +2,12 @@ import UIKit
 
 final class AppCoordinator: BaseCoordinator {
 
-    private lazy var viewController = UIViewController()
-    override var rootViewController: UIViewController { viewController }
+    private lazy var navigation = UINavigationController()
+    override var rootViewController: UIViewController { navigation }
+    private let di: AppDI
 
-    init() {
+    init(di: AppDI) {
+        self.di = di
         super.init(parent: nil)
     }
 
@@ -13,14 +15,14 @@ final class AppCoordinator: BaseCoordinator {
         super.navigate()
 
         startTaskSectionsListFlow()
-        //        return
+        return
 
         // swiftlint:disable all
         // TODO: УДАЛИТЬ!!! КОД ДЛЯ РАЗРАБОТКИ!!!
         ///////////////////////////////////////////////////
 
         //        // ЭРКРАН СПИСКА ЗАДАЧ
-        //        let sectionEm = DIContainer.container.resolve(TaskSectionCoreDataManager.self)!
+        //        let sectionEm = diContainer.container.resolve(TaskSectionCoreDataManager.self)!
         //        let sections = sectionEm.getCustomSectionsWithOrder(isActive: true)
         //
         //        navigation.pushViewController(.init(), animated: false)
@@ -39,7 +41,7 @@ final class AppCoordinator: BaseCoordinator {
         //        }
 
         // ЭКРАН ЗАДАЧИ
-        let sectionEm = DIContainer.container.resolve(TaskSectionCoreDataManager.self)!
+        let sectionEm = di.container.resolve(TaskSectionCoreDataManager.self)!
         let sections = sectionEm.getCustomSectionsWithOrder(isActive: true)
 
         let navigation = UINavigationController()
@@ -51,7 +53,7 @@ final class AppCoordinator: BaseCoordinator {
             let tasksDetailCoordinator = TaskDetailCoordinator(
                 parent: navCoordinator,
                 taskId: task.id!,
-                deleteAlertFactory: DIContainer.container.resolve(DeleteItemsAlertFactory.self)!
+                factory: di.assembler.resolver.resolve(TaskDetailDependencyFactoryType.self)!
             )
             navCoordinator.setTargetCoordinator(tasksDetailCoordinator)
 
@@ -72,19 +74,18 @@ final class AppCoordinator: BaseCoordinator {
 
     // MARK: - Start childs
 
+    // swiftlint:disable force_unwrapping
     private func startTaskSectionsListFlow() {
-        let navCoordinator = NavigationCoordinator(parent: self)
+        let navCoordinator = NavigationCoordinator(parent: self, navigation: navigation)
 
         let sectionsListCoordinator = SectionsListCoordinator(
             parent: navCoordinator,
-            deleteAlertFactory: DIContainer.container.resolve(DeleteItemsAlertFactory.self)!
+            factory: di.container.resolve(SectionsListDependencyFactoryType.self)!
         )
         navCoordinator.setTargetCoordinator(sectionsListCoordinator)
 
-        startChild(navCoordinator) { [weak self] (navigationController: UIViewController) in
-            navigationController.modalPresentationStyle = .fullScreen
-            self?.rootViewController.present(navigationController, animated: false)
-        }
+        startChild(navCoordinator) { _ in }
     }
+    // swiftlint:enable force_unwrapping
 
 }

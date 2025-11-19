@@ -1,6 +1,6 @@
 import CoreData
 
-class TaskCoreDataManager {
+final class TaskCoreDataManager {
 
     private let coreDataStack: CoreDataStack
 

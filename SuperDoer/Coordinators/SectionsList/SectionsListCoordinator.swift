@@ -6,31 +6,21 @@ import UIKit
 
 final class SectionsListCoordinator: BaseCoordinator {
 
-    private weak var viewModel: (SectionsListCoordinatorResultHandler & SectionsListNavigationEmittable)?
-    private let deleteAlertFactory: DeleteItemsAlertFactory
+    private let dependency: SectionsListDependency
+    private let factory: SectionsListDependencyFactoryType
 
-    private let viewController: SectionsListViewController
-    override var rootViewController: UIViewController { viewController }
+    override var rootViewController: UIViewController { dependency.viewController }
 
-    init(
-        parent: Coordinator,
-        deleteAlertFactory: DeleteItemsAlertFactory
-    ) {
-        let vm = SectionsListViewModel(
-            sectionEm: DIContainer.container.resolve(TaskSectionCoreDataManager.self)!,
-            systemSectionsBuilder: DIContainer.container.resolve(SystemSectionsBuilder.self)!
-        )
-        self.viewModel = vm
-        self.viewController = SectionsListViewController(viewModel: vm)
-
-        self.deleteAlertFactory = deleteAlertFactory
+    init(parent: Coordinator, factory: SectionsListDependencyFactoryType) {
+        self.factory = factory
+        self.dependency = factory.makeDependency()
         super.init(parent: parent)
     }
 
     override func setup() {
         super.setup()
 
-        viewModel?.navigationEvent.emit(onNext: { [weak self] event in
+        dependency.viewModel.navigationEvent.emit(onNext: { [weak self] event in
             self?.handleNavigationEvent(event)
         })
         .disposed(by: disposeBag)
@@ -46,7 +36,7 @@ final class SectionsListCoordinator: BaseCoordinator {
         let coordinator = TasksListCoordinator(
             parent: self,
             sectionId: sectionId,
-            deleteAlertFactory: DIContainer.container.resolve(DeleteItemsAlertFactory.self)!
+            factory: factory.tasksListFactory
         )
 
         startChild(coordinator) { [weak self] controller in
@@ -55,12 +45,12 @@ final class SectionsListCoordinator: BaseCoordinator {
     }
 
     private func startDeleteSectionConfirmation(_ sectionVM: TaskSectionDeletableViewModel) {
-        let alert = deleteAlertFactory.makeAlert([sectionVM]) { [weak self] items in
-            self?.viewModel?.coordinatorResult.accept(
+        let alert = dependency.deleteAlertFactory.makeAlert([sectionVM]) { [weak self] items in
+            self?.dependency.viewModel.coordinatorResult.accept(
                 .onDeleteSectionConfirmed(items)
             )
         } onCancel: { [weak self] in
-            self?.viewModel?.coordinatorResult.accept(.onDeleteSectionCanceled)
+            self?.dependency.viewModel.coordinatorResult.accept(.onDeleteSectionCanceled)
         }
 
         rootViewController.present(alert, animated: true)

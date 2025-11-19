@@ -11,7 +11,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
     // TODO: - Services
 
     private let taskEm: TaskCoreDataManager
-    private let taskFileEm: TaskFileEntityManager
+    private let taskFileEm: TaskFileCoreDataManager
 
     // MARK: - Model
 
@@ -59,7 +59,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
     init(
         taskId: UUID,
         taskEm: TaskCoreDataManager,
-        taskFileEm: TaskFileEntityManager
+        taskFileEm: TaskFileCoreDataManager
     ) {
         self.taskId = taskId
         self.taskEm = taskEm

@@ -4,34 +4,22 @@ import UIKit
 
 final class TaskDeadlineVariantsCoordinator: BaseCoordinator {
 
-    private var viewModel: AnyTableVariantsNavigationEmittable<Date>
-    private let viewController: TableVariantsViewController
+    private let dependency: TaskDeadlineVariantsDependency
 
-    override var rootViewController: UIViewController { viewController }
+    override var rootViewController: UIViewController { dependency.viewController }
 
     private let finishResultRelay = PublishRelay<Date?>()
     var finishResult: Signal<Date?> { finishResultRelay.asSignal() }
 
-    init(parent: Coordinator, value: Date?) {
-        let vm = TableVariantsViewModel(
-            value: value,
-            variantsFactory: DIContainer.container.resolve(TaskDeadlineVariantsFactory.self)!,
-            selectedVariantFinder: DIContainer.container.resolve(TaskDeadlineTableVariantFinder.self)!
-        )
-        self.viewModel = AnyTableVariantsNavigationEmittable(vm)
-        self.viewController = TableVariantsViewController(
-            viewModel: vm,
-            detent: .taskDeadlineVariants,
-            title: "Срок"
-        )
-
+    init(parent: Coordinator, value: Date?, factory: TaskDeadlineVariantsFactoryType) {
+        self.dependency = factory.makeDependency(value: value)
         super.init(parent: parent)
     }
 
     override func setup() {
         super.setup()
 
-        viewModel.navigationEvent.emit(onNext: { [weak self] event in
+        dependency.viewModel.navigationEvent.emit(onNext: { [weak self] event in
             self?.handleNavigationEvent(event)
         })
         .disposed(by: disposeBag)

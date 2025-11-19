@@ -1,7 +1,7 @@
 import Foundation
 import RxCocoa
 
-final class TableVariantsViewModel<Value, Factory: TableVariantsFactory, Finder: TableVariantSelectedFinder>:
+final class TableVariantsViewModel<Value, Factory: TableVariantsItemsFactory, Finder: TableVariantSelectedFinder>:
     TableVariantsViewModelInputOutput, TableVariantsNavigationEmittable
 where Factory.CellValueType == Value, Finder.Value == Value {
     typealias NavigationValue = Value

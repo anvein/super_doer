@@ -1,6 +1,6 @@
 import Foundation
 
-final class TaskDeadlineVariantsFactory: TableVariantsFactory {
+final class TaskDeadlineVariantsItemsFactory: TableVariantsItemsFactory {
     typealias CellValueType = Date
 
     func buildCellViewModels() -> [VariantCellViewModel<CellValueType>] {

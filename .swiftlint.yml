@@ -37,11 +37,10 @@ opt_in_rules:
   - file_name_no_space
   - implicitly_unwrapped_optional
   - modifier_order
+  - force_unwrapping # активировать
   #perfomance
   - flatmap_over_map_reduce
   - first_where
-
-# - force_unwrapping # активировать
 # - balanced_xctest_lifecycle # попробовать с XCTests
 # - empty_xctest_method
 

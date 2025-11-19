@@ -4,35 +4,22 @@ import UIKit
 final class TaskRepeatPeriodVariantsCoordinator: BaseCoordinator {
     typealias Value = TaskRepeatPeriod
 
-    private var viewModel: AnyTableVariantsNavigationEmittable<Value>
-    private var viewController: TableVariantsViewController
+    private let dependency: TaskRepeatPeriodVariantsDependency<Value>
 
-    override var rootViewController: UIViewController { viewController }
+    override var rootViewController: UIViewController { dependency.viewController }
 
     private let finishResultRelay = PublishRelay<Value?>()
     var finishResult: Signal<Value?> { finishResultRelay.asSignal() }
 
-    init(parent: Coordinator, initialValue: Value?) {
-        let vm = TableVariantsViewModel(
-            value: initialValue,
-            variantsFactory: DIContainer.container.resolve(TaskRepeatPeriodVariantsFactory.self)!,
-            selectedVariantFinder: DIContainer.container.resolve(TaskRepeatPeriodTableVariantFinder.self)!
-        )
-        self.viewModel = AnyTableVariantsNavigationEmittable(vm)
-
-        self.viewController = TableVariantsViewController(
-            viewModel: vm,
-            detent: .taskRepeatPeriodVariants,
-            title: "Повтор"
-        )
-
+    init(parent: Coordinator, initialValue: Value?, factory: TaskRepeatPeriodVariantsFactory) {
+        self.dependency = factory.makeDependency(value: initialValue)
         super.init(parent: parent)
     }
 
     override func setup() {
         super.setup()
 
-        viewModel.navigationEvent.emit(onNext: { [weak self] event in
+        dependency.viewModel.navigationEvent.emit(onNext: { [weak self] event in
             self?.handleNavigationEvent(event)
         })
         .disposed(by: disposeBag)

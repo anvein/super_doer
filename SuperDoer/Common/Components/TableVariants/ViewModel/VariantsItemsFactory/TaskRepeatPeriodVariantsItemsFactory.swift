@@ -1,6 +1,6 @@
 import Foundation
 
-final class TaskRepeatPeriodVariantsFactory: TableVariantsFactory {
+final class TaskRepeatPeriodVariantsItemsFactory: TableVariantsItemsFactory {
     typealias CellValueType = TaskRepeatPeriod
 
     // swiftlint:disable function_body_length

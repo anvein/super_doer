@@ -7,8 +7,13 @@ final class NavigationCoordinator: BaseCoordinator {
     private let navigation: UINavigationController
     private var targetCoordinator: BaseCoordinator?
 
-    init(parent: Coordinator) {
-        self.navigation = UINavigationController()
+    convenience init(parent: Coordinator) {
+        let navigation = UINavigationController()
+        self.init(parent: parent, navigation: navigation)
+    }
+
+    init(parent: Coordinator, navigation: UINavigationController) {
+        self.navigation = navigation
         super.init(parent: parent)
     }
 
@@ -16,9 +21,7 @@ final class NavigationCoordinator: BaseCoordinator {
         super.navigate()
 
         guard let targetCoordinator else {
-            ConsoleLogger.warning(
-                "targetCoordinator is nil on \(Self.description()) - set before start()"
-            )
+            ConsoleLogger.warning("targetCoordinator is nil on \(Self.description()) - set before start()")
             return
         }
 

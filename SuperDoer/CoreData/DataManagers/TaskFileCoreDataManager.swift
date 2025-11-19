@@ -1,6 +1,6 @@
 import Foundation
 
-class TaskFileEntityManager {
+final class TaskFileCoreDataManager {
 
     private let coreDataStack: CoreDataStack
 

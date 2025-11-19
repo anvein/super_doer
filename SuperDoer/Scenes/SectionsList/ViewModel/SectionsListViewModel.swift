@@ -19,7 +19,7 @@ final class SectionsListViewModel: SectionsListCoordinatorResultHandler, Section
     // MARK: - Services
 
     private let sectionEm: TaskSectionCoreDataManager
-    private let systemSectionsBuilder: SystemSectionsBuilder
+    private let systemSectionsBuilder: SystemSectionsFactory
 
     // MARK: - Model
 
@@ -33,7 +33,7 @@ final class SectionsListViewModel: SectionsListCoordinatorResultHandler, Section
 
     required init(
         sectionEm: TaskSectionCoreDataManager,
-        systemSectionsBuilder: SystemSectionsBuilder
+        systemSectionsBuilder: SystemSectionsFactory
     ) {
         self.sectionEm = sectionEm
         self.systemSectionsBuilder = systemSectionsBuilder
