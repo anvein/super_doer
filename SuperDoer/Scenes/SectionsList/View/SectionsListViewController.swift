@@ -37,12 +37,6 @@ class SectionsListViewController: UIViewController {
         setupHierarchyAndConstraints()
         setupBinding()
         viewModel.loadInitialData()
-
-        //        // TODO: УДАЛИТЬ!!! КОД ДЛЯ РАЗРАБОТКИ!!!
-        //        PIXEL_PERFECT_screen.createAndSetupInstance(
-        //            baseView: self.view,
-        //            imageName: "PIXEL_PERFECT_home"
-        //        )
     }
 }
 

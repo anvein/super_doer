@@ -120,8 +120,11 @@ class PIXEL_PERFECT_screen {
         imageName: String = "PIXEL_PERFECT_image",
         controlsBottomSideOffset: Float = 0,
         imageScaleFactor: Float = 3
-    ) -> PIXEL_PERFECT_screen {
-        let instance = PIXEL_PERFECT_screen(
+    ) -> PIXEL_PERFECT_screen? {
+        var instance: PIXEL_PERFECT_screen?
+
+        #if DEBUG
+        instance = PIXEL_PERFECT_screen(
             baseView: baseView,
             imageName: imageName,
             controlsBottomSideOffset: controlsBottomSideOffset,
@@ -132,16 +135,20 @@ class PIXEL_PERFECT_screen {
         PIXEL_PERFECT_screen.lastInstanceKey = imageName
 
         Self.printMessage(prefix: "💡🌆", "Добавлен новый скрин \(imageName)")
+        #endif
 
         return instance
     }
 
     static func addSliderForNextInstance(_ config: PPSliderConfig) {
+        #if DEBUG
         PIXEL_PERFECT_screen.slidersConfigsForNext.append(config)
         Self.printMessage(prefix: "💡🎚️", "добавлен новый слайдер \(config.titleForPrint)")
+        #endif
     }
 
     static func addSliderForLastInstance(_ config: PPSliderConfig) {
+        #if DEBUG
         guard let lastInstanceKey = self.lastInstanceKey else {
             Self.printError("lastInstanceKey пуст - слайдер \(config.titleForPrint) не добавлен")
             return
@@ -156,6 +163,7 @@ class PIXEL_PERFECT_screen {
 
         lastInstance.addSlider(config)
         Self.printMessage(prefix: "💡🎚️", "Добавлен новый слайдер \(config.titleForPrint) в \(lastInstance.imageName)")
+        #endif
     }
 
 }

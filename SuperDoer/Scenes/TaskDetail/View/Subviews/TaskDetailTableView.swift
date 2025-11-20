@@ -3,6 +3,7 @@ import UIKit
 final class TaskDetailTableView: UITableView {
 
     // MARK: - Init
+
     init() {
         super.init(frame: .zero, style: .plain)
         setup()
