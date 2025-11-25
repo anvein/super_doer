@@ -14,10 +14,8 @@ final class SectionsListDependencyFactory: SectionsListDependencyFactoryType {
 
     func makeDependency() -> SectionsListDependency {
         let vm = SectionsListViewModel(
-            sectionEm: resolver.resolve(TaskSectionCoreDataManager.self)!,
-            systemSectionsBuilder: resolver.resolve(SystemSectionsFactory.self)!
+            repository: resolver.resolve(TaskSectionRepository.self)!
         )
-
         let vc = SectionsListViewController(viewModel: vm)
 
         return .init(

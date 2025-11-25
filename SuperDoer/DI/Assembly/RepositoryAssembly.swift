@@ -3,6 +3,13 @@ import Swinject
 // swiftlint:disable force_unwrapping
 final class RepositoryAssembly: Assembly {
     func assemble(container: Container) {
+        container.register(TaskSectionRepository.self) { r in
+            return TaskSectionRepository(
+                coreDataManager: r.resolve(TaskSectionCoreDataManager.self)!,
+                systemSectionsFactory: r.resolve(SystemSectionsFactory.self)!
+            )
+        }.inObjectScope(.container)
+
         container.register(TasksListRepository.self) { r, arg1 in
             return TasksListRepository(
                 sectionId: arg1,

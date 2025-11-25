@@ -146,7 +146,7 @@ extension TableVariantsViewController: UITableViewDelegate, UITableViewDataSourc
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueCell(VariantTableViewCell.self) else { return .init() }
+        guard let cell = tableView.dequeueCell(VariantTableViewCell.self, for: indexPath) else { return .init() }
 
         if let cellVM = viewModel.getVariantCellViewModel(for: indexPath) {
             cell.fill(from: cellVM)

@@ -21,9 +21,7 @@ final class TaskCreateBottomPanel: UIView {
     private let disposeBag = DisposeBag()
 
     private let currentStateRelay = BehaviorRelay<State>(value: .base)
-    var currentStateValue: State {
-        currentStateRelay.value
-    }
+    var currentStateValue: State { currentStateRelay.value }
 
     private let answerRelay = PublishRelay<Answer>()
     var answerSignal: Signal<Answer> {

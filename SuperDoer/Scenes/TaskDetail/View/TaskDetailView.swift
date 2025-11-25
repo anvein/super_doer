@@ -178,50 +178,51 @@ extension TaskDetailView {
     // MARK: - Helpers
 
     fileprivate func buildTableViewCellFor(
-        _ cellViewModel: TaskDetailTableCellViewModelType
+        _ cellViewModel: TaskDetailTableCellViewModelType,
+        for indexPath: IndexPath
     ) -> UITableViewCell {
         let cell: UITableViewCell?
 
         switch cellViewModel {
         case _ as CreateSubtaskCellViewModel:
-            cell = taskDataTableView.dequeueCell(TaskDetailAddSubtaskCell.self)
+            cell = taskDataTableView.dequeueCell(TaskDetailAddSubtaskCell.self, for: indexPath)
             if let cell = cell as? TaskDetailAddSubtaskCell {
                 cell.titleTextField.delegate = self
             }
 
         case let cellVM as AddToMyDayCellViewModel:
-            cell = taskDataTableView.dequeueCell(TaskDetailAddToMyDayCell.self)
+            cell = taskDataTableView.dequeueCell(TaskDetailAddToMyDayCell.self, for: indexPath)
             if let cell = cell as? TaskDetailAddToMyDayCell {
                 cell.isOn = cellVM.inMyDay
                 cell.delegate = self
             }
 
         case let cellVM as TaskDetailReminderDateCellViewModel:
-            cell = taskDataTableView.dequeueCell(TaskDetailReminderDateCell.self)
+            cell = taskDataTableView.dequeueCell(TaskDetailReminderDateCell.self, for: indexPath)
             if let cell = cell as? TaskDetailReminderDateCell {
                 cell.fillFrom(cellVM)
                 cell.delegate = self
             }
 
         case let cellVM as DeadlineDateCellViewModel:
-            cell = taskDataTableView.dequeueCell(TaskDetailDeadlineDateCell.self)
+            cell = taskDataTableView.dequeueCell(TaskDetailDeadlineDateCell.self, for: indexPath)
             if let cell = cell as? TaskDetailDeadlineDateCell {
                 cell.fillFrom(cellVM)
                 cell.delegate = self
             }
 
         case let cellVM as TaskDetailRepeatPeriodCellViewModel:
-            cell = taskDataTableView.dequeueCell(TaskDetailRepeatPeriodCell.self)
+            cell = taskDataTableView.dequeueCell(TaskDetailRepeatPeriodCell.self, for: indexPath)
             if let cell = cell as? TaskDetailRepeatPeriodCell {
                 cell.fillFrom(cellVM)
                 cell.delegate = self
             }
 
         case _ as ImportFileCellViewModel:
-            cell = taskDataTableView.dequeueCell(TaskDetailAddFileCell.self)
+            cell = taskDataTableView.dequeueCell(TaskDetailAddFileCell.self, for: indexPath)
 
         case let cellVM as FileCellViewModel:
-            cell = taskDataTableView.dequeueCell(TaskDetailFileCell.self)
+            cell = taskDataTableView.dequeueCell(TaskDetailFileCell.self, for: indexPath)
 
             if let cell = cell as? TaskDetailFileCell {
                 cell.delegate = self
@@ -229,14 +230,14 @@ extension TaskDetailView {
             }
 
         case let cellVM as DescriptionCellViewModel:
-            cell = taskDataTableView.dequeueCell(TaskDetailDescriptionCell.self)
+            cell = taskDataTableView.dequeueCell(TaskDetailDescriptionCell.self, for: indexPath)
             if let cell = cell as? TaskDetailDescriptionCell {
                 cell.delegate = self
                 cell.fillFrom(cellVM)
             }
 
         default:
-            cell = taskDataTableView.dequeueCell(TaskDetailLabelsButtonCell.self)
+            cell = taskDataTableView.dequeueCell(TaskDetailLabelsButtonCell.self, for: indexPath)
         }
 
         return cell ?? .init()
@@ -298,11 +299,9 @@ extension TaskDetailView: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let viewModel, let cellVM = viewModel.getTableCellViewModel(for: indexPath) else {
-            return .init()
-        }
+        guard let cellVM = viewModel?.getTableCellViewModel(for: indexPath) else { return .init() }
 
-        return buildTableViewCellFor(cellVM)
+        return buildTableViewCellFor(cellVM, for: indexPath)
     }
 }
 

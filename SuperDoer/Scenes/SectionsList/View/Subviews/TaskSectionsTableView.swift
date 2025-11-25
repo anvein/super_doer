@@ -1,6 +1,6 @@
 import UIKit
 
-class TaskSectionsTableView: UITableView {
+final class TaskSectionsTableView: UITableView {
 
     convenience init() {
         self.init(frame: .zero, style: .grouped)
@@ -13,7 +13,7 @@ class TaskSectionsTableView: UITableView {
         separatorStyle = .none
         backgroundColor = nil
 
-        register(TaskSectionTableCell.self, forCellReuseIdentifier: TaskSectionTableCell.identifier)
+        registerCell(TaskSectionTableCell.self)
     }
 
     required init?(coder: NSCoder) {

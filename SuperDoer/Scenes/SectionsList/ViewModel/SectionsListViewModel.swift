@@ -2,10 +2,11 @@ import Foundation
 import RxCocoa
 import RxRelay
 import RxSwift
+import OrderedCollections
 
-final class SectionsListViewModel: SectionsListCoordinatorResultHandler, SectionsListNavigationEmittable {
-
-    typealias SectionGroup = [[TaskSectionProtocol]]
+final class SectionsListViewModel: SectionsListCoordinatorResultHandler, SectionsListNavigationEmittable,
+    SectionsListViewModelInout {
+    typealias DataViewModels = OrderedDictionary<SectionsListGroupViewModel, [TaskSectionCellViewModel]>
 
     let disposeBag = DisposeBag()
 
@@ -16,31 +17,74 @@ final class SectionsListViewModel: SectionsListCoordinatorResultHandler, Section
     private let navigationEventRelay = PublishRelay<SectionsListNavigationEvent>()
     var navigationEvent: Signal<SectionsListNavigationEvent> { navigationEventRelay.asSignal() }
 
+    // MARK: - Inout (properties)
+
+    private let didUpdatedDataRelay = PublishRelay<DataViewModels>()
+    var didUpdatedData: Signal<DataViewModels> { didUpdatedDataRelay.asSignal() }
+
     // MARK: - Services
 
-    private let sectionEm: TaskSectionCoreDataManager
-    private let systemSectionsBuilder: SystemSectionsFactory
+    private let repository: TaskSectionRepository
 
     // MARK: - Model
 
-    static var systemSectionsId = 0
-    static var customSectionsId = 1
-
-    private var sections: UIBox<SectionGroup> = .init(SectionGroup())
-    private var selectedSectionIndexPath: IndexPath?
+    private var customSections: [CDTaskCustomSection] = []
+    private var systemSections: [TaskSystemSection] = []
 
     // MARK: - Init
 
-    required init(
-        sectionEm: TaskSectionCoreDataManager,
-        systemSectionsBuilder: SystemSectionsFactory
-    ) {
-        self.sectionEm = sectionEm
-        self.systemSectionsBuilder = systemSectionsBuilder
-
-        self.sections = UIBox(SectionGroup())
-
+    required init(repository: TaskSectionRepository) {
+        self.repository = repository
         setupBindings()
+    }
+
+    // MARK: - Inout (UI Actions)
+
+    func loadInitialData() {
+        systemSections = repository.getSystemSectionsList()
+        customSections = repository.getActiveCustomSectionsListWithOrder()
+
+        didUpdatedDataRelay.accept(buildDataViewModels())
+    }
+
+    func didTapDeleteCustomSection(with indexPath: IndexPath) {
+        guard let section = customSections[safe: indexPath.row] else { return }
+
+        let deletableSectionVM = TaskSectionDeletableViewModel(
+            title: section.title ?? "",
+            indexPath: indexPath
+        )
+
+        navigationEventRelay.accept(.openDeleteSectionConfirmation(deletableSectionVM))
+    }
+
+    func didTapArchiveCustomSection(with indexPath: IndexPath) {
+        guard let section = customSections[safe: indexPath.row] else { return }
+
+        repository.archiveCustomSection(section)
+        customSections.remove(at: indexPath.row)
+
+        didUpdatedDataRelay.accept(buildDataViewModels())
+    }
+
+    func didTapOpenTasksListInSection(with indexPath: IndexPath) {
+        guard let sectionsGroup = SectionsListGroupViewModel(rawValue: indexPath.section) else { return }
+
+        switch sectionsGroup {
+        case .system:
+            navigationEventRelay.accept(.openTasksListInSystemSection)
+
+        case .custom:
+            guard let section = customSections[safe: indexPath.row], let sectionId = section.id else { return }
+            navigationEventRelay.accept(.openTasksListInCustomSection(id: sectionId))
+        }
+    }
+
+    func didConfirmCreateCustomSection(title: String) {
+        let section = repository.createCustomSection(title: title)
+        customSections.insert(section, at: 0)
+
+        didUpdatedDataRelay.accept(buildDataViewModels())
     }
 
     // MARK: - Setup
@@ -58,112 +102,27 @@ final class SectionsListViewModel: SectionsListCoordinatorResultHandler, Section
         .disposed(by: disposeBag)
     }
 
-}
-
-// MARK: - TaskSectionListViewModelType
-
-extension SectionsListViewModel: SectionsListViewModelType {
-
-    // MARK: - Observable
-
-    var sectionsObservable: UIBoxObservable<Sections> { sections.asObservable() }
-
-    // MARK: - Get data
-
-    func getCountOfTableSections() -> Int {
-        return sections.value.count
-    }
-
-    func getCountTaskSectionsInTableSection(with sectionId: Int) -> Int {
-        return sections.value[safe: sectionId]?.count ?? 0
-    }
-
-    func getTaskSectionTableCellVM(for indexPath: IndexPath) -> SectionListTableCellVMType? {
-        let section = sections.value[safe: indexPath.section]?[safe: indexPath.row]
-
-        switch section {
-        case let taskSectionCustom as CDTaskCustomSection:
-            return SectionCustomListTableCellVM(section: taskSectionCustom)
-
-        case let taskSectionSystem as TaskSystemSection:
-            return SectionSystemListTableCellVM(section: taskSectionSystem)
-
-        default:
-            return nil
-        }
-    }
-
-    //    func getTasksCountInSection(withSectionId id: Int) -> Int {
-    //        return Int.random(in: 0...11)
-    //    }
-
-    // MARK: - UI Actions
-
-    func loadInitialData() {
-        var sections: [[TaskSectionProtocol]] = [[], []]
-
-        sections[Self.systemSectionsId] = systemSectionsBuilder.buildSections()
-        sections[Self.customSectionsId] = sectionEm.getCustomSectionsWithOrder()
-
-        self.sections.value = sections
-    }
-
-    func didTapDeleteCustomSection(with indexPath: IndexPath) {
-        guard let section = sections.value[safe: indexPath.section]?[safe: indexPath.row],
-            let customSection = section as? CDTaskCustomSection
-        else { return }
-
-        let deletableSectionVM = TaskSectionDeletableViewModel(
-            title: customSection.title ?? "",
-            indexPath: indexPath
-        )
-
-        navigationEventRelay.accept(
-            .openDeleteSectionConfirmation(deletableSectionVM)
-        )
-    }
-
-    func didTapArchiveCustomSection(indexPath: IndexPath) {
-        guard let section = sections.value[safe: Self.customSectionsId]?[safe: indexPath.row],
-            let customSection = section as? CDTaskCustomSection
-        else { return }
-
-        sectionEm.updateCustomSectionField(isArchive: true, section: customSection)
-        sections.value[Self.customSectionsId].remove(at: indexPath.item)
-    }
-
-    func didTapOpenTasksListInSection(with indexPath: IndexPath) {
-        guard let section = sections.value[safe: indexPath.section]?[safe: indexPath.row] else { return }
-
-        switch section {
-        case let customSection as CDTaskCustomSection:
-            guard let sectionId = customSection.id else { return }
-            navigationEventRelay.accept(.openTasksListInCustomSection(id: sectionId))
-
-        case _ as TaskSystemSection:
-            navigationEventRelay.accept(.openTasksListInSystemSection)
-
-        default:
-            return
-        }
-    }
-
-    func didConfirmCreateCustomSection(title: String) {
-        let section = sectionEm.createCustomSectionWith(title: title)
-        sections.value[Self.customSectionsId].insert(section, at: 0)
-    }
-
     // MARK: - Actions handlers
 
     private func handleConfirmDelete(_ deletableViewModels: [TaskSectionDeletableViewModel]) {
         guard let deletableVM = deletableViewModels.first,
             let indexPath = deletableVM.indexPath,
-            let section = sections.value[safe: Self.customSectionsId]?[safe: indexPath.row],
-            let customSection = section as? CDTaskCustomSection
+            let customSection = customSections[safe: indexPath.row]
         else { return }
 
-        sectionEm.deleteSection(customSection)
-        sections.value[Self.customSectionsId].remove(at: indexPath.row)
+        repository.deleteCustomSection(customSection)
+        customSections.remove(at: indexPath.row)
+
+        didUpdatedDataRelay.accept(buildDataViewModels())
+    }
+
+    // MARK: - Helpers
+
+    private func buildDataViewModels() -> DataViewModels {
+        return [
+            .system: systemSections.map { .build(from: $0) },
+            .custom: customSections.map { .build(from: $0) },
+        ]
     }
 
 }

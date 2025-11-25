@@ -330,11 +330,7 @@ extension TasksListVCView: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: StandartTaskTableCell.className
-            ) as? StandartTaskTableCell
-        else { return .init() }
+        guard let cell = tableView.dequeueCell(StandartTaskTableCell.self, for: indexPath) else { return .init() }
 
         if let cellVM = tableDataSource?.getCellViewModel(for: indexPath) {
             cell.fillFrom(viewModel: cellVM)

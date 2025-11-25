@@ -8,9 +8,10 @@ extension UITableView {
         )
     }
 
-    func dequeueCell<T: UITableViewCell>(_ cellType: T.Type) -> T? {
+    func dequeueCell<T: UITableViewCell>(_ cellType: T.Type, for indexPath: IndexPath) -> T? {
         dequeueReusableCell(
-            withIdentifier: String(describing: cellType.self)
+            withIdentifier: String(describing: cellType.self),
+            for: indexPath
         ) as? T
     }
 }

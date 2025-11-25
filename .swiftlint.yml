@@ -66,6 +66,8 @@ identifier_name:
   max_length: 40
   excluded:
     - r
+    - x
+    - y
 
 cyclomatic_complexity:
   ignores_case_statements: true

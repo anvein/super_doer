@@ -2,7 +2,6 @@ import Swinject
 
 final class CoreDataManagerAssembly: Assembly {
     func assemble(container: Container) {
-
         container.register(TaskSectionCoreDataManager.self) { _ in
             return TaskSectionCoreDataManager()
         }

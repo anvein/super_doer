@@ -1,0 +1,1 @@
+protocol TaskSectionProtocol: AnyObject { }

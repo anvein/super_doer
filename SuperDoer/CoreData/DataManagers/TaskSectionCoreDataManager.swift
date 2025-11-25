@@ -11,18 +11,19 @@ final class TaskSectionCoreDataManager {
     }
 
     // MARK: select
+
     /// Возвращает пользовательские списки задач
     /// Не удаленные (deletedAt = nil)
     /// Отсортированные по order = ASC + title = ASC
     /// Параметр isActive влияет на isArchived
-    func getCustomSectionsWithOrder(isActive: Bool? = nil) -> [CDTaskCustomSection] {
+    func getCustomSectionsWithOrder(isArchived: Bool? = nil) -> [CDTaskCustomSection] {
         let fetchRequest: NSFetchRequest<CDTaskCustomSection> = CDTaskCustomSection.fetchRequest()
 
         let deletedAtPredicate = NSPredicate(format: "deletedAt == nil")
         fetchRequest.predicate = deletedAtPredicate
 
-        if isActive == false {
-            let isActivePridicate = NSPredicate(format: "isArchived == 1")
+        if let isArchived {
+            let isActivePridicate = NSPredicate(format: "isArchived == \(isArchived)")
             fetchRequest.predicate = isActivePridicate
         }
 
@@ -50,6 +51,7 @@ final class TaskSectionCoreDataManager {
     }
 
     // MARK: insert
+
     func createCustomSectionWith(title: String, order: Int = 100, isCycled: Bool = false) -> CDTaskCustomSection {
         let section = CDTaskCustomSection(context: coreDataStack.viewContext)
 
@@ -64,6 +66,7 @@ final class TaskSectionCoreDataManager {
     }
 
     // MARK: update
+
     func updateCustomSectionField(title: String, section: CDTaskCustomSection) {
         section.title = title
         coreDataStack.saveContext()
@@ -75,6 +78,7 @@ final class TaskSectionCoreDataManager {
     }
 
     // MARK: delete
+
     func deleteSection(_ section: CDTaskCustomSection) {
         coreDataStack.viewContext.delete(section)
         coreDataStack.saveContext()

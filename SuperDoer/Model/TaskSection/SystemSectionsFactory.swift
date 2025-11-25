@@ -1,9 +1,5 @@
-import UIKit
-
-class SystemSectionsFactory {
+final class SystemSectionsFactory {
     func buildSections() -> [TaskSystemSection] {
-        // TODO: предусмотреть, чтобы в случае скрывания списков они не создавались (настройки брать в UserDefaults / CoreData)
-
         var systemSections = [TaskSystemSection]()
         systemSections.append(
             TaskSystemSection(type: .myDay, title: "Мой день")

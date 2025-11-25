@@ -9,20 +9,17 @@
 - SnapKit (+native AutoLayout)
 - RxSwift
 - Swinject
-
-
-## Архитектура:
-MVVM + Coordinator
+- Архитектура: MVVM + Coordinator
+- Code Style: SwiftLint, swift-format
+- Data-driven UI tools: FetchResultController, DiffableDataSource
 
 
 ## В планах:
 ### Подкапотное: 
-- Перевести многие сервисы на DI
 - Покрыть UI и Unit тестами
 
 - Сделать API + реализовать взаимодействие с ним (возможно)
 - Сделать синхронизацию
-
 
 ### Фичи, которых нет в Microsoft ToDo:
 - Сделать простые списки для покупок (по типу простых ToDo)

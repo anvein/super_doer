@@ -1,11 +1,15 @@
 import RxSwift
 import UIKit
+import OrderedCollections
 
 class SectionsListViewController: UIViewController {
 
-    private var viewModel: SectionsListViewModelType
-
     private let disposeBag = DisposeBag()
+
+    // MARK: - Data
+
+    private var viewModel: SectionsListViewModelInout
+    private var tableDataSource: UITableViewDiffableDataSource<SectionsListGroupViewModel, TaskSectionCellViewModel>?
 
     // MARK: - Subviews
 
@@ -14,7 +18,7 @@ class SectionsListViewController: UIViewController {
 
     // MARK: - Init
 
-    init(viewModel: SectionsListViewModelType) {
+    init(viewModel: SectionsListViewModelInout) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -33,11 +37,13 @@ class SectionsListViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .never
 
-        setupView()
         setupHierarchyAndConstraints()
+        setupView()
+        setupTableDataSource()
         setupBinding()
         viewModel.loadInitialData()
     }
+
 }
 
 extension SectionsListViewController {
@@ -46,9 +52,7 @@ extension SectionsListViewController {
 
     fileprivate func setupView() {
         view.backgroundColor = .white
-
         sectionsTableView.delegate = self
-        sectionsTableView.dataSource = self
     }
 
     fileprivate func setupHierarchyAndConstraints() {
@@ -79,6 +83,28 @@ extension SectionsListViewController {
         ])
     }
 
+    fileprivate func setupTableDataSource() {
+        tableDataSource = .init(tableView: sectionsTableView) {
+            (tableView, indexPath, cellVM) -> UITableViewCell? in
+            guard let cell = tableView.dequeueCell(TaskSectionTableCell.self, for: indexPath) else { return .init() }
+            cell.fillFrom(cellVM: cellVM)
+            return cell
+        }
+    }
+
+    private func updateTableSnapshot(
+        dataViewModels: OrderedDictionary<SectionsListGroupViewModel, [TaskSectionCellViewModel]>,
+        withAnimation: Bool = true
+    ) {
+        var snapshot = NSDiffableDataSourceSnapshot<SectionsListGroupViewModel, TaskSectionCellViewModel>()
+        for (listGroup, sectionsInGroup) in dataViewModels {
+            snapshot.appendSections([listGroup])
+            snapshot.appendItems(sectionsInGroup, toSection: listGroup)
+        }
+
+        tableDataSource?.apply(snapshot, animatingDifferences: withAnimation)
+    }
+
     fileprivate func setupBinding() {
         // V -> VM
         createSectionPanelView.answerSignal
@@ -89,55 +115,11 @@ extension SectionsListViewController {
             .disposed(by: disposeBag)
 
         // VM -> V
-        viewModel.sectionsObservable.bindAndUpdateValue { [weak self] _ in
-            guard let self else { return }
-            UIView.transition(
-                with: self.sectionsTableView,
-                duration: 0.3,
-                options: .transitionCrossDissolve
-            ) {
-                self.sectionsTableView.reloadData()
-            }
-        }
+        viewModel.didUpdatedData.emit(onNext: { [weak self] dataViewModels in
+            self?.updateTableSnapshot(dataViewModels: dataViewModels)
+        })
+        .disposed(by: disposeBag)
     }
-}
-
-// MARK: - UITableViewDataSource
-
-extension SectionsListViewController: UITableViewDataSource {
-
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return viewModel.getCountOfTableSections()
-    }
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.getCountTaskSectionsInTableSection(with: section)
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: TaskSectionTableCell.identifier
-            ),
-            let cell = cell as? TaskSectionTableCell
-        else { return .init() }
-
-        let sectionCellVM = viewModel.getTaskSectionTableCellVM(for: indexPath)
-
-        switch sectionCellVM {
-        case let sectionCustomCellVM as SectionCustomListTableCellVM:
-            cell.viewModel = sectionCustomCellVM
-
-        case let sectionSystemCellVM as SectionSystemListTableCellVM:
-            cell.viewModel = sectionSystemCellVM
-
-        default:
-            break
-        }
-
-        return cell
-    }
-
 }
 
 // MARK: - UITableViewDelegate
@@ -170,7 +152,7 @@ extension SectionsListViewController: UITableViewDelegate {
 
         let archiveAction = UIContextualAction(style: .normal, title: "Архивировать") {
             [unowned self] _, _, completionHandler in
-            self.viewModel.didTapArchiveCustomSection(indexPath: indexPath)
+            self.viewModel.didTapArchiveCustomSection(with: indexPath)
             completionHandler(true)
         }
         archiveAction.image = UIImage(systemName: "archivebox")?

@@ -2,7 +2,7 @@ import RxSwift
 import SnapKit
 import UIKit
 
-class TasksListViewController: UIViewController {
+final class TasksListViewController: UIViewController {
 
     private let disposeBag = DisposeBag()
 

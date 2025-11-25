@@ -1,6 +1,6 @@
 import Foundation
 
-class TaskSectionDeletableViewModel: BaseDeletableItemViewModel {
+final class TaskSectionDeletableViewModel: BaseDeletableItemViewModel {
 
     override class var typeName: ItemTypeName {
         return ItemTypeName(
