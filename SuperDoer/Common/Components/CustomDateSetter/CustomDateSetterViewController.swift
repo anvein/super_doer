@@ -1,7 +1,7 @@
 import RxSwift
 import UIKit
 
-class CustomDateSetterViewController: UIViewController {
+final class CustomDateSetterViewController: UIViewController {
 
     private let disposeBag = DisposeBag()
 
@@ -30,8 +30,6 @@ class CustomDateSetterViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        setupHierarchyAndConstraints()
         setupView()
         setupBindings()
     }
@@ -46,23 +44,39 @@ class CustomDateSetterViewController: UIViewController {
         setupNavigationBarDidAppear()
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        setupDatePickerFrame()
+    }
+
 }
 
 extension CustomDateSetterViewController {
 
     // MARK: - Setup
 
-    private func setupHierarchyAndConstraints() {
-        view.addSubview(datePicker)
+    private func setupDatePickerFrame() {
+        // frame DatePicker задается не через констрэинты потому что падает при анимированном изменении detent
 
-        NSLayoutConstraint.activate([
-            datePicker.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            datePicker.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
-            datePicker.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
-        ])
+        let leadingInset = view.layoutMargins.left
+        let width = view.frame.width - leadingInset * 2
+
+        if #available(iOS 26, *) {
+            // на iOS 26 падает даже если изменить стандартные размеры DatePicker, поэтому тут размер не меняется
+            let x = (view.frame.width - datePicker.frame.width) / 2
+            datePicker.frame.origin = CGPoint(x: x, y: view.safeAreaInsets.top)
+        } else {
+            let size = datePicker.sizeThatFits(CGSize(width: width, height: CGFloat.greatestFiniteMagnitude))
+            datePicker.frame = CGRect(
+                origin: CGPoint(x: view.layoutMargins.left, y: view.safeAreaInsets.top),
+                size: .init(width: width, height: size.height)
+            )
+        }
     }
 
     private func setupView() {
+        view.addSubview(datePicker)
+
         view.backgroundColor = .Common.white
 
         if let sheet = sheetPresentationController {
@@ -71,7 +85,6 @@ extension CustomDateSetterViewController {
             sheet.preferredCornerRadius = 15
         }
 
-        datePicker.translatesAutoresizingMaskIntoConstraints = false
         datePicker.datePickerMode = datePickerMode.datePickerMode
         datePicker.preferredDatePickerStyle = .inline
         datePicker.tintColor = .Text.blue
@@ -142,7 +155,9 @@ extension CustomDateSetterViewController {
         guard let sheet = sheetPresentationController else { return }
         let detent = datePickerMode.detent
         sheet.detents = [detent]
-        sheet.selectedDetentIdentifier = detent.identifier
+        sheet.animateChanges {
+            sheet.selectedDetentIdentifier = detent.identifier
+        }
     }
 
     // MARK: - Actions handlers
