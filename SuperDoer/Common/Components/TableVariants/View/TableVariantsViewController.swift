@@ -7,7 +7,7 @@ final class TableVariantsViewController: UIViewController {
     private let disposeBag = DisposeBag()
 
     private var viewModel: any TableVariantsViewModelInputOutput
-    private let detent: TableVariantsControllerDetent
+    private let selectedDetent: TableVariantsControllerDetent
 
     private lazy var variantsTableView = VariantsTableView()
 
@@ -19,7 +19,7 @@ final class TableVariantsViewController: UIViewController {
         title: String?
     ) {
         self.viewModel = viewModel
-        self.detent = detent
+        self.selectedDetent = detent
         super.init(nibName: nil, bundle: nil)
         self.title = title
     }
@@ -89,9 +89,15 @@ extension TableVariantsViewController {
 
     fileprivate func configureSheetPresentationController() {
         guard let sheet = sheetPresentationController else { return }
-        sheet.detents = [detent.detent]
-        sheet.animateChanges {
-            sheet.selectedDetentIdentifier = detent.identifier
+
+        if let navigation = navigationController {
+            if navigation.viewControllers.first === self && isMovingToParent {
+                updateDetent(selectedDetent.detent, for: sheet, animated: false)
+            } else {
+                updateDetent(selectedDetent.detent, for: sheet, animated: true)
+            }
+        } else {
+            updateDetent(selectedDetent.detent, for: sheet, animated: !isBeingPresented)
         }
     }
 
@@ -100,9 +106,7 @@ extension TableVariantsViewController {
 
         NSLayoutConstraint.activate([
             variantsTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            variantsTableView.bottomAnchor.constraint(
-                equalTo: view.safeAreaLayoutGuide.bottomAnchor
-            ),
+            variantsTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             variantsTableView.rightAnchor.constraint(equalTo: view.rightAnchor),
             variantsTableView.leftAnchor.constraint(equalTo: view.leftAnchor),
         ])

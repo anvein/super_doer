@@ -79,4 +79,20 @@ extension UIViewController {
         viewControllers.append(vc)
         navigationController.setViewControllers(viewControllers, animated: animated)
     }
+
+    func updateDetent(
+        _ detent: UISheetPresentationController.Detent,
+        for sheet: UISheetPresentationController,
+        animated: Bool
+    ) {
+        sheet.detents = [detent]
+
+        if animated {
+            sheet.animateChanges {
+                sheet.selectedDetentIdentifier = detent.identifier
+            }
+        } else {
+            sheet.selectedDetentIdentifier = detent.identifier
+        }
+    }
 }

@@ -36,7 +36,7 @@ final class CustomDateSetterViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        updateDetentIfNeeded()
+        configureSheetPresentationController()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -151,12 +151,17 @@ extension CustomDateSetterViewController {
         return deleteBarButton
     }
 
-    private func updateDetentIfNeeded() {
+    fileprivate func configureSheetPresentationController() {
         guard let sheet = sheetPresentationController else { return }
-        let detent = datePickerMode.detent
-        sheet.detents = [detent]
-        sheet.animateChanges {
-            sheet.selectedDetentIdentifier = detent.identifier
+
+        if let navigation = navigationController {
+            if navigation.viewControllers.first === self && isMovingToParent {
+                updateDetent(datePickerMode.detent, for: sheet, animated: false)
+            } else {
+                updateDetent(datePickerMode.detent, for: sheet, animated: true)
+            }
+        } else {
+            updateDetent(datePickerMode.detent, for: sheet, animated: !isBeingPresented)
         }
     }
 
