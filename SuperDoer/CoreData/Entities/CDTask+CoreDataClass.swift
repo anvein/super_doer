@@ -14,7 +14,6 @@ public class CDTask: NSManagedObject {
     // MARK: -
 
     func getFileBy(id: UUID) -> CDTaskFile? {
-
         for file in files ?? [] {
             guard let file = file as? CDTaskFile else { continue }
 

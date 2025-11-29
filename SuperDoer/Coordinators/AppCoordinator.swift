@@ -41,8 +41,8 @@ final class AppCoordinator: BaseCoordinator {
         //        }
 
         // ЭКРАН ЗАДАЧИ
-        let sectionEm = di.container.resolve(TaskSectionCoreDataManager.self)!
-        let sections = sectionEm.getCustomSectionsWithOrder()
+        let sectionEm = di.container.resolve(TaskSectionCoreDataSource.self)!
+        let sections = try! sectionEm.getCustomSectionsWithOrder()
 
         let navigation = UINavigationController()
 

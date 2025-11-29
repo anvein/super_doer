@@ -81,10 +81,14 @@ final class SectionsListViewModel: SectionsListCoordinatorResultHandler, Section
     }
 
     func didConfirmCreateCustomSection(title: String) {
-        let section = repository.createCustomSection(title: title)
-        customSections.insert(section, at: 0)
+        do {
+            let section = try repository.createCustomSection(title: title)
+            customSections.insert(section, at: 0)
 
-        didUpdatedDataRelay.accept(buildDataViewModels())
+            didUpdatedDataRelay.accept(buildDataViewModels())
+        } catch {
+            // показать ошибку
+        }
     }
 
     // MARK: - Setup

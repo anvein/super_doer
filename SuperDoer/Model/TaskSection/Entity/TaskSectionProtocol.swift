@@ -1,1 +1,3 @@
-protocol TaskSectionProtocol: AnyObject { }
+protocol TaskSectionProtocol {
+    var fullTitle: String { get }
+}

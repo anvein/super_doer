@@ -5,18 +5,28 @@ final class RepositoryAssembly: Assembly {
     func assemble(container: Container) {
         container.register(TaskSectionRepository.self) { r in
             return TaskSectionRepository(
-                coreDataManager: r.resolve(TaskSectionCoreDataManager.self)!,
+                coreDataSource: r.resolve(TaskSectionCoreDataSource.self)!,
+                coreDataStack: r.resolve(CoreDataStack.self)!,
                 systemSectionsFactory: r.resolve(SystemSectionsFactory.self)!
             )
         }.inObjectScope(.container)
 
-        container.register(TasksListRepository.self) { r, arg1 in
-            return TasksListRepository(
-                sectionId: arg1,
-                sectionCDManager: r.resolve(TaskSectionCoreDataManager.self)!,
-                taskCDManager: r.resolve(TaskCoreDataManager.self)!
+        container.register(TaskRepository.self) { r in
+            return TaskRepository(
+                coreDataStack: r.resolve(CoreDataStack.self)!,
+                taskCoreDataSource: r.resolve(TaskCoreDataSource.self)!,
+                sectionCoreDataSource: r.resolve(TaskSectionCoreDataSource.self)!,
+                taskFileCoreDataSource: r.resolve(TaskFileCoreDataSource.self)!
             )
-        }.inObjectScope(.graph)
+        }.inObjectScope(.container)
+
+        container.register(TasksListRepository.self) { r in
+            return TasksListRepository(
+                sectionCDManager: r.resolve(TaskSectionCoreDataSource.self)!,
+                taskCDManager: r.resolve(TaskCoreDataSource.self)!,
+                coreDataStack: r.resolve(CoreDataStack.self)!
+            )
+        }.inObjectScope(.container)
     }
 
 }

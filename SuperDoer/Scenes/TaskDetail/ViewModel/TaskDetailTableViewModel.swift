@@ -45,27 +45,25 @@ class TaskDetailTableViewModel {
 
     // MARK: - Update View Model
 
-    func refill(from task: CDTask) {
+    func refill(from task: TaskEntity) {
         viewModels = Array(repeating: [], count: Section.sectionsCount)
 
         addCreateSubtaskCellVM(withNotify: false)
 
-        addInToMyDayCellVM(task.inMyDay, withNotify: false)
+        addInToMyDayCellVM(task.isInMyDay, withNotify: false)
 
         addReminderDateCellVM(task.reminderDateTime, withNotify: false)
         addDeadlineDateCellVM(task.deadlineDate, withNotify: false)
-        addRepeatPeriodCellVM(task.repeatPeriodStruct, withNotify: false)
+        addRepeatPeriodCellVM(task.repeatPeriod, withNotify: false)
 
         addImportFileCellVM(withNotify: false)
 
-        for file in task.files ?? [] {
-            guard let file = file as? CDTaskFile else { continue }
-
+        for file in task.files {
             addFileCellVM(file, withNotify: false)
         }
 
         addDescriptionCellVM(
-            text: task.descriptionTextAttributed,
+            text: task.descriptionText,
             dateUpdatedAt: task.descriptionUpdatedAt,
             withNotify: false
         )
@@ -112,7 +110,7 @@ class TaskDetailTableViewModel {
     }
 
     @discardableResult
-    func addFileCellVM(_ file: CDTaskFile, withNotify: Bool = true) -> IndexPath? {
+    func addFileCellVM(_ file: TaskFileEntity, withNotify: Bool = true) -> IndexPath? {
         let indexPath = addCellVM(
             FileCellViewModel(file: file),
             to: .files,

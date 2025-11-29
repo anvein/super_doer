@@ -54,7 +54,7 @@ final class TaskSectionTableCell: UITableViewCell {
 
     private func configureCellImage(_ cellViewModel: TaskSectionCellViewModel) {
         switch cellViewModel.icon {
-        case .emoji(let emoji):
+        case .emoji:
             // TODO: реализовать установку emoji
             break
 

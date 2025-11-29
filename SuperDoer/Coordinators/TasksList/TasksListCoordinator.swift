@@ -5,18 +5,14 @@ import UIKit
 
 final class TasksListCoordinator: BaseCoordinator {
 
-    private let sectionId: UUID?
-
     private let factory: TasksListDependencyFactoryType
     private let dependency: TasksListDependency
 
     override var rootViewController: UIViewController { dependency.viewController }
 
-    init(parent: Coordinator, sectionId: UUID?, factory: TasksListDependencyFactoryType) {
-        self.sectionId = sectionId
+    init(parent: Coordinator, section: TasksListSection, factory: TasksListDependencyFactoryType) {
         self.factory = factory
-        self.dependency = factory.makeDependency(sectionId: sectionId)
-
+        self.dependency = factory.makeDependency(section: section)
         super.init(parent: parent)
     }
 

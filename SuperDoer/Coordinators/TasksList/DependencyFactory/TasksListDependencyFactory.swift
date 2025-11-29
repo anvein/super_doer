@@ -14,10 +14,12 @@ final class TasksListDependencyFactory: TasksListDependencyFactoryType {
         self.resolver = resolver
     }
 
-    func makeDependency(sectionId: UUID?) -> TasksListDependency {
+    func makeDependency(section: TasksListSection) -> TasksListDependency {
         let vm = TasksListViewModel(
-            repository: resolver.resolve(TasksListRepository.self, argument: sectionId)!,
-            sectionCDManager: resolver.resolve(TaskSectionCoreDataManager.self)!
+            section: section,
+            listRepository: resolver.resolve(TasksListRepository.self)!,
+            sectionRepository: resolver.resolve(TaskSectionRepository.self)!,
+            taskRepository: resolver.resolve(TaskRepository.self)!
         )
 
         let vc = TasksListViewController(viewModel: vm)

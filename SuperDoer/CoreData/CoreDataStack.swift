@@ -1,35 +1,83 @@
 import CoreData
 
 final class CoreDataStack {
-    static let shared = CoreDataStack()
+    static let mainModelName = "SuperDoer"
 
-    private init() {}
-
-    lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "SuperDoer")
-        container.loadPersistentStores(completionHandler: { (_, error) in
-            if let error = error as NSError? {
-                // TODO: обработать ошибку нормально
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            } else {
-                // print("DB url - \(storeDescription.url?.absoluteString ?? "undefined")")
-            }
-        })
-        return container
-    }()
+    let persistentContainer: NSPersistentContainer
 
     var viewContext: NSManagedObjectContext {
-        return persistentContainer.viewContext
+        persistentContainer.viewContext
     }
 
-    func saveContext() {
-        if viewContext.hasChanges {
-            do {
-                try viewContext.save()
-            } catch let error as NSError {
-                // TODO: обработать ошибку нормально
-                fatalError("Unresolved error \(error), \(error.userInfo)")
+    init(modelName: String, inMemory: Bool = false) {
+        persistentContainer = NSPersistentContainer(name: modelName)
+
+        if inMemory {
+            let description = NSPersistentStoreDescription()
+            description.type = NSInMemoryStoreType
+            persistentContainer.persistentStoreDescriptions = [description]
+        }
+
+        persistentContainer.loadPersistentStores { _, error in
+            if let error = error {
+                // TODO: залогировать
+                print("CoreData load error: \(error)")
             }
         }
+
+        persistentContainer.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        persistentContainer.viewContext.automaticallyMergesChangesFromParent = true
+        persistentContainer.viewContext.undoManager = nil
+    }
+
+    func saveViewContext() throws {
+        if viewContext.hasChanges {
+            try viewContext.save()
+        }
+    }
+
+    // MARK: - Background context
+
+    func newBackgroundContext() -> NSManagedObjectContext {
+        let context = persistentContainer.newBackgroundContext()
+        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        context.automaticallyMergesChangesFromParent = true
+        return context
+    }
+
+    func performBackgroundTask(_ block: @escaping (NSManagedObjectContext) -> Void) {
+        persistentContainer.performBackgroundTask { context in
+            context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+            context.automaticallyMergesChangesFromParent = true
+            block(context)
+            if context.hasChanges {
+                do {
+                    try context.save()
+                } catch {
+                    print("Error saving background context: \(error)")
+                }
+            }
+        }
+    }
+
+    func perform<T>(_ block: (NSManagedObjectContext) throws -> T, in context: NSManagedObjectContext) throws -> T? {
+        var result: T?
+        var caughtError: Error?
+
+        context.performAndWait {
+            do {
+                result = try block(context)
+                if context.hasChanges {
+                    try context.save()
+                }
+            } catch {
+                caughtError = error
+            }
+        }
+
+        if let error = caughtError {
+            throw error
+        }
+        return result
     }
 }

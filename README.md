@@ -9,7 +9,7 @@
 - SnapKit (+native AutoLayout)
 - RxSwift
 - Swinject
-- Архитектура: MVVM + Coordinator
+- Архитектура: MVVM + Coordinator (почти соответствует Clean Arhchitecture - нет Application Layer)
 - Code Style: SwiftLint, swift-format
 - Data-driven UI tools: FetchResultController, DiffableDataSource
 

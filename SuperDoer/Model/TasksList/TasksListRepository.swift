@@ -4,20 +4,25 @@ import RxSwift
 
 final class TasksListRepository: NSObject {
 
+    enum UpdateActionTaskField {
+        case isCompleted(Bool)
+        case isPriority(Bool)
+        case toggleInMyDay
+    }
+
     // MARK: - Services
 
-    private let sectionCDManager: TaskSectionCoreDataManager
-    private let taskCDManager: TaskCoreDataManager
+    private let sectionCDSource: TaskSectionCoreDataSource
+    private let taskCDSource: TaskCoreDataSource
     private let coreDataStack: CoreDataStack
 
-    private var fetchedResultsController: NSFetchedResultsController<CDTask>
+    private lazy var fetchedResultsController: NSFetchedResultsController<CDTask> = buildFetchResultsController(
+        section: nil
+    )
 
-    // MARK: - State
-
-    let sectionId: UUID?
-
-    private(set) var taskSection: TaskSectionProtocol?
-    private(set) var selectedTaskIndexPath: IndexPath?
+    private var context: NSManagedObjectContext {
+        coreDataStack.viewContext
+    }
 
     // MARK: - Observable
 
@@ -27,57 +32,60 @@ final class TasksListRepository: NSObject {
     // MARK: - Init
 
     init(
-        sectionId: UUID?,
-        sectionCDManager: TaskSectionCoreDataManager,
-        taskCDManager: TaskCoreDataManager,
-        coreDataStack: CoreDataStack = .shared
+        sectionCDManager: TaskSectionCoreDataSource,
+        taskCDManager: TaskCoreDataSource,
+        coreDataStack: CoreDataStack
     ) {
-        self.sectionId = sectionId
-        self.sectionCDManager = sectionCDManager
-        self.taskCDManager = taskCDManager
+        self.sectionCDSource = sectionCDManager
+        self.taskCDSource = taskCDManager
         self.coreDataStack = coreDataStack
+        super.init()
+    }
 
-        if let sectionId {
-            taskSection = sectionCDManager.getSection(by: sectionId)
-        }
+    // MARK: - Initial setup
 
+    func setSection(_ section: TasksListSection) {
+        fetchedResultsController = buildFetchResultsController(section: section)
+    }
+
+    private func buildFetchResultsController(section: TasksListSection?) -> NSFetchedResultsController<CDTask> {
         let fetchRequest: NSFetchRequest<CDTask> = CDTask.fetchRequest()
         fetchRequest.sortDescriptors = [
             .init(key: CDTask.isCompletedKey, ascending: true),
             .init(key: CDTask.createdAtKey, ascending: false),
         ]
 
-        fetchRequest.predicate = Self.buildFilterBySectionPredicate(taskSection: taskSection)
+        switch section {
+        case .custom(let sectionId):
+            fetchRequest.predicate = NSPredicate(format: "section.id == %@", sectionId as CVarArg)
+
+        case .system:
+            break
+
+        default:
+            break
+        }
 
         fetchedResultsController = NSFetchedResultsController(
             fetchRequest: fetchRequest,
-            managedObjectContext: coreDataStack.viewContext,
+            managedObjectContext: context,
             sectionNameKeyPath: CDTask.isCompletedKey,
             cacheName: nil
         )
-
-        super.init()
         fetchedResultsController.delegate = self
+
+        return fetchedResultsController
     }
 
-    // MARK: - Initial setup
-
-    func loadTasks() {
+    func loadTasks() throws {
         do {
             try fetchedResultsController.performFetch()
         } catch {
-            // TODO: обработать нормально
-            // уведомить VM -> VC -> показать плашку с ошибкой
-            print("Fetch failed")
+            throw TasksListRepositoryError.loadDataFailed
         }
     }
 
     // MARK: - Get
-
-    func getSectionTitle() -> String? {
-        guard let taskSection = taskSection as? CDTaskCustomSection else { return nil }
-        return taskSection.title
-    }
 
     func getSectionsCount() -> Int {
         return fetchedResultsController.sections?.count ?? 0
@@ -92,59 +100,34 @@ final class TasksListRepository: NSObject {
         return TasksListItemEntity(cdTask: cdTask)
     }
 
+    func getTaskId(for indexPath: IndexPath) -> UUID? {
+        let cdTask = getCDTask(at: indexPath)
+        return cdTask.id
+    }
+
     // MARK: - Modify Task
 
-    func updateTaskField(isCompleted newValue: Bool, for indexPath: IndexPath) {
-        let cdTask = getCDTask(at: indexPath)
-        taskCDManager.updateField(isCompleted: newValue, task: cdTask)
-    }
-
-    func updateTaskField(isPriority newValue: Bool, for indexPath: IndexPath) {
-        let cdTask = getCDTask(at: indexPath)
-        taskCDManager.updateField(isPriority: newValue, task: cdTask)
-    }
-
-    func switchAndUpdateInMyDayFieldWith(indexPath: IndexPath) {
-        let cdTask = getCDTask(at: indexPath)
-        let newValue = !cdTask.inMyDay
-        taskCDManager.updateField(inMyDay: newValue, task: cdTask)
-    }
-
-    func deleteTasksWith(indexPaths: [IndexPath]) {
+    func deleteTasksWith(indexPaths: [IndexPath]) throws {
         var cdTasks = [CDTask]()
         for indexPath in indexPaths {
             let cdTask = getCDTask(at: indexPath)
             cdTasks.append(cdTask)
         }
-        taskCDManager.delete(tasks: cdTasks)
+        taskCDSource.delete(tasks: cdTasks)
+
+        do {
+            try context.save()
+        } catch {
+            throw TasksListRepositoryError.failedDeleteTasks(error: error)
+        }
     }
 
-    func createTaskInCurrentSectionWith(title: String) {
-        guard let sectionCustom = taskSection as? CDTaskCustomSection else { return }
-        taskCDManager.createWith(title: title, section: sectionCustom)
-    }
-
-    // MARK: - Update state
-
-    func setSelectedTaskIndexPath(_ indexPath: IndexPath?) {
-        selectedTaskIndexPath = indexPath
-    }
-
-    // MARK: - Private methods
+    // MARK: - Helpers
 
     private func getCDTask(at indexPath: IndexPath) -> CDTask {
         return fetchedResultsController.object(at: indexPath)
     }
 
-    private static func buildFilterBySectionPredicate(taskSection: TaskSectionProtocol?) -> NSPredicate? {
-        if let cdCustomSection = taskSection as? CDTaskCustomSection {
-            return NSPredicate(format: "section == %@", cdCustomSection)
-        } else if taskSection is TaskSystemSection {
-            return nil
-        }
-
-        return nil
-    }
 }
 
 // MARK: - NSFetchedResultsControllerDelegate

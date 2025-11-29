@@ -29,8 +29,7 @@ final class TaskDetailDependencyFactory: TaskDetailDependencyFactoryType {
     func makeDependency(taskId: UUID) -> TaskDetailDependency {
         let vm = TaskDetailViewModel(
             taskId: taskId,
-            taskEm: resolver.resolve(TaskCoreDataManager.self)!,
-            taskFileEm: resolver.resolve(TaskFileCoreDataManager.self)!
+            taskRepository: resolver.resolve(TaskRepository.self)!
         )
         let vc = TaskDetailViewController(viewModel: vm)
 
@@ -39,7 +38,6 @@ final class TaskDetailDependencyFactory: TaskDetailDependencyFactoryType {
             viewController: vc,
             deleteAlertFactory: resolver.resolve(DeleteItemsAlertFactory.self)!
         )
-
     }
 
 }

@@ -1,6 +1,6 @@
 import UIKit
 
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     private var appCoordinator: AppCoordinator?
@@ -9,7 +9,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         (UIApplication.shared.delegate as? AppDelegate)?.di
     }
 
-    lazy var coreDataStack: CoreDataStack = .shared
+    var coreDataStack: CoreDataStack?
 
     func scene(
         _ scene: UIScene,
@@ -19,6 +19,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene), let di else { return }
 
         window = UIWindow(windowScene: windowScene)
+
+        coreDataStack = di.assembler.resolver.resolve(CoreDataStack.self)
 
         appCoordinator = AppCoordinator(di: di)
         appCoordinator?.start { [weak self] (rootController: UIViewController) in
@@ -56,7 +58,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
 
         // Save changes in the application's managed object context when the application transitions to the background.
-        coreDataStack.saveContext()
+        do {
+            try coreDataStack?.saveViewContext()
+        } catch {
+            // залогировать
+        }
+
     }
 
 }

@@ -3,6 +3,7 @@ import RxCocoa
 import RxRelay
 import RxSwift
 
+// swiftlint:disable type_body_length
 final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOutput,
     TaskDetailNavigationEmittable, TaskDetailCoordinatorResultHandler {
 
@@ -10,13 +11,12 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
 
     // TODO: - Services
 
-    private let taskEm: TaskCoreDataManager
-    private let taskFileEm: TaskFileCoreDataManager
+    private let taskRepository: TaskRepository
 
     // MARK: - Model
 
     private let taskId: UUID
-    private var task: CDTask?
+    private var task: TaskEntity?
 
     // MARK: - State
 
@@ -56,14 +56,9 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
 
     // MARK: - Init
 
-    init(
-        taskId: UUID,
-        taskEm: TaskCoreDataManager,
-        taskFileEm: TaskFileCoreDataManager
-    ) {
+    init(taskId: UUID, taskRepository: TaskRepository) {
         self.taskId = taskId
-        self.taskEm = taskEm
-        self.taskFileEm = taskFileEm
+        self.taskRepository = taskRepository
 
         setupBindings()
     }
@@ -132,7 +127,8 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
             loadInitialData()
 
         case .didTapOpenReminderDateSetter:
-            navigationEventRelay.accept(.openReminderDateSetter(dateTime: task?.reminderDateTime))
+            guard let task else { return }
+            navigationEventRelay.accept(.openReminderDateSetter(dateTime: task.reminderDateTime))
 
         case .didTapOpenDeadlineDateSetter:
             guard let task else { return }
@@ -140,7 +136,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
 
         case .didTapOpenRepeatPeriodSetter:
             navigationEventRelay.accept(
-                .openRepeatPeriodSetter(repeatPeriod: task?.repeatPeriodStruct)
+                .openRepeatPeriodSetter(repeatPeriod: task?.repeatPeriod)
             )
 
         case .didTapAddFile:
@@ -188,7 +184,7 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
     private func handleTapOpenDescriptionEditor() {
         guard let task else { return }
         let editorData = TextEditorData(
-            text: task.descriptionTextAttributed,
+            text: task.descriptionText,
             title: task.title
         )
         navigationEventRelay.accept(
@@ -216,10 +212,15 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
     // MARK: - Fetching Data
 
     private func loadInitialData() {
-        guard let task = taskEm.getTaskBy(id: taskId) else { return }
+        let task = try? taskRepository.getTask(by: taskId)
+
+        guard let task else {
+            // TODO: не удалось загрузить задачу
+            return
+        }
 
         self.task = task
-        titleRelay.accept(task.titlePrepared)
+        titleRelay.accept(task.title)
         isCompletedRelay.accept(task.isCompleted)
         isPriorityRelay.accept(task.isPriority)
 
@@ -229,117 +230,159 @@ final class TaskDetailViewModel: TaskDetailViewModelInput, TaskDetailViewModelOu
     // MARK: - Model manipulations
 
     private func updateTaskField(title: String?) {
-        guard let task else { return }
-        taskEm.updateField(title: title, task: task)
-        titleRelay.accept(task.titlePrepared)
+        do {
+            let task = try taskRepository.updateField(.title(title), taskId: taskId)
+            self.task = task
+            titleRelay.accept(task.title)
+        } catch {
+            // показать ошибку
+            // откатить UI
+        }
     }
 
     private func updateTaskField(isCompleted: Bool) {
-        guard let task else { return }
-        taskEm.updateField(isCompleted: isCompleted, task: task)
-        isCompletedRelay.accept(task.isCompleted)
+        do {
+            let task = try taskRepository.updateField(.isCompleted(isCompleted), taskId: taskId)
+            self.task = task
+            isCompletedRelay.accept(task.isCompleted)
+        } catch {
+            // показать ошибку
+            // откатить UI
+        }
     }
 
     private func updateTaskField(isPriority: Bool) {
-        guard let task else { return }
-        taskEm.updateField(isPriority: isPriority, task: task)
-        isPriorityRelay.accept(task.isPriority)
+        do {
+            let task = try taskRepository.updateField(.isPriority(isPriority), taskId: taskId)
+            self.task = task
+            isPriorityRelay.accept(task.isPriority)
+        } catch {
+            // показать ошибку
+            // откатить UI
+        }
     }
 
     private func updateTaskField(inMyDay: Bool) {
-        guard let task else { return }
-        taskEm.updateField(inMyDay: inMyDay, task: task)
-        tableViewModel.updateAddToMyDay(task.inMyDay)
+        do {
+            let task = try taskRepository.updateField(.inMyDay(inMyDay), taskId: taskId)
+            self.task = task
+            tableViewModel.updateAddToMyDay(task.isInMyDay)
+        } catch {
+            // показать ошибку
+            // откатить UI
+        }
     }
 
     private func toggleValueTaskFieldInMyDay() {
         guard let task else { return }
-        let newValue = !task.inMyDay
+        let newValue = !task.isInMyDay
         updateTaskField(inMyDay: newValue)
     }
 
     private func updateTaskField(deadlineDate: Date?) {
-        guard let task else { return }
-        taskEm.updateField(deadlineDate: deadlineDate, task: task)
-
-        tableViewModel.updateDeadlineAt(task.deadlineDate)
+        do {
+            let task = try taskRepository.updateField(.deadlineDate(deadlineDate), taskId: taskId)
+            self.task = task
+            tableViewModel.updateDeadlineAt(task.deadlineDate)
+        } catch {
+            // показать ошибку
+            // откатить UI
+        }
     }
 
     private func updateTaskField(reminderDateTime: Date?) {
-        guard let task else { return }
-        taskEm.updateField(reminderDateTime: reminderDateTime, task: task)
-
-        tableViewModel.updateReminderDate(task.reminderDateTime)
+        do {
+            let task = try taskRepository.updateField(.reminderDateTime(reminderDateTime), taskId: taskId)
+            self.task = task
+            tableViewModel.updateReminderDate(reminderDateTime)
+        } catch {
+            // показать ошибку
+            // откатить UI
+        }
     }
 
     private func updateTaskField(repeatPeriod: TaskRepeatPeriod?) {
-        guard let task else { return }
-        taskEm.updateField(repeatPeriod: repeatPeriod, task: task)
-
-        tableViewModel.updateRepeatPeriod(task.repeatPeriodStruct)
+        do {
+            let task = try taskRepository.updateField(.repeatPeriod(repeatPeriod), taskId: taskId)
+            self.task = task
+            tableViewModel.updateRepeatPeriod(task.repeatPeriod)
+        } catch {
+            // показать ошибку
+            // откатить UI
+        }
     }
 
     private func updateTaskField(descriptionText: NSAttributedString?) {
-        guard let task else { return }
+        do {
+            let task = try taskRepository.updateField(.description(descriptionText), taskId: taskId)
+            self.task = task
 
-        taskEm.updateFields(
-            descriptionText: descriptionText,
-            descriptionUpdatedAt: Date(),
-            task: task
-        )
-
-        tableViewModel.updateDescription(
-            text: task.descriptionTextAttributed,
-            updatedAt: task.descriptionUpdatedAt
-        )
+            tableViewModel.updateDescription(
+                text: task.descriptionText,
+                updatedAt: task.descriptionUpdatedAt
+            )
+        } catch {
+            // показать ошибку
+            // откатить UI
+        }
     }
 
     private func createTaskFile(from imageData: Data) {
-        guard let task else { return }
-
         let nsImageData = NSData(data: imageData)
-        let taskFile = taskFileEm.createWith(
-            fileName: "Фото размером \(nsImageData.count) kb",
-            fileExtension: "jpg",
-            fileSize: nsImageData.count,
-            task: task
-        )
 
-        tableViewModel.addFileCellVM(taskFile)
+        do {
+            let result = try taskRepository.createFile(
+                with: "Фото размером \(nsImageData.count) kb",
+                ext: "jpg",
+                size: nsImageData.count,
+                taskId: taskId
+            )
+
+            self.task = result.0
+            tableViewModel.addFileCellVM(result.1)
+        } catch {
+            // показать ошибку
+        }
     }
 
     private func createTaskFile(from url: URL) {
-        guard let task else { return }
+        do {
+            let result = try taskRepository.createFile(
+                with: "Файл размером ??? kb",
+                ext: url.pathExtension,
+                size: 0,
+                taskId: taskId
+            )
 
-        let taskFile = taskFileEm.createWith(
-            fileName: "Файл размером ??? kb",
-            fileExtension: url.pathExtension,
-            fileSize: 0,
-            task: task
-        )
-
-        tableViewModel.addFileCellVM(taskFile)
+            self.task = result.0
+            tableViewModel.addFileCellVM(result.1)
+        } catch {
+            // показать ошибку
+        }
     }
 
     private func deleteTaskFile(deletableVM: TaskFileDeletableViewModel) {
-        guard let task, let indexPath = deletableVM.indexPath else { return }
+        guard let indexPath = deletableVM.indexPath else { return }
 
         let cellVM = tableViewModel.getCellVM(for: indexPath)
-        guard let fileCellVM = cellVM as? FileCellViewModel,
-            case .data(let fileData) = fileCellVM.state
+        guard let task,
+            let fileCellVM = cellVM as? FileCellViewModel,
+            case .data(let fileData) = fileCellVM.state,
+            let taskFile = task.getFile(by: fileData.id)
         else {
-            // TODO: показать сообщение об ошибке (файл не получилось удалить)
+            // показать сообщение об ошибке: (файл не получилось удалить)
             return
         }
 
-        let taskFile = task.getFileBy(id: fileData.id)
-        guard let taskFile else {
-            // TODO: показать сообщение об ошибке (файл не получилось удалить)
-            return
-        }
+        do {
+            let task = try taskRepository.deleteFile(taskFile)
+            self.task = task
 
-        taskFileEm.delete(file: taskFile)
-        tableViewModel.deleteFile(with: indexPath)
+            tableViewModel.deleteFile(with: indexPath)
+        } catch {
+            // показать сообщение об ошибке: (файл не получилось удалить)
+        }
     }
 
 }
+// swiftlint:enable type_body_length

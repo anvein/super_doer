@@ -4,10 +4,13 @@ import RxSwift
 
 class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, TasksListCoordinatorResultHandler {
 
-    private let repository: TasksListRepository
-    private let sectionCDManager: TaskSectionCoreDataManager
+    private let listRepository: TasksListRepository
+    private let sectionRepository: TaskSectionRepository
+    private let taskRepository: TaskRepository
 
     // MARK: - State / Rx
+
+    private let section: TasksListSection
 
     private let disposeBag = DisposeBag()
 
@@ -20,6 +23,8 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
     private let errorMessageRelay = PublishRelay<String>()
     var errorMessageSignal: Signal<String> { errorMessageRelay.asSignal() }
 
+    private let customSectionRelay = BehaviorRelay<TaskCustomSection?>(value: nil)
+
     // MARK: - Navigation
 
     var coordinatorResult = PublishRelay<TasksListCoordinatorResult>()
@@ -30,14 +35,17 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
     // MARK: - Init
 
     init(
-        repository: TasksListRepository,
-        sectionCDManager: TaskSectionCoreDataManager
+        section: TasksListSection,
+        listRepository: TasksListRepository,
+        sectionRepository: TaskSectionRepository,
+        taskRepository: TaskRepository
     ) {
-        self.repository = repository
-        self.sectionCDManager = sectionCDManager
+        self.section = section
+        self.listRepository = listRepository
+        self.sectionRepository = sectionRepository
+        self.taskRepository = taskRepository
 
-        sectionTitleRelay.accept(repository.getSectionTitle() ?? "")
-
+        listRepository.setSection(section)
         setupBindings()
     }
 
@@ -45,7 +53,7 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
 
     private func setupBindings() {
         // M -> VM
-        repository.modelUpdatedObservable
+        listRepository.modelUpdatedObservable
             .scan(
                 (
                     nil as TasksListRepository.UpdatedEvent?,
@@ -76,26 +84,39 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
     // MARK: - Get data
 
     func getSectionsCount() -> Int {
-        return repository.getSectionsCount()
+        return listRepository.getSectionsCount()
     }
 
     func getTasksCountInSection(with index: Int) -> Int {
-        return repository.getTasksCountIn(in: index)
+        return listRepository.getTasksCountIn(in: index)
     }
 
     func getTableCellVM(for indexPath: IndexPath) -> TaskTableCellViewModelType {
-        let task = repository.getTask(for: indexPath)
+        let task = listRepository.getTask(for: indexPath)
         return TaskTableViewCellViewModel(task: task)
     }
 
     // MARK: - UI Actions
 
     func needLoadInitialData() {
-        repository.loadTasks()
+        do {
+            try listRepository.loadTasks()
+
+            switch section {
+            case .custom(let sectionId):
+                let customSection = try sectionRepository.getSection(by: sectionId)
+                sectionTitleRelay.accept(customSection?.fullTitle ?? "")
+
+            case .system(let taskSystemSection):
+                sectionTitleRelay.accept(taskSystemSection.fullTitle)
+            }
+        } catch {
+            // показать ошибку
+        }
     }
 
     func didTapOpenTask(with indexPath: IndexPath) {
-        let task = repository.getTask(for: indexPath)
+        let task = listRepository.getTask(for: indexPath)
 
         guard let taskId = task.id else { return }
         navigationEventRelay.accept(
@@ -104,7 +125,7 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
     }
 
     func didTapDeleteTask(with indexPath: IndexPath) {
-        let task = repository.getTask(for: indexPath)
+        let task = listRepository.getTask(for: indexPath)
         let deletableViewModel = TaskDeletableViewModel(task: task, indexPath: indexPath)
 
         navigationEventRelay.accept(
@@ -115,7 +136,7 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
     func didTapDeleteTasks(with indexPaths: [IndexPath]) {
         let deletableTasksVMs = indexPaths.map { indexPath in
             return TaskDeletableViewModel(
-                task: repository.getTask(for: indexPath),
+                task: listRepository.getTask(for: indexPath),
                 indexPath: indexPath
             )
         }
@@ -126,19 +147,55 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
     }
 
     func didToggleTaskInMyDay(with indexPath: IndexPath) {
-        repository.switchAndUpdateInMyDayFieldWith(indexPath: indexPath)
+        guard let taskId = listRepository.getTaskId(for: indexPath) else {
+            // показать ошибку: не удалось обновить задачу
+            // откатить изменения в UI
+            return
+        }
+
+        do {
+            try taskRepository.updateField(.inMyDayToggle, taskId: taskId)
+        } catch {
+            // показать ошибку: не удалось обновить задачу
+            // откатить изменения в UI
+        }
     }
 
     func didTapTaskIsCompleted(_ newValue: Bool, with indexPath: IndexPath) {
-        repository.updateTaskField(isCompleted: newValue, for: indexPath)
+        guard let taskId = listRepository.getTaskId(for: indexPath) else {
+            // показать ошибку: не удалось обновить задачу
+            // откатить изменения в UI
+            return
+        }
+
+        do {
+            try taskRepository.updateField(.isCompleted(newValue), taskId: taskId)
+        } catch {
+            // показать ошибку: не удалось обновить задачу
+            // откатить изменения в UI
+        }
     }
 
     func didTapTaskIsPriority(_ newValue: Bool, with indexPath: IndexPath) {
-        repository.updateTaskField(isPriority: newValue, for: indexPath)
+        guard let taskId = listRepository.getTaskId(for: indexPath) else {
+            // показать ошибку: не удалось обновить задачу
+            // откатить изменения в UI
+            return
+        }
+
+        do {
+            try taskRepository.updateField(.isPriority(newValue), taskId: taskId)
+        } catch {
+            // показать ошибку
+        }
     }
 
     func didTapCreateTaskInCurrentSection(with data: TaskCreateData) {
-        repository.createTaskInCurrentSectionWith(title: data.title)
+        do {
+            try taskRepository.createTask(with: data.title, in: section)
+        } catch {
+            // показать ошибку
+        }
     }
 
     func didMoveEndTasksInCurrentSection(from: IndexPath, to toPath: IndexPath) {
@@ -150,16 +207,23 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
     }
 
     func didConfirmRenameSectionTitle(_ title: String) {
-        guard let titlePrepared = title.normalizedWhitespaceOrNil(),
-            let section = repository.taskSection as? CDTaskCustomSection
-        else {
-            sectionTitleRelay.accept(repository.getSectionTitle() ?? "")
-            errorMessageRelay.accept("Не удалось изменить название")
+        guard case .custom(let customSectionId) = section else { return }
 
+        guard let titlePrepared = title.normalizedWhitespaceOrNil() else {
+            sectionTitleRelay.accept(sectionTitleRelay.value)
             return
         }
 
-        sectionCDManager.updateCustomSectionField(title: titlePrepared, section: section)
+        do {
+            let customSection = try sectionRepository.updateCustomSectionField(
+                title: titlePrepared,
+                with: customSectionId
+            )
+            sectionTitleRelay.accept(customSection.fullTitle)
+        } catch {
+            sectionTitleRelay.accept(sectionTitleRelay.value)
+            errorMessageRelay.accept("Не удалось изменить название")
+        }
     }
 
     // MARK: - Event handlers
@@ -223,7 +287,11 @@ class TasksListViewModel: TasksListViewModelType, TasksListNavigationEmittable, 
             tasksIndexPaths.append(indexPath)
         }
 
-        repository.deleteTasksWith(indexPaths: tasksIndexPaths)
+        do {
+            try listRepository.deleteTasksWith(indexPaths: tasksIndexPaths)
+        } catch {
+            // показать ошибку: не удалось удалить задачи
+        }
     }
 
 }

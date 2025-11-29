@@ -19,13 +19,13 @@ struct FileCellViewModel: TaskDetailTableCellViewModelType {
 
     var state: State
 
-    init(file: CDTaskFile) {
+    init(file: TaskFileEntity) {
         let state: FileCellViewModel.State
         if let id = file.id,
             let name = file.fileName,
             let fileExt = file.fileExtension {
             state = .data(
-                .init(id: id, name: name, fileExtension: fileExt, size: Int(file.fileSize))
+                .init(id: id, name: name, fileExtension: fileExt, size: file.fileSize)
             )
         } else {
             state = .incompleteData

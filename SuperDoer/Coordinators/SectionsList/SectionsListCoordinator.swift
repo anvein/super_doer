@@ -35,7 +35,7 @@ final class SectionsListCoordinator: BaseCoordinator {
     private func startTasksListInCustomSectionFlow(with sectionId: UUID) {
         let coordinator = TasksListCoordinator(
             parent: self,
-            sectionId: sectionId,
+            section: .custom(sectionId),
             factory: factory.tasksListFactory
         )
 

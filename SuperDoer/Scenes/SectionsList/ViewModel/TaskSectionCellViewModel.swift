@@ -23,15 +23,15 @@ struct TaskSectionCellViewModel: Hashable {
 
     static func build(from systemSection: TaskSystemSection) -> Self {
         return .init(
-            title: systemSection.title,
+            title: systemSection.fullTitle,
             tasksCount: 0,
-            icon: Self.buildIcon(for: systemSection.type),
-            uniqueId: String(systemSection.type.hashValue)
+            icon: Self.buildIcon(for: systemSection),
+            uniqueId: String(systemSection.hashValue)
         )
     }
 
-    private static func buildIcon(for systemSectionType: TaskSystemSectionType) -> Icon {
-        switch systemSectionType {
+    private static func buildIcon(for systemSection: TaskSystemSection) -> Icon {
+        switch systemSection {
         case .myDay:
             return .iconCofig(sfSymbolName: "sun.max", color: .SectionIcons.myDay)
         case .important:

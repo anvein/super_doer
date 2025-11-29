@@ -1,12 +1,12 @@
 import CoreData
 import Foundation
 
-final class TaskSectionCoreDataManager {
+final class TaskSectionCoreDataSource {
     private let coreDataStack: CoreDataStack
 
     // MARK: - Init
 
-    init(coreDataStack: CoreDataStack = .shared) {
+    init(coreDataStack: CoreDataStack) {
         self.coreDataStack = coreDataStack
     }
 
@@ -16,37 +16,38 @@ final class TaskSectionCoreDataManager {
     /// Не удаленные (deletedAt = nil)
     /// Отсортированные по order = ASC + title = ASC
     /// Параметр isActive влияет на isArchived
-    func getCustomSectionsWithOrder(isArchived: Bool? = nil) -> [CDTaskCustomSection] {
-        let fetchRequest: NSFetchRequest<CDTaskCustomSection> = CDTaskCustomSection.fetchRequest()
+    func getCustomSectionsWithOrder(isArchived: Bool? = nil) throws -> [CDTaskCustomSection] {
+        let request: NSFetchRequest<CDTaskCustomSection> = CDTaskCustomSection.fetchRequest()
+        var predicates: [NSPredicate] = []
 
-        let deletedAtPredicate = NSPredicate(format: "deletedAt == nil")
-        fetchRequest.predicate = deletedAtPredicate
+        predicates.append(NSPredicate(format: "deletedAt == nil"))
 
         if let isArchived {
-            let isActivePridicate = NSPredicate(format: "isArchived == \(isArchived)")
-            fetchRequest.predicate = isActivePridicate
+            predicates.append(NSPredicate(format: "isArchived == \(isArchived)"))
         }
 
         let sortByOrder = NSSortDescriptor(key: "order", ascending: false)
         // let sortByTitle = NSSortDescriptor(key: "title", ascending: true)
-        fetchRequest.sortDescriptors = [sortByOrder /*sortByTitle*/]
+        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+        request.sortDescriptors = [sortByOrder /*sortByTitle*/]
 
         do {
-            let sections = try coreDataStack.viewContext.fetch(fetchRequest)
+            let sections = try coreDataStack.viewContext.fetch(request)
             return sections
         } catch let error as NSError {
-            fatalError("get custom sections error - \(error)")
+            throw CoreDataError.operationFailed(.fetch, entityName: CDTaskCustomSection.entityName, error: error)
         }
     }
 
-    func getSection(by id: UUID) -> CDTaskCustomSection? {
+    func getSection(by id: UUID, from context: NSManagedObjectContext? = nil) throws -> CDTaskCustomSection? {
+        let context = context ?? coreDataStack.viewContext
         let request = CDTaskCustomSection.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id.uuidString)
 
         do {
-            return try coreDataStack.viewContext.fetch(request).first
+            return try context.fetch(request).first
         } catch let error as NSError {
-            fatalError("getSection id error - \(error)")
+            throw CoreDataError.operationFailed(.fetch, entityName: CDTaskCustomSection.entityName, error: error)
         }
     }
 
@@ -60,37 +61,19 @@ final class TaskSectionCoreDataManager {
         section.order = Int32(order)
         section.isCycledList = isCycled
 
-        coreDataStack.saveContext()
-
         return section
-    }
-
-    // MARK: update
-
-    func updateCustomSectionField(title: String, section: CDTaskCustomSection) {
-        section.title = title
-        coreDataStack.saveContext()
-    }
-
-    func updateCustomSectionField(isArchive: Bool, section: CDTaskCustomSection) {
-        section.isArchived = isArchive
-        coreDataStack.saveContext()
     }
 
     // MARK: delete
 
     func deleteSection(_ section: CDTaskCustomSection) {
         coreDataStack.viewContext.delete(section)
-        coreDataStack.saveContext()
     }
 
     func deleteSections(_ sections: [CDTaskCustomSection]) {
-        let context = coreDataStack.viewContext
         for section in sections {
-            context.delete(section)
+            coreDataStack.viewContext.delete(section)
         }
-
-        coreDataStack.saveContext()
     }
 
 }
